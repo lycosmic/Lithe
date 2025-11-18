@@ -1,0 +1,55 @@
+build/
+*.apk
+*.aab
+*.jar
+*.aar
+
+local.properties
+
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Android Studio
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/runConfigurations/
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+.gradle/
+gradle-wrapper.jar
+
+*.jks
+*.keystore
+signing.properties
+
+.cxx/
+*/build/
+*/.cxx/
+*.so
+*.swp
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+*.log
+*.tmp
+*~
+captures/
+output.json
+
+proguard/
+*.map
+*.txt
