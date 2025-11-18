@@ -2,6 +2,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    alias(libs.plugins.google.hilt)
+    alias(libs.plugins.google.ksp)
+    // Kotlin Serialization plugin
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -44,6 +49,30 @@ android {
 }
 
 dependencies {
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+
+    // Navigation3
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+
+    // Navigation3 Adaptive
+    implementation(libs.androidx.compose.adaptive.navigation3)
+
+    // Kotlin Serialization
+    implementation(libs.kotlinx.serialization.core)
+
+    // Navigation3 ViewModel
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+
+    // Preferences DataStore
+    implementation(libs.androidx.datastore.preferences)
+
+    // Splash Screen
+    implementation(libs.androidx.core.splashscreen)
+
+    // ---------------- 初始依赖 ----------------
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
