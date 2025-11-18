@@ -73,6 +73,9 @@ dependencies {
     // Splash Screen
     implementation(libs.androidx.core.splashscreen)
 
+    // Material Icons Extended
+    implementation(libs.androidx.compose.material.icons.extended)
+
     // ---------------- 初始依赖 ----------------
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
