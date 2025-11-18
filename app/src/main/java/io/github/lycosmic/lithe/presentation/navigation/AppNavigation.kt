@@ -1,22 +1,15 @@
 package io.github.lycosmic.lithe.presentation.navigation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import io.github.lycosmic.lithe.data.SettingsManager
-import kotlinx.coroutines.launch
+import io.github.lycosmic.lithe.presentation.browse.BrowseScreen
+import io.github.lycosmic.lithe.presentation.history.HistoryScreen
+import io.github.lycosmic.lithe.presentation.library.LibraryScreen
+import io.github.lycosmic.lithe.presentation.settings.SettingsScreen
 
 @Composable
 fun AppNavigation(
@@ -56,66 +49,4 @@ fun AppNavigation(
             }
         }
     )
-}
-
-@Composable
-fun LibraryScreen(modifier: Modifier = Modifier, onGoToSettings: () -> Unit) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Library"
-        )
-
-        Button(onClick = onGoToSettings) {
-            Text(
-                text = "Go to Settings",
-            )
-        }
-
-    }
-}
-
-@Composable
-fun HistoryScreen(modifier: Modifier = Modifier) {
-    Text(
-        text = "History",
-        modifier = modifier
-    )
-}
-
-@Composable
-fun BrowseScreen(modifier: Modifier = Modifier) {
-    Text(
-        text = "Browse",
-        modifier = modifier
-    )
-}
-
-@Composable
-fun SettingsScreen(settingsManager: SettingsManager, modifier: Modifier = Modifier) {
-    // 是否是暗色模式
-    val isDark by settingsManager.isDarkMode.collectAsState(initial = false)
-
-    val scope = rememberCoroutineScope()
-
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "Settings")
-        Text(text = if (isDark) "Dark Mode" else "Light Mode")
-        Switch(
-            checked = isDark,
-            onCheckedChange = { checked ->
-                scope.launch {
-                    settingsManager.setDarkMode(checked)
-                }
-            }
-        )
-    }
-
 }
