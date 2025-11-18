@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe
+package io.github.lycosmic.lithe.presentation.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -19,7 +19,6 @@ import io.github.lycosmic.lithe.presentation.navigation.AppNavigation
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
 import kotlinx.coroutines.delay
 import javax.inject.Inject
-
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -50,10 +49,9 @@ class MainActivity : ComponentActivity() {
 
             LitheTheme(isDarkTheme = isDark) {
                 Scaffold { paddingValues ->
-                    AppNavigation(Modifier.padding(paddingValues), settingsManager)
+                    AppNavigation(Modifier.Companion.padding(paddingValues), settingsManager)
                 }
             }
         }
     }
 }
-
