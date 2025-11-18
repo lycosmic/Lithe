@@ -2,7 +2,6 @@ package io.github.lycosmic.lithe.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import io.github.lycosmic.lithe.data.SettingsManager
@@ -15,7 +14,7 @@ import io.github.lycosmic.lithe.presentation.settings.SettingsScreen
 fun AppNavigation(
     modifier: Modifier = Modifier,
     settingsManager: SettingsManager,
-    navViewModel: AppNavigationViewModel = hiltViewModel(),
+    navViewModel: AppNavigationViewModel,
 ) {
     val backStack = navViewModel.backStack
 
@@ -28,17 +27,27 @@ fun AppNavigation(
         entryProvider = { navKey ->
             when (navKey) {
                 is AppRoutes.Library -> NavEntry(navKey) {
-                    LibraryScreen(onGoToSettings = {
-                        navViewModel.navigate(AppRoutes.Settings)
-                    })
+                    LibraryScreen(
+                        onGoToSettings = {
+                            navViewModel.navigate(AppRoutes.Settings)
+                        }
+                    )
                 }
 
                 is AppRoutes.History -> NavEntry(navKey) {
-                    HistoryScreen()
+                    HistoryScreen(
+                        onGoToSettings = {
+                            navViewModel.navigate(AppRoutes.Settings)
+                        }
+                    )
                 }
 
                 is AppRoutes.Browse -> NavEntry(navKey) {
-                    BrowseScreen()
+                    BrowseScreen(
+                        onGoToSettings = {
+                            navViewModel.navigate(AppRoutes.Settings)
+                        }
+                    )
                 }
 
                 is AppRoutes.Settings -> NavEntry(navKey) {

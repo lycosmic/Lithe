@@ -26,8 +26,8 @@ fun SettingsScreen(settingsManager: SettingsManager, modifier: Modifier = Modifi
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Settings")
-        Text(text = if (isDark) "Dark Mode" else "Light Mode")
+        Text(text = "设置页面")
+        Text(text = if (isDark) "暗黑模式" else "浅色模式")
         Switch(
             checked = isDark,
             onCheckedChange = { checked ->

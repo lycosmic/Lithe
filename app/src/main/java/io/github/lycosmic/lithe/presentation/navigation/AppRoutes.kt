@@ -29,4 +29,10 @@ sealed interface AppRoutes : NavKey {
     // 阅读
     @Serializable
     data class Reader(val bookId: Long) : AppRoutes
+
+
+    companion object {
+        // 默认路由
+        val defaultRoute = Library
+    }
 }
