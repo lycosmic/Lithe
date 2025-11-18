@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.lycosmic.lithe.data.SettingsManager
-import io.github.lycosmic.lithe.ui.navigation.AppNavigation
+import io.github.lycosmic.lithe.presentation.navigation.AppNavigation
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
 import javax.inject.Inject
 

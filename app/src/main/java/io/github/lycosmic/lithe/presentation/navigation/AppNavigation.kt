@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.ui.navigation
+package io.github.lycosmic.lithe.presentation.navigation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

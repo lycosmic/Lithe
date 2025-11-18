@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.ui.navigation
+package io.github.lycosmic.lithe.presentation.navigation
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
