@@ -22,14 +22,33 @@ sealed interface AppRoutes : NavKey {
     @Serializable
     object Browse : AppRoutes
 
-    // 设置
-    @Serializable
-    object Settings : AppRoutes
-
     // 阅读
     @Serializable
     data class Reader(val bookId: Long) : AppRoutes
 
+    // 设置主页
+    @Serializable
+    object Settings : AppRoutes
+
+    // 浏览设置
+    @Serializable
+    object SettingsBrowse : AppRoutes
+
+    // 常规设置
+    @Serializable
+    object SettingsGeneral : AppRoutes
+
+    // 外观设置
+    @Serializable
+    object SettingsAppearance : AppRoutes
+
+    // 阅读器设置
+    @Serializable
+    object SettingsReader : AppRoutes
+
+    // 书库设置
+    @Serializable
+    object SettingsLibrary : AppRoutes
 
     companion object {
         // 默认路由

@@ -57,12 +57,19 @@ fun AppNavigation(
                             BrowseScreen(
                                 onGoToSettings = {
                                     navViewModel.navigate(AppRoutes.Settings)
-                                }
+                                },
+                                onGoToHelp = {},
+                                onGoToAbout = {}
                             )
                         }
 
                     is AppRoutes.Settings -> SettingsScreen(settingsManager = settingsManager)
                     is AppRoutes.Reader -> Text(text = "Reade")
+                    is AppRoutes.SettingsAppearance -> TODO()
+                    is AppRoutes.SettingsBrowse -> TODO()
+                    is AppRoutes.SettingsGeneral -> TODO()
+                    is AppRoutes.SettingsLibrary -> TODO()
+                    is AppRoutes.SettingsReader -> TODO()
                 }
             }
         }
