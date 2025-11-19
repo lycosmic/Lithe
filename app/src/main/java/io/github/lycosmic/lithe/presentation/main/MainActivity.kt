@@ -96,7 +96,7 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { paddingValues ->
                     AppNavigation(
-                        modifier = Modifier.Companion.padding(paddingValues), // 防止底部栏遮挡内容
+                        modifier = Modifier.Companion.padding(bottom = paddingValues.calculateBottomPadding()), // 防止底部栏遮挡内容
                         settingsManager = settingsManager,
                         navViewModel = navViewModel
                     )

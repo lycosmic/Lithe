@@ -1,9 +1,8 @@
 package io.github.lycosmic.lithe.presentation.browse
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,7 +23,6 @@ import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun BrowseScreen(
     modifier: Modifier = Modifier,
@@ -56,13 +54,13 @@ fun BrowseScreen(
                         )
                     }
                 },
-                windowInsets = WindowInsets()
             )
-        }
-    ) { _ ->
+        },
+    ) { innerPadding ->
         Box(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(innerPadding),
             contentAlignment = Alignment.Center,
         ) {
             Text(

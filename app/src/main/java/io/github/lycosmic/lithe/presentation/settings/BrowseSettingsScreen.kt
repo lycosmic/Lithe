@@ -2,7 +2,7 @@ package io.github.lycosmic.lithe.presentation.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -33,11 +33,12 @@ fun BrowseSettingsScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
                     }
                 },
-                windowInsets = WindowInsets(),
             )
         },
     ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)) {
             Text("扫描")
 
             // 文件夹
