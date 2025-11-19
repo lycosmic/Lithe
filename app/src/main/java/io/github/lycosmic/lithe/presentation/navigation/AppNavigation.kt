@@ -10,6 +10,7 @@ import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.presentation.browse.BrowseScreen
 import io.github.lycosmic.lithe.presentation.history.HistoryScreen
 import io.github.lycosmic.lithe.presentation.library.LibraryScreen
+import io.github.lycosmic.lithe.presentation.settings.BrowseSettingsScreen
 import io.github.lycosmic.lithe.presentation.settings.SettingsScreen
 
 @Composable
@@ -37,6 +38,9 @@ fun AppNavigation(
                         // 注意: 对于State状态需要使用rememberSaveable, 而不是使用remember
                         saveableStateHolder.SaveableStateProvider(key = navKey.toString()) {
                             LibraryScreen(
+                                onOpenBook = {
+
+                                },
                                 onGoToSettings = {
                                     navViewModel.navigate(AppRoutes.Settings)
                                 },
@@ -67,10 +71,26 @@ fun AppNavigation(
                             )
                         }
 
-                    is AppRoutes.Settings -> SettingsScreen(settingsManager = settingsManager)
+                    is AppRoutes.Settings -> SettingsScreen(
+                        onNavigateBack = {
+                            navViewModel.pop()
+                        },
+                        onNavigateToGeneralSettings = {},
+                        onNavigateToAppearanceSettings = {},
+                        onNavigateToReaderSettings = {},
+                        onNavigateToLibrarySettings = {},
+                        onNavigateToBrowseSettings = {
+                            navViewModel.navigate(AppRoutes.SettingsBrowse)
+                        },
+                        settingsManager = settingsManager
+                    )
+
                     is AppRoutes.Reader -> Text(text = "Reade")
                     is AppRoutes.SettingsAppearance -> TODO()
-                    is AppRoutes.SettingsBrowse -> TODO()
+                    is AppRoutes.SettingsBrowse -> BrowseSettingsScreen(
+                        onNavigateBack = { navViewModel.pop() }
+                    )
+
                     is AppRoutes.SettingsGeneral -> TODO()
                     is AppRoutes.SettingsLibrary -> TODO()
                     is AppRoutes.SettingsReader -> TODO()

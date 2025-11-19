@@ -28,6 +28,7 @@ import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 @Composable
 fun LibraryScreen(
     modifier: Modifier = Modifier,
+    onOpenBook: (Long) -> Unit,
     onGoToSettings: () -> Unit,
     onGoToAbout: () -> Unit,
     onGoToHelp: () -> Unit
