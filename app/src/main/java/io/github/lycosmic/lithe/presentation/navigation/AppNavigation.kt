@@ -39,7 +39,9 @@ fun AppNavigation(
                             LibraryScreen(
                                 onGoToSettings = {
                                     navViewModel.navigate(AppRoutes.Settings)
-                                }
+                                },
+                                onGoToHelp = {},
+                                onGoToAbout = {}
                             )
                         }
 
@@ -48,7 +50,9 @@ fun AppNavigation(
                             HistoryScreen(
                                 onGoToSettings = {
                                     navViewModel.navigate(AppRoutes.Settings)
-                                }
+                                },
+                                onGoToHelp = {},
+                                onGoToAbout = {}
                             )
                         }
 
