@@ -6,8 +6,10 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.lithe.data.DisplayMode
 import io.github.lycosmic.lithe.data.local.DirectoryDao
 import io.github.lycosmic.lithe.data.local.ScannedDirectory
+import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.utils.UriUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BrowseSettingsViewModel @Inject constructor(
     private val directoryDao: DirectoryDao,
-    private val application: Application
+    private val application: Application,
+    private val settingsManager: SettingsManager
 ) : ViewModel() {
 
     // 已授权的文件夹列表
@@ -27,6 +30,19 @@ class BrowseSettingsViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
         initialValue = emptyList()
     )
+
+    // 当前的文件夹显示模式
+    val displayMode = settingsManager.fileDisplayMode.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = DisplayMode.List
+    )
+
+    fun onDisplayModeChanged(newMode: DisplayMode) {
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsManager.setFileDisplayMode(newMode)
+        }
+    }
 
     // 添加文件夹
     fun addDirectory(uri: Uri) {

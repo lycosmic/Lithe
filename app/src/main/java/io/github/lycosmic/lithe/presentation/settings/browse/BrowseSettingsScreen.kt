@@ -6,7 +6,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,6 +38,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.lycosmic.lithe.ui.components.DisplayModeSelector
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +48,8 @@ fun BrowseSettingsScreen(
 ) {
 
     val directories by viewModel.scannedDirectories.collectAsStateWithLifecycle()
+
+    val displayMode by viewModel.displayMode.collectAsStateWithLifecycle()
 
     // 文件夹选择器
     val directoryPicker =
@@ -83,6 +89,7 @@ fun BrowseSettingsScreen(
                     end = horizontalPadding
                 )
         ) {
+            // --- 扫描 ---
             Text(text = "扫描", modifier = Modifier.padding(vertical = 8.dp))
 
             LazyColumn {
@@ -152,7 +159,23 @@ fun BrowseSettingsScreen(
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
+            // --- 分割线 ---
+            Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider()
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // --- 显示 ---
+            Text(text = "显示", modifier = Modifier.padding(vertical = 8.dp))
+
+            Text(text = "显示模式")
+
+            DisplayModeSelector(
+                currentMode = displayMode,
+                onModeChanged = {
+                    viewModel.onDisplayModeChanged(it)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
