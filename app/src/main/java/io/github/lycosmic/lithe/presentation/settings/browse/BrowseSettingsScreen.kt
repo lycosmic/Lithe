@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.presentation.settings
+package io.github.lycosmic.lithe.presentation.settings.browse
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column

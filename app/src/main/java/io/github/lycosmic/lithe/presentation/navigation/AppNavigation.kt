@@ -10,8 +10,8 @@ import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.presentation.browse.BrowseScreen
 import io.github.lycosmic.lithe.presentation.history.HistoryScreen
 import io.github.lycosmic.lithe.presentation.library.LibraryScreen
-import io.github.lycosmic.lithe.presentation.settings.BrowseSettingsScreen
 import io.github.lycosmic.lithe.presentation.settings.SettingsScreen
+import io.github.lycosmic.lithe.presentation.settings.browse.BrowseSettingsScreen
 
 @Composable
 fun AppNavigation(
