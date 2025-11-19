@@ -101,7 +101,7 @@ fun SettingsScreen(
                 title = "阅读器",
                 subTitle = "字体文本",
                 icon = Icons.AutoMirrored.Outlined.ChromeReaderMode,
-                iconContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                iconContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 onClick = onNavigateToReaderSettings
             )
             SettingsItem(
