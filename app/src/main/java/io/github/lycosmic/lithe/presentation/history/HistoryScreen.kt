@@ -2,12 +2,13 @@ package io.github.lycosmic.lithe.presentation.history
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -19,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 
@@ -41,21 +41,21 @@ fun HistoryScreen(
                 title = {
                     Text(
                         text = "历史",
-                        fontWeight = FontWeight.Bold
                     )
                 },
                 actions = {
-                    Button(
+                    IconButton(
                         onClick = {
                             showBottomSheet = true
                         }
                     ) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
-                            contentDescription = "设置"
+                            contentDescription = "更多"
                         )
                     }
-                }
+                },
+                windowInsets = WindowInsets()
             )
         }
     ) { _ ->

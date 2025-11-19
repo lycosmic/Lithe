@@ -2,6 +2,7 @@ package io.github.lycosmic.lithe.presentation.browse
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -19,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 
@@ -42,7 +42,6 @@ fun BrowseScreen(
                 title = {
                     Text(
                         text = "浏览",
-                        fontWeight = FontWeight.Bold
                     )
                 },
                 actions = {
@@ -56,7 +55,8 @@ fun BrowseScreen(
                             contentDescription = "更多"
                         )
                     }
-                }
+                },
+                windowInsets = WindowInsets()
             )
         }
     ) { _ ->
