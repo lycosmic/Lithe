@@ -8,6 +8,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.lycosmic.lithe.data.local.AppDatabase
+import io.github.lycosmic.lithe.data.local.BookDao
+import io.github.lycosmic.lithe.data.local.DirectoryDao
 import javax.inject.Singleton
 
 
@@ -26,5 +28,22 @@ object DatabaseModule {
             klass = AppDatabase::class.java,
             name = AppDatabase.DATABASE_NAME
         ).build()
+    }
+
+
+    @Singleton
+    @Provides
+    fun provideBookDao(
+        appDatabase: AppDatabase
+    ): BookDao {
+        return appDatabase.bookDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideDirectoryDao(
+        appDatabase: AppDatabase
+    ): DirectoryDao {
+        return appDatabase.directoryDao()
     }
 }
