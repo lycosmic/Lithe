@@ -1,8 +1,9 @@
 package io.github.lycosmic.lithe.presentation.settings
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -19,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun BrowseSettingsScreen(
     onNavigateBack: () -> Unit,
@@ -32,11 +32,12 @@ fun BrowseSettingsScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
                     }
-                }
+                },
+                windowInsets = WindowInsets(),
             )
-        }
-    ) { _ ->
-        Column {
+        },
+    ) { innerPadding ->
+        Column(modifier = Modifier.padding(innerPadding)) {
             Text("扫描")
 
             // 文件夹
