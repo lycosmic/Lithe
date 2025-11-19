@@ -11,7 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import io.github.lycosmic.lithe.data.SettingsManager
+import io.github.lycosmic.lithe.data.settings.SettingsManager
 import kotlinx.coroutines.launch
 
 @Composable
