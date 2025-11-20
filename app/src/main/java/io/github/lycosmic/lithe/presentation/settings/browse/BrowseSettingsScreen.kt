@@ -91,7 +91,13 @@ fun BrowseSettingsScreen(
                 )
         ) {
             // --- 扫描 ---
-            Text(text = "扫描", modifier = Modifier.padding(vertical = 8.dp))
+            Text(
+                text = "扫描",
+                modifier = Modifier.padding(vertical = 8.dp),
+                style = MaterialTheme.typography.labelLarge.copy(
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            )
 
             LazyColumn {
                 items(items = directories, key = { it.id }) { directory ->
@@ -166,7 +172,13 @@ fun BrowseSettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // --- 显示 ---
-            Text(text = "显示", modifier = Modifier.padding(vertical = 8.dp))
+            Text(
+                text = "显示",
+                modifier = Modifier.padding(vertical = 8.dp),
+                style = MaterialTheme.typography.labelLarge.copy(
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            )
 
             Text(text = "显示模式")
 
