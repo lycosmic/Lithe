@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import io.github.lycosmic.lithe.data.model.Book
 import kotlinx.coroutines.flow.Flow
 
 

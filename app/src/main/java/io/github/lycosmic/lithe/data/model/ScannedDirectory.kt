@@ -1,9 +1,8 @@
-package io.github.lycosmic.lithe.data.local
+package io.github.lycosmic.lithe.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
-
 
 /**
  * 用户授权的文件夹

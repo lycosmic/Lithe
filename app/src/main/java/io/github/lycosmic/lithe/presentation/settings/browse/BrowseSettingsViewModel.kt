@@ -4,8 +4,8 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.local.ScannedDirectory
 import io.github.lycosmic.lithe.data.model.DisplayMode
+import io.github.lycosmic.lithe.data.model.ScannedDirectory
 import io.github.lycosmic.lithe.data.repository.DirectoryRepository
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import kotlinx.coroutines.Dispatchers

@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import io.github.lycosmic.lithe.data.local.DirectoryDao
-import io.github.lycosmic.lithe.data.local.ScannedDirectory
+import io.github.lycosmic.lithe.data.model.ScannedDirectory
 import io.github.lycosmic.lithe.utils.UriUtils
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
