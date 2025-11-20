@@ -3,20 +3,30 @@ package io.github.lycosmic.lithe.presentation.browse
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -28,11 +38,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.lycosmic.lithe.data.model.SelectableFileItem
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
+import io.github.lycosmic.lithe.utils.FileUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +60,9 @@ fun BrowseScreen(
     // 控制底部抽屉是否显示
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    val directories by browseViewModel.scannedDirectories.collectAsStateWithLifecycle()
+    val directoryWithFiles by browseViewModel.groupedFiles.collectAsStateWithLifecycle()
+
+    val isLoading by browseViewModel.isLoading.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier,
@@ -61,6 +76,18 @@ fun BrowseScreen(
                 actions = {
                     IconButton(
                         onClick = {
+
+                        }
+                    ) { Icon(Icons.Default.Search, "搜索") }
+
+                    IconButton(
+                        onClick = {
+
+                        }
+                    ) { Icon(Icons.Default.FilterList, "筛选") }
+
+                    IconButton(
+                        onClick = {
                             showBottomSheet = true
                         }
                     ) {
@@ -72,28 +99,45 @@ fun BrowseScreen(
                 },
             )
         },
-    ) { innerPadding ->
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (directories.isEmpty()) {
+    ) { paddings ->
+        if (isLoading) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else if (directoryWithFiles.isEmpty()) {
+            // 引导添加文件夹
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 EmptyBrowseScreen(
                     modifier = Modifier
-                        .padding(innerPadding)
                         .fillMaxWidth(),
                     onNavigateToBrowseSettings = onNavigateToBrowseSettings
                 )
-            } else {
-                Text(
-                    text = "这里是书浏览列表"
-                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddings)
+            ) {
+                directoryWithFiles.forEach { (path, files) ->
+                    // stickyHeader 让路径吸顶
+                    stickyHeader {
+                        DirectoryHeader(path = path)
+                    }
+
+                    items(files) { file ->
+                        FileRowItem(
+                            file = file
+                        )
+                    }
+
+                    // 组之间的间距
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
+                }
             }
         }
 
+        // 底部抽屉
         LitheActionSheet(
             showBottomSheet = showBottomSheet,
             onDismissRequest = {
@@ -138,6 +182,7 @@ fun BrowseScreen(
     }
 }
 
+// --- 空文件夹 ---
 @Composable
 private fun EmptyBrowseScreen(
     modifier: Modifier = Modifier,
@@ -148,14 +193,6 @@ private fun EmptyBrowseScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
-            modifier = Modifier.size(150.dp),
-            imageVector = Icons.AutoMirrored.Outlined.Assignment,
-            contentDescription = "添加"
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
         Text(
             text = "通过下载扩展图书馆的藏书",
             style = MaterialTheme.typography.bodyLarge.copy(
@@ -174,6 +211,80 @@ private fun EmptyBrowseScreen(
                 style = MaterialTheme.typography.labelLarge.copy(
                     color = MaterialTheme.colorScheme.secondary
                 )
+            )
+        }
+    }
+}
+
+// --- 文件夹标题 ---
+@Composable
+fun DirectoryHeader(path: String) {
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = path,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f)
+            )
+
+            Icon(
+                imageVector = Icons.Outlined.Bookmark,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+// --- 文件行 ---
+@Composable
+fun FileRowItem(
+    file: SelectableFileItem,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            modifier = Modifier.size(48.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Default.Description,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = file.name,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "${FileUtils.formatFileSize(file.size)}, ${FileUtils.formatDate(file.lastModified)}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
