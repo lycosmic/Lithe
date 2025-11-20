@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,7 +37,9 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.lycosmic.lithe.ui.components.DisplayModeSelector
+import io.github.lycosmic.lithe.data.DisplayMode
+import io.github.lycosmic.lithe.data.OptionItem
+import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -169,12 +170,19 @@ fun BrowseSettingsScreen(
 
             Text(text = "显示模式")
 
-            DisplayModeSelector(
-                currentMode = displayMode,
-                onModeChanged = {
-                    viewModel.onDisplayModeChanged(it)
-                },
-                modifier = Modifier.fillMaxWidth()
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LitheSegmentedButton(
+                items = DisplayMode.entries.map { mode ->
+                    OptionItem(
+                        value = mode,
+                        label = mode.label,
+                        selected = mode == displayMode
+                    )
+                }.toList(),
+                onClick = { clickedMode ->
+                    viewModel.onDisplayModeChanged(clickedMode)
+                }
             )
         }
     }
