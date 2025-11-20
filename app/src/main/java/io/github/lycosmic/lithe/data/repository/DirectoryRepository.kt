@@ -6,7 +6,9 @@ import android.net.Uri
 import io.github.lycosmic.lithe.data.local.DirectoryDao
 import io.github.lycosmic.lithe.data.model.ScannedDirectory
 import io.github.lycosmic.lithe.utils.UriUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,7 +28,7 @@ class DirectoryRepository @Inject constructor(
     /**
      * 添加文件夹
      */
-    suspend fun addDirectory(uri: Uri) {
+    suspend fun addDirectory(uri: Uri) = withContext(Dispatchers.IO) {
         val resolver = application.contentResolver
 
         try {
@@ -37,7 +39,7 @@ class DirectoryRepository @Inject constructor(
             )
         } catch (e: Exception) {
             e.printStackTrace()
-            return
+            return@withContext
         }
 
         // 获取文件的路径信息
@@ -55,7 +57,7 @@ class DirectoryRepository @Inject constructor(
     /**
      * 移除文件夹
      */
-    suspend fun removeDirectory(directory: ScannedDirectory) {
+    suspend fun removeDirectory(directory: ScannedDirectory) = withContext(Dispatchers.IO) {
         directoryDao.deleteDirectory(directory)
     }
 }
