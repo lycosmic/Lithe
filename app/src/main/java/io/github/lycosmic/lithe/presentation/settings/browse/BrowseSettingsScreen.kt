@@ -37,8 +37,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.lycosmic.lithe.data.DisplayMode
-import io.github.lycosmic.lithe.data.OptionItem
+import io.github.lycosmic.lithe.data.model.DisplayMode
+import io.github.lycosmic.lithe.data.model.OptionItem
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data
+package io.github.lycosmic.lithe.data.model
 
 import androidx.compose.runtime.Immutable
 

@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data
+package io.github.lycosmic.lithe.data.model
 
 /**
  * 浏览文件夹的显示模式
