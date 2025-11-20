@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 
@@ -26,6 +27,7 @@ import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 @Composable
 fun BrowseScreen(
     modifier: Modifier = Modifier,
+    browseViewModel: BrowseViewModel = hiltViewModel(),
     onGoToSettings: () -> Unit,
     onGoToAbout: () -> Unit,
     onGoToHelp: () -> Unit
