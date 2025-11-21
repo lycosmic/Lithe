@@ -3,7 +3,7 @@ package io.github.lycosmic.lithe.presentation.browse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.model.SelectableFileItem
+import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.data.repository.DirectoryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +19,7 @@ class BrowseViewModel @Inject constructor(
     private val repository: DirectoryRepository
 ) : ViewModel() {
     // 分组后的文件列表
-    private val _groupedFiles = MutableStateFlow<Map<String, List<SelectableFileItem>>>(emptyMap())
+    private val _groupedFiles = MutableStateFlow<Map<String, List<FileItem>>>(emptyMap())
     val groupedFiles = _groupedFiles.asStateFlow()
 
     // 是否正在加载
@@ -65,7 +65,7 @@ class BrowseViewModel @Inject constructor(
     /**
      * 切换单个文件的选中状态
      */
-    fun toggleSelection(file: SelectableFileItem) {
+    fun toggleSelection(file: FileItem) {
         val currentSet = _selectedFiles.value.toMutableSet()
 
         val key = file.uri.toString()

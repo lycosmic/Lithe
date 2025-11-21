@@ -7,9 +7,9 @@ import android.provider.DocumentsContract
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import io.github.lycosmic.lithe.data.local.DirectoryDao
+import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.data.model.FileType
 import io.github.lycosmic.lithe.data.model.ScannedDirectory
-import io.github.lycosmic.lithe.data.model.SelectableFileItem
 import io.github.lycosmic.lithe.utils.UriUtils
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -81,7 +81,7 @@ class DirectoryRepository @Inject constructor(
     /**
      * 获取所有被授权的书籍,用于手动刷新场景
      */
-    suspend fun scanAllBooks(): List<SelectableFileItem> {
+    suspend fun scanAllBooks(): List<FileItem> {
         val scannedDirectories = directoryDao.getScannedDirectoriesSnapshot()
         return scanAllBooks(scannedDirectories)
     }
@@ -90,12 +90,12 @@ class DirectoryRepository @Inject constructor(
      * 扫描所有已授权文件夹下的书籍,用于自动刷新场景,文件夹列表由 ViewModel 提供
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun scanAllBooks(directories: List<ScannedDirectory>): List<SelectableFileItem> =
+    suspend fun scanAllBooks(directories: List<ScannedDirectory>): List<FileItem> =
         withContext(Dispatchers.IO) {
             supervisorScope { // 为了不影响其他任务
-                val allFiles = mutableListOf<SelectableFileItem>()
+                val allFiles = mutableListOf<FileItem>()
 
-                val subDeferredResults = mutableListOf<Deferred<List<SelectableFileItem>>>()
+                val subDeferredResults = mutableListOf<Deferred<List<FileItem>>>()
 
                 directories.forEach { dir ->
                     val deferred = async {
@@ -127,11 +127,11 @@ class DirectoryRepository @Inject constructor(
     private suspend fun recursiveScan(
         doc: DocumentFile,
         currentDisplayPath: String, // 当前路径
-    ): List<SelectableFileItem> = supervisorScope {
+    ): List<FileItem> = supervisorScope {
         // 结果列表
-        val resultList = mutableListOf<SelectableFileItem>()
+        val resultList = mutableListOf<FileItem>()
         // 子任务列表
-        val subDirJobs = mutableListOf<Deferred<List<SelectableFileItem>>>()
+        val subDirJobs = mutableListOf<Deferred<List<FileItem>>>()
 
         val files = doc.listFiles()
 
@@ -154,12 +154,11 @@ class DirectoryRepository @Inject constructor(
                 }
 
                 resultList.add(
-                    SelectableFileItem(
+                    FileItem(
                         name = name,
                         uri = file.uri,
                         type = type,
                         size = file.length(),
-                        selected = false,
                         lastModified = file.lastModified(),
                         parentPath = currentDisplayPath // 记录它是属于哪个文件夹的
                     )
@@ -181,10 +180,10 @@ class DirectoryRepository @Inject constructor(
         treeUri: Uri, // 授权目录的 URI
         parentDocId: String, // 授权目录的标识符
         currentDisplayPath: String
-    ): List<SelectableFileItem> = supervisorScope {
+    ): List<FileItem> = supervisorScope {
 
-        val resultList = mutableListOf<SelectableFileItem>()
-        val subDirJobs = mutableListOf<Deferred<List<SelectableFileItem>>>()
+        val resultList = mutableListOf<FileItem>()
+        val subDirJobs = mutableListOf<Deferred<List<FileItem>>>()
 
         // 子文件列表的 URI
         val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentDocId)
@@ -234,12 +233,11 @@ class DirectoryRepository @Inject constructor(
                                 DocumentsContract.buildDocumentUriUsingTree(treeUri, docId)
 
                             resultList.add(
-                                SelectableFileItem(
+                                FileItem(
                                     name = name,
                                     uri = fileUri,
                                     type = type,
                                     size = size,
-                                    selected = false,
                                     lastModified = lastMod,
                                     parentPath = currentDisplayPath
                                 )

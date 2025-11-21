@@ -5,12 +5,11 @@ import androidx.compose.runtime.Immutable
 
 
 @Immutable
-data class SelectableFileItem(
+data class FileItem(
     val name: String, // 文件名
     val uri: Uri,
     val type: FileType,
     val size: Long,
-    val selected: Boolean, // 是否被选中
     val parentPath: String, // 父文件夹的完整路径
     val lastModified: Long,
 )

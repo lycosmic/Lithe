@@ -56,7 +56,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.lycosmic.lithe.data.model.SelectableFileItem
+import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 import io.github.lycosmic.lithe.ui.components.RoundCheckbox
@@ -341,7 +341,7 @@ fun DirectoryHeader(path: String, modifier: Modifier = Modifier, onPinClick: () 
 // --- 文件行 ---
 @Composable
 fun FileRowItem(
-    file: SelectableFileItem,
+    file: FileItem,
     isSelected: Boolean, // 是否被选中
     isMultiSelectMode: Boolean, // 是否是多选模式
     onCheckboxClick: (Boolean) -> Unit,
