@@ -36,6 +36,13 @@ class DirectoryRepository @Inject constructor(
     }
 
     /**
+     * 获取已添加的文件夹列表
+     */
+    fun getDirectoriesSnapshot(): List<ScannedDirectory> {
+        return directoryDao.getScannedDirectoriesSnapshot()
+    }
+
+    /**
      * 添加文件夹
      */
     suspend fun addDirectory(uri: Uri) = withContext(Dispatchers.IO) {

@@ -1,6 +1,11 @@
 package io.github.lycosmic.lithe.presentation.browse
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +44,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -47,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.data.model.SelectableFileItem
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
+import io.github.lycosmic.lithe.ui.components.RoundCheckbox
 import io.github.lycosmic.lithe.utils.FileUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,7 +70,14 @@ fun BrowseScreen(
     // 控制底部抽屉是否显示
     var showBottomSheet by remember { mutableStateOf(false) }
 
+    // 以文件夹分组的文件列表
     val directoryWithFiles by browseViewModel.groupedFiles.collectAsStateWithLifecycle()
+
+    // 当前选中的文件
+    val selectedFiles by browseViewModel.selectedFiles.collectAsStateWithLifecycle()
+
+    val isMultiSelectMode by
+    browseViewModel.isMultiSelectMode.collectAsStateWithLifecycle(initialValue = false)
 
     val isLoading by browseViewModel.isLoading.collectAsStateWithLifecycle()
 
@@ -124,17 +139,37 @@ fun BrowseScreen(
                 directoryWithFiles.forEach { (path, files) ->
                     // stickyHeader 让路径吸顶
                     stickyHeader {
-                        DirectoryHeader(path = path)
+                        DirectoryHeader(path = path) {
+                            // 固定到顶部
+
+                        }
                     }
 
                     items(files) { file ->
                         FileRowItem(
-                            file = file
+                            file = file,
+                            isSelected = selectedFiles.contains(file.uri.toString()),
+                            isMultiSelectMode = isMultiSelectMode,
+                            onCheckboxClick = {
+                                browseViewModel.toggleSelection(file)
+                            },
+                            onClick = {
+                                // 点击文件选中该文件
+                                browseViewModel.toggleSelection(file)
+                            },
+                            onLongClick = {
+                                // 长按文件选中,一次性选中该文件夹下的所有文件
+                                if (!isMultiSelectMode) {
+                                    files.forEach { file ->
+                                        browseViewModel.toggleSelection(file)
+                                    }
+                                }
+                            }
                         )
                     }
 
                     // 组之间的间距
-                    item { Spacer(modifier = Modifier.height(16.dp)) }
+                    item { Spacer(modifier = Modifier.height(12.dp)) }
                 }
             }
         }
@@ -220,10 +255,10 @@ private fun EmptyBrowseScreen(
 
 // --- 文件夹标题 ---
 @Composable
-fun DirectoryHeader(path: String) {
+fun DirectoryHeader(path: String, modifier: Modifier = Modifier, onPinClick: () -> Unit) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -238,12 +273,14 @@ fun DirectoryHeader(path: String) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Icon(
-                imageVector = Icons.Outlined.PushPin,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            IconButton(onClick = onPinClick) {
+                Icon(
+                    imageVector = Icons.Outlined.PushPin,
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
@@ -252,11 +289,30 @@ fun DirectoryHeader(path: String) {
 @Composable
 fun FileRowItem(
     file: SelectableFileItem,
+    isSelected: Boolean, // 是否被选中
+    isMultiSelectMode: Boolean, // 是否是多选模式
+    onCheckboxClick: (Boolean) -> Unit,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
 ) {
+    // 选中的背景色
+    val backgroundColor = if (isSelected) {
+        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+    } else {
+        Color.Transparent
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(color = backgroundColor)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
+            .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -283,13 +339,14 @@ fun FileRowItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = file.name,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    // 尽量少换行, 尽量填满一行
+                    lineBreak = LineBreak.Simple
+                ),
+                overflow = TextOverflow.Clip,
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -298,5 +355,27 @@ fun FileRowItem(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+
+        // 多选框区域
+        Row(
+            modifier = Modifier
+                .padding(end = 12.dp)
+                .size(24.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            // 显示多选框Checkbox
+            AnimatedVisibility(
+                visible = isMultiSelectMode || isSelected,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                RoundCheckbox(
+                    checked = isSelected,
+                    onCheckedChange = onCheckboxClick
+                )
+            }
+        }
+
     }
 }
