@@ -13,7 +13,6 @@ import io.github.lycosmic.lithe.utils.UriUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,7 +27,7 @@ class DirectoryRepository @Inject constructor(
      * 获取已添加的文件夹列表
      */
     fun getDirectories(): Flow<List<ScannedDirectory>> {
-        return directoryDao.getScannedDirectories()
+        return directoryDao.getScannedDirectoriesFlow()
     }
 
     /**
@@ -73,7 +72,7 @@ class DirectoryRepository @Inject constructor(
     suspend fun scanAllBooks(): List<SelectableFileItem> = withContext(Dispatchers.IO) {
         val allFiles = mutableListOf<SelectableFileItem>()
 
-        val directories = directoryDao.getScannedDirectories().first()
+        val directories = directoryDao.getScannedDirectoriesSnapshot()
 
         for (dir in directories) {
             val rootUri = dir.uri.toUri()
