@@ -1,5 +1,6 @@
 package io.github.lycosmic.lithe.presentation.browse
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -21,10 +22,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,6 +40,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -81,40 +86,88 @@ fun BrowseScreen(
 
     val isLoading by browseViewModel.isLoading.collectAsStateWithLifecycle()
 
+    // 拦截系统返回键
+    BackHandler(enabled = isMultiSelectMode) {
+        // 退出选中状态
+        browseViewModel.clearSelection()
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "浏览",
+            // 动态切换 TopBar
+            if (isMultiSelectMode) {
+                TopAppBar(
+                    title = { Text("已选择 ${selectedFiles.size} 项") },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            browseViewModel.clearSelection()
+                        }) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = "取消选择")
+                        }
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                if (selectedFiles.isNotEmpty()) {
+                                    browseViewModel.clearSelection()
+                                } else {
+                                    browseViewModel.toggleAllSelection()
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.SelectAll,
+                                contentDescription = "全选"
+                            )
+                        }
+
+                        // 确认导入
+                        IconButton(
+                            onClick = {
+                                browseViewModel.importSelectedBooks()
+                            }
+                        ) {
+                            Icon(imageVector = Icons.Default.Check, contentDescription = "添加")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
                     )
-                },
-                actions = {
-                    IconButton(
-                        onClick = {
-
-                        }
-                    ) { Icon(Icons.Default.Search, "搜索") }
-
-                    IconButton(
-                        onClick = {
-
-                        }
-                    ) { Icon(Icons.Default.FilterList, "筛选") }
-
-                    IconButton(
-                        onClick = {
-                            showBottomSheet = true
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "更多"
+                )
+            } else {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = "浏览",
                         )
-                    }
-                },
-            )
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = {
+
+                            }
+                        ) { Icon(Icons.Default.Search, "搜索") }
+
+                        IconButton(
+                            onClick = {
+
+                            }
+                        ) { Icon(Icons.Default.FilterList, "筛选") }
+
+                        IconButton(
+                            onClick = {
+                                showBottomSheet = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "更多"
+                            )
+                        }
+                    },
+                )
+            }
         },
     ) { paddings ->
         if (isLoading) {

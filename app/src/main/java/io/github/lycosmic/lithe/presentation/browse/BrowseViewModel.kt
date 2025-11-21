@@ -102,5 +102,25 @@ class BrowseViewModel @Inject constructor(
         _selectedFiles.value = emptySet()
     }
 
+    /**
+     * 导入选中的文件
+     */
+    fun importSelectedBooks() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val allFiles = _groupedFiles.value.values.flatten()
+            // 获取选中的文件
+            val selectedFiles = allFiles.filter { item ->
+                _selectedFiles.value.contains(item.uri.toString())
+            }
+
+            selectedFiles.forEach { item ->
+                // TODO 导入书籍
+            }
+
+            // 导入完成后，清空选中状态
+            clearSelection()
+        }
+    }
+
 
 }
