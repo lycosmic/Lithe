@@ -3,6 +3,7 @@ package io.github.lycosmic.lithe.data.repository
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
+import android.provider.DocumentsContract
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import io.github.lycosmic.lithe.data.local.DirectoryDao
@@ -10,9 +11,13 @@ import io.github.lycosmic.lithe.data.model.FileType
 import io.github.lycosmic.lithe.data.model.ScannedDirectory
 import io.github.lycosmic.lithe.data.model.SelectableFileItem
 import io.github.lycosmic.lithe.utils.UriUtils
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -65,61 +70,81 @@ class DirectoryRepository @Inject constructor(
         directoryDao.deleteDirectory(directory)
     }
 
+
     /**
-     * 扫描所有已授权文件夹下的书籍
+     * 获取所有被授权的书籍,用于手动刷新场景
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun scanAllBooks(): List<SelectableFileItem> = withContext(Dispatchers.IO) {
-        val allFiles = mutableListOf<SelectableFileItem>()
-
-        val directories = directoryDao.getScannedDirectoriesSnapshot()
-
-        for (dir in directories) {
-            val rootUri = dir.uri.toUri()
-            val rootDocument =
-                DocumentFile.fromTreeUri(application.applicationContext, rootUri) ?: continue
-
-            // 递归扫描该文件夹
-            recursiveScan(
-                rootDocument,
-                dir.path,
-                allFiles
-            )
-        }
-
-        return@withContext allFiles
+    suspend fun scanAllBooks(): List<SelectableFileItem> {
+        val scannedDirectories = directoryDao.getScannedDirectoriesSnapshot()
+        return scanAllBooks(scannedDirectories)
     }
 
+    /**
+     * 扫描所有已授权文件夹下的书籍,用于自动刷新场景,文件夹列表由 ViewModel 提供
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun scanAllBooks(directories: List<ScannedDirectory>): List<SelectableFileItem> =
+        withContext(Dispatchers.IO) {
+            supervisorScope { // 为了不影响其他任务
+                val allFiles = mutableListOf<SelectableFileItem>()
+
+                val subDeferredResults = mutableListOf<Deferred<List<SelectableFileItem>>>()
+
+                directories.forEach { dir ->
+                    val deferred = async {
+                        val rootUri = dir.uri.toUri()
+                        val rootDocId = DocumentsContract.getTreeDocumentId(rootUri)
+
+                        // 递归扫描该文件夹
+                        fastRecursiveScan(
+                            treeUri = rootUri,
+                            parentDocId = rootDocId,
+                            currentDisplayPath = dir.path
+                        )
+                    }
+                    subDeferredResults.add(deferred)
+                }
+
+                val subFileItems = subDeferredResults.awaitAll().flatten()
+
+                allFiles.addAll(subFileItems)
+                allFiles
+            }
+
+        }
+
 
     /**
-     * 递归扫描文件夹
+     * 使用 DocumentFile 进行递归扫描文件夹
      */
-    private fun recursiveScan(
+    private suspend fun recursiveScan(
         doc: DocumentFile,
         currentDisplayPath: String, // 当前路径
-        resultList: MutableList<SelectableFileItem>
-    ) {
+    ): List<SelectableFileItem> = supervisorScope {
+        // 结果列表
+        val resultList = mutableListOf<SelectableFileItem>()
+        // 子任务列表
+        val subDirJobs = mutableListOf<Deferred<List<SelectableFileItem>>>()
+
         val files = doc.listFiles()
 
         for (file in files) {
             if (file.isDirectory) {
                 // 递归进入子文件夹
                 val nextPath = "$currentDisplayPath/${file.name}"
-                recursiveScan(file, nextPath, resultList)
+                val deferred = async {
+                    recursiveScan(file, nextPath)
+                }
+
+                subDirJobs.add(deferred)
             } else {
                 // 这是一个文件
                 val name = file.name ?: continue
-                val type = when {
-                    name.endsWith(".${FileType.EPUB.value}", true) -> FileType.EPUB
-                    name.endsWith(".${FileType.PDF.value}", true) -> FileType.PDF
-                    name.endsWith(".${FileType.TXT.value}", true) -> FileType.TXT
-                    else -> FileType.UNKNOWN
-                }
+                val type = getFileType(name)
 
                 if (type == FileType.UNKNOWN) {
                     continue
                 }
-
 
                 resultList.add(
                     SelectableFileItem(
@@ -134,6 +159,108 @@ class DirectoryRepository @Inject constructor(
                 )
             }
         }
+
+        // 合并子任务的结果
+        val subDirResults = subDirJobs.awaitAll().flatten()
+        resultList.addAll(subDirResults)
+
+        return@supervisorScope resultList
     }
 
+    /**
+     * 使用 ContentResolver 进行极速递归扫描
+     */
+    private suspend fun fastRecursiveScan(
+        treeUri: Uri, // 授权目录的 URI
+        parentDocId: String, // 授权目录的标识符
+        currentDisplayPath: String
+    ): List<SelectableFileItem> = supervisorScope {
+
+        val resultList = mutableListOf<SelectableFileItem>()
+        val subDirJobs = mutableListOf<Deferred<List<SelectableFileItem>>>()
+
+        // 子文件列表的 URI
+        val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentDocId)
+
+        // 查询的列
+        val projection = arrayOf(
+            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+            DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            DocumentsContract.Document.COLUMN_MIME_TYPE,
+            DocumentsContract.Document.COLUMN_SIZE,
+            DocumentsContract.Document.COLUMN_LAST_MODIFIED
+        )
+
+        try {
+            application.contentResolver.query(
+                childrenUri,
+                projection,
+                null, null, null
+            )?.use { cursor ->
+                val idCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+                val nameCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+                val mimeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
+                val sizeCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE)
+                val dateCol = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
+
+                while (cursor.moveToNext()) {
+                    val docId = cursor.getString(idCol)
+                    val name = cursor.getString(nameCol) ?: continue
+                    val mimeType = cursor.getString(mimeCol)
+                    val size = cursor.getLong(sizeCol)
+                    val lastMod = cursor.getLong(dateCol)
+
+                    // 如果是文件夹
+                    if (mimeType == DocumentsContract.Document.MIME_TYPE_DIR) {
+                        val nextPath = "$currentDisplayPath/$name"
+                        val job = async {
+                            fastRecursiveScan(treeUri, docId, nextPath)
+                        }
+                        subDirJobs.add(job)
+                    } else {
+                        // 判断文件类型
+                        val type = getFileType(name)
+
+                        if (type != FileType.UNKNOWN) {
+                            // 构建文件 URI
+                            val fileUri =
+                                DocumentsContract.buildDocumentUriUsingTree(treeUri, docId)
+
+                            resultList.add(
+                                SelectableFileItem(
+                                    name = name,
+                                    uri = fileUri,
+                                    type = type,
+                                    size = size,
+                                    selected = false,
+                                    lastModified = lastMod,
+                                    parentPath = currentDisplayPath
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // 等待所有子文件夹扫描完成，并合并结果
+        val subDirResults = subDirJobs.awaitAll().flatten()
+        resultList.addAll(subDirResults)
+
+        return@supervisorScope resultList
+    }
+
+
+    private fun getFileType(name: String): FileType {
+        return when {
+            name.endsWith(".${FileType.EPUB.value}", true) -> FileType.EPUB
+            name.endsWith(".${FileType.PDF.value}", true) -> FileType.PDF
+            name.endsWith(".${FileType.TXT.value}", true) -> FileType.TXT
+            else -> FileType.UNKNOWN
+        }
+    }
 }
+
+

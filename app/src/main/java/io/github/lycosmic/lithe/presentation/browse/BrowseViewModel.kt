@@ -8,6 +8,7 @@ import io.github.lycosmic.lithe.data.repository.DirectoryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,21 +24,24 @@ class BrowseViewModel @Inject constructor(
     val isLoading = _isLoading.asStateFlow()
 
     init {
-        refreshFiles()
+        observeDirectoriesAndScan()
     }
 
-    fun refreshFiles() {
+    fun observeDirectoriesAndScan() {
         viewModelScope.launch(Dispatchers.IO) {
-            _isLoading.value = true
-            val fileItems = repository.scanAllBooks()
+            // 监听文件夹列表变化
+            repository.getDirectories().collectLatest {
+                _isLoading.value = true
 
-            // 按父文件夹进行分组
-            val groupByParentPath = fileItems.groupBy { item ->
-                item.parentPath
+                val fileItems = repository.scanAllBooks()
+                // 按父文件夹进行分组
+                val groupByParentPath = fileItems.groupBy { item ->
+                    item.parentPath
+                }
+
+                _groupedFiles.value = groupByParentPath
+                _isLoading.value = false
             }
-
-            _groupedFiles.value = groupByParentPath
-            _isLoading.value = false
         }
     }
 
