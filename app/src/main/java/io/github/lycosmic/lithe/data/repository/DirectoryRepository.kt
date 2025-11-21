@@ -82,7 +82,7 @@ class DirectoryRepository @Inject constructor(
             // 递归扫描该文件夹
             recursiveScan(
                 rootDocument,
-                dir.root,
+                dir.path,
                 allFiles
             )
         }
