@@ -109,11 +109,7 @@ fun BrowseScreen(
                     actions = {
                         IconButton(
                             onClick = {
-                                if (selectedFiles.isNotEmpty()) {
-                                    browseViewModel.clearSelection()
-                                } else {
-                                    browseViewModel.toggleAllSelection()
-                                }
+                                browseViewModel.toggleAllSelection()
                             }
                         ) {
                             Icon(
