@@ -1,6 +1,5 @@
 package io.github.lycosmic.lithe.presentation.browse
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +29,6 @@ class BrowseViewModel @Inject constructor(
     fun refreshFiles() {
         viewModelScope.launch(Dispatchers.IO) {
             _isLoading.value = true
-            Log.d("BrowseViewModel", "isLoading: $isLoading")
             val fileItems = repository.scanAllBooks()
 
             // 按父文件夹进行分组
@@ -40,7 +38,6 @@ class BrowseViewModel @Inject constructor(
 
             _groupedFiles.value = groupByParentPath
             _isLoading.value = false
-            Log.d("BrowseViewModel", "isLoading: $isLoading")
         }
     }
 
