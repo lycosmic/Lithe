@@ -36,4 +36,24 @@ sealed class LibraryEvent {
      * 点击添加书籍
      */
     data object OnAddBookClicked : LibraryEvent()
+
+    /**
+     * 点击取消选中
+     */
+    data object OnCancelSelectionClicked : LibraryEvent()
+
+    /**
+     * 点击全选
+     */
+    data object OnSelectAllClicked : LibraryEvent()
+
+    /**
+     * 点击删除
+     */
+    data object OnDeleteClicked : LibraryEvent()
+
+    /**
+     * 点击移动
+     */
+    data object OnMoveClicked : LibraryEvent()
 }

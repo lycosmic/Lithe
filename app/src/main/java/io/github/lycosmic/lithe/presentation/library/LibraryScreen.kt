@@ -11,7 +11,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.MoveUp
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,6 +56,10 @@ fun LibraryScreen(
 
     val books by viewModel.books.collectAsStateWithLifecycle()
 
+    val selectedBooks by viewModel.selectedBooks.collectAsStateWithLifecycle()
+
+    val isSelectionMode by viewModel.isSelectionMode.collectAsStateWithLifecycle()
+
     LaunchedEffect(key1 = Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
@@ -85,25 +93,64 @@ fun LibraryScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "书库",
-                    )
-                },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            showBottomSheet = true
+            if (isSelectionMode) {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
+                                viewModel.onEvent(LibraryEvent.OnCancelSelectionClicked)
+                            }
+                        ) {
+                            Icon(imageVector = Icons.Default.Clear, contentDescription = "取消选择")
                         }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "更多"
-                        )
+                    },
+                    title = {
+                        Text(text = "已选择 ${selectedBooks.size} 本")
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            viewModel.onEvent(LibraryEvent.OnSelectAllClicked)
+                        }) {
+                            Icon(imageVector = Icons.Default.SelectAll, contentDescription = "全选")
+                        }
+
+                        // 移动
+                        IconButton(onClick = {
+                            viewModel.onEvent(LibraryEvent.OnMoveClicked)
+                        }) {
+                            Icon(imageVector = Icons.Default.MoveUp, contentDescription = "移动")
+                        }
+
+                        IconButton(onClick = {
+                            viewModel.onEvent(LibraryEvent.OnDeleteClicked)
+                        }) {
+                            Icon(imageVector = Icons.Default.Delete, contentDescription = "删除")
+                        }
+
                     }
-                },
-            )
+                )
+            } else {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = "书库",
+                        )
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                showBottomSheet = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "更多"
+                            )
+                        }
+                    },
+                )
+            }
+
         },
     ) { innerPadding ->
 
@@ -129,12 +176,12 @@ fun LibraryScreen(
                         title = book.title,
                         coverPath = book.coverPath,
                         readProgress = book.progress,
-                        isSelected = true,
+                        isSelected = selectedBooks.contains(book.id),
                         onClick = {
-
+                            viewModel.onEvent(LibraryEvent.OnBookClicked(book.id))
                         },
                         onLongClick = {
-
+                            viewModel.onEvent(LibraryEvent.OnBookLongClicked(book.id))
                         }
                     )
                 }

@@ -16,4 +16,11 @@ class BookRepository @Inject constructor(
     suspend fun importBook(book: Book) {
         bookDao.insertBook(book = book)
     }
+
+    /**
+     * 删除书籍
+     */
+    suspend fun deleteBook(bookId: Long) {
+        bookDao.deleteBookById(id = bookId)
+    }
 }
