@@ -13,12 +13,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 
@@ -26,12 +28,40 @@ import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 @Composable
 fun LibraryScreen(
     modifier: Modifier = Modifier,
-    onOpenBook: (Long) -> Unit,
+    viewModel: LibraryViewModel = hiltViewModel(),
     onGoToSettings: () -> Unit,
     onGoToAbout: () -> Unit,
-    onGoToHelp: () -> Unit
+    onGoToHelp: () -> Unit,
+    onGoToBookDetail: (Long) -> Unit,
+    onGoToBookRead: (Long) -> Unit
 ) {
     var showBottomSheet by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is LibraryEffect.OnNavigateToSettings -> {
+                    onGoToSettings()
+                }
+
+                is LibraryEffect.OnNavigateToAbout -> {
+                    onGoToAbout()
+                }
+
+                is LibraryEffect.OnNavigateToHelp -> {
+                    onGoToHelp()
+                }
+
+                is LibraryEffect.OnNavigateToBookDetail -> {
+                    onGoToBookDetail(effect.bookId)
+                }
+
+                is LibraryEffect.OnNavigateToBookRead -> {
+                    onGoToBookRead(effect.bookId)
+                }
+            }
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -81,7 +111,7 @@ fun LibraryScreen(
                         isDestructive = false,
                         onClick = {
                             showBottomSheet = false
-                            onGoToAbout()
+                            viewModel.onEvent(LibraryEvent.OnAboutClicked)
                         }
                     ),
                     ActionItem(
@@ -90,7 +120,7 @@ fun LibraryScreen(
                         isDestructive = false,
                         onClick = {
                             showBottomSheet = false
-                            onGoToHelp()
+                            viewModel.onEvent(LibraryEvent.OnHelpClicked)
                         }
                     )
                 ),
@@ -101,7 +131,7 @@ fun LibraryScreen(
                         isDestructive = false,
                         onClick = {
                             showBottomSheet = false
-                            onGoToSettings()
+                            viewModel.onEvent(LibraryEvent.OnSettingsClicked)
                         },
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer

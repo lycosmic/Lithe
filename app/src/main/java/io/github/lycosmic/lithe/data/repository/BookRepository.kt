@@ -10,6 +10,9 @@ import javax.inject.Singleton
 class BookRepository @Inject constructor(
     private val bookDao: BookDao
 ) {
+
+    fun getAllBooks() = bookDao.getAllBooks()
+
     suspend fun importBook(book: Book) {
         bookDao.insertBook(book = book)
     }
