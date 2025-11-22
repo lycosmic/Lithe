@@ -31,4 +31,9 @@ sealed class LibraryEvent {
      * 点击帮助
      */
     data object OnHelpClicked : LibraryEvent()
+
+    /**
+     * 点击添加书籍
+     */
+    data object OnAddBookClicked : LibraryEvent()
 }

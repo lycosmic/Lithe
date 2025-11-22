@@ -46,7 +46,10 @@ fun AppNavigation(
                                     navViewModel.navigate(AppRoutes.Settings)
                                 },
                                 onGoToHelp = {},
-                                onGoToAbout = {}
+                                onGoToAbout = {},
+                                onGoToBrowser = {
+                                    navViewModel.navigate(AppRoutes.Browse)
+                                }
                             )
                         }
 

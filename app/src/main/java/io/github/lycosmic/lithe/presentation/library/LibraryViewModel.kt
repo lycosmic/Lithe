@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,15 +27,34 @@ class LibraryViewModel @Inject constructor(
     private val _effects = MutableSharedFlow<LibraryEffect>()
     val effects = _effects.asSharedFlow()
 
+
     fun onEvent(event: LibraryEvent) {
-        when (event) {
-            is LibraryEvent.OnBookClicked -> TODO()
-            is LibraryEvent.OnBookLongClicked -> TODO()
-            LibraryEvent.OnAboutClicked -> TODO()
-            LibraryEvent.OnHelpClicked -> TODO()
-            LibraryEvent.OnSettingsClicked -> TODO()
-            is LibraryEvent.OnStartReadingClicked -> TODO()
+        viewModelScope.launch {
+            when (event) {
+                is LibraryEvent.OnBookClicked -> TODO()
+                is LibraryEvent.OnBookLongClicked -> {
+
+                }
+
+                is LibraryEvent.OnAboutClicked -> {
+                    _effects.emit(LibraryEffect.OnNavigateToAbout)
+                }
+
+                is LibraryEvent.OnHelpClicked -> {
+                    _effects.emit(LibraryEffect.OnNavigateToHelp)
+                }
+
+                is LibraryEvent.OnSettingsClicked -> {
+                    _effects.emit(LibraryEffect.OnNavigateToSettings)
+                }
+
+                is LibraryEvent.OnStartReadingClicked -> TODO()
+                is LibraryEvent.OnAddBookClicked -> {
+                    _effects.emit(LibraryEffect.OnNavigateToBrowser)
+                }
+            }
         }
+
     }
 
 }
