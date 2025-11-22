@@ -84,6 +84,7 @@ dependencies {
 
     // Coil
     implementation(libs.coil)
+    implementation(libs.coil.compose)
 
     // ---------------- 初始依赖 ----------------
     implementation(libs.androidx.core.ktx)
