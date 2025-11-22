@@ -3,12 +3,12 @@ package io.github.lycosmic.lithe.data.parser.pdf
 import android.content.Context
 import android.net.Uri
 import io.github.lycosmic.lithe.data.model.ParsedMetadata
-import io.github.lycosmic.lithe.data.parser.BookParser
+import io.github.lycosmic.lithe.data.parser.BookMetadataParser
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class PdfParser @Inject constructor() : BookParser {
+class PdfMetadataParser @Inject constructor() : BookMetadataParser {
     override suspend fun parse(
         context: Context,
         uri: Uri

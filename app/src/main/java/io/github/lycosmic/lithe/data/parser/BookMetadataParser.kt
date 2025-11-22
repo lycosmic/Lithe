@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import io.github.lycosmic.lithe.data.model.ParsedMetadata
 
-interface BookParser {
+interface BookMetadataParser {
     /**
      * 从 URI 中解析出元数据
      */

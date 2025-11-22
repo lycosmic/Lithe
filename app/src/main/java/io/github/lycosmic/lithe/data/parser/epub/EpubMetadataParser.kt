@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Xml
 import io.github.lycosmic.lithe.data.model.ParsedMetadata
-import io.github.lycosmic.lithe.data.parser.BookParser
+import io.github.lycosmic.lithe.data.parser.BookMetadataParser
 import org.xmlpull.v1.XmlPullParser
 import java.io.File
 import java.io.FileOutputStream
@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 
 @Singleton
-class EpubParser @Inject constructor() : BookParser {
+class EpubMetadataParser @Inject constructor() : BookMetadataParser {
 
     /**
      * EPUB 解析, 提取元数据并保存封面到本地

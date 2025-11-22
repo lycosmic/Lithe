@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.model.Book
 import io.github.lycosmic.lithe.data.model.FileItem
-import io.github.lycosmic.lithe.data.parser.BookParserFactory
+import io.github.lycosmic.lithe.data.parser.BookMetadataParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.data.repository.DirectoryRepository
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +23,7 @@ class BrowseViewModel @Inject constructor(
     private val application: Application,
     private val directoryRepository: DirectoryRepository,
     private val bookRepository: BookRepository,
-    private val parserFactory: BookParserFactory
+    private val parserFactory: BookMetadataParserFactory
 ) : ViewModel() {
     // 分组后的文件列表
     private val _groupedFiles = MutableStateFlow<Map<String, List<FileItem>>>(emptyMap())
