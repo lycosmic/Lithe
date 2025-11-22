@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -45,6 +46,52 @@ class BrowseViewModel @Inject constructor(
 
     init {
         observeDirectoriesAndScan()
+    }
+
+    fun onEvent(event: BrowseEvent) {
+        viewModelScope.launch {
+            when (event) {
+                BrowseEvent.OnImportBooksClick -> {
+                    // 导入选中的文件
+                    importSelectedBooks()
+                }
+
+                BrowseEvent.OnCancelClick -> {
+                    // 取消选中
+                    clearSelection()
+                }
+
+                BrowseEvent.OnToggleAllSelectionClick -> {
+                    // 全选
+                    toggleAllSelection()
+                }
+
+                BrowseEvent.OnBackClick -> {
+                    // 取消选中
+                    clearSelection()
+                }
+
+                is BrowseEvent.OnFileCheckboxClick -> {
+                    // 切换单个文件的选中状态
+                    toggleSelection(event.file)
+                }
+
+                is BrowseEvent.OnFileClick -> {
+                    // 切换单个文件的选中状态
+                    toggleSelection(event.file)
+                }
+
+                is BrowseEvent.OnFileLongClick -> {
+                    // 选中这组文件
+                    if (!isMultiSelectMode.first()) {
+                        event.files.forEach { fileItem ->
+                            toggleSelection(fileItem)
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     /**

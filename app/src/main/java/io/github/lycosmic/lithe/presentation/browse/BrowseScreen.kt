@@ -89,7 +89,7 @@ fun BrowseScreen(
     // 拦截系统返回键
     BackHandler(enabled = isMultiSelectMode) {
         // 退出选中状态
-        browseViewModel.clearSelection()
+        browseViewModel.onEvent(BrowseEvent.OnBackClick)
     }
 
     Scaffold(
@@ -101,7 +101,7 @@ fun BrowseScreen(
                     title = { Text("已选择 ${selectedFiles.size} 项") },
                     navigationIcon = {
                         IconButton(onClick = {
-                            browseViewModel.clearSelection()
+                            browseViewModel.onEvent(BrowseEvent.OnCancelClick)
                         }) {
                             Icon(imageVector = Icons.Default.Close, contentDescription = "取消选择")
                         }
@@ -109,7 +109,7 @@ fun BrowseScreen(
                     actions = {
                         IconButton(
                             onClick = {
-                                browseViewModel.toggleAllSelection()
+                                browseViewModel.onEvent(BrowseEvent.OnToggleAllSelectionClick)
                             }
                         ) {
                             Icon(
@@ -121,7 +121,7 @@ fun BrowseScreen(
                         // 确认导入
                         IconButton(
                             onClick = {
-                                browseViewModel.importSelectedBooks()
+                                browseViewModel.onEvent(BrowseEvent.OnImportBooksClick)
                             }
                         ) {
                             Icon(imageVector = Icons.Default.Check, contentDescription = "添加")
@@ -200,19 +200,16 @@ fun BrowseScreen(
                             isSelected = selectedFiles.contains(file.uri.toString()),
                             isMultiSelectMode = isMultiSelectMode,
                             onCheckboxClick = {
-                                browseViewModel.toggleSelection(file)
+                                // 点击复选框
+                                browseViewModel.onEvent(BrowseEvent.OnFileCheckboxClick(file))
                             },
                             onClick = {
                                 // 点击文件选中该文件
-                                browseViewModel.toggleSelection(file)
+                                browseViewModel.onEvent(BrowseEvent.OnFileClick(file))
                             },
                             onLongClick = {
                                 // 长按文件选中,一次性选中该文件夹下的所有文件
-                                if (!isMultiSelectMode) {
-                                    files.forEach { file ->
-                                        browseViewModel.toggleSelection(file)
-                                    }
-                                }
+                                browseViewModel.onEvent(BrowseEvent.OnFileLongClick(files))
                             }
                         )
                     }
