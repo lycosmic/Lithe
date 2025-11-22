@@ -15,8 +15,11 @@ interface BookDao {
     @Query("SELECT * FROM books ORDER BY lastReadTime DESC")
     fun getAllBooks(): Flow<List<Book>>
 
-    @Query("SELECT * FROM books WHERE id = :id")
+    @Query("SELECT * FROM books WHERE id = :id LIMIT 1")
     suspend fun getBookById(id: Long): Book?
+
+    @Query("SELECT * FROM books WHERE id = :id LIMIT 1")
+    fun getBookFlowById(id: Long): Flow<Book?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBook(book: Book): Long

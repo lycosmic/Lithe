@@ -50,6 +50,9 @@ sealed interface AppRoutes : NavKey {
     @Serializable
     object SettingsLibrary : AppRoutes
 
+    // 书籍详情
+    @Serializable
+    data class BookDetail(val bookId: Long) : AppRoutes
     companion object {
         // 默认路由
         val defaultRoute = Library

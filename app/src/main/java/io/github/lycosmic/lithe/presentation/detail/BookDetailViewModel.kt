@@ -1,0 +1,63 @@
+package io.github.lycosmic.lithe.presentation.detail
+
+import androidx.core.net.toUri
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.lithe.data.model.Book
+import io.github.lycosmic.lithe.data.repository.BookRepository
+import io.github.lycosmic.lithe.utils.UriUtils
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class BookDetailViewModel @Inject constructor(
+    private val bookRepository: BookRepository,
+) : ViewModel() {
+
+    private val _book = MutableStateFlow<Book?>(Book.defaultBook)
+    val book = _book.asStateFlow()
+
+    // 自己维护的文件路径, 用来判断文件是否为空, 或有损坏
+    private val _filePath = MutableStateFlow<String?>(null)
+    val filePath = _filePath.asStateFlow()
+
+    private val _effects = MutableSharedFlow<BookDetailEffect>()
+    val effects = _effects.asSharedFlow()
+
+
+    fun loadBook(bookId: Long) {
+        viewModelScope.launch {
+            bookRepository.getBookFlow(bookId).stateIn(
+                scope = viewModelScope,
+                started = WhileSubscribed(stopTimeoutMillis = 5000),
+                initialValue = Book.defaultBook
+            ).collect { book ->
+                _book.value = book
+
+                book?.let {
+                    // 初始的文件路径
+                    val path = UriUtils.parseUriToPath(book.fileUri.toUri())
+                    _filePath.value = "${path.first}/${path.second}"
+                }
+
+            }
+        }
+    }
+
+    fun onEvent(event: BookDetailEvent) {
+        viewModelScope.launch {
+            when (event) {
+                BookDetailEvent.OnBackClicked -> {
+                    _effects.emit(BookDetailEffect.NavigateBack)
+                }
+            }
+        }
+    }
+}

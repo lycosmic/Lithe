@@ -8,6 +8,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.presentation.browse.BrowseScreen
+import io.github.lycosmic.lithe.presentation.detail.BookDetailScreen
 import io.github.lycosmic.lithe.presentation.history.HistoryScreen
 import io.github.lycosmic.lithe.presentation.library.LibraryScreen
 import io.github.lycosmic.lithe.presentation.settings.SettingsScreen
@@ -41,7 +42,9 @@ fun AppNavigation(
                                 onGoToBookRead = {
 
                                 },
-                                onGoToBookDetail = {},
+                                onGoToBookDetail = { bookId ->
+                                    navViewModel.navigate(AppRoutes.BookDetail(bookId))
+                                },
                                 onGoToSettings = {
                                     navViewModel.navigate(AppRoutes.Settings)
                                 },
@@ -101,6 +104,15 @@ fun AppNavigation(
                     is AppRoutes.SettingsGeneral -> TODO()
                     is AppRoutes.SettingsLibrary -> TODO()
                     is AppRoutes.SettingsReader -> TODO()
+                    is AppRoutes.BookDetail -> {
+                        val bookId = navKey.bookId
+                        BookDetailScreen(
+                            bookId = bookId,
+                            onNavigateToLibrary = {
+                                navViewModel.navigate(AppRoutes.Library)
+                            }
+                        )
+                    }
                 }
             }
         }

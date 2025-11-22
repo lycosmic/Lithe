@@ -23,4 +23,10 @@ class BookRepository @Inject constructor(
     suspend fun deleteBook(bookId: Long) {
         bookDao.deleteBookById(id = bookId)
     }
+
+    /**
+     * 根据ID获取书籍
+     * 以流的形式
+     */
+    fun getBookFlow(bookId: Long) = bookDao.getBookFlowById(id = bookId)
 }
