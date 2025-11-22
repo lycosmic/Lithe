@@ -1,9 +1,13 @@
 package io.github.lycosmic.lithe.presentation.browse
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.lithe.data.model.Book
 import io.github.lycosmic.lithe.data.model.FileItem
+import io.github.lycosmic.lithe.data.parser.BookParserFactory
+import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.data.repository.DirectoryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +20,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BrowseViewModel @Inject constructor(
-    private val repository: DirectoryRepository
+    private val application: Application,
+    private val directoryRepository: DirectoryRepository,
+    private val bookRepository: BookRepository,
+    private val parserFactory: BookParserFactory
 ) : ViewModel() {
     // 分组后的文件列表
     private val _groupedFiles = MutableStateFlow<Map<String, List<FileItem>>>(emptyMap())
@@ -46,10 +53,10 @@ class BrowseViewModel @Inject constructor(
     fun observeDirectoriesAndScan() {
         viewModelScope.launch(Dispatchers.IO) {
             // 监听文件夹列表变化
-            repository.getDirectories().collectLatest {
+            directoryRepository.getDirectories().collectLatest {
                 _isLoading.value = true
 
-                val fileItems = repository.scanAllBooks()
+                val fileItems = directoryRepository.scanAllBooks()
                 // 按父文件夹进行分组
                 val groupByParentPath = fileItems.groupBy { item ->
                     item.parentPath
@@ -114,7 +121,22 @@ class BrowseViewModel @Inject constructor(
             }
 
             selectedFiles.forEach { item ->
-                // TODO 导入书籍
+                // 解析元数据
+                val parser = parserFactory.getParser(item.type)
+                val metadata = parser.parse(application, item.uri)
+
+                // 导入数据库
+                val book = Book(
+                    title = metadata.title,
+                    author = metadata.author,
+                    description = metadata.description,
+                    coverPath = metadata.coverPath,
+                    fileSize = item.size,
+                    fileUri = item.uri.toString(),
+                    format = item.type.name.lowercase(),
+                    importTime = System.currentTimeMillis(),
+                )
+                bookRepository.importBook(book)
             }
 
             // 导入完成后，清空选中状态

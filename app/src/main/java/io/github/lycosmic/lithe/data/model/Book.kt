@@ -16,7 +16,7 @@ data class Book(
 
     val author: String = "未知", // 作者
 
-    val description: String = "无简介", // 简介
+    val description: String?, // 简介
 
     val fileSize: Long, // 文件大小
 
@@ -24,7 +24,7 @@ data class Book(
 
     val format: String, // 文件格式, epub, pdf, txt
 
-    val coverUri: String? = null, // 封面缓存路径
+    val coverPath: String? = null, // 封面缓存路径
 
     val lastReadPosition: String? = null, // 最后阅读位置
 
