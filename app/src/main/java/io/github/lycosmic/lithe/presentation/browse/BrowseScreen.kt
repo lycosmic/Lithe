@@ -312,8 +312,11 @@ fun DirectoryHeader(path: String, modifier: Modifier = Modifier, onPinClick: () 
         ) {
             Text(
                 text = path,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    // 尽量填满一行
+                    lineBreak = LineBreak.Simple
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
             )
 
