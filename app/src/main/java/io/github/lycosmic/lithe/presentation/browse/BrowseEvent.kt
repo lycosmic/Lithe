@@ -1,11 +1,17 @@
 package io.github.lycosmic.lithe.presentation.browse
 
 import io.github.lycosmic.lithe.data.model.FileItem
+import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
 
 sealed class BrowseEvent {
 
     /**
-     * 点击书籍添加按钮
+     * 点击添加书籍按钮
+     */
+    data object OnAddBooksClick : BrowseEvent()
+
+    /**
+     * 点击确定添加书籍按钮 (确定导入)
      */
     data object OnImportBooksClick : BrowseEvent()
 
@@ -38,4 +44,14 @@ sealed class BrowseEvent {
      * 长按文件
      */
     data class OnFileLongClick(val files: List<FileItem>) : BrowseEvent()
+
+    /**
+     * 离开或是取消添加书籍对话框
+     */
+    data object OnDismissAddBooksDialog : BrowseEvent()
+
+    /**
+     * 在书籍对话框中点击某一项
+     */
+    data class OnAddBooksDialogItemClick(val item: BookToAdd) : BrowseEvent()
 }

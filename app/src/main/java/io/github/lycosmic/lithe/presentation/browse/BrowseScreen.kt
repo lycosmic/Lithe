@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.lycosmic.lithe.presentation.browse.components.AddBookConfirmationDialog
 import io.github.lycosmic.lithe.presentation.browse.components.DirectoryHeader
 import io.github.lycosmic.lithe.presentation.browse.components.EmptyBrowseScreen
 import io.github.lycosmic.lithe.presentation.browse.components.FileRowItem
@@ -54,11 +55,17 @@ fun BrowseScreen(
     // 控制底部抽屉是否显示
     var showBottomSheet by remember { mutableStateOf(false) }
 
+    // 控制添加书籍对话框是否显示
+    var showAddBookDialog by remember { mutableStateOf(false) }
+
     // 以文件夹分组的文件列表
     val directoryWithFiles by browseViewModel.groupedFiles.collectAsStateWithLifecycle()
 
     // 当前选中的文件
     val selectedFiles by browseViewModel.selectedFiles.collectAsStateWithLifecycle()
+
+    // 当前待导入的书籍
+    val bookToImport by browseViewModel.bookToImport.collectAsStateWithLifecycle()
 
     val isMultiSelectMode by
     browseViewModel.isMultiSelectMode.collectAsStateWithLifecycle(initialValue = false)
@@ -97,10 +104,12 @@ fun BrowseScreen(
                             )
                         }
 
-                        // 确认导入
+                        // 添加书籍
                         IconButton(
                             onClick = {
-                                browseViewModel.onEvent(BrowseEvent.OnImportBooksClick)
+                                showAddBookDialog = true
+                                // 预导入
+                                browseViewModel.onEvent(BrowseEvent.OnAddBooksClick)
                             }
                         ) {
                             Icon(imageVector = Icons.Default.Check, contentDescription = "添加")
@@ -241,5 +250,30 @@ fun BrowseScreen(
                 )
             )
         )
+
+
+        // 添加书籍弹窗
+        if (showAddBookDialog) {
+            AddBookConfirmationDialog(
+                selectedBooks = bookToImport,
+                onDismissRequest = {
+                    browseViewModel.onEvent(BrowseEvent.OnDismissAddBooksDialog)
+                    showAddBookDialog = false
+                },
+                onConfirm = {
+                    // 确认添加书籍
+                    browseViewModel.onEvent(BrowseEvent.OnImportBooksClick)
+                    showAddBookDialog = false
+                },
+                onCancel = {
+                    browseViewModel.onEvent(BrowseEvent.OnDismissAddBooksDialog)
+                    showAddBookDialog = false
+                },
+                onToggleSelection = { newBookToAdd ->
+                    browseViewModel.onEvent(BrowseEvent.OnAddBooksDialogItemClick(newBookToAdd))
+                }
+            )
+        }
+
     }
 }
