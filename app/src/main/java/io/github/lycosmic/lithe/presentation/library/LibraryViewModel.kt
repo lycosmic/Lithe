@@ -86,9 +86,12 @@ class LibraryViewModel @Inject constructor(
                 }
 
                 LibraryEvent.OnDeleteClicked -> {
-                    selectedBooks.value.forEach { bookId ->
+                    _selectedBooks.value.forEach { bookId ->
+                        // 删除书籍
                         bookRepository.deleteBook(bookId)
                     }
+                    // 清空选中列表
+                    _selectedBooks.value = emptySet()
                 }
 
                 LibraryEvent.OnMoveClicked -> {
