@@ -45,6 +45,11 @@ class BrowseViewModel @Inject constructor(
     private val _bookToImport = MutableStateFlow<List<BookToAdd>>(emptyList())
     val bookToImport = _bookToImport.asStateFlow()
 
+    // 对话框是否在加载
+    private val _isAddBooksDialogLoading = MutableStateFlow(false)
+    val isAddBooksDialogLoading = _isAddBooksDialogLoading.asStateFlow()
+
+
     // 当前是否为多选模式
     val isMultiSelectMode = _selectedFileUris.asStateFlow().map {
         it.isNotEmpty()
@@ -193,6 +198,8 @@ class BrowseViewModel @Inject constructor(
      */
     fun prepareImport() {
         viewModelScope.launch(Dispatchers.IO) {
+            _isAddBooksDialogLoading.value = true
+
             // 从 Set 中获取选中的文件
             val selectedFiles = getSelectedFiles()
 
@@ -210,6 +217,7 @@ class BrowseViewModel @Inject constructor(
             }.awaitAll()
 
             _bookToImport.value = parsedBooks
+            _isAddBooksDialogLoading.value = false
         }
     }
 

@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddChart
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,6 +29,7 @@ import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
 
 @Composable
 fun AddBookConfirmationDialog(
+    isDialogLoading: Boolean,
     selectedBooks: List<BookToAdd>,
     onDismissRequest: () -> Unit,
     onConfirm: () -> Unit,
@@ -68,15 +70,25 @@ fun AddBookConfirmationDialog(
                     modifier = Modifier.weight(1f, fill = false), // 内容少时自适应，内容多时滚动
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    items(items = selectedBooks, key = { it.file.uri.toString() }) { bookToAdd ->
-                        BookToAddItem(
-                            title = bookToAdd.metadata.title,
-                            author = bookToAdd.metadata.author,
-                            isSelected = bookToAdd.isSelected,
-                            onItemClicked = { onToggleSelection(bookToAdd) },
-                            onCheckboxClicked = { onToggleSelection(bookToAdd) }
-                        )
+                    if (isDialogLoading) {
+                        item {
+                            // TODO: 使用自定义的波浪加载
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        items(
+                            items = selectedBooks,
+                            key = { it.file.uri.toString() }) { bookToAdd ->
+                            BookToAddItem(
+                                title = bookToAdd.metadata.title,
+                                author = bookToAdd.metadata.author,
+                                isSelected = bookToAdd.isSelected,
+                                onItemClicked = { onToggleSelection(bookToAdd) },
+                                onCheckboxClicked = { onToggleSelection(bookToAdd) }
+                            )
+                        }
                     }
+
                 }
             }
         },

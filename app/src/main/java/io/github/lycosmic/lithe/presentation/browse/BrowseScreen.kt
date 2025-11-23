@@ -72,6 +72,8 @@ fun BrowseScreen(
 
     val isLoading by browseViewModel.isLoading.collectAsStateWithLifecycle()
 
+    val isDialogLoading by browseViewModel.isAddBooksDialogLoading.collectAsStateWithLifecycle()
+
     // 拦截系统返回键
     BackHandler(enabled = isMultiSelectMode) {
         // 退出选中状态
@@ -255,6 +257,7 @@ fun BrowseScreen(
         // 添加书籍弹窗
         if (showAddBookDialog) {
             AddBookConfirmationDialog(
+                isDialogLoading = isDialogLoading,
                 selectedBooks = bookToImport,
                 onDismissRequest = {
                     browseViewModel.onEvent(BrowseEvent.OnDismissAddBooksDialog)
