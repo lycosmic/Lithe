@@ -1,44 +1,28 @@
 package io.github.lycosmic.lithe.presentation.browse
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SelectAll
-import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -48,19 +32,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.LineBreak
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.lycosmic.lithe.data.model.FileItem
+import io.github.lycosmic.lithe.presentation.browse.components.DirectoryHeader
+import io.github.lycosmic.lithe.presentation.browse.components.EmptyBrowseScreen
+import io.github.lycosmic.lithe.presentation.browse.components.FileRowItem
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
-import io.github.lycosmic.lithe.ui.components.RoundCheckbox
-import io.github.lycosmic.lithe.utils.FileUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -262,169 +241,5 @@ fun BrowseScreen(
                 )
             )
         )
-    }
-}
-
-// --- 空文件夹 ---
-@Composable
-private fun EmptyBrowseScreen(
-    modifier: Modifier = Modifier,
-    onNavigateToBrowseSettings: () -> Unit,
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "通过下载扩展图书馆的藏书",
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        TextButton(
-            onClick = onNavigateToBrowseSettings
-        ) {
-            Text(
-                text = "设置扫描",
-                style = MaterialTheme.typography.labelLarge.copy(
-                    color = MaterialTheme.colorScheme.secondary
-                )
-            )
-        }
-    }
-}
-
-// --- 文件夹标题 ---
-@Composable
-fun DirectoryHeader(path: String, modifier: Modifier = Modifier, onPinClick: () -> Unit) {
-    Surface(
-        color = MaterialTheme.colorScheme.surface,
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = path,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    // 尽量填满一行
-                    lineBreak = LineBreak.Simple
-                ),
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            IconButton(onClick = onPinClick) {
-                Icon(
-                    imageVector = Icons.Outlined.PushPin,
-                    contentDescription = null,
-                    modifier = Modifier.size(22.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
-
-// --- 文件行 ---
-@Composable
-fun FileRowItem(
-    file: FileItem,
-    isSelected: Boolean, // 是否被选中
-    isMultiSelectMode: Boolean, // 是否是多选模式
-    onCheckboxClick: (Boolean) -> Unit,
-    onClick: () -> Unit,
-    onLongClick: () -> Unit
-) {
-    // 选中的背景色
-    val backgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-    } else {
-        Color.Transparent
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(color = backgroundColor)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
-            .padding(horizontal = 8.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        Surface(
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier
-                .size(48.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .border(
-                    1.dp,
-                    MaterialTheme.colorScheme.outline,
-                    RoundedCornerShape(8.dp)
-                )
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = Icons.Default.Description,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = file.name,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    // 尽量少换行, 尽量填满一行
-                    lineBreak = LineBreak.Simple
-                ),
-                overflow = TextOverflow.Clip,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "${FileUtils.formatFileSize(file.size)}, ${FileUtils.formatDate(file.lastModified)}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        // 多选框区域
-        Row(
-            modifier = Modifier
-                .padding(end = 12.dp)
-                .size(24.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            // 显示多选框Checkbox
-            AnimatedVisibility(
-                visible = isMultiSelectMode || isSelected,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                RoundCheckbox(
-                    checked = isSelected,
-                    onCheckedChange = onCheckboxClick
-                )
-            }
-        }
-
     }
 }
