@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.ui.components
+package io.github.lycosmic.lithe.presentation.browse.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn

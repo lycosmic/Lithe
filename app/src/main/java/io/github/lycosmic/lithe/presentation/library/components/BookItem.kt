@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.ui.components
+package io.github.lycosmic.lithe.presentation.library.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
