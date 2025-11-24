@@ -1,6 +1,5 @@
 package io.github.lycosmic.lithe.presentation.navigation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
@@ -11,6 +10,7 @@ import io.github.lycosmic.lithe.presentation.browse.BrowseScreen
 import io.github.lycosmic.lithe.presentation.detail.BookDetailScreen
 import io.github.lycosmic.lithe.presentation.history.HistoryScreen
 import io.github.lycosmic.lithe.presentation.library.LibraryScreen
+import io.github.lycosmic.lithe.presentation.reader.ReaderScreen
 import io.github.lycosmic.lithe.presentation.settings.SettingsScreen
 import io.github.lycosmic.lithe.presentation.settings.browse.BrowseSettingsScreen
 
@@ -95,7 +95,9 @@ fun AppNavigation(
                         settingsManager = settingsManager
                     )
 
-                    is AppRoutes.Reader -> Text(text = "Reade")
+                    is AppRoutes.Reader -> ReaderScreen(
+                        bookId = navKey.bookId,
+                    )
                     is AppRoutes.SettingsAppearance -> TODO()
                     is AppRoutes.SettingsBrowse -> BrowseSettingsScreen(
                         onNavigateBack = { navViewModel.pop() }
@@ -108,6 +110,9 @@ fun AppNavigation(
                         val bookId = navKey.bookId
                         BookDetailScreen(
                             bookId = bookId,
+                            onNavigateToReader = {
+                                navViewModel.navigate(AppRoutes.Reader(bookId))
+                            },
                             onNavigateToLibrary = {
                                 navViewModel.navigate(AppRoutes.Library)
                             }

@@ -44,6 +44,7 @@ import io.github.lycosmic.lithe.utils.FileUtils
 fun BookDetailScreen(
     bookId: Long,
     onNavigateToLibrary: () -> Unit,
+    onNavigateToReader: (bookId: Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: BookDetailViewModel = hiltViewModel()
 ) {
@@ -107,7 +108,9 @@ fun BookDetailScreen(
             // 移动, 删除
 
             // 开始阅读按钮
-            Button(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = {
+                onNavigateToReader(bookId)
+            }, modifier = Modifier.fillMaxWidth()) {
                 Text(text = "开始阅读")
             }
         }

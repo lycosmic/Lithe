@@ -29,4 +29,10 @@ class BookRepository @Inject constructor(
      * 以流的形式
      */
     fun getBookFlow(bookId: Long) = bookDao.getBookFlowById(id = bookId)
+
+    /**
+     * 根据ID获取书籍
+     * 以普通方式
+     */
+    suspend fun getBookById(bookId: Long) = bookDao.getBookById(id = bookId)
 }
