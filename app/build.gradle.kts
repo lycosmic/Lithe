@@ -86,6 +86,9 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.compose)
 
+    // Jsoup: Body HTML for parsing Epub
+    implementation(libs.jsoup)
+
     // ---------------- 初始依赖 ----------------
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
