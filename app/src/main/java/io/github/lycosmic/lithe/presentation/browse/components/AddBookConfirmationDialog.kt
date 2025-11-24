@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddChart
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
+import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
 
 
 @Composable
@@ -72,8 +72,8 @@ fun AddBookConfirmationDialog(
                 ) {
                     if (isDialogLoading) {
                         item {
-                            // TODO: 使用自定义的波浪加载
-                            CircularProgressIndicator()
+                            // 使用自定义的波浪进度条
+                            CircularWavyProgressIndicator()
                         }
                     } else {
                         items(

@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,6 +36,7 @@ import androidx.compose.ui.unit.em
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.data.model.content.ReaderContent
+import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
 
 @Composable
 fun ReaderScreen(
@@ -80,7 +80,7 @@ fun ReaderScreen(
                 .background(Color(0xFFFBFBFB)) // 模拟纸张颜色
         ) {
             if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                CircularWavyProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (uiState.error != null) {
                 Text(
                     text = "错误: ${uiState.error}",
