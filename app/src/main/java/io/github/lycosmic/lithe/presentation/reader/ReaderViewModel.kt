@@ -2,7 +2,6 @@ package io.github.lycosmic.lithe.presentation.reader
 
 import android.app.Application
 import android.net.Uri
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -58,10 +57,9 @@ class ReaderViewModel @Inject constructor(
                 }
 
                 // 默认加载第一章
-                // (这里简化处理：默认第0章。实际应该从 book.lastReadPosition 恢复)
                 val initialIndex = 0
 
-                // 5. 加载章节内容
+                // 加载章节内容
                 loadChapterContent(parser, bookUri, spine, initialIndex)
 
             } catch (e: Exception) {
@@ -91,7 +89,6 @@ class ReaderViewModel @Inject constructor(
                 currentContent = content
             )
         }
-        Log.d("ReaderViewModel", "loadChapterContent: chapterItem:$chapterItem, content:$content")
     }
 
     // --- 翻页逻辑 ---
