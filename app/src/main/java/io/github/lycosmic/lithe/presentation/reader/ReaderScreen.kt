@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import io.github.lycosmic.lithe.data.model.content.ReaderContent
 import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
 
@@ -54,8 +55,6 @@ fun ReaderScreen(
 
     Scaffold(
         topBar = {
-            // 阅读器的 TopBar 通常是隐藏的或极简的
-            // 这里为了演示先显示一个简单的
             if (!uiState.isLoading && uiState.book != null) {
                 ReaderTopBar(
                     title = uiState.book!!.title,
@@ -88,7 +87,6 @@ fun ReaderScreen(
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {
-                // *** 核心渲染逻辑 ***
                 LazyColumn(
                     state = listState,
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
@@ -109,20 +107,18 @@ fun ReaderScreen(
                                 Text(
                                     text = content.text,
                                     style = MaterialTheme.typography.bodyLarge.copy(
-                                        lineHeight = 1.8.em // 增加行高，提升阅读体验
+                                        lineHeight = 1.8.em
                                     ),
                                     modifier = Modifier.padding(bottom = 12.dp)
                                 )
                             }
 
                             is ReaderContent.Image -> {
-                                // 图片渲染暂时留空或显示占位
-                                // 因为涉及到从 Zip 流加载图片，需要配合 Coil 的自定义 Fetcher
-                                // 或者在 Parser 里把图片解压到缓存
-                                Text(
-                                    "[图片: ${content.relativePath}]",
-                                    color = Color.Gray,
-                                    style = MaterialTheme.typography.labelSmall
+                                AsyncImage(
+                                    model = content.relativePath,
+                                    contentDescription = null,
+                                    alignment = Alignment.TopStart,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             }
 
@@ -137,7 +133,6 @@ fun ReaderScreen(
     }
 }
 
-// --- 简单的子组件 ---
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
