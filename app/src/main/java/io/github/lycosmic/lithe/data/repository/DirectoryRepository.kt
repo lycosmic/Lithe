@@ -146,7 +146,7 @@ class DirectoryRepository @Inject constructor(
                 subDirJobs.add(deferred)
             } else {
                 // 这是一个文件
-                val name = file.name ?: continue
+                val name = file.name?.substringAfterLast(".") ?: continue
                 val type = getFileType(name)
 
                 if (type == FileType.UNKNOWN) {

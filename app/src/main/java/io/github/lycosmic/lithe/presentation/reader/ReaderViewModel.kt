@@ -79,7 +79,7 @@ class ReaderViewModel @Inject constructor(
 
         val chapterItem = spine[index]
         // 调用解析器解析具体内容
-        val content = parser.parseContent(application, bookUri, chapterItem.href)
+        val content = parser.parseContent(application, bookUri, chapterItem.contentHref)
 
         _uiState.update {
             it.copy(

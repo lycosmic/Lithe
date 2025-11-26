@@ -235,8 +235,8 @@ class BrowseViewModel @Inject constructor(
             bookToImprots.forEach { bookToImport ->
                 // 导入数据库
                 val book = Book(
-                    title = bookToImport.metadata.title,
-                    author = bookToImport.metadata.author,
+                    title = bookToImport.metadata.title ?: "未知",
+                    author = bookToImport.metadata.authors?.firstOrNull() ?: "未知",
                     description = bookToImport.metadata.description,
                     coverPath = bookToImport.metadata.coverPath,
                     fileSize = bookToImport.file.size,

@@ -15,7 +15,7 @@ class TxtMetadataParser @Inject constructor() : BookMetadataParser {
     ): ParsedMetadata {
         return ParsedMetadata(
             title = "文本文件",
-            author = "未知",
+            authors = listOf("未知"),
             description = "纯文本文件",
         )
     }

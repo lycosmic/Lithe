@@ -1,11 +1,11 @@
 package io.github.lycosmic.lithe.data.model.content
 
 /**
- * 书籍的脊柱
- *
+ * 书籍目录顺序
  */
 data class BookSpineItem(
     val id: String,
-    val href: String, // 文件在 zip 包的相对路径
-    val title: String? = null // 章节名
+    val order: Int,
+    val contentHref: String, // 内容的 Zip 相对路径
+    val label: String? = null // 标题
 )

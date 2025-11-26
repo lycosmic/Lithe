@@ -20,7 +20,7 @@ class PdfMetadataParser @Inject constructor() : BookMetadataParser {
 
         return ParsedMetadata(
             title = fileName.toString(),
-            author = "",
+            authors = listOf("未知作者"),
             description = "PDF 文档",
             coverPath = null
         )

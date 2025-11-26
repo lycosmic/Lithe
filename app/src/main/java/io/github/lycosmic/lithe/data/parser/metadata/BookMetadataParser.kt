@@ -6,7 +6,7 @@ import io.github.lycosmic.lithe.data.model.ParsedMetadata
 
 interface BookMetadataParser {
     /**
-     * 从 URI 中解析出元数据
+     * 从文件中解析元数据
      */
     suspend fun parse(context: Context, uri: Uri): ParsedMetadata
 }

@@ -1,11 +1,18 @@
 package io.github.lycosmic.lithe.data.model
 
+import io.github.lycosmic.lithe.data.model.content.BookSpineItem
+
 /**
- * 文件解析结果
+ * 书籍解析结果
  */
 data class ParsedMetadata(
-    val title: String,
-    val author: String,
+    val uniqueId: String? = null,
+    val title: String? = null,
+    val authors: List<String>? = null,
+    val language: String? = null,
     val description: String? = null,
-    val coverPath: String? = null // 本地缓存后的封面路径
+    val publisher: String? = null,
+    val subjects: List<String>? = null,
+    val coverPath: String? = null, // 本地缓存后的封面路径
+    val bookmarks: List<BookSpineItem>? = null // 书签列表
 )

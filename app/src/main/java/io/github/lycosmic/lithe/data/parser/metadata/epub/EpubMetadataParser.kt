@@ -6,12 +6,35 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Xml
 import io.github.lycosmic.lithe.data.model.ParsedMetadata
+import io.github.lycosmic.lithe.data.model.content.BookSpineItem
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParser
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.COVER
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.CREATOR
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.DESCRIPTION
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.HREF
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.ID
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.IDENTIFIER
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.ID_REF
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.ITEM
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.ITEM_REF
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.LANGUAGE
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.MEDIA_TYPE
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.META
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.NAME
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.PACKAGE
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.PUBLISHER
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.SUBJECT
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.TITLE
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.UNIQUE_IDENTIFIER
+import io.github.lycosmic.lithe.utils.ZipUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.net.URLDecoder
+import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.inject.Inject
@@ -22,177 +45,412 @@ import javax.inject.Singleton
 class EpubMetadataParser @Inject constructor() : BookMetadataParser {
 
     /**
-     * EPUB 解析, 提取元数据并保存封面到本地
+     * 提取元数据并保存封面到本地
      */
     override suspend fun parse(
         context: Context,
         uri: Uri
     ): ParsedMetadata {
-        var title = ""
-        var author = ""
-        var description = ""
-        var coverSrc: String? = null
+        // OPF 文件相对路径
+        val opfRelativePath = getOpfPathByContainer(context, uri) ?: getOpfPath(context, uri)
+        ?: DEFAULT_OPF_RELATIVE_PATH
 
-        var opfParentPath = ""
+        // OPF 文件目录
+        val opfParentPath = opfRelativePath.substring(0, opfRelativePath.lastIndexOf("/") + 1)
 
-        // 扫描 ZIP 文件找到 OPF 文件, 并解析元数据
-        context.contentResolver.openInputStream(uri).use { inputStream ->
-            ZipInputStream(inputStream).use { zipInputStream ->
-                var entry: ZipEntry? = zipInputStream.nextEntry
-
-                while (entry != null) {
-                    if (entry.name.endsWith(suffix = ".opf", ignoreCase = true)) {
-                        // 找到 OPF 文件, 记录父路径
-                        opfParentPath = entry.name.substring(0, entry.name.lastIndexOf("/") + 1)
-
-                        // 解析 XML
-                        val parseResult = parseOpfXml(zipInputStream)
-                        title = parseResult.title
-                        author = parseResult.author
-                        description = parseResult.description
-                        coverSrc = parseResult.coverHref // 封面图片
-
-                        break
-                    }
-
-                    entry = zipInputStream.nextEntry
-                }
-            }
+        // 解析 OPF 文件
+        var parseResult: OpfResult? = null
+        ZipUtils.findZipEntryAndAction(context, uri, opfRelativePath) { inputStream ->
+            parseResult = parseOpfXml(inputStream)
         }
 
+        // 封面相对路径
+        val coverRelativePath = parseResult?.coverHref
 
         // 解压封面图片, 并保存到本地
         var localCoverPath: String? = null
-        if (coverSrc != null) {
-            // 将 URL 编码的路径解码成 UTF-8
-            val decodedSrc = URLDecoder.decode(coverSrc, "UTF-8")
-            // 封面的完整 ZIP 路径 (OPF目录 + 相对路径)
-            val fullZipPath = opfParentPath + decodedSrc
+        if (coverRelativePath != null) {
+            val decodedSrc = URLDecoder.decode(coverRelativePath, UTF_8)
+            // 封面的完整 ZIP 相对路径(OEBPS/Images/157909.jpg)
+            val zipRelativePath = opfParentPath + decodedSrc
 
-            localCoverPath = extractCoverToStorage(context, uri, fullZipPath, title)
+            localCoverPath =
+                extractCoverToStorage(context, uri, zipRelativePath)
         }
 
-        return ParsedMetadata(title, author, description, localCoverPath)
+        // 解析 toc.ncx 文件, 获取目录顺序
+        val tocFilePath = opfParentPath + TOC_NCX
+        val spineItems = mutableListOf<BookSpineItem>()
+        ZipUtils.findZipEntryAndAction(context, uri, tocFilePath) { inputStream ->
+            spineItems.addAll(parseNcxXml(inputStream, opfParentPath))
+        }
+
+
+        return ParsedMetadata(
+            uniqueId = parseResult?.uniqueIdentifier,
+            title = parseResult?.title,
+            authors = parseResult?.authors,
+            language = parseResult?.language,
+            description = parseResult?.description,
+            publisher = parseResult?.publisher,
+            subjects = parseResult?.subjects,
+            coverPath = localCoverPath,
+            bookmarks = spineItems
+        )
     }
+
+    /**
+     * 解析 Container.xml 文件, 获取 Opf 文件相对路径
+     */
+    private suspend fun getOpfPathByContainer(context: Context, uri: Uri): String? {
+        return ZipUtils.findZipEntryAndAction(
+            context,
+            uri,
+            CONTAINER_RELATIVE_PATH
+        ) { inputStream ->
+            // 解析出 Opf 文件路径
+            parseContainerXml(inputStream)
+        }
+    }
+
+
+    /**
+     * 解析出 OPF 文件相对路径
+     */
+    private suspend fun parseContainerXml(inputStream: InputStream): String? =
+        withContext(Dispatchers.IO) {
+            val parser = Xml.newPullParser()
+            parser.setInput(inputStream, UTF_8)
+
+            var eventType = parser.eventType
+
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                when (eventType) {
+                    XmlPullParser.START_TAG -> {
+                        val tagName = parser.name
+                        if (tagName == ROOT_FILE) {
+                            val rootFilePath = parser.getAttributeValue(null, FULL_PATH)
+                            if (rootFilePath != null) {
+                                return@withContext rootFilePath
+                            }
+                        }
+                    }
+                }
+                eventType = parser.next()
+            }
+
+            return@withContext null
+        }
+
+    /**
+     * 直接获取 Opf 文件相对路径
+     */
+    private suspend fun getOpfPath(context: Context, uri: Uri): String? =
+        withContext(Dispatchers.IO) {
+            context.contentResolver.openInputStream(uri).use { inputString ->
+                ZipInputStream(inputString).use { zipInputStream ->
+                    var entry: ZipEntry? = zipInputStream.nextEntry
+                    while (entry != null) {
+                        if (entry.name.endsWith(suffix = OPF_SUFFIX, ignoreCase = true)) {
+                            return@withContext entry.name
+                        }
+                        entry = zipInputStream.nextEntry
+                    }
+                }
+            }
+            return@withContext null
+        }
 
     /**
      * OPF 内容
      */
     private data class OpfResult(
-        val title: String,
-        val author: String,
-        val description: String,
-        val coverHref: String?
-    )
+        val uniqueIdentifier: String? = null,
+        val title: String? = null,
+        val authors: List<String> = emptyList(),
+        val language: String? = null,
+        val description: String? = null,
+        val publisher: String? = null,
+        val subjects: List<String> = emptyList(), // 标签
+        val coverHref: String?, // 封面相对路径
+        val manifest: Map<String, ManifestItem> = emptyMap(), // 资源清单: id -> item
+        val spine: List<String> // 阅读顺序, 存放 id
+    ) {
+        data class ManifestItem(
+            val href: String,
+            val mediaType: String // 如 application/xhtml+xml, image/jpeg
+        )
+
+        companion object {
+            const val PACKAGE = "package"
+            const val UNIQUE_IDENTIFIER = "unique-identifier"
+            const val TITLE = "title"
+            const val CREATOR = "creator"
+            const val IDENTIFIER = "identifier"
+            const val LANGUAGE = "language"
+            const val DESCRIPTION = "description"
+            const val PUBLISHER = "publisher"
+            const val SUBJECT = "subject"
+            const val META = "meta"
+            const val COVER = "cover"
+            const val ITEM_REF = "itemref"
+            const val NAME = "name"
+            const val ITEM = "item"
+            const val ID = "id"
+            const val ID_REF = "idref"
+            const val HREF = "href"
+            const val MEDIA_TYPE = "media-type"
+        }
+
+    }
 
     /**
-     * 使用 XmlPullParser 解析 OPF 内容
+     * 解析 OPF 内容
      */
     private fun parseOpfXml(inputStream: InputStream): OpfResult {
         val parser = Xml.newPullParser()
-        parser.setInput(inputStream, "UTF-8")
+        parser.setInput(inputStream, UTF_8)
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true)
 
-        var title = ""
-        var author = ""
-        var description = ""
+        var uniqueIdRef: String? = null
+        var uniqueIdentifier: String? = null
+        var title: String? = null
+        val authors = mutableListOf<String>()
+        var language: String? = null
+        var description: String? = null
+        var publisher: String? = null
+        val subjects = mutableListOf<String>()
         var coverId: String? = null
         var coverHref: String? = null
-
-        // 第一张图片的 href
-        var firstImageHref: String? = null
+        val manifest = mutableMapOf<String, OpfResult.ManifestItem>()
+        val spine = mutableListOf<String>()
 
         var eventType = parser.eventType
         while (eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.START_TAG) {
-                val name = parser.name
-                // dc:title -> title
-                val localName = if (name.contains(":")) name.substringAfter(":") else name
+                val tagName = parser.name
 
-                when (localName) {
-                    "title" -> if (title.isEmpty()) title = safeNextText(parser)
-                    "creator" -> if (author.isEmpty()) author = safeNextText(parser)
-                    "description" -> if (description.isEmpty()) description = safeNextText(parser)
-
-                    "meta" -> {
-                        // 寻找 <meta name="cover" content="cover-id" />
-                        val attrName = parser.getAttributeValue(null, "name")
-                        if (attrName == "cover") {
-                            coverId = parser.getAttributeValue(null, "content")
+                when (tagName) {
+                    PACKAGE -> {
+                        val uniqueId = parser.getAttributeValue(null, UNIQUE_IDENTIFIER)
+                        if (uniqueId != null) {
+                            uniqueIdRef = uniqueId
                         }
                     }
 
-                    "item" -> {
-                        // <item id="cover-id" href="cover.jpg" media-type="image/jpeg" />
-                        val id = parser.getAttributeValue(null, "id")
-                        val href = parser.getAttributeValue(null, "href")
-                        val mediaType = parser.getAttributeValue(null, "media-type")
+                    TITLE -> {
+                        title = safeNextText(parser)
+                    }
 
-                        // 匹配 ID
-                        if (coverId != null && id == coverId) {
-                            coverHref = href
-                        }
+                    CREATOR -> {
+                        authors.add(safeNextText(parser))
+                    }
 
-                        if (firstImageHref == null && mediaType?.startsWith("image/") == true) {
-                            firstImageHref = href
+                    IDENTIFIER -> {
+                        if (uniqueIdRef != null && uniqueIdRef == parser.getAttributeValue(
+                                null,
+                                ID
+                            )
+                        ) {
+                            uniqueIdentifier = safeNextText(parser)
                         }
+                    }
+
+                    LANGUAGE -> {
+                        language = safeNextText(parser)
+                    }
+
+                    DESCRIPTION -> {
+                        description = safeNextText(parser)
+                    }
+
+                    PUBLISHER -> {
+                        publisher = safeNextText(parser)
+                    }
+
+                    SUBJECT -> {
+                        subjects.add(safeNextText(parser))
+                    }
+
+
+                    META -> {
+                        val attrName = parser.getAttributeValue(null, NAME)
+                        if (attrName == COVER) {
+                            coverId = parser.getAttributeValue(null, CONTENT)
+                        }
+                    }
+
+                    ITEM -> {
+                        val id = parser.getAttributeValue(null, ID)
+                        val href = parser.getAttributeValue(null, HREF)
+                        val mediaType = parser.getAttributeValue(null, MEDIA_TYPE)
+
+                        manifest[id] = OpfResult.ManifestItem(href, mediaType)
+                    }
+
+                    ITEM_REF -> {
+                        val id = parser.getAttributeValue(null, ID_REF)
+                        spine.add(id)
                     }
                 }
             }
             eventType = parser.next()
         }
 
-        // 如果没找到明确的 coverId, 就使用第一张图片的 href
-        return OpfResult(title, author, description, coverHref ?: firstImageHref)
+        // 获取封面路径
+        if (coverId != null && manifest.containsKey(coverId)) {
+            val item = manifest[coverId]
+            coverHref = item?.href
+        }
+
+        return OpfResult(
+            uniqueIdentifier,
+            title ?: "Unknown Title",
+            authors,
+            language,
+            description,
+            publisher,
+            subjects,
+            coverHref,
+            manifest,
+            spine
+        )
     }
 
     /**
-     * 辅助：安全读取 Text，防止 XML 格式不标准导致崩溃
+     * 解析 NCX 内容, 获取目录顺序
+     */
+    private suspend fun parseNcxXml(
+        inputStream: InputStream,
+        parentPath: String,
+    ): List<BookSpineItem> =
+        withContext(Dispatchers.IO) {
+            val parser = Xml.newPullParser()
+            parser.setInput(inputStream, UTF_8)
+
+            val spine = mutableListOf<BookSpineItem>()
+
+
+            var id: String? = null
+            var playOrder: String? = null
+            var label: String? = null
+            var contentSrc: String? = null
+
+            var eventType = parser.eventType
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                when (eventType) {
+                    XmlPullParser.START_TAG -> {
+                        val tagName = parser.name
+                        when (tagName) {
+                            NAV_POINT -> {
+                                id = parser.getAttributeValue(null, ID)
+                                playOrder = parser.getAttributeValue(null, PLAY_ORDER)
+                            }
+
+                            TEXT -> {
+                                label = safeNextText(parser)
+                            }
+
+                            CONTENT -> {
+                                contentSrc = parser.getAttributeValue(null, SRC)
+                            }
+                        }
+                    }
+
+                    XmlPullParser.END_TAG -> {
+                        val tagName = parser.name
+
+                        if (tagName == NAV_POINT && id != null && playOrder != null && label != null && contentSrc != null) {
+                            spine.add(
+                                BookSpineItem(
+                                    id,
+                                    playOrder.toInt(),
+                                    parentPath + contentSrc,
+                                    label
+                                )
+                            )
+                        }
+
+                        if (tagName == NAV_POINT) {
+                            id = null
+                            playOrder = null
+                            label = null
+                            contentSrc = null
+                        }
+                    }
+                }
+                eventType = parser.next()
+            }
+
+
+            return@withContext spine
+        }
+
+    /**
+     * 安全读取 Text，防止 XML 格式不标准导致崩溃
      */
     private fun safeNextText(parser: XmlPullParser): String {
-        return try {
-            parser.nextText()
-        } catch (_: Exception) {
-            ""
+        var result = ""
+        if (parser.next() == XmlPullParser.TEXT) {
+            result = parser.text
+            parser.nextTag() // 移至 END_TAG
         }
+        return result
     }
 
     /**
-     * 扫描 Zip, 将指定路径的图片保存应用私有目录
+     * 将指定 Zip 相对路径的图片保存应用私有目录
      */
-    private fun extractCoverToStorage(
+    private suspend fun extractCoverToStorage(
         context: Context,
         uri: Uri,
-        targetZipPath: String,
-        bookTitle: String
-    ): String? {
-
+        coverZipPath: String,
+    ): String? = withContext(Dispatchers.IO) {
         // 封面目录
         val coversDir = File(context.filesDir, "covers")
         if (!coversDir.exists()) coversDir.mkdirs()
 
         // 生成安全的文件名
-        val safeName = bookTitle.replace("[^a-zA-Z0-9\\u4e00-\\u9fa5]".toRegex(), "_")
-        val destFile = File(coversDir, "cover_${safeName}_${System.currentTimeMillis()}.jpg")
+        val fileName = UUID.randomUUID().toString().replace("-", "")
+        val destFile = File(coversDir, "cover_${fileName}_${System.currentTimeMillis()}.jpg")
 
-        context.contentResolver.openInputStream(uri)?.use { input ->
-            ZipInputStream(input).use { zip ->
-                var entry = zip.nextEntry
-                while (entry != null) {
-                    if (entry.name == targetZipPath) {
-                        // 保存到本地
-                        FileOutputStream(destFile).use { fos ->
-                            // 压缩图片
-                            val bitmap = BitmapFactory.decodeStream(zip)
-                            bitmap?.compress(Bitmap.CompressFormat.JPEG, 80, fos)
-                            bitmap?.recycle()
-                        }
-                        return destFile.absolutePath
-                    }
-                    entry = zip.nextEntry
-                }
+        return@withContext ZipUtils.findZipEntryAndAction(
+            context,
+            uri,
+            coverZipPath
+        ) { inputStream ->
+            // 保存到本地
+            FileOutputStream(destFile).use { fos ->
+                // 压缩图片
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                bitmap?.compress(Bitmap.CompressFormat.JPEG, 80, fos)
+                bitmap?.recycle()
             }
+            return@findZipEntryAndAction destFile.absolutePath
+        } ?: run {
+            // 删除文件
+            destFile.delete()
+            null
         }
+    }
 
-        return null
+    companion object {
+        private const val CONTAINER_RELATIVE_PATH = "META-INF/container.xml"
+        private const val DEFAULT_OPF_RELATIVE_PATH = "OEBPS/content.opf"
+
+        private const val TOC_NCX = "toc.ncx"
+        private const val ROOT_FILE = "rootfile"
+
+        private const val FULL_PATH = "full-path"
+
+        private const val OPF_SUFFIX = ".opf"
+
+        private const val UTF_8 = "UTF-8"
+
+        private const val NAV_POINT = "navPoint"
+        private const val PLAY_ORDER = "playOrder"
+        private const val CONTENT = "content"
+        private const val TEXT = "text"
+        private const val SRC = "src"
     }
 }

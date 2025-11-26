@@ -80,8 +80,8 @@ fun AddBookConfirmationDialog(
                             items = selectedBooks,
                             key = { it.file.uri.toString() }) { bookToAdd ->
                             BookToAddItem(
-                                title = bookToAdd.metadata.title,
-                                author = bookToAdd.metadata.author,
+                                title = bookToAdd.metadata.title ?: bookToAdd.file.name,
+                                author = bookToAdd.metadata.authors?.joinToString(", ") ?: "未知",
                                 isSelected = bookToAdd.isSelected,
                                 onItemClicked = { onToggleSelection(bookToAdd) },
                                 onCheckboxClicked = { onToggleSelection(bookToAdd) }
