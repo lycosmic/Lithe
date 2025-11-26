@@ -237,12 +237,8 @@ class BrowseViewModel @Inject constructor(
                 val metadata = bookToImport.metadata
                 val bookFile = bookToImport.file
 
-                val bookmarks = metadata.bookmarks?.sortedBy { it.order }?.map { spineItem ->
-                    spineItem.label
-                }
-                val marksPath = metadata.bookmarks?.sortedBy { it.order }?.map { spineItem ->
-                    spineItem.contentHref
-                }
+                // 顺序排好的书签列表
+                val sortedBookmarks = metadata.bookmarks?.sortedBy { it.order }
 
                 // 导入数据库
                 val book = Book(
@@ -255,11 +251,10 @@ class BrowseViewModel @Inject constructor(
                     format = bookFile.type.name.lowercase(),
                     importTime = System.currentTimeMillis(),
                     uniqueId = metadata.uniqueId ?: bookFile.uri.toString(),
-                    bookmarks = bookmarks,
                     language = metadata.language ?: "zh-CN",
                     publisher = metadata.publisher ?: "未知",
                     subjects = metadata.subjects ?: emptyList(),
-                    marksPath = marksPath
+                    bookmarks = sortedBookmarks
                 )
                 bookRepository.importBook(book)
             }

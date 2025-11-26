@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import io.github.lycosmic.lithe.data.local.converter.EpubTypeConverters
+import io.github.lycosmic.lithe.data.model.content.BookSpineItem
 import kotlinx.serialization.Serializable
 
 @Entity(
@@ -41,9 +42,7 @@ data class Book(
 
     val progress: Float = 0f, // 阅读进度百分比
 
-    val bookmarks: List<String>? = null,
-
-    val marksPath: List<String>? = null, // 标记路径
+    val bookmarks: List<BookSpineItem>? = null, // 书签
 
     val importTime: Long = System.currentTimeMillis(), // 导入时间, 用于最近添加排序
 

@@ -1,8 +1,6 @@
 package io.github.lycosmic.lithe.data.parser.metadata.epub
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Xml
 import io.github.lycosmic.lithe.data.model.ParsedMetadata
@@ -30,11 +28,8 @@ import io.github.lycosmic.lithe.utils.ZipUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
-import java.io.File
-import java.io.FileOutputStream
 import java.io.InputStream
 import java.net.URLDecoder
-import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.inject.Inject
@@ -75,14 +70,15 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
             val zipRelativePath = opfParentPath + decodedSrc
 
             localCoverPath =
-                extractCoverToStorage(context, uri, zipRelativePath)
+                ZipUtils.extractCoverToStorage(context, uri, zipRelativePath)
         }
 
         // 解析 toc.ncx 文件, 获取目录顺序
         val tocFilePath = opfParentPath + TOC_NCX
         val spineItems = mutableListOf<BookSpineItem>()
         ZipUtils.findZipEntryAndAction(context, uri, tocFilePath) { inputStream ->
-            spineItems.addAll(parseNcxXml(inputStream, opfParentPath))
+            val items = parseNcxXml(inputStream, opfParentPath)
+            spineItems.addAll(items)
         }
 
 
@@ -330,7 +326,6 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
 
             val spine = mutableListOf<BookSpineItem>()
 
-
             var id: String? = null
             var playOrder: String? = null
             var label: String? = null
@@ -341,6 +336,7 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
                 when (eventType) {
                     XmlPullParser.START_TAG -> {
                         val tagName = parser.name
+
                         when (tagName) {
                             NAV_POINT -> {
                                 id = parser.getAttributeValue(null, ID)
@@ -369,9 +365,7 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
                                     label
                                 )
                             )
-                        }
 
-                        if (tagName == NAV_POINT) {
                             id = null
                             playOrder = null
                             label = null
@@ -396,42 +390,6 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
             parser.nextTag() // 移至 END_TAG
         }
         return result
-    }
-
-    /**
-     * 将指定 Zip 相对路径的图片保存应用私有目录
-     */
-    private suspend fun extractCoverToStorage(
-        context: Context,
-        uri: Uri,
-        coverZipPath: String,
-    ): String? = withContext(Dispatchers.IO) {
-        // 封面目录
-        val coversDir = File(context.filesDir, "covers")
-        if (!coversDir.exists()) coversDir.mkdirs()
-
-        // 生成安全的文件名
-        val fileName = UUID.randomUUID().toString().replace("-", "")
-        val destFile = File(coversDir, "cover_${fileName}_${System.currentTimeMillis()}.jpg")
-
-        return@withContext ZipUtils.findZipEntryAndAction(
-            context,
-            uri,
-            coverZipPath
-        ) { inputStream ->
-            // 保存到本地
-            FileOutputStream(destFile).use { fos ->
-                // 压缩图片
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                bitmap?.compress(Bitmap.CompressFormat.JPEG, 80, fos)
-                bitmap?.recycle()
-            }
-            return@findZipEntryAndAction destFile.absolutePath
-        } ?: run {
-            // 删除文件
-            destFile.delete()
-            null
-        }
     }
 
     companion object {

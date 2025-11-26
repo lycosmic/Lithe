@@ -41,20 +41,21 @@ class ReaderViewModel @Inject constructor(
                     return@launch
                 }
 
-                _uiState.update { it.copy(book = book, isLoading = true) }
+                // 获取目录结构
+                val spine = book.bookmarks ?: emptyList()
+
+                _uiState.update {
+                    it.copy(
+                        book = book,
+                        isLoading = true,
+                        spine = spine,
+                    )
+                }
+
 
                 // 获取解析器
                 val parser = bookContentParserFactory.getParser(book.format)
                 val bookUri = book.fileUri.toUri()
-
-                // 解析目录结构
-                val spine = parser.parseSpine(application, bookUri)
-                if (spine.isEmpty()) {
-                    _uiState.update {
-                        it.copy(isLoading = false, error = "解析目录失败")
-                    }
-                    return@launch
-                }
 
                 // 默认加载第一章
                 val initialIndex = 0
@@ -79,12 +80,11 @@ class ReaderViewModel @Inject constructor(
 
         val chapterItem = spine[index]
         // 调用解析器解析具体内容
-        val content = parser.parseContent(application, bookUri, chapterItem.contentHref)
+        val content = parser.parseChapterContent(application, bookUri, chapterItem.contentHref)
 
         _uiState.update {
             it.copy(
                 isLoading = false,
-                spine = spine,
                 currentChapterIndex = index,
                 currentContent = content
             )
