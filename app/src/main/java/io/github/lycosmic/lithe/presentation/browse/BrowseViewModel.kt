@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.model.Book
 import io.github.lycosmic.lithe.data.model.FileItem
-import io.github.lycosmic.lithe.data.parser.BookMetadataParserFactory
+import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.data.repository.DirectoryRepository
 import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd

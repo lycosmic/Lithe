@@ -1,9 +1,9 @@
-package io.github.lycosmic.lithe.data.parser.pdf
+package io.github.lycosmic.lithe.data.parser.metadata.pdf
 
 import android.content.Context
 import android.net.Uri
 import io.github.lycosmic.lithe.data.model.ParsedMetadata
-import io.github.lycosmic.lithe.data.parser.BookMetadataParser
+import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParser
 import javax.inject.Inject
 import javax.inject.Singleton
 

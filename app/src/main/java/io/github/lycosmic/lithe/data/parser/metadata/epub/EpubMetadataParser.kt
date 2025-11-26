@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data.parser.epub
+package io.github.lycosmic.lithe.data.parser.metadata.epub
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -6,10 +6,11 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Xml
 import io.github.lycosmic.lithe.data.model.ParsedMetadata
-import io.github.lycosmic.lithe.data.parser.BookMetadataParser
+import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParser
 import org.xmlpull.v1.XmlPullParser
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.net.URLDecoder
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -87,7 +88,7 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
     /**
      * 使用 XmlPullParser 解析 OPF 内容
      */
-    private fun parseOpfXml(inputStream: java.io.InputStream): OpfResult {
+    private fun parseOpfXml(inputStream: InputStream): OpfResult {
         val parser = Xml.newPullParser()
         parser.setInput(inputStream, "UTF-8")
 

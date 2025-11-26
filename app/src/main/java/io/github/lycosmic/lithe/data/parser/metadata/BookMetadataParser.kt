@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data.parser
+package io.github.lycosmic.lithe.data.parser.metadata
 
 import android.content.Context
 import android.net.Uri

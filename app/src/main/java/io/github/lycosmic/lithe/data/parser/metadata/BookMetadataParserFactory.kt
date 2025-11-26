@@ -1,10 +1,10 @@
-package io.github.lycosmic.lithe.data.parser
+package io.github.lycosmic.lithe.data.parser.metadata
 
 import io.github.lycosmic.lithe.data.exception.UnsupportedFileTypeException
 import io.github.lycosmic.lithe.data.model.FileType
-import io.github.lycosmic.lithe.data.parser.epub.EpubMetadataParser
-import io.github.lycosmic.lithe.data.parser.pdf.PdfMetadataParser
-import io.github.lycosmic.lithe.data.parser.txt.TxtMetadataParser
+import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser
+import io.github.lycosmic.lithe.data.parser.metadata.pdf.PdfMetadataParser
+import io.github.lycosmic.lithe.data.parser.metadata.txt.TxtMetadataParser
 import javax.inject.Inject
 import javax.inject.Singleton
 
