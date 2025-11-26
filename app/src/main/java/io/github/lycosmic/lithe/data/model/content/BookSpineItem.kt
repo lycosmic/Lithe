@@ -7,5 +7,5 @@ data class BookSpineItem(
     val id: String,
     val order: Int,
     val contentHref: String, // 内容的 Zip 相对路径
-    val label: String? = null // 标题
+    val label: String // 标题
 )

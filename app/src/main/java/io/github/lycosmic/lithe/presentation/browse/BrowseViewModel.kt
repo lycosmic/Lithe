@@ -233,16 +233,33 @@ class BrowseViewModel @Inject constructor(
 
 
             bookToImprots.forEach { bookToImport ->
+
+                val metadata = bookToImport.metadata
+                val bookFile = bookToImport.file
+
+                val bookmarks = metadata.bookmarks?.sortedBy { it.order }?.map { spineItem ->
+                    spineItem.label
+                }
+                val marksPath = metadata.bookmarks?.sortedBy { it.order }?.map { spineItem ->
+                    spineItem.contentHref
+                }
+
                 // 导入数据库
                 val book = Book(
-                    title = bookToImport.metadata.title ?: "未知",
-                    author = bookToImport.metadata.authors?.firstOrNull() ?: "未知",
-                    description = bookToImport.metadata.description,
-                    coverPath = bookToImport.metadata.coverPath,
-                    fileSize = bookToImport.file.size,
-                    fileUri = bookToImport.file.uri.toString(),
-                    format = bookToImport.file.type.name.lowercase(),
+                    title = metadata.title ?: "未知",
+                    author = metadata.authors?.firstOrNull() ?: "未知",
+                    description = metadata.description,
+                    coverPath = metadata.coverPath,
+                    fileSize = bookFile.size,
+                    fileUri = bookFile.uri.toString(),
+                    format = bookFile.type.name.lowercase(),
                     importTime = System.currentTimeMillis(),
+                    uniqueId = metadata.uniqueId ?: bookFile.uri.toString(),
+                    bookmarks = bookmarks,
+                    language = metadata.language ?: "zh-CN",
+                    publisher = metadata.publisher ?: "未知",
+                    subjects = metadata.subjects ?: emptyList(),
+                    marksPath = marksPath
                 )
                 bookRepository.importBook(book)
             }

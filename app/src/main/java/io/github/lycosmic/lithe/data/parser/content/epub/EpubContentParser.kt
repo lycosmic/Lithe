@@ -65,7 +65,12 @@ class EpubContentParser @Inject constructor() : BookContentParser {
         return spineIds.mapNotNull { id ->
             val href = manifest[id] ?: return@mapNotNull null
             // 拼接完整路径 (opf目录 + href)
-            BookSpineItem(id = id, contentHref = opfDir + href, order = spineIds.indexOf(id))
+            BookSpineItem(
+                id = id,
+                contentHref = opfDir + href,
+                order = spineIds.indexOf(id),
+                label = ""
+            )
         }
     }
 

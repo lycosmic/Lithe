@@ -89,6 +89,9 @@ dependencies {
     // Jsoup: Body HTML for parsing Epub
     implementation(libs.jsoup)
 
+    // GSON
+    implementation(libs.gson)
+
     // ---------------- 初始依赖 ----------------
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
