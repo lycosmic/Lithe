@@ -35,4 +35,9 @@ class BookRepository @Inject constructor(
      * 以普通方式
      */
     suspend fun getBookById(bookId: Long) = bookDao.getBookById(id = bookId)
+
+    /**
+     * 根据标识符获取书籍
+     */
+    suspend fun getBookByUniqueId(uniqueId: String) = bookDao.getBookByUniqueId(uniqueId = uniqueId)
 }

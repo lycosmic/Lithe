@@ -29,4 +29,7 @@ interface BookDao {
 
     @Query("DELETE FROM books WHERE id=:id")
     suspend fun deleteBookById(id: Long)
+
+    @Query("SELECT * FROM books WHERE uniqueId = :uniqueId LIMIT 1")
+    suspend fun getBookByUniqueId(uniqueId: String): Book?
 }

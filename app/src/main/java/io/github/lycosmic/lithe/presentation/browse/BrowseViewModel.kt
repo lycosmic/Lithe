@@ -1,6 +1,7 @@
 package io.github.lycosmic.lithe.presentation.browse
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -236,9 +237,19 @@ class BrowseViewModel @Inject constructor(
 
                 val metadata = bookToImport.metadata
                 val bookFile = bookToImport.file
+                val uniqueId = metadata.uniqueId ?: bookFile.uri.toString()
 
                 // 顺序排好的书签列表
                 val sortedBookmarks = metadata.bookmarks?.sortedBy { it.order }
+
+                if (bookRepository.getBookByUniqueId(uniqueId) != null) {
+                    // 已有该书籍
+                    Log.i(
+                        "BrowseViewModel",
+                        "The book is already in the database with a unique identifier of $uniqueId"
+                    )
+                    return@forEach
+                }
 
                 // 导入数据库
                 val book = Book(
@@ -250,7 +261,7 @@ class BrowseViewModel @Inject constructor(
                     fileUri = bookFile.uri.toString(),
                     format = bookFile.type.name.lowercase(),
                     importTime = System.currentTimeMillis(),
-                    uniqueId = metadata.uniqueId ?: bookFile.uri.toString(),
+                    uniqueId = uniqueId,
                     language = metadata.language ?: "zh-CN",
                     publisher = metadata.publisher ?: "未知",
                     subjects = metadata.subjects ?: emptyList(),
