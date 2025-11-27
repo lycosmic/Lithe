@@ -4,9 +4,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -44,9 +44,14 @@ object ZipUtils {
             }
         } catch (e: Exception) {
             when (e) {
-                is FileNotFoundException -> Log.e("ZipUtils", "File not found: $uri", e)
-                is IOException -> Log.e("ZipUtils", "IO Error reading zip: ${e.message}", e)
-                else -> Log.e("ZipUtils", "Unexpected error: ${e.message}", e)
+                is FileNotFoundException -> Timber.e(
+                    e,
+                    "Zip file not found, uri is %s, zip path is %s",
+                    uri.toString(), targetPath
+                )
+
+                is IOException -> Timber.e(e, "reading zip IO error: %s", e.message)
+                else -> Timber.e(e, "Unexpected error: %s", e.message)
             }
         }
 
