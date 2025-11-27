@@ -235,11 +235,12 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
                     }
 
                     TITLE -> {
-                        title = safeNextText(parser)
+                        title = safeNextText(parser).trim()
                     }
 
                     CREATOR -> {
-                        authors.add(safeNextText(parser))
+                        val author = safeNextText(parser).trim()
+                        authors.add(author)
                     }
 
                     IDENTIFIER -> {
@@ -248,24 +249,25 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
                                 ID
                             )
                         ) {
-                            uniqueIdentifier = safeNextText(parser)
+                            uniqueIdentifier = safeNextText(parser).trim()
                         }
                     }
 
                     LANGUAGE -> {
-                        language = safeNextText(parser)
+                        language = safeNextText(parser).trim()
                     }
 
                     DESCRIPTION -> {
-                        description = safeNextText(parser)
+                        description = safeNextText(parser).trim()
                     }
 
                     PUBLISHER -> {
-                        publisher = safeNextText(parser)
+                        publisher = safeNextText(parser).trim()
                     }
 
                     SUBJECT -> {
-                        subjects.add(safeNextText(parser))
+                        val subject = safeNextText(parser).trim()
+                        subjects.add(subject)
                     }
 
 
