@@ -9,11 +9,11 @@ class BookContentParserFactory @Inject constructor(
     private val epubContentParser: EpubContentParser
 ) {
 
-    fun getParser(format: String): BookContentParser {
+    fun getParser(format: String): BookContentParser? {
         return when (format) {
             "epub" -> epubContentParser
-            "pdf" -> throw UnsupportedOperationException("PDF content parsing not implemented yet")
-            else -> throw UnsupportedOperationException("Unsupported file formats")
+            "pdf" -> null
+            else -> null
         }
     }
 }

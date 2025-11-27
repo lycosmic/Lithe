@@ -14,6 +14,7 @@ import io.github.lycosmic.lithe.utils.ZipUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,10 +31,11 @@ class EpubContentParser @Inject constructor() : BookContentParser {
         bookUri: Uri,
         chapterHref: String
     ): List<ReaderContent> {
+        Timber.i("Start parsing the chapters, chapter path is %s", chapterHref)
         val contentList = mutableListOf<ReaderContent>()
 
         ZipUtils.findZipEntryAndAction(context, bookUri, chapterHref) { inputStream ->
-            // 使用 Jsoup 解析 HTML 流
+            // 使用 Jsoup 解析章节 HTML
             val doc = Jsoup.parse(inputStream, Charsets.UTF_8.toString(), chapterHref)
             val body = doc.body()
 
@@ -41,6 +43,10 @@ class EpubContentParser @Inject constructor() : BookContentParser {
             parseHtmlNode(context, bookUri, body, contentList, chapterHref)
         }
 
+        Timber.i(
+            "The content of the chapter is parsed, and a total of %s elements are completed",
+            contentList.size
+        )
         return contentList
     }
 

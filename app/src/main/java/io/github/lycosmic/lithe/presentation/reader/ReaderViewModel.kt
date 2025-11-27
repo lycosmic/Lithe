@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,11 +28,14 @@ class ReaderViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ReaderUiState())
     val uiState = _uiState.asStateFlow()
 
+    private var bookContentParser: BookContentParser? = null
+
     /**
      * 加载书籍
      */
     fun loadBook(bookId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
+            Timber.i("Start loading books, book ID: %s", bookId.toString())
             try {
                 val book = bookRepository.getBookById(bookId)
                 if (book == null) {
@@ -54,17 +58,23 @@ class ReaderViewModel @Inject constructor(
 
 
                 // 获取解析器
-                val parser = bookContentParserFactory.getParser(book.format)
+                bookContentParser = bookContentParserFactory.getParser(book.format)
                 val bookUri = book.fileUri.toUri()
+
 
                 // 默认加载第一章
                 val initialIndex = 0
 
+                Timber.i(
+                    "Starts loading the contents of the initial chapter with the chapter number %d",
+                    initialIndex
+                )
                 // 加载章节内容
-                loadChapterContent(parser, bookUri, spine, initialIndex)
-
+                bookContentParser?.let {
+                    loadChapterContent(it, bookUri, spine, initialIndex)
+                }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Timber.e(e, "Books fail to load")
                 _uiState.update { it.copy(isLoading = false, error = e.message) }
             }
         }
@@ -99,8 +109,10 @@ class ReaderViewModel @Inject constructor(
 
         if (nextIndex < currentState.spine.size) {
             viewModelScope.launch(Dispatchers.IO) {
-                val parser = bookContentParserFactory.getParser(book.format)
-                loadChapterContent(parser, book.fileUri.toUri(), currentState.spine, nextIndex)
+                bookContentParser?.let { parser ->
+                    loadChapterContent(parser, book.fileUri.toUri(), currentState.spine, nextIndex)
+                }
+
             }
         }
     }
@@ -112,8 +124,9 @@ class ReaderViewModel @Inject constructor(
 
         if (prevIndex >= 0) {
             viewModelScope.launch(Dispatchers.IO) {
-                val parser = bookContentParserFactory.getParser(book.format)
-                loadChapterContent(parser, book.fileUri.toUri(), currentState.spine, prevIndex)
+                bookContentParser?.let { parser ->
+                    loadChapterContent(parser, book.fileUri.toUri(), currentState.spine, prevIndex)
+                }
             }
         }
     }
