@@ -46,7 +46,7 @@ data class Book(
 
     val importTime: Long = System.currentTimeMillis(), // 导入时间, 用于最近添加排序
 
-    val lastReadTime: Long = System.currentTimeMillis(), // 最后阅读时间, 用于最近阅读排序
+    val lastReadTime: Long?, // 最后阅读时间, 用于最近阅读排序
 ) {
     companion object {
         val defaultBook = Book(
@@ -60,7 +60,7 @@ data class Book(
             coverPath = null,
             lastReadPosition = null,
             progress = 0f,
-            importTime = System.currentTimeMillis(),
+            lastReadTime = null,
             uniqueId = "default",
             language = "zh-CN",
             publisher = "未知",

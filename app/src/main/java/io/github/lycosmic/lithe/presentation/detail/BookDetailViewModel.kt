@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,7 +22,7 @@ class BookDetailViewModel @Inject constructor(
     private val bookRepository: BookRepository,
 ) : ViewModel() {
 
-    private val _book = MutableStateFlow<Book?>(Book.defaultBook)
+    private val _book = MutableStateFlow(Book.defaultBook)
     val book = _book.asStateFlow()
 
     // 自己维护的文件路径, 用来判断文件是否为空, 或有损坏
@@ -38,10 +39,10 @@ class BookDetailViewModel @Inject constructor(
                 scope = viewModelScope,
                 started = WhileSubscribed(stopTimeoutMillis = 5000),
                 initialValue = Book.defaultBook
-            ).collect { book ->
+            ).filterNotNull().collect { book ->
                 _book.value = book
 
-                book?.let {
+                book.let {
                     // 初始的文件路径
                     val path = UriUtils.parseUriToPath(book.fileUri.toUri())
                     _filePath.value = "${path.first}/${path.second}"
@@ -56,6 +57,14 @@ class BookDetailViewModel @Inject constructor(
             when (event) {
                 BookDetailEvent.OnBackClicked -> {
                     _effects.emit(BookDetailEffect.NavigateBack)
+                }
+
+                is BookDetailEvent.OnDeleteClicked -> {
+                    _effects.emit(BookDetailEffect.ShowDeleteBookDialog)
+                }
+
+                BookDetailEvent.OnMoveClicked -> {
+                    _effects.emit(BookDetailEffect.ShowMoveBookDialog)
                 }
             }
         }

@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.MoveUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -58,10 +60,19 @@ fun BookDetailScreen(
 
     var bottomSheetVisible by remember { mutableStateOf(false) }
 
+    var moveBookDialogVisible by remember { mutableStateOf(false) }
+
+    var deleteBookDialogVisible by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 BookDetailEffect.NavigateBack -> onNavigateToLibrary()
+                BookDetailEffect.ShowDeleteBookDialog -> {
+
+                }
+
+                BookDetailEffect.ShowMoveBookDialog -> TODO()
             }
         }
     }
@@ -102,10 +113,35 @@ fun BookDetailScreen(
                 .padding(paddings)
                 .padding(horizontal = 16.dp)
         ) {
-            //
 
 
             // 移动, 删除
+            Row(modifier = Modifier.fillMaxWidth()) {
+                IconButton(
+                    onClick = {
+                        viewModel.onEvent(BookDetailEvent.OnMoveClicked)
+                    },
+                ) {
+                    Icon(Icons.Outlined.MoveUp, contentDescription = "移动")
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                IconButton(
+                    onClick = {
+                        viewModel.onEvent(BookDetailEvent.OnDeleteClicked)
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "删除"
+                    )
+                }
+            }
+
+
+            // 简介
+            Text(text = book.description ?: "无简介", modifier = Modifier.fillMaxWidth())
 
             // 开始阅读按钮
             Button(onClick = {
@@ -116,13 +152,13 @@ fun BookDetailScreen(
         }
 
 
-        val lastOpenTime = if (book?.lastReadTime == null) {
+        val lastOpenTime = if (book.lastReadTime == null) {
             "永不"
         } else {
-            FileUtils.formatDate(book?.lastReadTime!!)
+            FileUtils.formatDate(book.lastReadTime!!)
         }
 
-        val size = FileUtils.formatFileSize(book?.fileSize ?: 0L)
+        val size = FileUtils.formatFileSize(book.fileSize)
 
         AnimatedVisibility(visible = bottomSheetVisible) {
             FileInfoBottomSheet(
@@ -138,6 +174,9 @@ fun BookDetailScreen(
     }
 }
 
+/**
+ * 文件信息底部弹窗
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FileInfoBottomSheet(

@@ -1,7 +1,6 @@
 package io.github.lycosmic.lithe.presentation.browse
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +19,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -227,11 +227,14 @@ class BrowseViewModel @Inject constructor(
      */
     fun confirmImport() {
         viewModelScope.launch(Dispatchers.IO) {
+            Timber.i("Start importing the user's selected books")
+
             // 获取所有用户勾选的文件
             val bookToImprots = _bookToImport.value.filter {
                 it.isSelected
             }
 
+            Timber.d("User selected %d books", bookToImprots.size)
 
             bookToImprots.forEach { bookToImport ->
 
@@ -244,10 +247,7 @@ class BrowseViewModel @Inject constructor(
 
                 if (bookRepository.getBookByUniqueId(uniqueId) != null) {
                     // 已有该书籍
-                    Log.i(
-                        "BrowseViewModel",
-                        "The book is already in the database with a unique identifier of $uniqueId"
-                    )
+                    Timber.w("The book is already in the database with a unique identifier of $uniqueId")
                     return@forEach
                 }
 
@@ -265,10 +265,14 @@ class BrowseViewModel @Inject constructor(
                     language = metadata.language ?: "zh-CN",
                     publisher = metadata.publisher ?: "未知",
                     subjects = metadata.subjects ?: emptyList(),
-                    bookmarks = sortedBookmarks
+                    bookmarks = sortedBookmarks,
+                    lastReadPosition = null,
+                    lastReadTime = null
                 )
                 bookRepository.importBook(book)
             }
+
+            Timber.i("Import books successfully")
 
             // 导入完成后，清空选中状态
             clearSelection()
