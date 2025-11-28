@@ -207,7 +207,13 @@ class BrowseViewModel @Inject constructor(
             // 解析元数据
             val parsedBooks = selectedFiles.map { file ->
                 async {
-                    val parser = parserFactory.getParser(file.type)
+                    Timber.d("Parsing metadata for file: %s", file.name)
+                    val parser = parserFactory.getParser(file.type.name)
+                    if (parser == null) {
+                        Timber.w("No parser found for file: %s", file.name)
+                        return@async null
+                    }
+
                     val metadata = parser.parse(application, file.uri)
 
                     BookToAdd(
@@ -215,7 +221,7 @@ class BrowseViewModel @Inject constructor(
                         metadata = metadata
                     )
                 }
-            }.awaitAll()
+            }.awaitAll().filterNotNull()
 
             _bookToImport.value = parsedBooks
             _isAddBooksDialogLoading.value = false

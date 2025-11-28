@@ -7,8 +7,8 @@ import android.provider.DocumentsContract
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import io.github.lycosmic.lithe.data.local.DirectoryDao
+import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.model.FileItem
-import io.github.lycosmic.lithe.data.model.FileType
 import io.github.lycosmic.lithe.data.model.ScannedDirectory
 import io.github.lycosmic.lithe.utils.UriUtils
 import kotlinx.coroutines.Deferred
@@ -149,7 +149,7 @@ class DirectoryRepository @Inject constructor(
                 val name = file.name?.substringAfterLast(".") ?: continue
                 val type = getFileType(name)
 
-                if (type == FileType.UNKNOWN) {
+                if (type == FileFormat.UNKNOWN) {
                     continue
                 }
 
@@ -227,7 +227,7 @@ class DirectoryRepository @Inject constructor(
                         // 判断文件类型
                         val type = getFileType(name)
 
-                        if (type != FileType.UNKNOWN) {
+                        if (type != FileFormat.UNKNOWN) {
                             // 构建文件 URI
                             val fileUri =
                                 DocumentsContract.buildDocumentUriUsingTree(treeUri, docId)
@@ -258,12 +258,12 @@ class DirectoryRepository @Inject constructor(
     }
 
 
-    private fun getFileType(name: String): FileType {
+    private fun getFileType(name: String): FileFormat {
         return when {
-            name.endsWith(".${FileType.EPUB.value}", true) -> FileType.EPUB
-            name.endsWith(".${FileType.PDF.value}", true) -> FileType.PDF
-            name.endsWith(".${FileType.TXT.value}", true) -> FileType.TXT
-            else -> FileType.UNKNOWN
+            name.endsWith(".${FileFormat.EPUB.value}", true) -> FileFormat.EPUB
+            name.endsWith(".${FileFormat.PDF.value}", true) -> FileFormat.PDF
+            name.endsWith(".${FileFormat.TXT.value}", true) -> FileFormat.TXT
+            else -> FileFormat.UNKNOWN
         }
     }
 }
