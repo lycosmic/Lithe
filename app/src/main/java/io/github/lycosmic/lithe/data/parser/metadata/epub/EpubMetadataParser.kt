@@ -3,8 +3,8 @@ package io.github.lycosmic.lithe.data.parser.metadata.epub
 import android.content.Context
 import android.net.Uri
 import android.util.Xml
+import io.github.lycosmic.lithe.data.model.BookSpineItem
 import io.github.lycosmic.lithe.data.model.ParsedMetadata
-import io.github.lycosmic.lithe.data.model.content.BookSpineItem
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParser
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.COVER
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.CREATOR

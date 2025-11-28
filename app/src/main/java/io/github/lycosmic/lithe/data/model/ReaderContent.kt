@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data.model.content
+package io.github.lycosmic.lithe.data.model
 
 import androidx.compose.ui.text.AnnotatedString
 

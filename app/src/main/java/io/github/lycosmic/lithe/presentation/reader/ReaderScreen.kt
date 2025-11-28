@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.em
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import io.github.lycosmic.lithe.data.model.content.ReaderContent
+import io.github.lycosmic.lithe.data.model.ReaderContent
 import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
 
 @Composable

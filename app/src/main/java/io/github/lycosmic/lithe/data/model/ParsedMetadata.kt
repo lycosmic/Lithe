@@ -1,7 +1,5 @@
 package io.github.lycosmic.lithe.data.model
 
-import io.github.lycosmic.lithe.data.model.content.BookSpineItem
-
 /**
  * 书籍解析结果
  */

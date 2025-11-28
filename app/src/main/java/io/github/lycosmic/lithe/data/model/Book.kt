@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import io.github.lycosmic.lithe.data.local.converter.EpubTypeConverters
-import io.github.lycosmic.lithe.data.model.content.BookSpineItem
 import kotlinx.serialization.Serializable
 
 @Entity(

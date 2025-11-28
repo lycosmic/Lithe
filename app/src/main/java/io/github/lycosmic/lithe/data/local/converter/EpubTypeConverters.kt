@@ -3,7 +3,7 @@ package io.github.lycosmic.lithe.data.local.converter
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import io.github.lycosmic.lithe.data.model.content.BookSpineItem
+import io.github.lycosmic.lithe.data.model.BookSpineItem
 
 class EpubTypeConverters {
     @TypeConverter

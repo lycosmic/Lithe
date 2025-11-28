@@ -2,7 +2,7 @@ package io.github.lycosmic.lithe.data.parser.content
 
 import android.content.Context
 import android.net.Uri
-import io.github.lycosmic.lithe.data.model.content.ReaderContent
+import io.github.lycosmic.lithe.data.model.ReaderContent
 
 interface BookContentParser {
 

@@ -8,7 +8,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import io.github.lycosmic.lithe.data.model.content.ReaderContent
+import io.github.lycosmic.lithe.data.model.ReaderContent
 import io.github.lycosmic.lithe.data.parser.content.BookContentParser
 import io.github.lycosmic.lithe.utils.ZipUtils
 import org.jsoup.Jsoup
