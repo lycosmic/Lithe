@@ -115,7 +115,7 @@ fun ReaderScreen(
 
                             is ReaderContent.Image -> {
                                 AsyncImage(
-                                    model = content.relativePath,
+                                    model = content.path,
                                     contentDescription = null,
                                     alignment = Alignment.TopStart,
                                     modifier = Modifier.fillMaxWidth()

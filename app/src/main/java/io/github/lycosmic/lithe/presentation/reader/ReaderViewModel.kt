@@ -1,6 +1,5 @@
 package io.github.lycosmic.lithe.presentation.reader
 
-import android.app.Application
 import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
@@ -20,7 +19,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
-    private val application: Application,
     private val bookRepository: BookRepository,
     private val bookContentParserFactory: BookContentParserFactory
 ) : ViewModel() {
@@ -88,9 +86,13 @@ class ReaderViewModel @Inject constructor(
     ) {
         _uiState.update { it.copy(isLoading = true) }
 
+        if (spine.isEmpty()) {
+            Timber.e("Spine is empty")
+            return
+        }
         val chapterItem = spine[index]
         // 调用解析器解析具体内容
-        val content = parser.parseChapterContent(application, bookUri, chapterItem.contentHref)
+        val content = parser.parseChapterContent(bookUri, chapterItem.contentHref)
 
         _uiState.update {
             it.copy(

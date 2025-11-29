@@ -1,8 +1,6 @@
 package io.github.lycosmic.lithe.utils
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -12,15 +10,15 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.util.UUID
+import java.security.MessageDigest
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 object ZipUtils {
 
     /**
-     * 处理 Zip 条目
-     * @param targetPath 目标文件相对路径
+     * 在 Zip 文件中查找指定路径的 Zip 条目并执行操作
+     * @param targetPath Zip 内部的相对路径
      */
     suspend fun <T> findZipEntryAndAction(
         context: Context,
@@ -30,11 +28,17 @@ object ZipUtils {
             (InputStream) -> T
     ): T? = withContext(Dispatchers.IO) {
         try {
-            context.contentResolver.openInputStream(uri).use { inputStream ->
-                ZipInputStream(inputStream?.buffered()).use { zipInputStream ->
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                // 增加缓冲流
+                ZipInputStream(inputStream.buffered()).use { zipInputStream ->
                     var entry: ZipEntry? = zipInputStream.nextEntry
                     while (entry != null) {
-                        if (entry.name.equals(targetPath, ignoreCase = false)) {
+                        // 忽略目录
+                        if (!entry.isDirectory && entry.name.equals(
+                                targetPath,
+                                ignoreCase = false
+                            )
+                        ) {
                             return@withContext action(zipInputStream)
                         }
                         zipInputStream.closeEntry()
@@ -46,82 +50,117 @@ object ZipUtils {
             when (e) {
                 is FileNotFoundException -> Timber.e(
                     e,
-                    "Zip file not found, uri is %s, zip path is %s",
-                    uri.toString(), targetPath
+                    "Zip file not found: %s",
+                    uri
                 )
 
-                is IOException -> Timber.e(e, "reading zip IO error: %s", e.message)
-                else -> Timber.e(e, "Unexpected error: %s", e.message)
+                is IOException -> Timber.e(e, "IO error reading zip: %s", targetPath)
+                else -> Timber.e(e, "Unexpected error in ZipUtils")
             }
         }
 
         return@withContext null
     }
 
-
     /**
-     * 将指定 Zip 相对路径的图片保存应用私有目录
+     * 将 Zip 中的封面提取到应用存储目录
      */
     suspend fun extractCoverToStorage(
         context: Context,
         uri: Uri,
         coverZipPath: String,
     ): String? = withContext(Dispatchers.IO) {
-        val coversDir = File(context.filesDir, "covers")
-        return@withContext extractCoverToDir(context, coversDir, uri, coverZipPath)
+        val cacheDir = File(context.filesDir, "covers")
+        if (!cacheDir.exists()) cacheDir.mkdirs()
+
+        val cacheKey = generateCacheKey(uri.toString(), coverZipPath)
+        val destFile = File(cacheDir, "$cacheKey.jpg")
+
+        if (destFile.exists() && destFile.length() > 0) {
+            Timber.d("Cache hit: %s", destFile.absolutePath)
+            return@withContext destFile.absolutePath
+        }
+
+        return@withContext copyZipEntryToFile(context, uri, destFile, coverZipPath)
     }
 
+
     /**
-     * 将指定 Zip 相对路径的图片保存到缓存目录
+     * 将 Zip 中的封面提取到缓存目录
      */
     suspend fun extractCoverToCache(
         context: Context,
         uri: Uri,
         coverZipPath: String,
     ): String? = withContext(Dispatchers.IO) {
-        val imagesDir = File(context.cacheDir, "reader_images")
+        val cacheDir = File(context.cacheDir, "reader_images")
+        if (!cacheDir.exists()) cacheDir.mkdirs()
 
-        // 如果缓存里已经有了，直接返回路径
-        if (imagesDir.exists() && imagesDir.length() > 0) {
-            return@withContext imagesDir.absolutePath
+        // 生成稳定的缓存文件名
+        val cacheKey = generateCacheKey(uri.toString(), coverZipPath)
+        val destFile = File(cacheDir, "$cacheKey.jpg")
+
+        // 检查缓存是否存在且有效
+        if (destFile.exists() && destFile.length() > 0) {
+            Timber.d("Cache hit: %s", destFile.absolutePath)
+            return@withContext destFile.absolutePath
         }
-        return@withContext extractCoverToDir(context, imagesDir, uri, coverZipPath)
+
+        // 提取文件
+        return@withContext copyZipEntryToFile(context, uri, destFile, coverZipPath)
     }
 
     /**
-     * 将指定 Zip 相对路径的图片保存到指定目录
+     * 将 Zip 中的文件直接拷贝到目标文件/目录
      */
-    suspend fun extractCoverToDir(
+    private suspend fun copyZipEntryToFile(
         context: Context,
-        dir: File, // 目标目录
         uri: Uri,
-        coverZipPath: String,
-    ): String? = withContext(Dispatchers.IO) {
-        // 目录
-        dir
-        if (!dir.exists()) dir.mkdirs()
+        destFile: File,
+        zipPath: String,
+    ): String? {
+        return findZipEntryAndAction(context, uri, zipPath) { inputStream ->
 
-        // 生成安全的文件名
-        val fileName = UUID.randomUUID().toString().replace("-", "")
-        val destFile = File(dir, "cover_${fileName}_${System.currentTimeMillis()}.jpg")
+            var tmpFile: File? = null
 
-        return@withContext findZipEntryAndAction(
-            context,
-            uri,
-            coverZipPath
-        ) { inputStream ->
-            // 保存到本地
-            FileOutputStream(destFile).use { fos ->
-                // 压缩图片
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                bitmap?.compress(Bitmap.CompressFormat.JPEG, 80, fos)
-                bitmap?.recycle()
+            try {
+                // 临时文件机制
+                tmpFile = File(destFile.parent, "${destFile.name}.tmp")
+
+                FileOutputStream(tmpFile).use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+
+                // 写入成功后重命名为正式文件
+                if (destFile.exists()) destFile.delete()
+                tmpFile.renameTo(destFile)
+
+                return@findZipEntryAndAction destFile.absolutePath
+            } catch (e: IOException) {
+                // 删除临时文件
+                tmpFile?.delete()
+                Timber.e(e, "Error writing cover to storage")
+                return@findZipEntryAndAction null
             }
-            return@findZipEntryAndAction destFile.absolutePath
-        } ?: run {
-            // 删除文件
-            destFile.delete()
-            null
         }
     }
+
+
+    /**
+     * 使用 MD5/Hash 生成简单的唯一文件名
+     */
+    private fun generateCacheKey(uriPart: String, pathPart: String): String {
+        val key = "$uriPart-$pathPart"
+        return try {
+            val bytes = MessageDigest.getInstance("MD5").digest(key.toByteArray())
+            return buildString {
+                for (b in bytes) {
+                    append(String.format("%02x", b))
+                }
+            }
+        } catch (_: Exception) {
+            (uriPart.hashCode() + pathPart.hashCode()).toString()
+        }
+    }
+
 }
