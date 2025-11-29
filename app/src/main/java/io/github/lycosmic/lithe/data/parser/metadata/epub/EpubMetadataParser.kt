@@ -24,6 +24,7 @@ import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.Opf
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.SUBJECT
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.TITLE
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.UNIQUE_IDENTIFIER
+import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.utils.ZipUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -59,6 +60,10 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
             parseResult = parseOpfXml(inputStream)
         }
 
+        logD {
+            "OPF file parsing results: $parseResult"
+        }
+
         // 封面相对路径
         val coverRelativePath = parseResult?.coverHref
 
@@ -72,15 +77,55 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
             localCoverPath =
                 ZipUtils.extractCoverToStorage(context, uri, zipRelativePath)
         }
-
-        // 解析 toc.ncx 文件, 获取目录顺序
-        val tocFilePath = opfParentPath + TOC_NCX
-        val spineItems = mutableListOf<BookSpineItem>()
-        ZipUtils.findZipEntryAndAction(context, uri, tocFilePath) { inputStream ->
-            val items = parseNcxXml(inputStream, opfParentPath)
-            spineItems.addAll(items)
+        logD {
+            "Cover path: $localCoverPath"
         }
 
+        // 根据 OPF 解析结果, 获取目录顺序
+        val spineItems = mutableListOf<BookSpineItem>()
+        val manifest = parseResult?.manifest
+        val spine = parseResult?.spine
+        if (manifest != null && spine != null) {
+            spine.forEachIndexed { index, id ->
+                val manifestItem = manifest[id]
+
+                if (manifestItem == null) {
+                    logD {
+                        "Manifest item not found, spine id: $id"
+                    }
+                    return@forEachIndexed
+                }
+
+                logD {
+                    "Manifest item: $manifestItem"
+                }
+
+
+                val chapterRelativePath = opfParentPath + manifestItem.href
+
+                // 解析章节文件获取标题
+                val title = parseChapterTitle(
+                    context,
+                    uri,
+                    chapterRelativePath
+                )
+
+                spineItems.add(
+                    BookSpineItem(
+                        id = id,
+                        order = index,
+                        contentHref = chapterRelativePath,
+                        label = title
+                    )
+                )
+
+            }
+            spineItems.forEach {
+                logD {
+                    "Spine item: $it"
+                }
+            }
+        }
 
         return ParsedMetadata(
             uniqueId = parseResult?.uniqueIdentifier,
@@ -93,6 +138,45 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
             coverPath = localCoverPath,
             bookmarks = spineItems
         )
+    }
+
+    /**
+     * 解析章节标题
+     */
+    private suspend fun parseChapterTitle(
+        context: Context,
+        uri: Uri,
+        relativePath: String
+    ): String = withContext(Dispatchers.IO) {
+        val title = ZipUtils.findZipEntryAndAction(
+            context,
+            uri,
+            relativePath
+        ) { inputStream ->
+            val parser = Xml.newPullParser()
+            parser.setInput(inputStream, UTF_8)
+
+            var eventType = parser.eventType
+
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                when (eventType) {
+                    XmlPullParser.START_TAG -> {
+                        val tagName = parser.name
+                        if (tagName == TITLE) {
+                            return@findZipEntryAndAction safeNextText(parser)
+                        }
+                    }
+                }
+                eventType = parser.next()
+            }
+
+            logD {
+                "Title not found, chapter path: $relativePath"
+            }
+            return@findZipEntryAndAction null
+        }
+
+        return@withContext title ?: ""
     }
 
     /**
@@ -316,73 +400,6 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
     }
 
     /**
-     * 解析 NCX 内容, 获取目录顺序
-     */
-    private suspend fun parseNcxXml(
-        inputStream: InputStream,
-        parentPath: String,
-    ): List<BookSpineItem> =
-        withContext(Dispatchers.IO) {
-            val parser = Xml.newPullParser()
-            parser.setInput(inputStream, UTF_8)
-
-            val spine = mutableListOf<BookSpineItem>()
-
-            var id: String? = null
-            var playOrder: String? = null
-            var label: String? = null
-            var contentSrc: String? = null
-
-            var eventType = parser.eventType
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                when (eventType) {
-                    XmlPullParser.START_TAG -> {
-                        val tagName = parser.name
-
-                        when (tagName) {
-                            NAV_POINT -> {
-                                id = parser.getAttributeValue(null, ID)
-                                playOrder = parser.getAttributeValue(null, PLAY_ORDER)
-                            }
-
-                            TEXT -> {
-                                label = safeNextText(parser)
-                            }
-
-                            CONTENT -> {
-                                contentSrc = parser.getAttributeValue(null, SRC)
-                            }
-                        }
-                    }
-
-                    XmlPullParser.END_TAG -> {
-                        val tagName = parser.name
-
-                        if (tagName == NAV_POINT && id != null && playOrder != null && label != null && contentSrc != null) {
-                            spine.add(
-                                BookSpineItem(
-                                    id,
-                                    playOrder.toInt(),
-                                    parentPath + contentSrc,
-                                    label
-                                )
-                            )
-
-                            id = null
-                            playOrder = null
-                            label = null
-                            contentSrc = null
-                        }
-                    }
-                }
-                eventType = parser.next()
-            }
-
-
-            return@withContext spine
-        }
-
-    /**
      * 安全读取 Text，防止 XML 格式不标准导致崩溃
      */
     private fun safeNextText(parser: XmlPullParser): String {
@@ -397,20 +414,10 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
     companion object {
         private const val CONTAINER_RELATIVE_PATH = "META-INF/container.xml"
         private const val DEFAULT_OPF_RELATIVE_PATH = "OEBPS/content.opf"
-
-        private const val TOC_NCX = "toc.ncx"
         private const val ROOT_FILE = "rootfile"
-
         private const val FULL_PATH = "full-path"
-
         private const val OPF_SUFFIX = ".opf"
-
         private const val UTF_8 = "UTF-8"
-
-        private const val NAV_POINT = "navPoint"
-        private const val PLAY_ORDER = "playOrder"
         private const val CONTENT = "content"
-        private const val TEXT = "text"
-        private const val SRC = "src"
     }
 }

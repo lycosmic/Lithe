@@ -138,6 +138,8 @@ class EpubContentParser @Inject constructor(
                             if (styledText.text.trim().isNotEmpty()) {
                                 accumulator.add(ReaderContent.Paragraph(styledText))
                             }
+
+                            traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
                         }
 
                         "image" -> {
@@ -171,6 +173,47 @@ class EpubContentParser @Inject constructor(
                                 continue
                             }
                             logV {
+                                "The cached image path is $imagePath"
+                            }
+
+                            accumulator.add(
+                                ReaderContent.Image(
+                                    path = imagePath
+                                )
+                            )
+                        }
+
+                        "img" -> {
+                            logV {
+                                "Encountered an img tag"
+                            }
+
+                            var src =
+                                node.attr("src")
+                                    .trim()
+
+                            if (src.isEmpty()) {
+                                src = node.attr("href").trim()
+                            }
+
+                            if (src.isEmpty()) {
+                                src = node.attr(node.attr("xlink:href")).trim()
+                            }
+
+                            val imageRelativePath = resolveRelativePath(chapterRelativePath, src)
+                            val imagePath = extractCoverToCache(
+                                context = application.applicationContext,
+                                bookUri,
+                                imageRelativePath
+                            )
+
+                            if (imagePath.isNullOrEmpty()) {
+                                logE {
+                                    "Failed to cache the image, the cached image path is empty"
+                                }
+                                continue
+                            }
+                            logD {
                                 "The cached image path is $imagePath"
                             }
 

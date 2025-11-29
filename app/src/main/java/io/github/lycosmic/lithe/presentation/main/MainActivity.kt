@@ -25,6 +25,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.presentation.navigation.AppNavigation
 import io.github.lycosmic.lithe.presentation.navigation.AppNavigationViewModel
 import io.github.lycosmic.lithe.ui.navigation.AppTabs
@@ -48,6 +49,9 @@ class MainActivity : ComponentActivity() {
         }
 
         super.onCreate(savedInstanceState)
+        logI {
+            "MainActivity onCreate"
+        }
         enableEdgeToEdge()
         setContent {
             val isDark by

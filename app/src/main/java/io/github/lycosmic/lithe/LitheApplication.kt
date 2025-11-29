@@ -2,6 +2,7 @@ package io.github.lycosmic.lithe
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
+import io.github.lycosmic.lithe.extension.logI
 import timber.log.Timber
 
 @HiltAndroidApp
@@ -9,6 +10,9 @@ class LitheApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         initLogger()
+        logI {
+            "LitheApplication is created"
+        }
     }
 
     private fun initLogger() {
