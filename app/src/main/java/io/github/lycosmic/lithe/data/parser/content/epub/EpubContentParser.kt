@@ -13,6 +13,7 @@ import io.github.lycosmic.lithe.data.parser.content.BookContentParser
 import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.extension.logI
+import io.github.lycosmic.lithe.extension.logV
 import io.github.lycosmic.lithe.utils.ZipUtils
 import io.github.lycosmic.lithe.utils.ZipUtils.extractCoverToCache
 import kotlinx.coroutines.Dispatchers
@@ -88,13 +89,13 @@ class EpubContentParser @Inject constructor(
                     // 纯文本节点
                     val text = node.text().trim()
                     if (text.isNotEmpty()) {
-                        logD {
+                        logV {
                             "Encountered a text node: $text"
                         }
                         // 段落
                         accumulator.add(ReaderContent.Paragraph(AnnotatedString(text)))
                     } else {
-                        logD {
+                        logV {
                             "Encountered a blank text node"
                         }
                     }
@@ -102,7 +103,7 @@ class EpubContentParser @Inject constructor(
 
                 is Comment -> {
                     // 忽略注释
-                    logD {
+                    logV {
                         "Encountered a comment node: $node"
                     }
                 }
@@ -110,7 +111,7 @@ class EpubContentParser @Inject constructor(
                 is Element -> {
                     when (node.tagName()) {
                         "h1", "h2", "h3", "h4", "h5", "h6" -> {
-                            logD {
+                            logV {
                                 "Encountered a heading tag: ${node.tagName()}"
                             }
 
@@ -128,7 +129,7 @@ class EpubContentParser @Inject constructor(
                         }
 
                         "p" -> {
-                            logD {
+                            logV {
                                 "Encountered a paragraph tag"
                             }
 
@@ -140,7 +141,7 @@ class EpubContentParser @Inject constructor(
                         }
 
                         "image" -> {
-                            logD {
+                            logV {
                                 "Encountered an image tag"
                             }
                             var src =
@@ -169,7 +170,7 @@ class EpubContentParser @Inject constructor(
                                 }
                                 continue
                             }
-                            logD {
+                            logV {
                                 "The cached image path is $imagePath"
                             }
 
@@ -182,21 +183,21 @@ class EpubContentParser @Inject constructor(
 
                         "figure", "div" -> {
                             // 遇到容器类标签, 继续递归
-                            logD {
+                            logV {
                                 "Encountered a container tag: ${node.tagName()}"
                             }
                             traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
                         }
 
                         "svg" -> {
-                            logD {
+                            logV {
                                 "Encountered an svg tag"
                             }
                             traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
                         }
 
                         else -> {
-                            logD {
+                            logV {
                                 "Encountered an unknown tag: ${node.tagName()}"
                             }
                             traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)

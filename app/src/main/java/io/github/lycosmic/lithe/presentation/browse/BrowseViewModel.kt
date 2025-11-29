@@ -266,7 +266,9 @@ class BrowseViewModel @Inject constructor(
             }
 
             bookToImprots.forEach { bookToImport ->
-
+                logD {
+                    "Books to be imported: ${bookToImport.file.name}, metadata: ${bookToImport.metadata}, file item: ${bookToImport.file}"
+                }
                 val metadata = bookToImport.metadata
                 val bookFile = bookToImport.file
                 val uniqueId = metadata.uniqueId ?: bookFile.uri.toString()
