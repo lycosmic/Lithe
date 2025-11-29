@@ -25,10 +25,14 @@ import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.Opf
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.TITLE
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.UNIQUE_IDENTIFIER
 import io.github.lycosmic.lithe.extension.logD
+import io.github.lycosmic.lithe.extension.logE
+import io.github.lycosmic.lithe.extension.logV
+import io.github.lycosmic.lithe.extension.logW
 import io.github.lycosmic.lithe.utils.ZipUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
+import java.io.BufferedInputStream
 import java.io.InputStream
 import java.net.URLDecoder
 import java.util.zip.ZipEntry
@@ -86,30 +90,33 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
         val manifest = parseResult?.manifest
         val spine = parseResult?.spine
         if (manifest != null && spine != null) {
-            spine.forEachIndexed { index, id ->
+            // 获取章节文件相对路径
+            val chapterRelativePaths = spine.mapNotNull { id ->
                 val manifestItem = manifest[id]
-
-                if (manifestItem == null) {
+                if (manifestItem != null) {
+                    logD {
+                        "Manifest item: $manifestItem"
+                    }
+                    opfParentPath + manifestItem.href
+                } else {
                     logD {
                         "Manifest item not found, spine id: $id"
                     }
-                    return@forEachIndexed
+                    null
                 }
+            }
 
-                logD {
-                    "Manifest item: $manifestItem"
-                }
+            // 解析章节文件获取标题
+            val map = parseChapterTitlesBatch(
+                context,
+                uri,
+                chapterRelativePaths
+            )
 
 
-                val chapterRelativePath = opfParentPath + manifestItem.href
-
-                // 解析章节文件获取标题
-                val title = parseChapterTitle(
-                    context,
-                    uri,
-                    chapterRelativePath
-                )
-
+            chapterRelativePaths.forEachIndexed { index, chapterRelativePath ->
+                val title = map[chapterRelativePath] ?: "Unknown Title"
+                val id = spine[index]
                 spineItems.add(
                     BookSpineItem(
                         id = id,
@@ -118,12 +125,6 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
                         label = title
                     )
                 )
-
-            }
-            spineItems.forEach {
-                logD {
-                    "Spine item: $it"
-                }
             }
         }
 
@@ -142,41 +143,77 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
 
     /**
      * 解析章节标题
+     * @param targetPaths 章节文件的 ZIP 相对路径列表
      */
-    private suspend fun parseChapterTitle(
+    suspend fun parseChapterTitlesBatch(
         context: Context,
         uri: Uri,
-        relativePath: String
-    ): String = withContext(Dispatchers.IO) {
-        val title = ZipUtils.findZipEntryAndAction(
-            context,
-            uri,
-            relativePath
-        ) { inputStream ->
+        targetPaths: List<String>
+    ): Map<String, String> = withContext(Dispatchers.IO) {
+        // 待处理的章节文件 ZIP 相对路径列表
+        val remainingPaths = targetPaths.toMutableSet()
+        val results = mutableMapOf<String, String>()
+
+        if (remainingPaths.isEmpty()) return@withContext results
+
+        try {
+            val contentResolver = context.contentResolver
+            val inputStream = contentResolver.openInputStream(uri)
+
+            inputStream?.use { stream ->
+                val bufferedStream = BufferedInputStream(stream)
+                val zipInputStream = ZipInputStream(bufferedStream)
+
+                var zipEntry = zipInputStream.nextEntry
+
+                while (zipEntry != null && remainingPaths.isNotEmpty()) {
+                    val entryName = zipEntry.name
+
+                    logV {
+                        "Chapter zip entry: $entryName"
+                    }
+
+                    if (remainingPaths.contains(entryName)) {
+                        val title = parseTitleFromStream(zipInputStream)
+
+                        results[entryName] = title
+                        remainingPaths.remove(entryName)
+                    }
+
+                    zipInputStream.closeEntry()
+                    zipEntry = zipInputStream.nextEntry
+                }
+            }
+        } catch (e: Exception) {
+            logE(e = e) {
+                "Error parsing chapter titles, remaining paths: $remainingPaths"
+            }
+        }
+
+        return@withContext results
+    }
+
+    private fun parseTitleFromStream(inputStream: InputStream): String {
+        try {
             val parser = Xml.newPullParser()
             parser.setInput(inputStream, UTF_8)
 
             var eventType = parser.eventType
-
             while (eventType != XmlPullParser.END_DOCUMENT) {
-                when (eventType) {
-                    XmlPullParser.START_TAG -> {
-                        val tagName = parser.name
-                        if (tagName == TITLE) {
-                            return@findZipEntryAndAction safeNextText(parser)
-                        }
+                if (eventType == XmlPullParser.START_TAG) {
+                    if (parser.name.equals(TITLE, ignoreCase = false)) {
+                        return safeNextText(parser)
                     }
                 }
                 eventType = parser.next()
             }
-
-            logD {
-                "Title not found, chapter path: $relativePath"
+        } catch (e: Exception) {
+            logW(e = e) {
+                "Error parsing title, use default title Unknown"
             }
-            return@findZipEntryAndAction null
+            return "Unknown"
         }
-
-        return@withContext title ?: ""
+        return ""
     }
 
     /**
