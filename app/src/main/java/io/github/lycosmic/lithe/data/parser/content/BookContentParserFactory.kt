@@ -2,7 +2,7 @@ package io.github.lycosmic.lithe.data.parser.content
 
 import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.parser.content.epub.EpubContentParser
-import timber.log.Timber
+import io.github.lycosmic.lithe.extension.logE
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,7 +17,9 @@ class BookContentParserFactory @Inject constructor(
             FileFormat.TXT.value -> null
             FileFormat.PDF.value -> null
             else -> {
-                Timber.e("Unknown file format: %s", fileFormat)
+                logE {
+                    "Unknown file format: $fileFormat"
+                }
                 null
             }
         }

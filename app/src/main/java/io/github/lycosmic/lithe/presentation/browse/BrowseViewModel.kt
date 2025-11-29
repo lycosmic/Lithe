@@ -9,6 +9,9 @@ import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.data.repository.DirectoryRepository
+import io.github.lycosmic.lithe.extension.logD
+import io.github.lycosmic.lithe.extension.logI
+import io.github.lycosmic.lithe.extension.logW
 import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -19,7 +22,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -201,20 +203,32 @@ class BrowseViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _isAddBooksDialogLoading.value = true
 
+            logI {
+                "Start parsing book metadata"
+            }
+
             // 从 Set 中获取选中的文件
             val selectedFiles = getSelectedFiles()
 
             // 解析元数据
             val parsedBooks = selectedFiles.map { file ->
                 async {
-                    Timber.d("Parsing metadata for file: %s", file.name)
+                    logD {
+                        "Parsing metadata for file: ${file.name}"
+                    }
                     val parser = parserFactory.getParser(file.type.value)
                     if (parser == null) {
-                        Timber.w("No parser found for file: %s", file.name)
+                        logW {
+                            "No parser found for file: ${file.name}"
+                        }
                         return@async null
                     }
 
                     val metadata = parser.parse(application, file.uri)
+
+                    logD {
+                        "Parsed metadata for file: ${file.name}, metadata: $metadata"
+                    }
 
                     return@async BookToAdd(
                         file = file,
@@ -224,8 +238,11 @@ class BrowseViewModel @Inject constructor(
             }.awaitAll()
 
 
-
             _bookToImport.value = parsedBooks.filterNotNull()
+
+            logI {
+                "Finished parsing book metadata"
+            }
             _isAddBooksDialogLoading.value = false
         }
     }
@@ -235,14 +252,18 @@ class BrowseViewModel @Inject constructor(
      */
     fun confirmImport() {
         viewModelScope.launch(Dispatchers.IO) {
-            Timber.i("Start importing the user's selected books")
+            logI {
+                "Start importing the user's selected books"
+            }
 
             // 获取所有用户勾选的文件
             val bookToImprots = _bookToImport.value.filter {
                 it.isSelected
             }
 
-            Timber.d("User selected %d books", bookToImprots.size)
+            logD {
+                "User selected ${bookToImprots.size} books"
+            }
 
             bookToImprots.forEach { bookToImport ->
 
@@ -255,7 +276,9 @@ class BrowseViewModel @Inject constructor(
 
                 if (bookRepository.getBookByUniqueId(uniqueId) != null) {
                     // 已有该书籍
-                    Timber.w("The book is already in the database with a unique identifier of $uniqueId")
+                    logW {
+                        "The book is already in the database with a unique identifier of $uniqueId"
+                    }
                     return@forEach
                 }
 
@@ -280,7 +303,9 @@ class BrowseViewModel @Inject constructor(
                 bookRepository.importBook(book)
             }
 
-            Timber.i("Import books successfully")
+            logI {
+                "Import books successfully"
+            }
 
             // 导入完成后，清空选中状态
             clearSelection()

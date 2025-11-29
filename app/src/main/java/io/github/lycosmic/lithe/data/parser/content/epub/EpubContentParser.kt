@@ -10,6 +10,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import io.github.lycosmic.lithe.data.model.ReaderContent
 import io.github.lycosmic.lithe.data.parser.content.BookContentParser
+import io.github.lycosmic.lithe.extension.logD
+import io.github.lycosmic.lithe.extension.logE
+import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.utils.ZipUtils
 import io.github.lycosmic.lithe.utils.ZipUtils.extractCoverToCache
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +22,6 @@ import org.jsoup.nodes.Comment
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,7 +39,9 @@ class EpubContentParser @Inject constructor(
         bookUri: Uri,
         chapterHref: String
     ): List<ReaderContent> = withContext(Dispatchers.IO) {
-        Timber.i("Start parsing the chapters, chapter path is %s", chapterHref)
+        logI {
+            "Start parsing the chapters, chapter path is $chapterHref"
+        }
         val readerContentList = mutableListOf<ReaderContent>()
 
         ZipUtils.findZipEntryAndAction(
@@ -53,14 +57,15 @@ class EpubContentParser @Inject constructor(
             val readerContents = mutableListOf<ReaderContent>()
             // 传入累加器
             traverseHtmlElement(bookUri, body, readerContents, chapterHref)
-            Timber.d("The parsed reading content is %s", readerContents)
+            logD {
+                "The parsed reading content is $readerContents"
+            }
             readerContentList.addAll(readerContents)
         }
 
-        Timber.i(
-            "The content of the chapter is parsed, and a total of %s elements are completed",
-            readerContentList.size
-        )
+        logI {
+            "The chapter content is parsed, and a total of ${readerContentList.size} elements are completed"
+        }
         return@withContext readerContentList
     }
 
@@ -83,23 +88,31 @@ class EpubContentParser @Inject constructor(
                     // 纯文本节点
                     val text = node.text().trim()
                     if (text.isNotEmpty()) {
-                        Timber.d("Encountered a text node: %s", node.text())
+                        logD {
+                            "Encountered a text node: $text"
+                        }
                         // 段落
                         accumulator.add(ReaderContent.Paragraph(AnnotatedString(text)))
                     } else {
-                        Timber.d("Encountered a blank text node")
+                        logD {
+                            "Encountered a blank text node"
+                        }
                     }
                 }
 
                 is Comment -> {
                     // 忽略注释
-                    Timber.d("Encountered a comment node: %s", node.toString())
+                    logD {
+                        "Encountered a comment node: $node"
+                    }
                 }
 
                 is Element -> {
                     when (node.tagName()) {
                         "h1", "h2", "h3", "h4", "h5", "h6" -> {
-                            Timber.d("Encountered a heading tag: %s", node.tagName())
+                            logD {
+                                "Encountered a heading tag: ${node.tagName()}"
+                            }
 
                             val title = node.text().trim()
                             if (title.isNotEmpty()) {
@@ -115,7 +128,9 @@ class EpubContentParser @Inject constructor(
                         }
 
                         "p" -> {
-                            Timber.d("Encountered the <p> tag")
+                            logD {
+                                "Encountered a paragraph tag"
+                            }
 
                             // 解析段落
                             val styledText = parseStyledText(node)
@@ -125,7 +140,9 @@ class EpubContentParser @Inject constructor(
                         }
 
                         "image" -> {
-                            Timber.d("Encountered the <image> tag")
+                            logD {
+                                "Encountered an image tag"
+                            }
                             var src =
                                 node.attr("xlink:href")
                                     .trim()
@@ -147,10 +164,14 @@ class EpubContentParser @Inject constructor(
                             )
 
                             if (imagePath.isNullOrEmpty()) {
-                                Timber.e("The cached image path is empty")
+                                logE {
+                                    "Failed to cache the image, the cached image path is empty"
+                                }
                                 continue
                             }
-                            Timber.d("The cached image path is %s", imagePath)
+                            logD {
+                                "The cached image path is $imagePath"
+                            }
 
                             accumulator.add(
                                 ReaderContent.Image(
@@ -161,17 +182,23 @@ class EpubContentParser @Inject constructor(
 
                         "figure", "div" -> {
                             // 遇到容器类标签, 继续递归
-                            Timber.d("Encountered container tag: %s", node.tagName())
+                            logD {
+                                "Encountered a container tag: ${node.tagName()}"
+                            }
                             traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
                         }
 
                         "svg" -> {
-                            Timber.d("Encountered the <svg> tag")
+                            logD {
+                                "Encountered an svg tag"
+                            }
                             traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
                         }
 
                         else -> {
-                            Timber.d("Encountered an unknown tag: %s", node.tagName())
+                            logD {
+                                "Encountered an unknown tag: ${node.tagName()}"
+                            }
                             traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
                         }
                     }
@@ -235,6 +262,9 @@ class EpubContentParser @Inject constructor(
 
             return resolved.path.removePrefix("/root/")
         } catch (_: Exception) {
+            logE {
+                "Failed to resolve the relative path: $relativeUrl from base file: $baseFile"
+            }
             return relativeUrl // 失败降级
         }
     }

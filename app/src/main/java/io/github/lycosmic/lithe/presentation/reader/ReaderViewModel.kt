@@ -9,12 +9,13 @@ import io.github.lycosmic.lithe.data.model.BookSpineItem
 import io.github.lycosmic.lithe.data.parser.content.BookContentParser
 import io.github.lycosmic.lithe.data.parser.content.BookContentParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepository
+import io.github.lycosmic.lithe.extension.logE
+import io.github.lycosmic.lithe.extension.logI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,7 +34,9 @@ class ReaderViewModel @Inject constructor(
      */
     fun loadBook(bookId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            Timber.i("Start loading books, book ID: %s", bookId.toString())
+            logI {
+                "Start loading books, book ID: $bookId"
+            }
             try {
                 val book = bookRepository.getBookById(bookId)
                 if (book == null) {
@@ -63,16 +66,17 @@ class ReaderViewModel @Inject constructor(
                 // 默认加载第一章
                 val initialIndex = 0
 
-                Timber.i(
-                    "Starts loading the contents of the initial chapter with the chapter number %d",
-                    initialIndex
-                )
+                logI {
+                    "Starts loading the contents of the initial chapter with the chapter number $initialIndex"
+                }
                 // 加载章节内容
                 bookContentParser?.let {
                     loadChapterContent(it, bookUri, spine, initialIndex)
                 }
             } catch (e: Exception) {
-                Timber.e(e, "Books fail to load")
+                logE(e = e) {
+                    "Books fail to load, book ID: $bookId"
+                }
                 _uiState.update { it.copy(isLoading = false, error = e.message) }
             }
         }
@@ -87,7 +91,9 @@ class ReaderViewModel @Inject constructor(
         _uiState.update { it.copy(isLoading = true) }
 
         if (spine.isEmpty()) {
-            Timber.e("Spine is empty")
+            logE {
+                "Spine is empty, book ID: ${_uiState.value.book?.id}, chapter index: $index"
+            }
             return
         }
         val chapterItem = spine[index]

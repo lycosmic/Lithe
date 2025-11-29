@@ -2,9 +2,10 @@ package io.github.lycosmic.lithe.utils
 
 import android.content.Context
 import android.net.Uri
+import io.github.lycosmic.lithe.extension.logD
+import io.github.lycosmic.lithe.extension.logE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -48,14 +49,18 @@ object ZipUtils {
             }
         } catch (e: Exception) {
             when (e) {
-                is FileNotFoundException -> Timber.e(
-                    e,
-                    "Zip file not found: %s",
-                    uri
-                )
+                is FileNotFoundException ->
+                    logE(e = e) {
+                        "Zip file not found: $uri"
+                    }
 
-                is IOException -> Timber.e(e, "IO error reading zip: %s", targetPath)
-                else -> Timber.e(e, "Unexpected error in ZipUtils")
+                is IOException -> logE(e = e) {
+                    "IO error reading zip: $targetPath"
+                }
+
+                else -> logE(e = e) {
+                    "Unexpected error in ZipUtils"
+                }
             }
         }
 
@@ -77,7 +82,9 @@ object ZipUtils {
         val destFile = File(cacheDir, "$cacheKey.jpg")
 
         if (destFile.exists() && destFile.length() > 0) {
-            Timber.d("Cache hit: %s", destFile.absolutePath)
+            logD {
+                "Cache hit: ${destFile.absolutePath}"
+            }
             return@withContext destFile.absolutePath
         }
 
@@ -102,7 +109,9 @@ object ZipUtils {
 
         // 检查缓存是否存在且有效
         if (destFile.exists() && destFile.length() > 0) {
-            Timber.d("Cache hit: %s", destFile.absolutePath)
+            logD {
+                "Cache hit: ${destFile.absolutePath}"
+            }
             return@withContext destFile.absolutePath
         }
 
@@ -139,7 +148,9 @@ object ZipUtils {
             } catch (e: IOException) {
                 // 删除临时文件
                 tmpFile?.delete()
-                Timber.e(e, "Error writing cover to storage")
+                logE(e = e) {
+                    "Error writing cover to storage"
+                }
                 return@findZipEntryAndAction null
             }
         }

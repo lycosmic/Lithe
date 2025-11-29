@@ -12,12 +12,14 @@ class LitheApplication : Application() {
     }
 
     private fun initLogger() {
-        // 自动使用类名作为 TAG
-        Timber.plant(object : Timber.DebugTree() {
-            override fun createStackElementTag(element: StackTraceElement): String? {
-                return "${LOG_PREFIX}-${super.createStackElementTag(element)}"
-            }
-        })
+        if (BuildConfig.DEBUG) {
+            // 自动使用类名作为 TAG
+            Timber.plant(object : Timber.DebugTree() {
+                override fun createStackElementTag(element: StackTraceElement): String? {
+                    return "${LOG_PREFIX}-${super.createStackElementTag(element)}"
+                }
+            })
+        }
     }
 
     companion object {
