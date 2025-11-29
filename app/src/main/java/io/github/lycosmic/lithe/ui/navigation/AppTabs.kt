@@ -1,43 +1,36 @@
 package io.github.lycosmic.lithe.ui.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.outlined.Book
-import androidx.compose.material.icons.outlined.Explore
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.ui.graphics.vector.ImageVector
+import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.navigation.AppRoutes
 
 enum class AppTabs(
     val route: AppRoutes,
     val label: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector
+    val selectedIcon: Int,
+    val unselectedIcon: Int
 ) {
     // 书库
     Library(
         route = AppRoutes.Library,
         label = "书库",
-        selectedIcon = Icons.Filled.Book,
-        unselectedIcon = Icons.Outlined.Book
+        selectedIcon = R.drawable.library_screen_filled,
+        unselectedIcon = R.drawable.library_screen_outlined
     ),
 
     // 历史
     History(
         route = AppRoutes.History,
         label = "历史",
-        selectedIcon = Icons.Filled.History,
-        unselectedIcon = Icons.Outlined.History
+        selectedIcon = R.drawable.history_screen_filled,
+        unselectedIcon = R.drawable.history_screen_outlined
     ),
 
     // 浏览
     Browse(
         route = AppRoutes.Browse,
         label = "浏览",
-        selectedIcon = Icons.Filled.Explore,
-        unselectedIcon = Icons.Outlined.Explore
+        selectedIcon = R.drawable.browse_screen_filled,
+        unselectedIcon = R.drawable.browse_screen_outlined
     );
 
     companion object {

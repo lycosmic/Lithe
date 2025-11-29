@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -87,8 +88,11 @@ class MainActivity : ComponentActivity() {
                                         selected = isSelected,
                                         onClick = { navViewModel.switchBottomTab(tab) },
                                         icon = {
+                                            val iconId =
+                                                if (isSelected) tab.selectedIcon else tab.unselectedIcon
+
                                             Icon(
-                                                imageVector = if (isSelected) tab.selectedIcon else tab.unselectedIcon,
+                                                painter = painterResource(id = iconId),
                                                 contentDescription = tab.label
                                             )
                                         },
