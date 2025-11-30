@@ -125,6 +125,8 @@ class EpubContentParser @Inject constructor(
                                 )
 
                                 accumulator.add(ReaderContent.Divider)
+                            } else {
+                                traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
                             }
                         }
 
@@ -137,9 +139,10 @@ class EpubContentParser @Inject constructor(
                             val styledText = parseStyledText(node)
                             if (styledText.text.trim().isNotEmpty()) {
                                 accumulator.add(ReaderContent.Paragraph(styledText))
+                            } else {
+                                // 非文本节点
+                                traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
                             }
-
-                            traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
                         }
 
                         "image" -> {

@@ -9,6 +9,7 @@ import io.github.lycosmic.lithe.data.model.BookSpineItem
 import io.github.lycosmic.lithe.data.parser.content.BookContentParser
 import io.github.lycosmic.lithe.data.parser.content.BookContentParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepository
+import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.extension.logI
 import kotlinx.coroutines.Dispatchers
@@ -100,6 +101,13 @@ class ReaderViewModel @Inject constructor(
         // 调用解析器解析具体内容
         val content = parser.parseChapterContent(bookUri, chapterItem.contentHref)
 
+        logD {
+            "Chapter content is $content"
+        }
+
+        logI {
+            "Chapter content loaded successfully, book ID: ${_uiState.value.book?.id}, chapter index: $index"
+        }
         _uiState.update {
             it.copy(
                 isLoading = false,
