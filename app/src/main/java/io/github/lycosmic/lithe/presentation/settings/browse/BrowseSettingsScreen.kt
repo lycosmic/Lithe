@@ -2,14 +2,26 @@ package io.github.lycosmic.lithe.presentation.settings.browse
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -27,24 +39,31 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.OptionItem
+import io.github.lycosmic.lithe.data.model.ScannedDirectory
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrowseSettingsScreen(
     onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: BrowseSettingsViewModel = hiltViewModel()
 ) {
 
@@ -52,23 +71,72 @@ fun BrowseSettingsScreen(
 
     val displayMode by viewModel.displayMode.collectAsStateWithLifecycle()
 
+    val gridColumnCount by viewModel.gridColumnCount.collectAsStateWithLifecycle()
+
     // 文件夹选择器
     val directoryPicker =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocumentTree()) { uri ->
             uri?.let {
-                viewModel.addDirectory(it)
+                viewModel.onEvent(BrowseSettingEvent.DirectoryPicked(it))
             }
         }
 
+    LaunchedEffect(
+        Unit
+    ) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                BrowseSettingEffect.OpenDirectoryPicker -> {
+                    directoryPicker.launch(input = null)
+                }
+            }
+        }
+    }
+
+    SettingBrowseScaffold(
+        directories = directories,
+        displayMode = displayMode,
+        onDeleteDirectoryClicked = { directory ->
+            viewModel.onEvent(BrowseSettingEvent.DeleteDirectoryClicked(directory))
+        },
+        onAddDirectoryClicked = {
+            viewModel.onEvent(BrowseSettingEvent.AddDirectoryClicked)
+        },
+        onBackClicked = onNavigateBack,
+        onDisplayModeChanged = { newMode ->
+            viewModel.onEvent(BrowseSettingEvent.DisplayModeChanged(newMode))
+        },
+        modifier = modifier,
+        gridColumnCount = gridColumnCount,
+        onGridColumnCountChanged = { newCount ->
+            viewModel.onEvent(BrowseSettingEvent.GridColumnCountChanged(newCount))
+        }
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingBrowseScaffold(
+    directories: List<ScannedDirectory>,
+    displayMode: DisplayMode,
+    onBackClicked: () -> Unit,
+    gridColumnCount: Int,
+    onGridColumnCountChanged: (Int) -> Unit,
+    onDeleteDirectoryClicked: (ScannedDirectory) -> Unit,
+    onDisplayModeChanged: (DisplayMode) -> Unit,
+    onAddDirectoryClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
                 title = { Text("浏览") },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = onBackClicked) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "返回"
@@ -79,122 +147,228 @@ fun BrowseSettingsScreen(
             )
         },
     ) { innerPadding ->
-        val horizontalPadding = 16.dp
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
                     top = innerPadding.calculateTopPadding(),
                     bottom = innerPadding.calculateBottomPadding(),
-                    start = horizontalPadding,
-                    end = horizontalPadding
                 )
         ) {
             // --- 扫描 ---
-            Text(
-                text = "扫描",
-                modifier = Modifier.padding(vertical = 8.dp),
-                style = MaterialTheme.typography.labelLarge.copy(
-                    color = MaterialTheme.colorScheme.secondary
-                )
+            ScanArea(
+                directories = directories,
+                onAddDirectoryClicked = onAddDirectoryClicked,
+                onDeleteDirectoryClicked = onDeleteDirectoryClicked,
             )
 
-            LazyColumn {
-                items(items = directories, key = { it.id }) { directory ->
+            // --- 提示 ---
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = "提示",
+                )
 
-                    // 文件夹
-                    ListItem(
-                        headlineContent = {
-                            Text(text = directory.path)  // 例: Download/Lithe
-                        },
-                        supportingContent = {
-                            Text(text = directory.root) // 例: /storage/emulated/0/
-                        },
-                        leadingContent = {
-                            Box(
-                                modifier = Modifier
-                                    .clip(shape = CircleShape)
-                                    .background(color = MaterialTheme.colorScheme.surfaceContainer)
-                                    .padding(all = 8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Folder,
-                                    contentDescription = null
-                                )
-                            }
-                        },
-                        trailingContent = {
-                            IconButton(
-                                onClick = {
-                                    viewModel.removeDirectory(directory)
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Clear,
-                                    contentDescription = "移除文件夹"
-                                )
-                            }
-                        }
-                    )
-                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "这些文件夹用于扫描和检索浏览器中的文件。在此处删除文件夹并不会从库中删除实际文件或书籍。要撤销访问权限，请单击相应的按钮。",
+                    style = MaterialTheme.typography.bodySmall,
+                )
             }
 
 
-            ListItem(
-                headlineContent = {
-                    Text(text = "添加文件夹")
-                },
-                leadingContent = {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = null
-                    )
-                },
-                modifier = Modifier.clickable {
-                    directoryPicker.launch(input = null)
-                }
-            )
-
-            Icon(
-                imageVector = Icons.Outlined.Info,
-                contentDescription = "提示",
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-
-            Text(
-                text = "这些文件夹用于扫描和检索浏览器中的文件。在此处删除文件夹并不会从库中删除实际文件或书籍。要撤销访问权限，请单击相应的按钮。",
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
+            Spacer(modifier = Modifier.height(24.dp))
 
             // --- 分割线 ---
-            Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider()
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // --- 显示 ---
-            Text(
-                text = "显示",
-                modifier = Modifier.padding(vertical = 8.dp),
-                style = MaterialTheme.typography.labelLarge.copy(
-                    color = MaterialTheme.colorScheme.secondary
-                )
-            )
-
-            Text(text = "显示模式")
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LitheSegmentedButton(
-                items = DisplayMode.entries.map { mode ->
-                    OptionItem(
-                        value = mode,
-                        label = mode.label,
-                        selected = mode == displayMode
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Text(
+                    text = "显示",
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.primary
                     )
-                }.toList(),
-                onClick = { clickedMode ->
-                    viewModel.onDisplayModeChanged(clickedMode)
-                }
+                )
+
+                DisplayModeArea(
+                    displayMode = displayMode,
+                    gridColumnCount = gridColumnCount,
+                    onDisplayModeChanged = onDisplayModeChanged,
+                    onGridColumnCountChanged = onGridColumnCountChanged
+                )
+            }
+        }
+    }
+}
+
+/**
+ * 扫描区域
+ */
+@Composable
+fun ScanArea(
+    directories: List<ScannedDirectory>,
+    onDeleteDirectoryClicked: (ScannedDirectory) -> Unit,
+    onAddDirectoryClicked: () -> Unit,
+) {
+    Text(
+        text = "扫描",
+        modifier = Modifier.padding(top = 24.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
+        style = MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.primary
+        )
+    )
+
+    AnimatedVisibility(
+        visible = directories.isNotEmpty(),
+    ) {
+        LazyColumn {
+            items(items = directories, key = { it.id }) { directory ->
+
+                // 文件夹
+                ListItem(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItem(
+                            fadeInSpec = spring(stiffness = Spring.StiffnessMedium),
+                            placementSpec = spring(stiffness = Spring.StiffnessLow),
+                            fadeOutSpec = spring(stiffness = Spring.StiffnessMedium)
+                        ),
+                    headlineContent = {
+                        Text(text = directory.path)
+                    },
+                    supportingContent = {
+                        Text(text = directory.root)
+                    },
+                    leadingContent = {
+                        Box(
+                            modifier = Modifier
+                                .clip(shape = CircleShape)
+                                .background(color = MaterialTheme.colorScheme.surfaceContainer)
+                                .padding(all = 8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Folder,
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    trailingContent = {
+                        IconButton(
+                            onClick = {
+                                onDeleteDirectoryClicked(directory)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Clear,
+                                contentDescription = "移除文件夹"
+                            )
+                        }
+                    }
+                )
+
+            }
+        }
+    }
+
+    ListItem(
+        headlineContent = {
+            Text(text = "添加文件夹")
+        },
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = null
+            )
+        },
+        modifier = Modifier.clickable {
+            onAddDirectoryClicked()
+        }
+    )
+}
+
+
+/**
+ * 显示模式区域
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DisplayModeArea(
+    displayMode: DisplayMode,
+    gridColumnCount: Int,
+    valueRange: IntRange = 0..10,
+    onGridColumnCountChanged: (Int) -> Unit,
+    onDisplayModeChanged: (DisplayMode) -> Unit,
+) {
+
+    val tipText = if (gridColumnCount == valueRange.first) {
+        "自动"
+    } else {
+        "$gridColumnCount 每行"
+    }
+
+    Text(
+        text = "显示模式"
+    )
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    LitheSegmentedButton(
+        items = DisplayMode.entries.map { mode ->
+            OptionItem(
+                value = mode,
+                label = mode.label,
+                selected = mode == displayMode
+            )
+        }.toList(),
+        onClick = { clickedMode ->
+            onDisplayModeChanged(clickedMode)
+        }
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    AnimatedVisibility(
+        visible = displayMode == DisplayMode.Grid,
+        enter = slideInVertically(
+            animationSpec = tween(),
+            initialOffsetY = { -it / 2 }
+        ) + fadeIn(),
+        exit = slideOutVertically(
+            animationSpec = tween(),
+            targetOffsetY = { -it / 2 }
+        ) + fadeOut(),
+    ) {
+        Row {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "网格大小")
+
+                Text(text = tipText, textAlign = TextAlign.Center)
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Slider(
+                value = gridColumnCount.toFloat(),
+                onValueChange = {
+                    onGridColumnCountChanged(it.toInt())
+                },
+                steps = valueRange.last,
+                valueRange = valueRange.first.toFloat().rangeTo(valueRange.last.toFloat()),
+                colors = SliderDefaults.colors(
+                    activeTrackColor = MaterialTheme.colorScheme.secondary,
+                    thumbColor = MaterialTheme.colorScheme.primary,
+                    inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                    activeTickColor = MaterialTheme.colorScheme.onSecondary,
+                    inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             )
         }
     }

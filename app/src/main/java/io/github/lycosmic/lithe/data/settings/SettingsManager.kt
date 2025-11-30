@@ -21,6 +21,12 @@ class SettingsManager @Inject constructor(
         val IS_DARK_MODE = booleanPreferencesKey("is_dark_mode")
 
         val FILE_DISPLAY_MODE = stringPreferencesKey("file_display_mode")
+
+        val GRID_COLUMN_COUNT = stringPreferencesKey("grid_column_count")
+    }
+
+    companion object {
+        const val GRID_COLUMN_COUNT_DEFAULT = 3 // 默认 3 列
     }
 
     // --- 暗黑模式 ---
@@ -44,6 +50,21 @@ class SettingsManager @Inject constructor(
     suspend fun setFileDisplayMode(mode: DisplayMode) {
         dataStore.edit { preferences ->
             preferences[Keys.FILE_DISPLAY_MODE] = mode.name
+        }
+    }
+
+    // --- 网格列数 (大小) ---
+    val gridColumnCount: Flow<Int> = dataStore.data.map { preferences ->
+        preferences[Keys.GRID_COLUMN_COUNT]?.toInt() ?: GRID_COLUMN_COUNT_DEFAULT
+    }
+
+    /**
+     * 设置网格列数 (大小)
+     * @param count 列数
+     */
+    suspend fun setGridColumnCount(count: Int) {
+        dataStore.edit { preferences ->
+            preferences[Keys.GRID_COLUMN_COUNT] = count.toString()
         }
     }
 }
