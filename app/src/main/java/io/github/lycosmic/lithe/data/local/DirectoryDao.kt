@@ -14,13 +14,13 @@ interface DirectoryDao {
     /**
      * 获取所有已扫描的目录
      */
-    @Query("SELECT * FROM scanned_directories ORDER BY addedTime DESC")
+    @Query("SELECT * FROM scanned_directories ORDER BY addTime DESC")
     fun getScannedDirectoriesFlow(): Flow<List<ScannedDirectory>>
 
     /**
      * 一次性获取所有已扫描的目录
      */
-    @Query("SELECT * FROM scanned_directories ORDER BY addedTime DESC")
+    @Query("SELECT * FROM scanned_directories ORDER BY addTime DESC")
     fun getScannedDirectoriesSnapshot(): List<ScannedDirectory>
 
     /**

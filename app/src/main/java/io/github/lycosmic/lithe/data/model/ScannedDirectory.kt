@@ -17,5 +17,5 @@ data class ScannedDirectory(
     val uri: String, // 文件夹 URI
     val root: String, // 内部共享存储空间根目录
     val path: String, // 文件夹相对路径
-    val addedTime: Long = System.currentTimeMillis(),
+    val addTime: Long = System.currentTimeMillis(),
 )
