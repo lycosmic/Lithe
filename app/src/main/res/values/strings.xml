@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Lithe</string>
+    <string name="sort_type_alphabetical">Alphabetical</string>
+    <string name="sort_type_file_format">File Format</string>
+    <string name="sort_type_last_modified">Last Modified</string>
+    <string name="sort_type_size">File Size</string>
+    <string name="tab_type_sort">Sort</string>
+    <string name="tab_type_filter">Filter</string>
+    <string name="tab_type_display">Display</string>
+    <string name="ascending_order">Ascending</string>
+    <string name="descending_order">Descending</string>
 </resources>

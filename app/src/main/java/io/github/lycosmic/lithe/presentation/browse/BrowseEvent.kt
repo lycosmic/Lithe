@@ -1,6 +1,7 @@
 package io.github.lycosmic.lithe.presentation.browse
 
 import io.github.lycosmic.lithe.data.model.FileItem
+import io.github.lycosmic.lithe.domain.model.SortType
 import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
 
 sealed class BrowseEvent {
@@ -54,4 +55,9 @@ sealed class BrowseEvent {
      * 在书籍对话框中点击某一项
      */
     data class OnAddBooksDialogItemClick(val item: BookToAdd) : BrowseEvent()
+
+    /**
+     * 过滤器中的排序类型改变
+     */
+    data class OnSortTypeChange(val sortType: SortType, val isAscending: Boolean) : BrowseEvent()
 }

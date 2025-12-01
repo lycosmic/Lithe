@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lithe</string>
+    <string name="sort_type_alphabetical">字母顺序</string>
+    <string name="sort_type_file_format">文件格式</string>
+    <string name="sort_type_last_modified">最后修改</string>
+    <string name="sort_type_size">文件大小</string>
+    <string name="tab_type_sort">排序</string>
+    <string name="tab_type_filter">过滤</string>
+    <string name="tab_type_display">显示</string>
+    <string name="ascending_order">升序</string>
+    <string name="descending_order">降序</string>
+</resources>

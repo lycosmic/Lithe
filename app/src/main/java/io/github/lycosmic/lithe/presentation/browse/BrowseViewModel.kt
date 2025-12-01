@@ -9,6 +9,9 @@ import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.data.repository.DirectoryRepository
+import io.github.lycosmic.lithe.domain.model.DEFAULT_IS_ASCENDING
+import io.github.lycosmic.lithe.domain.model.DEFAULT_SORT_TYPE
+import io.github.lycosmic.lithe.domain.model.SortType
 import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.extension.logW
@@ -17,10 +20,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,9 +38,9 @@ class BrowseViewModel @Inject constructor(
     private val bookRepository: BookRepository,
     private val parserFactory: BookMetadataParserFactory
 ) : ViewModel() {
-    // 分组后的文件列表
-    private val _groupedFiles = MutableStateFlow<Map<String, List<FileItem>>>(emptyMap())
-    val groupedFiles = _groupedFiles.asStateFlow()
+
+    // 原始的文件列表
+    private val _rawFileItems = MutableStateFlow<List<FileItem>>(emptyList())
 
     // 是否正在加载
     private val _isLoading = MutableStateFlow(false)
@@ -51,6 +57,29 @@ class BrowseViewModel @Inject constructor(
     // 对话框是否在加载
     private val _isAddBooksDialogLoading = MutableStateFlow(false)
     val isAddBooksDialogLoading = _isAddBooksDialogLoading.asStateFlow()
+
+    // 当前的排序
+    private val _sortType = MutableStateFlow(DEFAULT_SORT_TYPE)
+    val sortType = _sortType.asStateFlow()
+
+    private val _isAscending = MutableStateFlow(DEFAULT_IS_ASCENDING)
+    val isAscending = _isAscending.asStateFlow()
+
+
+    // 分组、排序后的文件列表
+    val groupedFiles = combine(_rawFileItems, _sortType, _isAscending) { files, sort, isAscending ->
+        // 排序
+        val sortedFiles = sortFiles(files, sort, isAscending)
+
+        // 按父文件夹进行分组
+        sortedFiles.groupBy { item ->
+            item.parentPath
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyMap()
+    )
 
 
     // 当前是否为多选模式
@@ -127,9 +156,21 @@ class BrowseViewModel @Inject constructor(
 
                     _bookToImport.value = newList
                 }
+
+                is BrowseEvent.OnSortTypeChange -> {
+                    updateSort(event.sortType, event.isAscending)
+                }
             }
         }
 
+    }
+
+    /**
+     * 更新类型和顺序
+     */
+    fun updateSort(type: SortType, ascending: Boolean) {
+        _sortType.value = type
+        _isAscending.value = ascending
     }
 
     /**
@@ -138,16 +179,13 @@ class BrowseViewModel @Inject constructor(
     fun observeDirectoriesAndScan() {
         viewModelScope.launch(Dispatchers.IO) {
             // 监听文件夹列表变化
-            directoryRepository.getDirectories().collectLatest {
+            directoryRepository.getDirectories().collectLatest { directories ->
                 _isLoading.value = true
 
-                val fileItems = directoryRepository.scanAllBooks()
-                // 按父文件夹进行分组
-                val groupByParentPath = fileItems.groupBy { item ->
-                    item.parentPath
-                }
+                // 扫描所有文件
+                val fileItems = directoryRepository.scanAllBooks(directories)
+                _rawFileItems.value = fileItems
 
-                _groupedFiles.value = groupByParentPath
                 _isLoading.value = false
             }
         }
@@ -318,13 +356,35 @@ class BrowseViewModel @Inject constructor(
      * 获取当前选中的文件
      */
     private fun getSelectedFiles(): List<FileItem> {
-        val allFiles = _groupedFiles.value.values.flatten()
         // 获取选中的文件
-        val selectedFiles = allFiles.filter { item ->
-            _selectedFileUris.value.contains(item.uri.toString())
+        val selectedFiles = _rawFileItems.value.filter { fileItem ->
+            _selectedFileUris.value.contains(fileItem.uri.toString())
         }
         return selectedFiles
     }
 
+    /**
+     * 排序文件列表
+     */
+    private fun sortFiles(
+        files: List<FileItem>,
+        type: SortType,
+        ascending: Boolean
+    ): List<FileItem> {
+        if (files.isEmpty()) return emptyList()
+
+        val comparator = when (type) {
+            SortType.ALPHABETICAL -> compareBy<FileItem> { it.name }
+            SortType.SIZE -> compareBy { it.size }
+            SortType.LAST_MODIFIED -> compareBy { it.lastModified }
+            SortType.FILE_FORMAT -> compareBy { it.type.value }
+        }
+
+        return if (ascending) {
+            files.sortedWith(comparator)
+        } else {
+            files.sortedWith(comparator).reversed()
+        }
+    }
 
 }
