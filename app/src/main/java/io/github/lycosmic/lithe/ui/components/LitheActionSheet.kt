@@ -45,7 +45,7 @@ fun LitheActionSheet(
     sheetState: SheetState = rememberModalBottomSheetState(),
     cornerRadius: Dp = 12.dp, // 菜单项圆角大小
     groupSpacing: Dp = 24.dp, // 组间距
-    contentBottomPadding: Dp = 32.dp, // 底部间距
+    contentBottomPadding: Dp = 8.dp, // 底部间距
     itemHorizontalPadding: Dp = 12.dp, // 菜单项水平间距
     itemVerticalPadding: Dp = 2.dp, // 菜单项垂直间距
     defaultContainerColor: Color = MaterialTheme.colorScheme.surfaceContainer, // 默认容器颜色
