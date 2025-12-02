@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.model.Book
+import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.utils.UriUtils
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -37,7 +38,7 @@ class BookDetailViewModel @Inject constructor(
         viewModelScope.launch {
             bookRepository.getBookFlow(bookId).stateIn(
                 scope = viewModelScope,
-                started = WhileSubscribed(stopTimeoutMillis = 5000),
+                started = WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
                 initialValue = Book.defaultBook
             ).filterNotNull().collect { book ->
                 _book.value = book

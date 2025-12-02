@@ -1,6 +1,10 @@
 package io.github.lycosmic.lithe.data.model
 
 object Constants {
-    const val VIEW_MODEL_SUBSCRIBE_TIMEOUT: Long = 5000L
+    /**
+     * StateFlow 停止订阅超时时间(毫秒)
+     * 用于 StateIn 函数的 stopTimeoutMillis 参数
+     */
+    const val STATE_FLOW_STOP_TIMEOUT_MILLIS: Long = 5000L
 
 }

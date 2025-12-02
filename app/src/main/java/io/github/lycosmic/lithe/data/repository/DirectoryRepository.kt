@@ -243,12 +243,14 @@ class DirectoryRepository @Inject constructor(
         return@supervisorScope resultList
     }
 
-
+    /**
+     * 获取文件类型
+     */
     private fun getFileType(name: String): FileFormat {
         return when {
-            name.endsWith(".${FileFormat.EPUB.value}", true) -> FileFormat.EPUB
-            name.endsWith(".${FileFormat.PDF.value}", true) -> FileFormat.PDF
-            name.endsWith(".${FileFormat.TXT.value}", true) -> FileFormat.TXT
+            name.endsWith(FileFormat.EPUB_EXTENSION, true) -> FileFormat.EPUB
+            name.endsWith(FileFormat.PDF_EXTENSION, true) -> FileFormat.PDF
+            name.endsWith(FileFormat.TXT_EXTENSION, true) -> FileFormat.TXT
             else -> FileFormat.UNKNOWN
         }
     }

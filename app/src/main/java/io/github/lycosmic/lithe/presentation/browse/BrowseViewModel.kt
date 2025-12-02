@@ -123,7 +123,7 @@ class BrowseViewModel @Inject constructor(
         }
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
+        SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         emptyMap()
     )
 
@@ -142,7 +142,7 @@ class BrowseViewModel @Inject constructor(
         return@combine BrowseTopBarState.DEFAULT
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(Constants.VIEW_MODEL_SUBSCRIBE_TIMEOUT),
+        SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         BrowseTopBarState.DEFAULT
     )
 

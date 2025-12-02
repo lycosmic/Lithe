@@ -3,6 +3,7 @@ package io.github.lycosmic.lithe.presentation.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToAbout
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToBookDetail
@@ -27,7 +28,7 @@ class LibraryViewModel @Inject constructor(
     // 书籍列表
     val books = bookRepository.getAllBooks().stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = emptyList()
     )
 
@@ -38,7 +39,7 @@ class LibraryViewModel @Inject constructor(
     // 当前是否为选中模式
     val isSelectionMode = _selectedBooks.map { it.isNotEmpty() }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = false
     )
 

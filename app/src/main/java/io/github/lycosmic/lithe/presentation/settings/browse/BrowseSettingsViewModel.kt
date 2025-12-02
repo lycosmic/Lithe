@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.ScannedDirectory
 import io.github.lycosmic.lithe.data.repository.DirectoryRepository
@@ -26,21 +27,21 @@ class BrowseSettingsViewModel @Inject constructor(
     // 已授权的文件夹列表
     val scannedDirectories = directoryRepository.getDirectories().stateIn( // 转为热流
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = emptyList()
     )
 
     // 当前的文件夹显示模式
     val displayMode = settingsManager.fileDisplayMode.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = DisplayMode.List
     )
 
     // 当前的网格列数
     val gridColumnCount = settingsManager.gridColumnCount.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = SettingsManager.GRID_COLUMN_COUNT_DEFAULT
     )
 
