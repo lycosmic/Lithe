@@ -116,7 +116,7 @@ fun BrowseScreen(
                     SelectBrowseTopAppBar(
                         selectedFileSize = selectedFiles.size,
                         onCancelSelectClick = {
-                            viewModel.onEvent(BrowseEvent.OnCancelClick)
+                            viewModel.onEvent(BrowseEvent.OnClearSelectionClick)
                         },
                         onToggleAllFileClick = {
                             viewModel.onEvent(BrowseEvent.OnToggleAllSelectionClick)
@@ -124,7 +124,7 @@ fun BrowseScreen(
                         onAddFileClick = {
                             showAddBookDialog = true
                             // 预导入
-                            viewModel.onEvent(BrowseEvent.OnAddBooksClick)
+                            viewModel.onEvent(BrowseEvent.OnAddFileClick)
                         }
                     )
                 }
@@ -293,7 +293,7 @@ fun BrowseScreen(
                     showAddBookDialog = false
                 },
                 onToggleSelection = { newBookToAdd ->
-                    viewModel.onEvent(BrowseEvent.OnAddBooksDialogItemClick(newBookToAdd))
+                    viewModel.onEvent(BrowseEvent.OnBookItemClick(newBookToAdd))
                 }
             )
         }

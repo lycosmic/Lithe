@@ -1,27 +1,20 @@
 package io.github.lycosmic.lithe.presentation.browse
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.model.Book
 import io.github.lycosmic.lithe.data.model.Constants
+import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.model.FileItem
-import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParserFactory
-import io.github.lycosmic.lithe.data.repository.BookRepository
-import io.github.lycosmic.lithe.data.repository.DirectoryRepository
 import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
 import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_IS_ASCENDING
 import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_SORT_TYPE
-import io.github.lycosmic.lithe.extension.logD
-import io.github.lycosmic.lithe.extension.logI
-import io.github.lycosmic.lithe.extension.logW
+import io.github.lycosmic.lithe.domain.usecase.BookImportUseCase
+import io.github.lycosmic.lithe.domain.usecase.FileProcessingUseCase
 import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
 import io.github.lycosmic.lithe.presentation.browse.model.BrowseTopBarState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,10 +29,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BrowseViewModel @Inject constructor(
-    private val application: Application,
-    private val directoryRepository: DirectoryRepository,
-    private val bookRepository: BookRepository,
-    private val parserFactory: BookMetadataParserFactory
+    private val fileProcessingUseCase: FileProcessingUseCase,
+    private val bookImportUseCase: BookImportUseCase
 ) : ViewModel() {
 
     // 原始的文件列表
@@ -85,7 +76,7 @@ class BrowseViewModel @Inject constructor(
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
-    // 分组、排序、过滤、搜索后的文件列表
+    // 分组、排序、文件类型过滤、关键词过滤后的文件列表
     val processedFiles = combine(
         _rawFileItems,
         _sortType,
@@ -93,34 +84,13 @@ class BrowseViewModel @Inject constructor(
         _filterList,
         _searchText
     ) { files, sort, isAscending, filters, searchText ->
-        val filteredFiles = if (
-            isFilterValid(filters)
-        ) {
-            files.filter { file ->
-                val accepted = filters.any { filter ->
-                    file.type == filter.format && filter.isSelected
-                }
-                accepted
-            }
-        } else {
-            files
-        }
-
-        val searchResult = if (searchText.isNotEmpty()) {
-            filteredFiles.filter { item ->
-                item.name.contains(searchText)
-            }
-        } else {
-            filteredFiles
-        }
-
-        // 排序
-        val sortedFiles = sortFiles(searchResult, sort, isAscending)
-
-        // 按父文件夹进行分组
-        sortedFiles.groupBy { item ->
-            item.parentPath
-        }
+        fileProcessingUseCase.processFiles(
+            rawFiles = files,
+            sortType = sort,
+            isAscending = isAscending,
+            filters = filters,
+            searchText = searchText
+        )
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
@@ -154,16 +124,15 @@ class BrowseViewModel @Inject constructor(
     fun onEvent(event: BrowseEvent) {
         viewModelScope.launch {
             when (event) {
-                BrowseEvent.OnAddBooksClick -> {
-                    prepareImport()
+                BrowseEvent.OnAddFileClick -> {
+                    parseSelectedFilesMetaData()
                 }
 
-                BrowseEvent.OnImportBooksClick -> { // 真正导入
-                    // 导入选中的文件
-                    confirmImport()
+                BrowseEvent.OnImportBooksClick -> {
+                    importFinalSelectedBooks()
                 }
 
-                BrowseEvent.OnCancelClick -> {
+                BrowseEvent.OnClearSelectionClick -> {
                     // 取消选中
                     clearSelection()
                 }
@@ -174,13 +143,7 @@ class BrowseViewModel @Inject constructor(
                 }
 
                 BrowseEvent.OnBackClick -> {
-                    if (topBarState.value == BrowseTopBarState.SELECT_FILE) {
-                        // 如果当前为多选模式，就清除选中项
-                        clearSelection()
-                    } else if (topBarState.value == BrowseTopBarState.SEARCH) {
-                        // 如果为搜索模式，就取消搜索
-                        _isSearchMode.value = false
-                    }
+                    handleBackPress()
                 }
 
                 is BrowseEvent.OnFileCheckboxClick -> {
@@ -194,31 +157,15 @@ class BrowseViewModel @Inject constructor(
                 }
 
                 is BrowseEvent.OnFileLongClick -> {
-                    // 选中这组文件
-                    if (!isMultiSelectMode.first()) {
-                        event.files.forEach { fileItem ->
-                            toggleSelection(fileItem)
-                        }
-                    }
+                    handleFileLongPress(event.files)
                 }
 
                 BrowseEvent.OnDismissAddBooksDialog -> {
                     clearSelection()
                 }
 
-                is BrowseEvent.OnAddBooksDialogItemClick -> {
-                    // 修改选中项的选中状态
-                    val newList = _bookToImport.value.map { bookToAdd ->
-                        if (bookToAdd.file.uri == event.item.file.uri) {
-                            // 修改选中状态
-                            bookToAdd.copy(isSelected = !bookToAdd.isSelected)
-                        } else {
-                            // 其他项不变
-                            bookToAdd
-                        }
-                    }
-
-                    _bookToImport.value = newList
+                is BrowseEvent.OnBookItemClick -> {
+                    toggleBookSelection(event.bookItem)
                 }
 
                 is BrowseEvent.OnSortTypeChange -> {
@@ -226,16 +173,9 @@ class BrowseViewModel @Inject constructor(
                 }
 
                 is BrowseEvent.OnFilterChange -> {
-                    // 找到点击的文件扩展名
-                    val clickedFileFormat = event.filterOption
-                    // 更新选中状态
-                    _filterList.value = _filterList.value.map {
-                        if (it.format == clickedFileFormat.format) {
-                            it.copy(isSelected = !it.isSelected)
-                        } else {
-                            it
-                        }
-                    }
+                    // 点击的文件类型
+                    val clickedFileFormat = event.filterOption.format
+                    updateFileTypeFilter(clickedFileFormat)
                 }
 
                 is BrowseEvent.OnSearchClick -> {
@@ -268,15 +208,8 @@ class BrowseViewModel @Inject constructor(
      */
     fun observeDirectoriesAndScan() {
         viewModelScope.launch(Dispatchers.IO) {
-            // 监听文件夹列表变化
-            directoryRepository.getDirectories().collectLatest { directories ->
-                _isLoading.value = true
-
-                // 扫描所有文件
-                val fileItems = directoryRepository.scanAllBooks(directories)
-                _rawFileItems.value = fileItems
-
-                _isLoading.value = false
+            fileProcessingUseCase.scanFiles().collectLatest { items ->
+                _rawFileItems.value = items
             }
         }
     }
@@ -316,6 +249,19 @@ class BrowseViewModel @Inject constructor(
     }
 
     /**
+     * 处理按下返回键
+     */
+    fun handleBackPress() {
+        if (topBarState.value == BrowseTopBarState.SELECT_FILE) {
+            // 如果当前为多选模式，就清除选中项
+            clearSelection()
+        } else if (topBarState.value == BrowseTopBarState.SEARCH) {
+            // 如果为搜索模式，就取消搜索
+            _isSearchMode.value = false
+        }
+    }
+
+    /**
      * 取消全选
      * 清空选中状态: 包括选中的文件 Uri 和待导入的书籍
      */
@@ -325,117 +271,31 @@ class BrowseViewModel @Inject constructor(
     }
 
     /**
-     * 解析元数据
+     * 解析所选文件的元数据
      */
-    fun prepareImport() {
+    fun parseSelectedFilesMetaData() {
         viewModelScope.launch(Dispatchers.IO) {
             _isAddBooksDialogLoading.value = true
-
-            logI {
-                "Start parsing book metadata"
-            }
-
-            // 从 Set 中获取选中的文件
+            // 获取选中的文件
             val selectedFiles = getSelectedFiles()
-
-            // 解析元数据
-            val parsedBooks = selectedFiles.map { file ->
-                async {
-                    logD {
-                        "Parsing metadata for file: ${file.name}"
-                    }
-                    val parser = parserFactory.getParser(file.type.value)
-                    if (parser == null) {
-                        logW {
-                            "No parser found for file: ${file.name}"
-                        }
-                        return@async null
-                    }
-
-                    val metadata = parser.parse(application, file.uri)
-
-                    logD {
-                        "Parsed metadata for file: ${file.name}, metadata: $metadata"
-                    }
-
-                    return@async BookToAdd(
-                        file = file,
-                        metadata = metadata
-                    )
-                }
-            }.awaitAll()
-
-
-            _bookToImport.value = parsedBooks.filterNotNull()
-
-            logI {
-                "Finished parsing book metadata"
-            }
+            // 解析文件元数据
+            bookImportUseCase.parseFileMetadata(selectedFiles)
             _isAddBooksDialogLoading.value = false
         }
     }
 
     /**
-     * 真正导入选中的文件
+     * 导入最终选中的书籍
      */
-    fun confirmImport() {
+    fun importFinalSelectedBooks() {
         viewModelScope.launch(Dispatchers.IO) {
-            logI {
-                "Start importing the user's selected books"
-            }
 
-            // 获取所有用户勾选的文件
+            // 获取用户最终勾选的文件
             val bookToImprots = _bookToImport.value.filter {
                 it.isSelected
             }
 
-            logD {
-                "User selected ${bookToImprots.size} books"
-            }
-
-            bookToImprots.forEach { bookToImport ->
-                logD {
-                    "Books to be imported: ${bookToImport.file.name}, metadata: ${bookToImport.metadata}, file item: ${bookToImport.file}"
-                }
-                val metadata = bookToImport.metadata
-                val bookFile = bookToImport.file
-                val uniqueId = metadata.uniqueId ?: bookFile.uri.toString()
-
-                // 顺序排好的书签列表
-                val sortedBookmarks = metadata.bookmarks?.sortedBy { it.order }
-
-                if (bookRepository.getBookByUniqueId(uniqueId) != null) {
-                    // 已有该书籍
-                    logW {
-                        "The book is already in the database with a unique identifier of $uniqueId"
-                    }
-                    return@forEach
-                }
-
-                // 导入数据库
-                val book = Book(
-                    title = metadata.title ?: "未知",
-                    author = metadata.authors?.firstOrNull() ?: "未知",
-                    description = metadata.description,
-                    coverPath = metadata.coverPath,
-                    fileSize = bookFile.size,
-                    fileUri = bookFile.uri.toString(),
-                    format = bookFile.type.name.lowercase(),
-                    importTime = System.currentTimeMillis(),
-                    uniqueId = uniqueId,
-                    language = metadata.language ?: "zh-CN",
-                    publisher = metadata.publisher ?: "未知",
-                    subjects = metadata.subjects ?: emptyList(),
-                    bookmarks = sortedBookmarks,
-                    lastReadPosition = null,
-                    lastReadTime = null
-                )
-                bookRepository.importBook(book)
-            }
-
-            logI {
-                "Import books successfully"
-            }
+            bookImportUseCase.importBooks(bookToImprots)
 
             // 导入完成后，清空选中状态
             clearSelection()
@@ -454,40 +314,43 @@ class BrowseViewModel @Inject constructor(
     }
 
     /**
-     * 排序文件列表
+     * 更新文件类型过滤器
      */
-    private fun sortFiles(
-        files: List<FileItem>,
-        type: SortType,
-        ascending: Boolean
-    ): List<FileItem> {
-        if (files.isEmpty()) return emptyList()
-
-        val comparator = when (type) {
-            SortType.ALPHABETICAL -> compareBy<FileItem> { it.name }
-            SortType.SIZE -> compareBy { it.size }
-            SortType.LAST_MODIFIED -> compareBy { it.lastModified }
-            SortType.FILE_FORMAT -> compareBy { it.type.value }
-        }
-
-        return if (ascending) {
-            files.sortedWith(comparator)
-        } else {
-            files.sortedWith(comparator).reversed()
-        }
-    }
-
-
-    /**
-     * 判断当前过滤列表是否有效
-     */
-    private fun isFilterValid(filters: List<FilterOption>): Boolean {
-        filters.forEach { filter ->
-            if (filter.isSelected) {
-                return true
+    fun updateFileTypeFilter(fileFormat: FileFormat) {
+        // 更新选中状态
+        _filterList.value = _filterList.value.map {
+            if (it.format == fileFormat) {
+                it.copy(isSelected = !it.isSelected)
+            } else {
+                it
             }
         }
-        return false
     }
 
+    /**
+     * 处理文件长按
+     */
+    suspend fun handleFileLongPress(files: List<FileItem>) {
+        if (!isMultiSelectMode.first()) {
+            // 选中这组文件
+            files.forEach { fileItem ->
+                toggleSelection(fileItem)
+            }
+        }
+    }
+
+    fun toggleBookSelection(bookItem: BookToAdd) {
+        // 修改选中项的选中状态
+        val newList = _bookToImport.value.map { bookToAdd ->
+            if (bookToAdd.file.uri == bookItem.file.uri) {
+                // 修改选中状态
+                bookToAdd.copy(isSelected = !bookToAdd.isSelected)
+            } else {
+                // 其他项不变
+                bookToAdd
+            }
+        }
+
+        _bookToImport.value = newList
+    }
 }

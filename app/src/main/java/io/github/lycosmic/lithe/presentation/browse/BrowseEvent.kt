@@ -8,12 +8,12 @@ import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
 sealed class BrowseEvent {
 
     /**
-     * 点击添加书籍按钮
+     * 点击添加文件按钮
      */
-    data object OnAddBooksClick : BrowseEvent()
+    data object OnAddFileClick : BrowseEvent()
 
     /**
-     * 点击确定添加书籍按钮 (确定导入)
+     * 点击导入书籍按钮
      */
     data object OnImportBooksClick : BrowseEvent()
 
@@ -23,9 +23,9 @@ sealed class BrowseEvent {
     data object OnToggleAllSelectionClick : BrowseEvent()
 
     /**
-     * 点击取消按钮
+     * 点击清空选中项
      */
-    data object OnCancelClick : BrowseEvent()
+    data object OnClearSelectionClick : BrowseEvent()
 
     /**
      * 用户返回
@@ -53,9 +53,9 @@ sealed class BrowseEvent {
     data object OnDismissAddBooksDialog : BrowseEvent()
 
     /**
-     * 在书籍对话框中点击某一项
+     * 点击添加书籍对话框的书籍项
      */
-    data class OnAddBooksDialogItemClick(val item: BookToAdd) : BrowseEvent()
+    data class OnBookItemClick(val bookItem: BookToAdd) : BrowseEvent()
 
     /**
      * 过滤器中的排序类型改变
