@@ -66,4 +66,19 @@ sealed class BrowseEvent {
      * 点击过滤器中的文件类型
      */
     data class OnFilterChange(val filterOption: FilterOption) : BrowseEvent()
+
+    /**
+     * 点击搜索按钮
+     */
+    data object OnSearchClick : BrowseEvent()
+
+    /**
+     * 点击退出搜索模式
+     */
+    data object OnExitSearchClick : BrowseEvent()
+
+    /**
+     * 搜索框中的文字改变
+     */
+    data class OnSearchTextChange(val text: String) : BrowseEvent()
 }

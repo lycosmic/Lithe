@@ -12,6 +12,7 @@
     <string name="descending_order">降序</string>
     <string name="browse">浏览</string>
     <string name="search">搜索</string>
+    <string name="search_hint">搜索…</string>
     <string name="more">更多</string>
     <string name="select">筛选</string>
     <string name="cancel_selection">取消选择\n</string>
@@ -21,4 +22,5 @@
     <string name="about">关于</string>
     <string name="help">帮助</string>
     <string name="settings">设置</string>
+    <string name="exit_search">退出搜索</string>
 </resources>

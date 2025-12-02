@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.model.Book
+import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepository
@@ -17,6 +18,7 @@ import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.extension.logW
 import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
+import io.github.lycosmic.lithe.presentation.browse.model.BrowseTopBarState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -70,28 +72,33 @@ class BrowseViewModel @Inject constructor(
     private val _filterList = MutableStateFlow(FilterOption.defaultFilterOptions)
     val filterList = _filterList.asStateFlow()
 
-    // 分组、排序、过滤后的文件列表
+    // 当前是否为搜索模式
+    private val _isSearchMode = MutableStateFlow(false)
+    val isSearchMode = _isSearchMode.asStateFlow()
+
+    // 当前是否为多选模式
+    val isMultiSelectMode = _selectedFileUris.asStateFlow().map {
+        it.isNotEmpty()
+    }
+
+    // 搜索的文本内容
+    private val _searchText = MutableStateFlow("")
+    val searchText = _searchText.asStateFlow()
+
+    // 分组、排序、过滤、搜索后的文件列表
     val processedFiles = combine(
         _rawFileItems,
         _sortType,
         _isAscending,
-        _filterList
-    ) { files, sort, isAscending, filters ->
-        logD { "current filters: $filters" }
-
+        _filterList,
+        _searchText
+    ) { files, sort, isAscending, filters, searchText ->
         val filteredFiles = if (
             isFilterValid(filters)
         ) {
             files.filter { file ->
-                logD { "Filtering file: $files" }
-
                 val accepted = filters.any { filter ->
                     file.type == filter.format && filter.isSelected
-                }
-                if (!accepted) {
-                    logD { "File rejected: $file" }
-                } else {
-                    logD { "File accepted: $file, file type: ${file.type}" }
                 }
                 accepted
             }
@@ -99,10 +106,16 @@ class BrowseViewModel @Inject constructor(
             files
         }
 
-        logD { "Filtered file: $filteredFiles" }
+        val searchResult = if (searchText.isNotEmpty()) {
+            filteredFiles.filter { item ->
+                item.name.contains(searchText)
+            }
+        } else {
+            filteredFiles
+        }
 
         // 排序
-        val sortedFiles = sortFiles(filteredFiles, sort, isAscending)
+        val sortedFiles = sortFiles(searchResult, sort, isAscending)
 
         // 按父文件夹进行分组
         sortedFiles.groupBy { item ->
@@ -114,11 +127,24 @@ class BrowseViewModel @Inject constructor(
         emptyMap()
     )
 
+    // 顶部栏状态
+    val topBarState = combine(
+        _selectedFileUris,
+        _isSearchMode,
+    ) { fileUris, isSearchMode ->
+        // 优先级: 多选模式 > 搜索模式 > 默认模式
+        if (fileUris.isNotEmpty()) {
+            return@combine BrowseTopBarState.SELECT_FILE
+        } else if (isSearchMode) {
+            return@combine BrowseTopBarState.SEARCH
+        }
 
-    // 当前是否为多选模式
-    val isMultiSelectMode = _selectedFileUris.asStateFlow().map {
-        it.isNotEmpty()
-    }
+        return@combine BrowseTopBarState.DEFAULT
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(Constants.VIEW_MODEL_SUBSCRIBE_TIMEOUT),
+        BrowseTopBarState.DEFAULT
+    )
 
 
     init {
@@ -148,8 +174,13 @@ class BrowseViewModel @Inject constructor(
                 }
 
                 BrowseEvent.OnBackClick -> {
-                    // 取消选中
-                    clearSelection()
+                    if (topBarState.value == BrowseTopBarState.SELECT_FILE) {
+                        // 如果当前为多选模式，就清除选中项
+                        clearSelection()
+                    } else if (topBarState.value == BrowseTopBarState.SEARCH) {
+                        // 如果为搜索模式，就取消搜索
+                        _isSearchMode.value = false
+                    }
                 }
 
                 is BrowseEvent.OnFileCheckboxClick -> {
@@ -205,6 +236,19 @@ class BrowseViewModel @Inject constructor(
                             it
                         }
                     }
+                }
+
+                is BrowseEvent.OnSearchClick -> {
+                    _isSearchMode.value = true
+                }
+
+                is BrowseEvent.OnExitSearchClick -> {
+                    _isSearchMode.value = false
+                    _searchText.value = ""
+                }
+
+                is BrowseEvent.OnSearchTextChange -> {
+                    _searchText.value = event.text
                 }
             }
         }

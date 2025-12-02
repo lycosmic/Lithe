@@ -35,12 +35,6 @@ class DirectoryRepository @Inject constructor(
         return directoryDao.getScannedDirectoriesFlow()
     }
 
-    /**
-     * 获取已添加的文件夹列表
-     */
-    fun getDirectoriesSnapshot(): List<ScannedDirectory> {
-        return directoryDao.getScannedDirectoriesSnapshot()
-    }
 
     /**
      * 添加文件夹
@@ -77,14 +71,6 @@ class DirectoryRepository @Inject constructor(
         directoryDao.deleteDirectory(directory)
     }
 
-
-    /**
-     * 获取所有被授权的书籍,用于手动刷新场景
-     */
-    suspend fun scanAllBooks(): List<FileItem> {
-        val scannedDirectories = directoryDao.getScannedDirectoriesSnapshot()
-        return scanAllBooks(scannedDirectories)
-    }
 
     /**
      * 扫描所有已授权文件夹下的书籍,用于自动刷新场景,文件夹列表由 ViewModel 提供

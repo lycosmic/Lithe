@@ -9,22 +9,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,9 +27,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.browse.components.AddBookConfirmationDialog
 import io.github.lycosmic.lithe.presentation.browse.components.BrowseFilterSheet
+import io.github.lycosmic.lithe.presentation.browse.components.DefaultBrowseTopAppBar
 import io.github.lycosmic.lithe.presentation.browse.components.DirectoryHeader
 import io.github.lycosmic.lithe.presentation.browse.components.EmptyBrowseScreen
 import io.github.lycosmic.lithe.presentation.browse.components.FileRowItem
+import io.github.lycosmic.lithe.presentation.browse.components.SearchBrowseTopAppBar
+import io.github.lycosmic.lithe.presentation.browse.components.SelectBrowseTopAppBar
+import io.github.lycosmic.lithe.presentation.browse.model.BrowseTopBarState
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 
@@ -49,7 +41,7 @@ import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 @Composable
 fun BrowseScreen(
     modifier: Modifier = Modifier,
-    browseViewModel: BrowseViewModel = hiltViewModel(),
+    viewModel: BrowseViewModel = hiltViewModel(),
     onNavigateToBrowseSettings: () -> Unit,
     onGoToSettings: () -> Unit,
     onGoToAbout: () -> Unit,
@@ -65,124 +57,92 @@ fun BrowseScreen(
     var showAddBookDialog by remember { mutableStateOf(false) }
 
     // 过滤、排序、文件夹分组的文件列表
-    val directoryWithFiles by browseViewModel.processedFiles.collectAsStateWithLifecycle()
+    val directoryWithFiles by viewModel.processedFiles.collectAsStateWithLifecycle()
 
     // 当前选中的文件
-    val selectedFiles by browseViewModel.selectedFiles.collectAsStateWithLifecycle()
+    val selectedFiles by viewModel.selectedFiles.collectAsStateWithLifecycle()
 
     // 当前待导入的书籍
-    val bookToImport by browseViewModel.bookToImport.collectAsStateWithLifecycle()
+    val bookToImport by viewModel.bookToImport.collectAsStateWithLifecycle()
 
     // 是否为多选模式
     val isMultiSelectMode by
-    browseViewModel.isMultiSelectMode.collectAsStateWithLifecycle(initialValue = false)
+    viewModel.isMultiSelectMode.collectAsStateWithLifecycle(initialValue = false)
+
+    val topBarState by viewModel.topBarState.collectAsStateWithLifecycle()
 
     // 排序类型
-    val sortType by browseViewModel.sortType.collectAsStateWithLifecycle()
-    val isAscending by browseViewModel.isAscending.collectAsStateWithLifecycle()
+    val sortType by viewModel.sortType.collectAsStateWithLifecycle()
+    val isAscending by viewModel.isAscending.collectAsStateWithLifecycle()
 
     // 当前的过滤
-    val filter by browseViewModel.filterList.collectAsStateWithLifecycle()
+    val filter by viewModel.filterList.collectAsStateWithLifecycle()
 
-    val isLoading by browseViewModel.isLoading.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
-    val isDialogLoading by browseViewModel.isAddBooksDialogLoading.collectAsStateWithLifecycle()
+    val isDialogLoading by viewModel.isAddBooksDialogLoading.collectAsStateWithLifecycle()
+
+    // 当前搜索的文本
+    val searchText by viewModel.searchText.collectAsStateWithLifecycle()
+
+    val isSearchMode by viewModel.isSearchMode.collectAsStateWithLifecycle()
 
     // 拦截系统返回键
-    BackHandler(enabled = isMultiSelectMode) {
+    BackHandler(enabled = isMultiSelectMode || isSearchMode) {
         // 退出选中状态
-        browseViewModel.onEvent(BrowseEvent.OnBackClick)
+        viewModel.onEvent(BrowseEvent.OnBackClick)
     }
 
     Scaffold(
         modifier = modifier,
         topBar = {
             // 动态切换 TopBar
-            if (isMultiSelectMode) {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.selected_files, selectedFiles.size)) },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            browseViewModel.onEvent(BrowseEvent.OnCancelClick)
-                        }) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = stringResource(R.string.cancel_selection)
-                            )
+            when (topBarState) {
+                BrowseTopBarState.DEFAULT -> {
+                    DefaultBrowseTopAppBar(
+                        onSearchClick = {
+                            viewModel.onEvent(BrowseEvent.OnSearchClick)
+                        },
+                        onFilterClick = {
+                            showFilterSheet = true
+                        },
+                        onMoreClick = {
+                            showBottomSheet = true
                         }
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = {
-                                browseViewModel.onEvent(BrowseEvent.OnToggleAllSelectionClick)
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.SelectAll,
-                                contentDescription = stringResource(R.string.toggle_all_selection)
-                            )
-                        }
-
-                        // 添加书籍
-                        IconButton(
-                            onClick = {
-                                showAddBookDialog = true
-                                // 预导入
-                                browseViewModel.onEvent(BrowseEvent.OnAddBooksClick)
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = stringResource(R.string.add)
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer
                     )
-                )
-            } else {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(R.string.browse),
-                        )
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = {
+                }
 
-                            }
-                        ) {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = stringResource(R.string.search)
-                            )
+                BrowseTopBarState.SELECT_FILE -> {
+                    SelectBrowseTopAppBar(
+                        selectedFileSize = selectedFiles.size,
+                        onCancelSelectClick = {
+                            viewModel.onEvent(BrowseEvent.OnCancelClick)
+                        },
+                        onToggleAllFileClick = {
+                            viewModel.onEvent(BrowseEvent.OnToggleAllSelectionClick)
+                        },
+                        onAddFileClick = {
+                            showAddBookDialog = true
+                            // 预导入
+                            viewModel.onEvent(BrowseEvent.OnAddBooksClick)
                         }
+                    )
+                }
 
-                        IconButton(
-                            onClick = {
-                                showFilterSheet = true
-                            }
-                        ) {
-                            Icon(
-                                Icons.Default.FilterList,
-                                contentDescription = stringResource(R.string.select)
-                            )
+                BrowseTopBarState.SEARCH -> {
+                    SearchBrowseTopAppBar(
+                        searchText = searchText,
+                        onSearchTextChange = {
+                            viewModel.onEvent(BrowseEvent.OnSearchTextChange(it))
+                        },
+                        onExitSearchClick = {
+                            viewModel.onEvent(BrowseEvent.OnExitSearchClick)
+                        },
+                        onMoreClick = {
+                            showBottomSheet = true
                         }
-
-                        IconButton(
-                            onClick = {
-                                showBottomSheet = true
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = stringResource(R.string.more),
-                            )
-                        }
-                    },
-                )
+                    )
+                }
             }
         },
     ) { paddings ->
@@ -221,15 +181,15 @@ fun BrowseScreen(
                             isMultiSelectMode = isMultiSelectMode,
                             onCheckboxClick = {
                                 // 点击复选框
-                                browseViewModel.onEvent(BrowseEvent.OnFileCheckboxClick(file))
+                                viewModel.onEvent(BrowseEvent.OnFileCheckboxClick(file))
                             },
                             onClick = {
                                 // 点击文件选中该文件
-                                browseViewModel.onEvent(BrowseEvent.OnFileClick(file))
+                                viewModel.onEvent(BrowseEvent.OnFileClick(file))
                             },
                             onLongClick = {
                                 // 长按文件选中,一次性选中该文件夹下的所有文件
-                                browseViewModel.onEvent(BrowseEvent.OnFileLongClick(files))
+                                viewModel.onEvent(BrowseEvent.OnFileLongClick(files))
                             }
                         )
                     }
@@ -249,7 +209,7 @@ fun BrowseScreen(
                 currentSortType = sortType,
                 isAscending = isAscending,
                 onSortTypeChanged = { newSortType, newIsAscending ->
-                    browseViewModel.onEvent(
+                    viewModel.onEvent(
                         BrowseEvent.OnSortTypeChange(
                             newSortType,
                             newIsAscending
@@ -259,7 +219,7 @@ fun BrowseScreen(
                 },
                 currentFilterOptions = filter,
                 onFilterChange = { newFilter ->
-                    browseViewModel.onEvent(
+                    viewModel.onEvent(
                         BrowseEvent.OnFilterChange(
                             newFilter
                         )
@@ -320,20 +280,20 @@ fun BrowseScreen(
                 isDialogLoading = isDialogLoading,
                 selectedBooks = bookToImport,
                 onDismissRequest = {
-                    browseViewModel.onEvent(BrowseEvent.OnDismissAddBooksDialog)
+                    viewModel.onEvent(BrowseEvent.OnDismissAddBooksDialog)
                     showAddBookDialog = false
                 },
                 onConfirm = {
                     // 确认添加书籍
-                    browseViewModel.onEvent(BrowseEvent.OnImportBooksClick)
+                    viewModel.onEvent(BrowseEvent.OnImportBooksClick)
                     showAddBookDialog = false
                 },
                 onCancel = {
-                    browseViewModel.onEvent(BrowseEvent.OnDismissAddBooksDialog)
+                    viewModel.onEvent(BrowseEvent.OnDismissAddBooksDialog)
                     showAddBookDialog = false
                 },
                 onToggleSelection = { newBookToAdd ->
-                    browseViewModel.onEvent(BrowseEvent.OnAddBooksDialogItemClick(newBookToAdd))
+                    viewModel.onEvent(BrowseEvent.OnAddBooksDialogItemClick(newBookToAdd))
                 }
             )
         }
