@@ -20,28 +20,13 @@ enum class SortType(
     LAST_MODIFIED(R.string.sort_type_last_modified),
 
     // 文件大小
-    SIZE(R.string.sort_type_size),
-}
+    SIZE(R.string.sort_type_size);
 
-// 默认排序类型为最后修改
-val DEFAULT_SORT_TYPE = SortType.LAST_MODIFIED
+    companion object {
+        // 默认排序类型为最后修改
+        val DEFAULT_SORT_TYPE = LAST_MODIFIED
 
-// 默认排序顺序为降序
-const val DEFAULT_IS_ASCENDING = false
-
-/**
- * 标签页类型
- */
-enum class TabType(
-    @param:StringRes
-    val titleResId: Int
-) {
-    // 排序
-    SORT(R.string.tab_type_sort),
-
-    // 过滤
-    FILTER(R.string.tab_type_filter),
-
-    // 显示
-    DISPLAY(R.string.tab_type_display),
+        // 默认排序顺序为降序
+        const val DEFAULT_IS_ASCENDING = false
+    }
 }

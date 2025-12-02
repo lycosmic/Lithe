@@ -2,6 +2,7 @@ package io.github.lycosmic.lithe.presentation.browse.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -33,10 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.domain.model.DEFAULT_IS_ASCENDING
+import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
+import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_IS_ASCENDING
 import io.github.lycosmic.lithe.domain.model.TabType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,6 +51,8 @@ fun BrowseFilterSheet(
     currentSortType: SortType,
     isAscending: Boolean,
     onSortTypeChanged: (sortType: SortType, isAscending: Boolean) -> Unit,
+    currentFilterOptions: List<FilterOption>,
+    onFilterChange: (FilterOption) -> Unit,
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState()
 ) {
@@ -101,7 +108,10 @@ fun BrowseFilterSheet(
                     }
 
                     TabType.FILTER -> {
-                        Text("过滤选项开发中...")
+                        FilterContent(
+                            currentFilterOptions = currentFilterOptions,
+                            onFilterOptionChange = onFilterChange,
+                        )
                     }
 
                     TabType.DISPLAY -> {
@@ -165,6 +175,51 @@ private fun SortContent(
                     text = stringResource(id = type.displayNameResId),
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+}
+
+
+/**
+ * 过滤列表内容
+ */
+@Composable
+private fun FilterContent(
+    currentFilterOptions: List<FilterOption>,
+    onFilterOptionChange: (FilterOption) -> Unit
+) {
+    Column {
+        currentFilterOptions.forEach { filterOption ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onFilterOptionChange(filterOption.copy(isSelected = !filterOption.isSelected))
+                    }
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+
+                Checkbox(
+                    checked = filterOption.isSelected,
+                    onCheckedChange = {
+                        onFilterOptionChange(filterOption.copy(isSelected = it))
+                    },
+                    colors = CheckboxDefaults.colors().copy(
+                        checkedBoxColor = MaterialTheme.colorScheme.secondary,
+                    )
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = filterOption.displayName,
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }

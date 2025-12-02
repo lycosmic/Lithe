@@ -1,6 +1,7 @@
 package io.github.lycosmic.lithe.presentation.browse
 
 import io.github.lycosmic.lithe.data.model.FileItem
+import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
 import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
 
@@ -60,4 +61,9 @@ sealed class BrowseEvent {
      * 过滤器中的排序类型改变
      */
     data class OnSortTypeChange(val sortType: SortType, val isAscending: Boolean) : BrowseEvent()
+
+    /**
+     * 点击过滤器中的文件类型
+     */
+    data class OnFilterChange(val filterOption: FilterOption) : BrowseEvent()
 }

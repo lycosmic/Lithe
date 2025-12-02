@@ -9,9 +9,10 @@ import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.data.repository.DirectoryRepository
-import io.github.lycosmic.lithe.domain.model.DEFAULT_IS_ASCENDING
-import io.github.lycosmic.lithe.domain.model.DEFAULT_SORT_TYPE
+import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
+import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_IS_ASCENDING
+import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_SORT_TYPE
 import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.extension.logW
@@ -65,11 +66,43 @@ class BrowseViewModel @Inject constructor(
     private val _isAscending = MutableStateFlow(DEFAULT_IS_ASCENDING)
     val isAscending = _isAscending.asStateFlow()
 
+    // 当前的过滤列表
+    private val _filterList = MutableStateFlow(FilterOption.defaultFilterOptions)
+    val filterList = _filterList.asStateFlow()
 
-    // 分组、排序后的文件列表
-    val groupedFiles = combine(_rawFileItems, _sortType, _isAscending) { files, sort, isAscending ->
+    // 分组、排序、过滤后的文件列表
+    val processedFiles = combine(
+        _rawFileItems,
+        _sortType,
+        _isAscending,
+        _filterList
+    ) { files, sort, isAscending, filters ->
+        logD { "current filters: $filters" }
+
+        val filteredFiles = if (
+            isFilterValid(filters)
+        ) {
+            files.filter { file ->
+                logD { "Filtering file: $files" }
+
+                val accepted = filters.any { filter ->
+                    file.type == filter.format && filter.isSelected
+                }
+                if (!accepted) {
+                    logD { "File rejected: $file" }
+                } else {
+                    logD { "File accepted: $file, file type: ${file.type}" }
+                }
+                accepted
+            }
+        } else {
+            files
+        }
+
+        logD { "Filtered file: $filteredFiles" }
+
         // 排序
-        val sortedFiles = sortFiles(files, sort, isAscending)
+        val sortedFiles = sortFiles(filteredFiles, sort, isAscending)
 
         // 按父文件夹进行分组
         sortedFiles.groupBy { item ->
@@ -160,6 +193,19 @@ class BrowseViewModel @Inject constructor(
                 is BrowseEvent.OnSortTypeChange -> {
                     updateSort(event.sortType, event.isAscending)
                 }
+
+                is BrowseEvent.OnFilterChange -> {
+                    // 找到点击的文件扩展名
+                    val clickedFileFormat = event.filterOption
+                    // 更新选中状态
+                    _filterList.value = _filterList.value.map {
+                        if (it.format == clickedFileFormat.format) {
+                            it.copy(isSelected = !it.isSelected)
+                        } else {
+                            it
+                        }
+                    }
+                }
             }
         }
 
@@ -216,7 +262,7 @@ class BrowseViewModel @Inject constructor(
      */
     fun toggleAllSelection() {
         viewModelScope.launch(Dispatchers.IO) {
-            val fileItems = groupedFiles.value.map { entry ->
+            val fileItems = processedFiles.value.map { entry ->
                 entry.value.map { item ->
                     item.uri.toString()
                 }
@@ -385,6 +431,19 @@ class BrowseViewModel @Inject constructor(
         } else {
             files.sortedWith(comparator).reversed()
         }
+    }
+
+
+    /**
+     * 判断当前过滤列表是否有效
+     */
+    private fun isFilterValid(filters: List<FilterOption>): Boolean {
+        filters.forEach { filter ->
+            if (filter.isSelected) {
+                return true
+            }
+        }
+        return false
     }
 
 }

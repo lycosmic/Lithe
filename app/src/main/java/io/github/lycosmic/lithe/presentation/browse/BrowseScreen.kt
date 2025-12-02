@@ -64,8 +64,8 @@ fun BrowseScreen(
     // 控制添加书籍对话框是否显示
     var showAddBookDialog by remember { mutableStateOf(false) }
 
-    // 以文件夹分组的文件列表
-    val directoryWithFiles by browseViewModel.groupedFiles.collectAsStateWithLifecycle()
+    // 过滤、排序、文件夹分组的文件列表
+    val directoryWithFiles by browseViewModel.processedFiles.collectAsStateWithLifecycle()
 
     // 当前选中的文件
     val selectedFiles by browseViewModel.selectedFiles.collectAsStateWithLifecycle()
@@ -80,6 +80,9 @@ fun BrowseScreen(
     // 排序类型
     val sortType by browseViewModel.sortType.collectAsStateWithLifecycle()
     val isAscending by browseViewModel.isAscending.collectAsStateWithLifecycle()
+
+    // 当前的过滤
+    val filter by browseViewModel.filterList.collectAsStateWithLifecycle()
 
     val isLoading by browseViewModel.isLoading.collectAsStateWithLifecycle()
 
@@ -250,6 +253,15 @@ fun BrowseScreen(
                         BrowseEvent.OnSortTypeChange(
                             newSortType,
                             newIsAscending
+                        )
+                    )
+                    showFilterSheet = true
+                },
+                currentFilterOptions = filter,
+                onFilterChange = { newFilter ->
+                    browseViewModel.onEvent(
+                        BrowseEvent.OnFilterChange(
+                            newFilter
                         )
                     )
                     showFilterSheet = true
