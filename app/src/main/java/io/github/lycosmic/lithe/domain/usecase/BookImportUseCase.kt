@@ -8,7 +8,7 @@ import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.extension.logW
-import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
+import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -23,7 +23,7 @@ class BookImportUseCase @Inject constructor(
     /**
      * 解析文件元数据
      */
-    suspend fun parseFileMetadata(selectedFiles: List<FileItem>): List<BookToAdd> =
+    suspend fun parseFileMetadata(selectedFiles: List<FileItem>): List<ParsedBook> =
         withContext(Dispatchers.IO) {
             logI { "Start parsing book metadata" }
 
@@ -40,7 +40,7 @@ class BookImportUseCase @Inject constructor(
 
                     logD { "Parsed metadata for file: ${file.name}, metadata: $fileMetadata" }
 
-                    BookToAdd(
+                    ParsedBook(
                         file = file,
                         metadata = fileMetadata
                     )
@@ -54,17 +54,17 @@ class BookImportUseCase @Inject constructor(
     /**
      * 导入书籍
      */
-    suspend fun importBooks(booksToImport: List<BookToAdd>) = withContext(Dispatchers.IO) {
+    suspend fun importBook(parsedBooks: List<ParsedBook>) = withContext(Dispatchers.IO) {
         logI { "Start importing the user's selected books" }
 
-        logD { "User selected ${booksToImport.size} books" }
+        logD { "User selected ${parsedBooks.size} books" }
 
-        booksToImport.forEach { bookToAdd ->
+        parsedBooks.forEach { parsedBook ->
             logD {
-                "Books to be imported: ${bookToAdd.file.name}, metadata: ${bookToAdd.metadata}, file item: ${bookToAdd.file}"
+                "Books to be imported: ${parsedBook.file.name}, metadata: ${parsedBook.metadata}, file item: ${parsedBook.file}"
             }
-            val metadata = bookToAdd.metadata
-            val bookFile = bookToAdd.file
+            val metadata = parsedBook.metadata
+            val bookFile = parsedBook.file
             val uniqueId = metadata.uniqueId ?: bookFile.uri.toString()
 
             // 书签排序

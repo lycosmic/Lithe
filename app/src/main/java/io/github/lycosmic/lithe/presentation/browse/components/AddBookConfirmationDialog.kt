@@ -23,18 +23,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
+import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook
 import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
 
 
 @Composable
 fun AddBookConfirmationDialog(
     isDialogLoading: Boolean,
-    selectedBooks: List<BookToAdd>,
+    selectedBooks: List<ParsedBook>,
     onDismissRequest: () -> Unit,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
-    onToggleSelection: (BookToAdd) -> Unit, // 向上传递当前点击的选项
+    onToggleSelection: (ParsedBook) -> Unit, // 向上传递当前点击的选项
     modifier: Modifier = Modifier
 ) {
     AlertDialog(

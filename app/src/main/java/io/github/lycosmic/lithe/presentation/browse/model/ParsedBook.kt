@@ -5,9 +5,9 @@ import io.github.lycosmic.lithe.data.model.ParsedMetadata
 
 
 /**
- * 待添加的书籍
+ * 解析后的书籍信息，包括文件信息和元数据
  */
-data class BookToAdd(
+data class ParsedBook(
     val file: FileItem, // 文件
     val metadata: ParsedMetadata, // 书籍元数据
     val isSelected: Boolean = true  // 是否选中

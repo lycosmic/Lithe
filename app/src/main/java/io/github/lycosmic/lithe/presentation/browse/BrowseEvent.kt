@@ -3,7 +3,7 @@ package io.github.lycosmic.lithe.presentation.browse
 import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
-import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
+import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook
 
 sealed class BrowseEvent {
 
@@ -55,7 +55,7 @@ sealed class BrowseEvent {
     /**
      * 点击添加书籍对话框的书籍项
      */
-    data class OnBookItemClick(val bookItem: BookToAdd) : BrowseEvent()
+    data class OnBookItemClick(val bookItem: ParsedBook) : BrowseEvent()
 
     /**
      * 过滤器中的排序类型改变

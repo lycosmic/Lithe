@@ -12,8 +12,8 @@ import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_IS_ASCEN
 import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_SORT_TYPE
 import io.github.lycosmic.lithe.domain.usecase.BookImportUseCase
 import io.github.lycosmic.lithe.domain.usecase.FileProcessingUseCase
-import io.github.lycosmic.lithe.presentation.browse.model.BookToAdd
 import io.github.lycosmic.lithe.presentation.browse.model.BrowseTopBarState
+import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -44,9 +44,9 @@ class BrowseViewModel @Inject constructor(
     private val _selectedFileUris = MutableStateFlow<Set<String>>(emptySet())
     val selectedFiles = _selectedFileUris.asStateFlow()
 
-    // 待导入的书籍
-    private val _bookToImport = MutableStateFlow<List<BookToAdd>>(emptyList())
-    val bookToImport = _bookToImport.asStateFlow()
+    // 带有元数据的书籍
+    private val _parsedBooks = MutableStateFlow<List<ParsedBook>>(emptyList())
+    val bookToImport = _parsedBooks.asStateFlow()
 
     // 对话框是否在加载
     private val _isAddBooksDialogLoading = MutableStateFlow(false)
@@ -267,7 +267,7 @@ class BrowseViewModel @Inject constructor(
      */
     fun clearSelection() {
         _selectedFileUris.value = emptySet()
-        _bookToImport.value = emptyList()
+        _parsedBooks.value = emptyList()
     }
 
     /**
@@ -279,7 +279,7 @@ class BrowseViewModel @Inject constructor(
             // 获取选中的文件
             val selectedFiles = getSelectedFiles()
             // 解析文件元数据
-            bookImportUseCase.parseFileMetadata(selectedFiles)
+            _parsedBooks.value = bookImportUseCase.parseFileMetadata(selectedFiles)
             _isAddBooksDialogLoading.value = false
         }
     }
@@ -291,11 +291,11 @@ class BrowseViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
 
             // 获取用户最终勾选的文件
-            val bookToImprots = _bookToImport.value.filter {
+            val parsedBooks = _parsedBooks.value.filter {
                 it.isSelected
             }
 
-            bookImportUseCase.importBooks(bookToImprots)
+            bookImportUseCase.importBook(parsedBooks)
 
             // 导入完成后，清空选中状态
             clearSelection()
@@ -339,9 +339,9 @@ class BrowseViewModel @Inject constructor(
         }
     }
 
-    fun toggleBookSelection(bookItem: BookToAdd) {
+    fun toggleBookSelection(bookItem: ParsedBook) {
         // 修改选中项的选中状态
-        val newList = _bookToImport.value.map { bookToAdd ->
+        val newList = _parsedBooks.value.map { bookToAdd ->
             if (bookToAdd.file.uri == bookItem.file.uri) {
                 // 修改选中状态
                 bookToAdd.copy(isSelected = !bookToAdd.isSelected)
@@ -351,6 +351,6 @@ class BrowseViewModel @Inject constructor(
             }
         }
 
-        _bookToImport.value = newList
+        _parsedBooks.value = newList
     }
 }
