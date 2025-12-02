@@ -47,6 +47,7 @@ import io.github.lycosmic.lithe.domain.model.TabType
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrowseFilterSheet(
+    show: Boolean,
     onDismissRequest: () -> Unit,
     currentSortType: SortType,
     isAscending: Boolean,
@@ -56,7 +57,7 @@ fun BrowseFilterSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState()
 ) {
-
+    if (!show) return
     ModalBottomSheet(
         dragHandle = null, // 去掉默认的拖动手柄
         onDismissRequest = onDismissRequest,

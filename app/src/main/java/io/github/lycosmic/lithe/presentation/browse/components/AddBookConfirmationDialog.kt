@@ -29,6 +29,7 @@ import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
 
 @Composable
 fun AddBookConfirmationDialog(
+    showDialog: Boolean,
     isDialogLoading: Boolean,
     selectedBooks: List<ParsedBook>,
     onDismissRequest: () -> Unit,
@@ -37,6 +38,7 @@ fun AddBookConfirmationDialog(
     onToggleSelection: (ParsedBook) -> Unit, // 向上传递当前点击的选项
     modifier: Modifier = Modifier
 ) {
+    if (!showDialog) return
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismissRequest,

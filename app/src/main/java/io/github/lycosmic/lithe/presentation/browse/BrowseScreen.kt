@@ -201,33 +201,32 @@ fun BrowseScreen(
         }
 
         // 过滤抽屉
-        if (showFilterSheet) {
-            BrowseFilterSheet(
-                onDismissRequest = {
-                    showFilterSheet = false
-                },
-                currentSortType = sortType,
-                isAscending = isAscending,
-                onSortTypeChanged = { newSortType, newIsAscending ->
-                    viewModel.onEvent(
-                        BrowseEvent.OnSortTypeChange(
-                            newSortType,
-                            newIsAscending
-                        )
+        BrowseFilterSheet(
+            show = showFilterSheet,
+            onDismissRequest = {
+                showFilterSheet = false
+            },
+            currentSortType = sortType,
+            isAscending = isAscending,
+            onSortTypeChanged = { newSortType, newIsAscending ->
+                viewModel.onEvent(
+                    BrowseEvent.OnSortTypeChange(
+                        newSortType,
+                        newIsAscending
                     )
-                    showFilterSheet = true
-                },
-                currentFilterOptions = filter,
-                onFilterChange = { newFilter ->
-                    viewModel.onEvent(
-                        BrowseEvent.OnFilterChange(
-                            newFilter
-                        )
+                )
+                showFilterSheet = true
+            },
+            currentFilterOptions = filter,
+            onFilterChange = { newFilter ->
+                viewModel.onEvent(
+                    BrowseEvent.OnFilterChange(
+                        newFilter
                     )
-                    showFilterSheet = true
-                }
-            )
-        }
+                )
+                showFilterSheet = true
+            }
+        )
 
 
         // 底部抽屉
@@ -274,29 +273,27 @@ fun BrowseScreen(
         )
 
 
-        // 添加书籍弹窗
-        if (showAddBookDialog) {
-            AddBookConfirmationDialog(
-                isDialogLoading = isDialogLoading,
-                selectedBooks = bookToImport,
-                onDismissRequest = {
-                    viewModel.onEvent(BrowseEvent.OnDismissAddBooksDialog)
-                    showAddBookDialog = false
-                },
-                onConfirm = {
-                    // 确认添加书籍
-                    viewModel.onEvent(BrowseEvent.OnImportBooksClick)
-                    showAddBookDialog = false
-                },
-                onCancel = {
-                    viewModel.onEvent(BrowseEvent.OnDismissAddBooksDialog)
-                    showAddBookDialog = false
-                },
-                onToggleSelection = { newBookToAdd ->
-                    viewModel.onEvent(BrowseEvent.OnBookItemClick(newBookToAdd))
-                }
-            )
-        }
-
+        // 添加书籍对话框
+        AddBookConfirmationDialog(
+            showDialog = showAddBookDialog,
+            isDialogLoading = isDialogLoading,
+            selectedBooks = bookToImport,
+            onDismissRequest = {
+                viewModel.onEvent(BrowseEvent.OnDismissAddBooksDialog)
+                showAddBookDialog = false
+            },
+            onConfirm = {
+                // 确认添加书籍
+                viewModel.onEvent(BrowseEvent.OnImportBooksClick)
+                showAddBookDialog = false
+            },
+            onCancel = {
+                viewModel.onEvent(BrowseEvent.OnDismissAddBooksDialog)
+                showAddBookDialog = false
+            },
+            onToggleSelection = { newBookToAdd ->
+                viewModel.onEvent(BrowseEvent.OnBookItemClick(newBookToAdd))
+            }
+        )
     }
 }
