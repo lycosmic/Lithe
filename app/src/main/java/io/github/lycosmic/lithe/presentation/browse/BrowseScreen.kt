@@ -170,7 +170,6 @@ fun BrowseScreen(
                     stickyHeader {
                         DirectoryHeader(path = path) {
                             // 固定到顶部
-
                         }
                     }
 

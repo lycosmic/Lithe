@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.model.Constants
+import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.model.FileItem
+import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
 import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_IS_ASCENDING
@@ -30,7 +32,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BrowseViewModel @Inject constructor(
     private val fileProcessingUseCase: FileProcessingUseCase,
-    private val bookImportUseCase: BookImportUseCase
+    private val bookImportUseCase: BookImportUseCase,
+    settingsManager: SettingsManager
 ) : ViewModel() {
 
     // 原始的文件列表
@@ -75,6 +78,21 @@ class BrowseViewModel @Inject constructor(
     // 搜索的文本内容
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
+
+    // 文件显示模式
+    val fileDisplayMode = settingsManager.fileDisplayMode.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        DisplayMode.List
+    )
+
+    // 网格列数
+    val gridColumnCount = settingsManager.gridColumnCount.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        SettingsManager.GRID_COLUMN_COUNT_DEFAULT
+    )
+
 
     // 分组、排序、文件类型过滤、关键词过滤后的文件列表
     val processedFiles = combine(

@@ -23,4 +23,6 @@
     <string name="help">帮助</string>
     <string name="settings">设置</string>
     <string name="exit_search">退出搜索</string>
+    <string name="list">列表</string>
+    <string name="grid">网格</string>
 </resources>
