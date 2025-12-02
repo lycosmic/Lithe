@@ -63,7 +63,7 @@ fun BrowseScreen(
     val selectedFiles by viewModel.selectedFiles.collectAsStateWithLifecycle()
 
     // 当前待导入的书籍
-    val bookToImport by viewModel.bookToImport.collectAsStateWithLifecycle()
+    val bookToImport by viewModel.parsedBooks.collectAsStateWithLifecycle()
 
     // 是否为多选模式
     val isMultiSelectMode by

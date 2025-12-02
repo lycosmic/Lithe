@@ -46,7 +46,7 @@ class BrowseViewModel @Inject constructor(
 
     // 带有元数据的书籍
     private val _parsedBooks = MutableStateFlow<List<ParsedBook>>(emptyList())
-    val bookToImport = _parsedBooks.asStateFlow()
+    val parsedBooks = _parsedBooks.asStateFlow()
 
     // 对话框是否在加载
     private val _isAddBooksDialogLoading = MutableStateFlow(false)
