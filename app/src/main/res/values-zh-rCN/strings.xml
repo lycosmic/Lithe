@@ -10,4 +10,15 @@
     <string name="tab_type_display">显示</string>
     <string name="ascending_order">升序</string>
     <string name="descending_order">降序</string>
+    <string name="browse">浏览</string>
+    <string name="search">搜索</string>
+    <string name="more">更多</string>
+    <string name="select">筛选</string>
+    <string name="cancel_selection">取消选择\n</string>
+    <string name="toggle_all_selection">全选</string>
+    <string name="add">添加</string>
+    <string name="selected_files">已选择 %s 项</string>
+    <string name="about">关于</string>
+    <string name="help">帮助</string>
+    <string name="settings">设置</string>
 </resources>

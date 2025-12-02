@@ -9,4 +9,15 @@
     <string name="tab_type_display">Display</string>
     <string name="ascending_order">Ascending</string>
     <string name="descending_order">Descending</string>
+    <string name="browse">Browse</string>
+    <string name="search">Search</string>
+    <string name="more">More</string>
+    <string name="select">Select</string>
+    <string name="cancel_selection">Cancel Selection</string>
+    <string name="toggle_all_selection">Toggle All Selection</string>
+    <string name="add">Add</string>
+    <string name="selected_files">Selected %s items</string>
+    <string name="about">About</string>
+    <string name="help">Help</string>
+    <string name="settings">Settings</string>
 </resources>

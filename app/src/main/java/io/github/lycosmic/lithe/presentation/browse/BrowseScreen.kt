@@ -32,9 +32,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.browse.components.AddBookConfirmationDialog
 import io.github.lycosmic.lithe.presentation.browse.components.BrowseFilterSheet
 import io.github.lycosmic.lithe.presentation.browse.components.DirectoryHeader
@@ -95,12 +97,15 @@ fun BrowseScreen(
             // 动态切换 TopBar
             if (isMultiSelectMode) {
                 TopAppBar(
-                    title = { Text("已选择 ${selectedFiles.size} 项") },
+                    title = { Text(stringResource(R.string.selected_files, selectedFiles.size)) },
                     navigationIcon = {
                         IconButton(onClick = {
                             browseViewModel.onEvent(BrowseEvent.OnCancelClick)
                         }) {
-                            Icon(imageVector = Icons.Default.Close, contentDescription = "取消选择")
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = stringResource(R.string.cancel_selection)
+                            )
                         }
                     },
                     actions = {
@@ -111,7 +116,7 @@ fun BrowseScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.SelectAll,
-                                contentDescription = "全选"
+                                contentDescription = stringResource(R.string.toggle_all_selection)
                             )
                         }
 
@@ -123,7 +128,10 @@ fun BrowseScreen(
                                 browseViewModel.onEvent(BrowseEvent.OnAddBooksClick)
                             }
                         ) {
-                            Icon(imageVector = Icons.Default.Check, contentDescription = "添加")
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = stringResource(R.string.add)
+                            )
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -134,7 +142,7 @@ fun BrowseScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "浏览",
+                            text = stringResource(R.string.browse),
                         )
                     },
                     actions = {
@@ -142,13 +150,23 @@ fun BrowseScreen(
                             onClick = {
 
                             }
-                        ) { Icon(Icons.Default.Search, "搜索") }
+                        ) {
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = stringResource(R.string.search)
+                            )
+                        }
 
                         IconButton(
                             onClick = {
                                 showFilterSheet = true
                             }
-                        ) { Icon(Icons.Default.FilterList, "筛选") }
+                        ) {
+                            Icon(
+                                Icons.Default.FilterList,
+                                contentDescription = stringResource(R.string.select)
+                            )
+                        }
 
                         IconButton(
                             onClick = {
@@ -157,7 +175,7 @@ fun BrowseScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
-                                contentDescription = "更多"
+                                contentDescription = stringResource(R.string.more),
                             )
                         }
                     },
@@ -249,7 +267,7 @@ fun BrowseScreen(
             groups = listOf(
                 listOf(
                     ActionItem(
-                        text = "关于",
+                        text = stringResource(R.string.about),
                         icon = null,
                         isDestructive = false,
                         onClick = {
@@ -258,7 +276,7 @@ fun BrowseScreen(
                         }
                     ),
                     ActionItem(
-                        text = "帮助",
+                        text = stringResource(R.string.help),
                         icon = null,
                         isDestructive = false,
                         onClick = {
@@ -269,7 +287,7 @@ fun BrowseScreen(
                 ),
                 listOf(
                     ActionItem(
-                        text = "设置",
+                        text = stringResource(R.string.settings),
                         icon = null,
                         isDestructive = false,
                         onClick = {
