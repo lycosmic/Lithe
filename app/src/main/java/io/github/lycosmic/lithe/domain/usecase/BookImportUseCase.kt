@@ -25,20 +25,28 @@ class BookImportUseCase @Inject constructor(
      */
     suspend fun parseFileMetadata(selectedFiles: List<FileItem>): List<ParsedBook> =
         withContext(Dispatchers.IO) {
-            logI { "Start parsing book metadata" }
+            logI {
+                "开始解析文件元数据"
+            }
 
             val parsedBooks = selectedFiles.map { file ->
                 async {
-                    logD { "Parsing metadata for file: ${file.name}" }
+                    logD {
+                        "当前正在解析文件: ${file.name}"
+                    }
                     val parser = parserFactory.getParser(file.type.value)
                     if (parser == null) {
-                        logW { "No parser found for file: ${file.name}" }
+                        logW {
+                            "找不到对应的解析器，忽略该文件: ${file.name}"
+                        }
                         return@async null
                     }
 
                     val fileMetadata = parser.parse(application, file.uri)
 
-                    logD { "Parsed metadata for file: ${file.name}, metadata: $fileMetadata" }
+                    logD {
+                        "解析文件元数据成功，详情如下：${fileMetadata}"
+                    }
 
                     ParsedBook(
                         file = file,
@@ -47,7 +55,9 @@ class BookImportUseCase @Inject constructor(
                 }
             }.awaitAll()
 
-            logI { "Finished parsing book metadata" }
+            logD {
+                "解析文件元数据完成，共有 ${parsedBooks.size} 本书"
+            }
             parsedBooks.filterNotNull()
         }
 

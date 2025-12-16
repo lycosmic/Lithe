@@ -4,7 +4,7 @@ import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser
 import io.github.lycosmic.lithe.data.parser.metadata.pdf.PdfMetadataParser
 import io.github.lycosmic.lithe.data.parser.metadata.txt.TxtMetadataParser
-import timber.log.Timber
+import io.github.lycosmic.lithe.extension.logE
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,7 +23,9 @@ class BookMetadataParserFactory @Inject constructor(
             FileFormat.PDF.value -> pdfParser
             FileFormat.TXT.value -> txtParser
             else -> {
-                Timber.e("Unsupported file type: %s", fileFormat)
+                logE {
+                    "不支持解析的文件格式: $fileFormat"
+                }
                 null
             }
         }
