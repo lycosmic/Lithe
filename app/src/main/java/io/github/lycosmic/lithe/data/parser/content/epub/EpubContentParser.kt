@@ -1,6 +1,6 @@
 package io.github.lycosmic.lithe.data.parser.content.epub
 
-import android.app.Application
+import android.content.Context
 import android.net.Uri
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -8,6 +8,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.lycosmic.lithe.data.model.ReaderContent
 import io.github.lycosmic.lithe.data.parser.content.BookContentParser
 import io.github.lycosmic.lithe.extension.logD
@@ -28,7 +29,8 @@ import javax.inject.Singleton
 
 @Singleton
 class EpubContentParser @Inject constructor(
-    private val application: Application
+    @param:ApplicationContext
+    private val context: Context
 ) : BookContentParser {
 
 
@@ -46,7 +48,7 @@ class EpubContentParser @Inject constructor(
         val readerContentList = mutableListOf<ReaderContent>()
 
         ZipUtils.findZipEntryAndAction(
-            application.applicationContext,
+            context,
             bookUri,
             chapterPathOrHref
         ) { inputStream ->
@@ -164,7 +166,7 @@ class EpubContentParser @Inject constructor(
                             val imageRelativePath = resolveRelativePath(chapterRelativePath, src)
                             // 添加图片缓存
                             val imagePath = extractCoverToCache(
-                                context = application.applicationContext,
+                                context = context,
                                 bookUri,
                                 imageRelativePath
                             )
@@ -205,7 +207,7 @@ class EpubContentParser @Inject constructor(
 
                             val imageRelativePath = resolveRelativePath(chapterRelativePath, src)
                             val imagePath = extractCoverToCache(
-                                context = application.applicationContext,
+                                context = context,
                                 bookUri,
                                 imageRelativePath
                             )
