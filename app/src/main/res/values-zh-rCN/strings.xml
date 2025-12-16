@@ -35,4 +35,6 @@
     <string name="double_tap_to_exit">双击返回退出</string>
     <string name="double_tap_to_exit_message">双击返回退出应用</string>
     <string name="double_tap_to_exit_message_again">再次点击返回退出</string>
+    <string name="add_all_selected_books_success">成功添加所有已选择的书。</string>
+    <string name="add_selected_books_success">成功添加 %s 本书。</string>
 </resources>

@@ -65,14 +65,11 @@ class BookImportUseCase @Inject constructor(
      * 导入书籍
      */
     suspend fun importBook(parsedBooks: List<ParsedBook>) = withContext(Dispatchers.IO) {
-        logI { "Start importing the user's selected books" }
+        logD { "开始导入用户选择的书籍，共 ${parsedBooks.size} 本书" }
 
-        logD { "User selected ${parsedBooks.size} books" }
+        var successCount = 0L
 
         parsedBooks.forEach { parsedBook ->
-            logD {
-                "Books to be imported: ${parsedBook.file.name}, metadata: ${parsedBook.metadata}, file item: ${parsedBook.file}"
-            }
             val metadata = parsedBook.metadata
             val bookFile = parsedBook.file
             val uniqueId = metadata.uniqueId ?: bookFile.uri.toString()
@@ -83,7 +80,7 @@ class BookImportUseCase @Inject constructor(
             if (bookRepository.getBookByUniqueId(uniqueId) != null) {
                 // 已有该书籍
                 logW {
-                    "The book is already in the database with a unique identifier of $uniqueId"
+                    "书库中已有该书籍: ${metadata.title}，唯一标符为 $uniqueId，忽略该文件: ${bookFile.name}"
                 }
                 return@forEach
             }
@@ -106,9 +103,12 @@ class BookImportUseCase @Inject constructor(
                 lastReadPosition = null,
                 lastReadTime = null
             )
-            bookRepository.importBook(book)
+            val insertCount = bookRepository.importBook(book)
+            successCount += insertCount
         }
 
-        logI { "Import books successfully" }
+        logD { "导入用户选择的书籍完成，成功导入 $successCount 本书" }
+
+        return@withContext successCount
     }
 }

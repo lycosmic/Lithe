@@ -17,8 +17,10 @@ import io.github.lycosmic.lithe.domain.usecase.FileProcessingUseCase
 import io.github.lycosmic.lithe.presentation.browse.model.BrowseTopBarState
 import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -134,6 +136,9 @@ class BrowseViewModel @Inject constructor(
         BrowseTopBarState.DEFAULT
     )
 
+    private val _effects = MutableSharedFlow<BrowseEffect>()
+    val effects = _effects.asSharedFlow()
+
 
     init {
         observeDirectoriesAndScan()
@@ -174,10 +179,12 @@ class BrowseViewModel @Inject constructor(
                     toggleSelection(event.file)
                 }
 
+                // 文件长按
                 is BrowseEvent.OnFileLongClick -> {
                     handleFileLongPress(event.files)
                 }
 
+                // 离开添加书籍的对话框
                 BrowseEvent.OnDismissAddBooksDialog -> {
                     clearSelection()
                 }
@@ -313,7 +320,13 @@ class BrowseViewModel @Inject constructor(
                 it.isSelected
             }
 
-            bookImportUseCase.importBook(parsedBooks)
+            val success = bookImportUseCase.importBook(parsedBooks)
+
+            if (success.toInt() == parsedBooks.size) {
+                _effects.emit(BrowseEffect.ShowSuccessToast)
+            } else {
+                _effects.emit(BrowseEffect.ShowSuccessCountToast(success))
+            }
 
             // 导入完成后，清空选中状态
             clearSelection()

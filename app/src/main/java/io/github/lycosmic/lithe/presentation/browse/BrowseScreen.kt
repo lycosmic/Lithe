@@ -14,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +37,7 @@ import io.github.lycosmic.lithe.presentation.browse.components.SelectBrowseTopAp
 import io.github.lycosmic.lithe.presentation.browse.model.BrowseTopBarState
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
+import io.github.lycosmic.lithe.utils.toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,6 +88,20 @@ fun BrowseScreen(
     val searchText by viewModel.searchText.collectAsStateWithLifecycle()
 
     val isSearchMode by viewModel.isSearchMode.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is BrowseEffect.ShowSuccessCountToast -> {
+                    R.string.add_selected_books_success.toast(formatArgs = arrayOf(effect.count))
+                }
+
+                BrowseEffect.ShowSuccessToast -> {
+                    R.string.add_all_selected_books_success.toast()
+                }
+            }
+        }
+    }
 
     // 拦截系统返回键
     BackHandler(enabled = isMultiSelectMode || isSearchMode) {

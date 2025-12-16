@@ -25,6 +25,7 @@ object ToastUtil {
         appContext = application.applicationContext
     }
 
+
     /**
      * 显示 Toast
      */
@@ -41,10 +42,14 @@ object ToastUtil {
         }
     }
 
+
     /**
      * 显示 Toast (资源 ID)
      */
-    fun show(@StringRes messageResId: Int, duration: Int = Toast.LENGTH_SHORT) {
+    fun show(
+        @StringRes messageResId: Int,
+        duration: Int = Toast.LENGTH_SHORT,
+    ) {
         try {
             show(appContext.getString(messageResId), duration)
         } catch (e: Exception) {
@@ -52,6 +57,17 @@ object ToastUtil {
                 "Toast 显示异常，可能未初始化 Context"
             }
         }
+    }
+
+    /**
+     * 资源 ID 显示 Toast (格式化)
+     */
+    fun show(
+        @StringRes messageResId: Int,
+        vararg formatArgs: Any,
+    ) {
+        val formattedText = appContext.getString(messageResId, *formatArgs)
+        show(formattedText, Toast.LENGTH_SHORT)
     }
 
     private fun showInternal(message: String, duration: Int) {
@@ -68,4 +84,20 @@ object ToastUtil {
             }
         }
     }
+}
+
+/**
+ * 扩展函数：方便显示 Toast
+ */
+fun String.toast(duration: Int = Toast.LENGTH_SHORT) {
+    ToastUtil.show(this, duration)
+}
+
+
+fun Int.toast(duration: Int = Toast.LENGTH_SHORT) {
+    ToastUtil.show(this, duration)
+}
+
+fun Int.toast(vararg formatArgs: Any) {
+    ToastUtil.show(this, *formatArgs)
 }

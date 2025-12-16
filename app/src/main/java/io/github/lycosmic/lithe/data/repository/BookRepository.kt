@@ -13,8 +13,8 @@ class BookRepository @Inject constructor(
 
     fun getAllBooks() = bookDao.getAllBooks()
 
-    suspend fun importBook(book: Book) {
-        bookDao.insertBook(book = book)
+    suspend fun importBook(book: Book): Long {
+        return bookDao.insertBook(book = book)
     }
 
     /**
