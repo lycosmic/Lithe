@@ -1,5 +1,8 @@
 package io.github.lycosmic.lithe.presentation.library
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,13 +26,18 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.lycosmic.lithe.R
+import io.github.lycosmic.lithe.data.model.Constants.DOUBLE_CLICK_BACK_INTERVAL_MILLIS
 import io.github.lycosmic.lithe.presentation.library.components.BookItem
 import io.github.lycosmic.lithe.presentation.library.components.EmptyLibraryState
 import io.github.lycosmic.lithe.ui.components.ActionItem
@@ -54,6 +62,37 @@ fun LibraryScreen(
     val selectedBooks by viewModel.selectedBooks.collectAsStateWithLifecycle()
 
     val isSelectionMode by viewModel.isSelectionMode.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+
+    // 双击返回键退出
+    val isDoubleBackToExitEnabled by viewModel.isDoubleBackToExitEnabled.collectAsStateWithLifecycle()
+
+    var lastBackPressTime by remember { mutableLongStateOf(0L) }
+
+    // 双击返回键退出提示
+    val doubleTapToExitMessageAgain = stringResource(R.string.double_tap_to_exit_message_again)
+
+    // 拦截返回键
+    BackHandler(enabled = true) {
+        if (isDoubleBackToExitEnabled) {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastBackPressTime < DOUBLE_CLICK_BACK_INTERVAL_MILLIS) {
+                (context as? Activity)?.finish()
+            } else {
+                // 第一次按下
+                lastBackPressTime = currentTime
+                Toast.makeText(
+                    context,
+                    doubleTapToExitMessageAgain,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } else {
+            // 直接退出
+            (context as? Activity)?.finish()
+        }
+    }
 
     LaunchedEffect(key1 = Unit) {
         viewModel.effects.collect { effect ->

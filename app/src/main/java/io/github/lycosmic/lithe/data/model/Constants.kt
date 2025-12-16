@@ -7,4 +7,8 @@ object Constants {
      */
     const val STATE_FLOW_STOP_TIMEOUT_MILLIS: Long = 5000L
 
+    /**
+     * 双击返回键的间隔时间(毫秒)
+     */
+    const val DOUBLE_CLICK_BACK_INTERVAL_MILLIS: Long = 2000L
 }

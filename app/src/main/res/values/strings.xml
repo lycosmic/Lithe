@@ -33,4 +33,5 @@
     <string name="app_language">App Language</string>
     <string name="double_tap_to_exit">Double tap to exit</string>
     <string name="double_tap_to_exit_message">Double tap to exit app</string>
+    <string name="double_tap_to_exit_message_again">Double tap to exit app again to exit</string>
 </resources>

@@ -34,4 +34,5 @@
     <string name="app_language">应用语言</string>
     <string name="double_tap_to_exit">双击返回退出</string>
     <string name="double_tap_to_exit_message">双击返回退出应用</string>
+    <string name="double_tap_to_exit_message_again">再次点击返回退出</string>
 </resources>

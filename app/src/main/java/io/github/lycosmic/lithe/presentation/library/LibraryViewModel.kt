@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.repository.BookRepository
+import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToAbout
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToBookDetail
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToBrowser
@@ -22,7 +23,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
-    private val bookRepository: BookRepository
+    private val bookRepository: BookRepository,
+    settingsManager: SettingsManager
 ) : ViewModel() {
 
     // 书籍列表
@@ -38,6 +40,13 @@ class LibraryViewModel @Inject constructor(
 
     // 当前是否为选中模式
     val isSelectionMode = _selectedBooks.map { it.isNotEmpty() }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = false
+    )
+
+    // 是否开启双击返回
+    val isDoubleBackToExitEnabled = settingsManager.isDoubleBackToExitEnabled.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = false
