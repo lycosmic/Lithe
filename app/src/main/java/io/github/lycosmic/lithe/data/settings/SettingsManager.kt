@@ -23,10 +23,15 @@ class SettingsManager @Inject constructor(
         val FILE_DISPLAY_MODE = stringPreferencesKey("file_display_mode")
 
         val GRID_COLUMN_COUNT = stringPreferencesKey("grid_column_count")
+
+        val LANGUAGE_CODE = stringPreferencesKey("language_code")
+
+        val IS_DOUBLE_BACK_TO_EXIT_ENABLED = booleanPreferencesKey("is_double_back_to_exit_enabled")
     }
 
     companion object {
         const val GRID_COLUMN_COUNT_DEFAULT = 3 // 默认 3 列
+        const val LANGUAGE_CODE_DEFAULT = "zh-CN"
     }
 
     // --- 暗黑模式 ---
@@ -67,4 +72,33 @@ class SettingsManager @Inject constructor(
             preferences[Keys.GRID_COLUMN_COUNT] = count.toString()
         }
     }
+
+    // --- 应用语言 ---
+    val languageCode: Flow<String> = dataStore.data.map { preferences ->
+        preferences[Keys.LANGUAGE_CODE] ?: LANGUAGE_CODE_DEFAULT
+    }
+
+    /**
+     * 设置应用语言代码
+     */
+    suspend fun setLanguageCode(code: String) {
+        dataStore.edit { preferences ->
+            preferences[Keys.LANGUAGE_CODE] = code
+        }
+    }
+
+    // --- 双击返回退出 ---
+    val isDoubleBackToExitEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[Keys.IS_DOUBLE_BACK_TO_EXIT_ENABLED] ?: false
+    }
+
+    /**
+     * 设置双击返回退出
+     */
+    suspend fun setDoubleBackToExitEnabled(isEnabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[Keys.IS_DOUBLE_BACK_TO_EXIT_ENABLED] = isEnabled
+        }
+    }
+
 }

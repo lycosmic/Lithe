@@ -30,4 +30,8 @@
     <string name="confirm">确定</string>
     <string name="cancel">取消</string>
     <string name="delete_book_success">这本书已被成功删除</string>
+    <string name="general">常规</string>
+    <string name="app_language">应用语言</string>
+    <string name="double_tap_to_exit">双击返回退出</string>
+    <string name="double_tap_to_exit_message">双击返回退出应用</string>
 </resources>

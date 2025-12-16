@@ -13,6 +13,7 @@ import io.github.lycosmic.lithe.presentation.library.LibraryScreen
 import io.github.lycosmic.lithe.presentation.reader.ReaderScreen
 import io.github.lycosmic.lithe.presentation.settings.SettingsScreen
 import io.github.lycosmic.lithe.presentation.settings.browse.BrowseSettingsScreen
+import io.github.lycosmic.lithe.presentation.settings.general.GeneralSettingsScreen
 
 @Composable
 fun AppNavigation(
@@ -85,7 +86,9 @@ fun AppNavigation(
                         onNavigateBack = {
                             navViewModel.pop()
                         },
-                        onNavigateToGeneralSettings = {},
+                        onNavigateToGeneralSettings = {
+                            navViewModel.navigate(AppRoutes.SettingsGeneral)
+                        },
                         onNavigateToAppearanceSettings = {},
                         onNavigateToReaderSettings = {},
                         onNavigateToLibrarySettings = {},
@@ -98,12 +101,20 @@ fun AppNavigation(
                     is AppRoutes.Reader -> ReaderScreen(
                         bookId = navKey.bookId,
                     )
+
                     is AppRoutes.SettingsAppearance -> TODO()
                     is AppRoutes.SettingsBrowse -> BrowseSettingsScreen(
                         onNavigateBack = { navViewModel.pop() }
                     )
 
-                    is AppRoutes.SettingsGeneral -> TODO()
+                    is AppRoutes.SettingsGeneral -> {
+                        GeneralSettingsScreen(
+                            onBackClick = {
+                                navViewModel.pop()
+                            }
+                        )
+                    }
+
                     is AppRoutes.SettingsLibrary -> TODO()
                     is AppRoutes.SettingsReader -> TODO()
                     is AppRoutes.BookDetail -> {
