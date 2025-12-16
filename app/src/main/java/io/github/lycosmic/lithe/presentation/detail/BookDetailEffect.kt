@@ -30,7 +30,7 @@ sealed class BookDetailEffect {
     data object DismissDeleteBookDialog : BookDetailEffect()
 
     /**
-     * 书籍成功删除，显示 Snackbar
+     * 书籍成功删除，显示 Toast
      */
-    data class ShowBookDeletedSnackbar(@param:StringRes val messageResId: Int) : BookDetailEffect()
+    data class ShowBookDeletedToast(@param:StringRes val messageResId: Int) : BookDetailEffect()
 }

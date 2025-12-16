@@ -3,6 +3,7 @@ package io.github.lycosmic.lithe
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 import io.github.lycosmic.lithe.extension.logI
+import io.github.lycosmic.lithe.utils.ToastUtil
 import timber.log.Timber
 
 @HiltAndroidApp
@@ -10,8 +11,9 @@ class LitheApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         initLogger()
+        initToast()
         logI {
-            "LitheApplication is created"
+            "Application 初始化成功"
         }
     }
 
@@ -24,6 +26,10 @@ class LitheApplication : Application() {
                 }
             })
         }
+    }
+
+    private fun initToast() {
+        ToastUtil.init(this@LitheApplication)
     }
 
     companion object {

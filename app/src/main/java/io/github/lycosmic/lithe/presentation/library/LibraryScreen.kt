@@ -1,7 +1,6 @@
 package io.github.lycosmic.lithe.presentation.library
 
 import android.app.Activity
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,6 +40,7 @@ import io.github.lycosmic.lithe.presentation.library.components.BookItem
 import io.github.lycosmic.lithe.presentation.library.components.EmptyLibraryState
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
+import io.github.lycosmic.lithe.utils.ToastUtil
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,9 +69,6 @@ fun LibraryScreen(
 
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
 
-    // 双击返回键退出提示
-    val doubleTapToExitMessageAgain = stringResource(R.string.double_tap_to_exit_message_again)
-
     // 拦截返回键
     BackHandler(enabled = true) {
         if (isDoubleBackToExitEnabled) {
@@ -82,11 +78,7 @@ fun LibraryScreen(
             } else {
                 // 第一次按下
                 lastBackPressTime = currentTime
-                Toast.makeText(
-                    context,
-                    doubleTapToExitMessageAgain,
-                    Toast.LENGTH_SHORT
-                ).show()
+                ToastUtil.show(R.string.double_tap_to_exit_message_again)
             }
         } else {
             // 直接退出

@@ -31,9 +31,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -46,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,6 +53,7 @@ import io.github.lycosmic.lithe.presentation.detail.components.DeleteBookDialog
 import io.github.lycosmic.lithe.presentation.detail.components.FileInfoBottomSheet
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
 import io.github.lycosmic.lithe.utils.FileUtils
+import io.github.lycosmic.lithe.utils.ToastUtil
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,11 +81,6 @@ fun BookDetailScreen(
     // 控制删除书籍的对话框显隐
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // Snackbar 状态
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    val context = LocalContext.current
-
     LaunchedEffect(key1 = Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
@@ -109,23 +101,14 @@ fun BookDetailScreen(
                     showMoveDialog = false
                 }
 
-                is BookDetailEffect.ShowBookDeletedSnackbar -> {
-                    val messageText = context.getString(effect.messageResId)
-
-                    snackbarHostState.showSnackbar(
-                        message = messageText,
-                        duration = SnackbarDuration.Short,
-                        withDismissAction = true // 允许用户划掉
-                    )
+                is BookDetailEffect.ShowBookDeletedToast -> {
+                    ToastUtil.show(effect.messageResId)
                 }
             }
         }
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
         topBar = {
             TopAppBar(
                 title = {

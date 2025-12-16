@@ -97,7 +97,7 @@ class BookDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _effects.emit(BookDetailEffect.DismissDeleteBookDialog)
             bookRepository.deleteBook(book.value.id)
-            _effects.emit(BookDetailEffect.ShowBookDeletedSnackbar(R.string.delete_book_success))
+            _effects.emit(BookDetailEffect.ShowBookDeletedToast(R.string.delete_book_success))
             _effects.emit(BookDetailEffect.NavigateBack)
         }
     }
