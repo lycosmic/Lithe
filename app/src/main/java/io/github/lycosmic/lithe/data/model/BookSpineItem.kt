@@ -36,6 +36,6 @@ data class EpubSpineItem(
 data class TxtSpineItem(
     override val id: String,
     override val order: Int,
-    val contentPath: String, // 书籍的路径
+    val href: String, // 目录项的链接
     override val label: String // 目录名
 ) : BookSpineItem()

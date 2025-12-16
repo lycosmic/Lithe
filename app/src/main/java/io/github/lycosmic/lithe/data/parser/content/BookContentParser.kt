@@ -10,6 +10,6 @@ interface BookContentParser {
      */
     suspend fun parseChapterContent(
         bookUri: Uri,
-        chapterHref: String
+        chapterPathOrHref: String // 对于 EPUB 书籍，表示章节的路径，对于 TXT 书籍，表示章节的位置信息
     ): List<ReaderContent>
 }

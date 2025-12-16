@@ -34,30 +34,30 @@ class EpubContentParser @Inject constructor(
 
     /**
      * 使用 Jsoup 解析书籍章节内容(HTML)
-     * @param chapterHref 章节ZIP路径，例如 OEBPS/Text/chap1.html
+     * @param chapterPathOrHref 章节ZIP路径，例如 OEBPS/Text/chap1.html
      */
     override suspend fun parseChapterContent(
         bookUri: Uri,
-        chapterHref: String
+        chapterPathOrHref: String
     ): List<ReaderContent> = withContext(Dispatchers.IO) {
         logI {
-            "Start parsing the chapters, chapter path is $chapterHref"
+            "Start parsing the chapters, chapter path is $chapterPathOrHref"
         }
         val readerContentList = mutableListOf<ReaderContent>()
 
         ZipUtils.findZipEntryAndAction(
             application.applicationContext,
             bookUri,
-            chapterHref
+            chapterPathOrHref
         ) { inputStream ->
             // 使用 Jsoup 解析章节 HTML
-            val doc = Jsoup.parse(inputStream, Charsets.UTF_8.toString(), chapterHref)
+            val doc = Jsoup.parse(inputStream, Charsets.UTF_8.toString(), chapterPathOrHref)
             val body = doc.body()
 
             // 递归遍历 HTML 节点
             val readerContents = mutableListOf<ReaderContent>()
             // 传入累加器
-            traverseHtmlElement(bookUri, body, readerContents, chapterHref)
+            traverseHtmlElement(bookUri, body, readerContents, chapterPathOrHref)
             logD {
                 "The parsed reading content is $readerContents"
             }

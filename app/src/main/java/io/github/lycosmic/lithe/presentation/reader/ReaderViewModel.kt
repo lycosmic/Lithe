@@ -103,7 +103,7 @@ class ReaderViewModel @Inject constructor(
         // 调用解析器解析具体内容
         val content = when (chapterItem) {
             is EpubSpineItem -> parser.parseChapterContent(bookUri, chapterItem.contentHref)
-            is TxtSpineItem -> parser.parseChapterContent(bookUri, chapterItem.contentPath)
+            is TxtSpineItem -> parser.parseChapterContent(bookUri, chapterItem.href)
         }
         logD {
             "Chapter content is $content"
