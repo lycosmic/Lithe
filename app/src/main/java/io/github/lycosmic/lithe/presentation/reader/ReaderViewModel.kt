@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.model.BookSpineItem
+import io.github.lycosmic.lithe.data.model.EpubSpineItem
+import io.github.lycosmic.lithe.data.model.TxtSpineItem
 import io.github.lycosmic.lithe.data.parser.content.BookContentParser
 import io.github.lycosmic.lithe.data.parser.content.BookContentParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepository
@@ -99,8 +101,10 @@ class ReaderViewModel @Inject constructor(
         }
         val chapterItem = spine[index]
         // 调用解析器解析具体内容
-        val content = parser.parseChapterContent(bookUri, chapterItem.contentHref)
-
+        val content = when (chapterItem) {
+            is EpubSpineItem -> parser.parseChapterContent(bookUri, chapterItem.contentHref)
+            is TxtSpineItem -> parser.parseChapterContent(bookUri, chapterItem.contentPath)
+        }
         logD {
             "Chapter content is $content"
         }

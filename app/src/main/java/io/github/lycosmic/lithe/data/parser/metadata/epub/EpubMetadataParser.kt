@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Xml
 import io.github.lycosmic.lithe.data.model.BookSpineItem
+import io.github.lycosmic.lithe.data.model.EpubSpineItem
 import io.github.lycosmic.lithe.data.model.ParsedMetadata
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParser
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.COVER
@@ -118,7 +119,7 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
                 val title = map[chapterRelativePath] ?: "Unknown Title"
                 val id = spine[index]
                 spineItems.add(
-                    BookSpineItem(
+                    EpubSpineItem(
                         id = id,
                         order = index,
                         contentHref = chapterRelativePath,

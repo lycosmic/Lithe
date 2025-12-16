@@ -2,20 +2,26 @@ package io.github.lycosmic.lithe.data.local.converter
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import io.github.lycosmic.lithe.data.model.BookSpineItem
 
 class EpubTypeConverters {
+
+    private val gson: Gson = GsonBuilder()
+        .registerTypeAdapter(BookSpineItem::class.java, BookSpineItemTypeAdapter())
+        .create()
+
     @TypeConverter
     fun fromBookSpineItemList(value: String?): List<BookSpineItem> {
         if (value == null) return emptyList()
         val listType = object : TypeToken<List<BookSpineItem>>() {}.type
-        return Gson().fromJson(value, listType)
+        return gson.fromJson(value, listType)
     }
 
     @TypeConverter
     fun toBookSpineItemList(list: List<BookSpineItem>?): String {
-        return Gson().toJson(list ?: emptyList<BookSpineItem>())
+        return gson.toJson(list ?: emptyList<BookSpineItem>())
     }
 
     @TypeConverter
