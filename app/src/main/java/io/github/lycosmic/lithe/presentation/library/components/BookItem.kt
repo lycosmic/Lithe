@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -84,13 +85,14 @@ fun BookItem(
                 if (coverPath != null) { // 有封面图
                     AsyncImage(
                         model = coverPath,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 } else {
                     // 占位符
                     Image(
                         imageVector = Icons.Default.Image,
                         contentDescription = null,
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
