@@ -6,21 +6,21 @@ import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import io.github.lycosmic.lithe.data.model.BookSpineItem
 
-class EpubTypeConverters {
+class BookTypeConverters {
 
     private val gson: Gson = GsonBuilder()
         .registerTypeAdapter(BookSpineItem::class.java, BookSpineItemTypeAdapter())
         .create()
 
     @TypeConverter
-    fun fromBookSpineItemList(value: String?): List<BookSpineItem> {
+    fun toBookSpineItemList(value: String?): List<BookSpineItem> {
         if (value == null) return emptyList()
         val listType = object : TypeToken<List<BookSpineItem>>() {}.type
         return gson.fromJson(value, listType)
     }
 
     @TypeConverter
-    fun toBookSpineItemList(list: List<BookSpineItem>?): String {
+    fun fromBookSpineItemList(list: List<BookSpineItem>?): String {
         return gson.toJson(list ?: emptyList<BookSpineItem>())
     }
 

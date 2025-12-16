@@ -3,13 +3,13 @@ package io.github.lycosmic.lithe.data.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import io.github.lycosmic.lithe.data.local.converter.EpubTypeConverters
+import io.github.lycosmic.lithe.data.local.converter.BookTypeConverters
 import kotlinx.serialization.Serializable
 
 @Entity(
     tableName = "books",
 )
-@TypeConverters(EpubTypeConverters::class)
+@TypeConverters(BookTypeConverters::class)
 @Serializable
 data class Book(
     @PrimaryKey(autoGenerate = true)
