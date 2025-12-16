@@ -25,4 +25,9 @@
     <string name="exit_search">退出搜索</string>
     <string name="list">列表</string>
     <string name="grid">网格</string>
+    <string name="delete_book_request">删除书籍？</string>
+    <string name="delete_book_message">"这本书将会从数据库中删除，但不会从您的设备上删除。"</string>
+    <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
+    <string name="delete_book_success">这本书已被成功删除</string>
 </resources>

@@ -24,4 +24,9 @@
     <string name="exit_search">Exit Search</string>
     <string name="list">List</string>
     <string name="grid">Grid</string>
+    <string name="delete_book_request">Delete book?</string>
+    <string name="delete_book_message">"This book will be deleted from the database, but not from your device."</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_book_success">This book has been successfully deleted</string>
 </resources>

@@ -7,7 +7,7 @@ sealed class BookDetailEvent {
     data object OnBackClicked : BookDetailEvent()
 
     /**
-     * 移动书籍分类
+     * 点击移动书籍分类
      */
     data object OnMoveClicked : BookDetailEvent()
 
@@ -15,4 +15,19 @@ sealed class BookDetailEvent {
      * 点击删除书籍按钮
      */
     data object OnDeleteClicked : BookDetailEvent()
+
+    /**
+     * 点击确认删除书籍按钮
+     */
+    data object OnConfirmDeleteClicked : BookDetailEvent()
+
+    /**
+     * 点击取消删除书籍按钮
+     */
+    data object OnCancelDeleteClicked : BookDetailEvent()
+
+    /**
+     * 点击删除书籍对话框外部
+     */
+    data object OnDeleteDialogDismissed : BookDetailEvent()
 }

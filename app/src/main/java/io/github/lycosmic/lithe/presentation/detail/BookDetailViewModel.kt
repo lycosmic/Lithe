@@ -4,6 +4,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.model.Book
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.repository.BookRepository
@@ -56,18 +57,48 @@ class BookDetailViewModel @Inject constructor(
     fun onEvent(event: BookDetailEvent) {
         viewModelScope.launch {
             when (event) {
+                // 返回书库页面
                 BookDetailEvent.OnBackClicked -> {
                     _effects.emit(BookDetailEffect.NavigateBack)
                 }
 
+                // 点击删除书籍按钮
                 is BookDetailEvent.OnDeleteClicked -> {
                     _effects.emit(BookDetailEffect.ShowDeleteBookDialog)
                 }
 
+                // 点击移动书籍按钮
                 BookDetailEvent.OnMoveClicked -> {
                     _effects.emit(BookDetailEffect.ShowMoveBookDialog)
                 }
+
+                // 点击取消删除书籍按钮
+                BookDetailEvent.OnCancelDeleteClicked -> {
+                    _effects.emit(BookDetailEffect.DismissDeleteBookDialog)
+                }
+
+                // 点击确认删除书籍按钮
+                BookDetailEvent.OnConfirmDeleteClicked -> {
+                    deleteBook()
+                }
+
+                // 点击删除书籍对话框外部
+                is BookDetailEvent.OnDeleteDialogDismissed -> {
+                    _effects.emit(BookDetailEffect.DismissDeleteBookDialog)
+                }
             }
+        }
+    }
+
+    /**
+     * 删除书籍
+     */
+    fun deleteBook() {
+        viewModelScope.launch {
+            _effects.emit(BookDetailEffect.DismissDeleteBookDialog)
+            bookRepository.deleteBook(book.value.id)
+            _effects.emit(BookDetailEffect.ShowBookDeletedSnackbar(R.string.delete_book_success))
+            _effects.emit(BookDetailEffect.NavigateBack)
         }
     }
 }
