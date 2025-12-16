@@ -26,8 +26,10 @@ class AppNavigationViewModel @Inject constructor() : ViewModel() {
             return
         }
 
-        // 清空返回栈
-        backStack.clear()
+        // 清空返回栈，保留默认页面
+        backStack.removeIf {
+            it != AppRoutes.defaultRoute
+        }
         // 添加新的路由
         backStack.add(tab.route)
     }
