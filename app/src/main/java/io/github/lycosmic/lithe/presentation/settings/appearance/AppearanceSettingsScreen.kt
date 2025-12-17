@@ -87,57 +87,57 @@ fun AppearanceSettingsScreen(
         Column(
             Modifier
                 .padding(paddings)
-                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-
-            Text(
-                text = stringResource(R.string.theme_preference),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.primary
-                ),
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-
-            // --- 暗黑主题
-            Text(
-                text = stringResource(R.string.dark_theme),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-
-
-            LitheSegmentedButton(
-                items = listOf(
-                    OptionItem(
-                        label = stringResource(R.string.system),
-                        value = ThemeMode.SYSTEM,
-                        selected = themeMode == ThemeMode.SYSTEM
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.theme_preference),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.primary
                     ),
-                    OptionItem(
-                        label = stringResource(R.string.disabled),
-                        value = ThemeMode.LIGHT,
-                        selected = themeMode == ThemeMode.LIGHT
-                    ),
-                    OptionItem(
-                        label = stringResource(R.string.enabled),
-                        value = ThemeMode.DARK,
-                        selected = themeMode == ThemeMode.DARK
-                    )
-                ),
-                onClick = { mode ->
-                    viewModel.onEvent(AppearanceSettingsEvent.OnThemeModeClick(mode))
-                }
-            )
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
 
-            // --- 应用主题
-            Text(
-                text = stringResource(R.string.app_theme),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
+                // --- 暗黑主题
+                Text(
+                    text = stringResource(R.string.dark_theme),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+
+
+                LitheSegmentedButton(
+                    items = listOf(
+                        OptionItem(
+                            label = stringResource(R.string.system),
+                            value = ThemeMode.SYSTEM,
+                            selected = themeMode == ThemeMode.SYSTEM
+                        ),
+                        OptionItem(
+                            label = stringResource(R.string.disabled),
+                            value = ThemeMode.LIGHT,
+                            selected = themeMode == ThemeMode.LIGHT
+                        ),
+                        OptionItem(
+                            label = stringResource(R.string.enabled),
+                            value = ThemeMode.DARK,
+                            selected = themeMode == ThemeMode.DARK
+                        )
+                    ),
+                    onClick = { mode ->
+                        viewModel.onEvent(AppearanceSettingsEvent.OnThemeModeClick(mode))
+                    }
+                )
+
+                // --- 应用主题
+                Text(
+                    text = stringResource(R.string.app_theme),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
 
             ThemeSelector(
                 currentThemeId = currentThemeId,
@@ -145,7 +145,6 @@ fun AppearanceSettingsScreen(
                     viewModel.onEvent(AppearanceSettingsEvent.OnAppThemeChange(themeId))
                 }
             )
-
 
         }
     }
