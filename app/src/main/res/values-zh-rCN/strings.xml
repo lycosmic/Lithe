@@ -47,5 +47,11 @@
     <string name="column_count">"%d 每行"</string>
     <string name="display_mode">显示模式</string>
     <string name="grid_size">网格大小</string>
+    <string name="appearance">外观</string>
+    <string name="theme_preference">主题偏好</string>
+    <string name="dark_theme">暗黑主题</string>
+    <string name="system">系统</string>
+    <string name="disabled">已禁用</string>
+    <string name="enabled">已启用</string>
     <string name="browse_settings_directories_message">这些文件夹用于扫描和检索浏览器中的文件。在此处删除文件夹并不会从库中删除实际文件或书籍。要撤销访问权限，请单击相应的按钮。</string>
 </resources>

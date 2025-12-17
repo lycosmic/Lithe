@@ -9,6 +9,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -25,6 +26,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.lycosmic.lithe.data.model.ThemeMode
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.presentation.navigation.AppNavigation
@@ -55,8 +57,14 @@ class MainActivity : AppCompatActivity() {
         }
         enableEdgeToEdge()
         setContent {
-            val isDark by
-            settingsManager.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
+            val themeMode by
+            settingsManager.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
+
+            val isDark = when (themeMode) {
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+            }
 
             val navViewModel = hiltViewModel<AppNavigationViewModel>()
 
@@ -105,7 +113,6 @@ class MainActivity : AppCompatActivity() {
                 ) { paddingValues ->
                     AppNavigation(
                         modifier = Modifier.Companion.padding(bottom = paddingValues.calculateBottomPadding()), // 防止底部栏遮挡内容
-                        settingsManager = settingsManager,
                         navViewModel = navViewModel
                     )
                 }

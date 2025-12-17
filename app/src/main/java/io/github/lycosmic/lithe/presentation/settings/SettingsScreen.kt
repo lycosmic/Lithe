@@ -28,13 +28,9 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,8 +40,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import io.github.lycosmic.lithe.data.settings.SettingsManager
-import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,14 +51,8 @@ fun SettingsScreen(
     onNavigateToReaderSettings: () -> Unit,
     onNavigateToLibrarySettings: () -> Unit,
     onNavigateToBrowseSettings: () -> Unit,
-    settingsManager: SettingsManager,
     modifier: Modifier = Modifier,
 ) {
-    // 是否是暗色模式
-    val isDark by settingsManager.isDarkMode.collectAsState(initial = false)
-
-    val scope = rememberCoroutineScope()
-
     // 创建滚动行为
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -124,15 +112,6 @@ fun SettingsScreen(
                 subTitle = "扫描、显示",
                 icon = Icons.Outlined.FolderOpen,
                 onClick = onNavigateToBrowseSettings
-            )
-
-            Switch(
-                checked = isDark,
-                onCheckedChange = { checked ->
-                    scope.launch {
-                        settingsManager.setDarkMode(checked)
-                    }
-                }
             )
         }
     }

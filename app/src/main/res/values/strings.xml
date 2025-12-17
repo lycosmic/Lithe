@@ -46,5 +46,11 @@
     <string name="column_count">"%d per row"</string>
     <string name="display_mode">Display Mode</string>
     <string name="grid_size">Grid Size</string>
+    <string name="theme_preference">Theme Preference</string>
+    <string name="dark_theme">Dark Theme</string>
+    <string name="system">System</string>
+    <string name="disabled">Disabled</string>
+    <string name="enabled">Enabled</string>
     <string name="browse_settings_directories_message">These folders are used to scan and retrieve files from the browser. Deleting the folder here does not delete the actual files or books from the library. To revoke access, click the corresponding button.</string>
+    <string name="appearance">Appearance</string>
 </resources>

@@ -5,20 +5,19 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
-import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.presentation.browse.BrowseScreen
 import io.github.lycosmic.lithe.presentation.detail.BookDetailScreen
 import io.github.lycosmic.lithe.presentation.history.HistoryScreen
 import io.github.lycosmic.lithe.presentation.library.LibraryScreen
 import io.github.lycosmic.lithe.presentation.reader.ReaderScreen
 import io.github.lycosmic.lithe.presentation.settings.SettingsScreen
+import io.github.lycosmic.lithe.presentation.settings.appearance.AppearanceSettingsScreen
 import io.github.lycosmic.lithe.presentation.settings.browse.BrowseSettingsScreen
 import io.github.lycosmic.lithe.presentation.settings.general.GeneralSettingsScreen
 
 @Composable
 fun AppNavigation(
     modifier: Modifier = Modifier,
-    settingsManager: SettingsManager,
     navViewModel: AppNavigationViewModel,
 ) {
     val backStack = navViewModel.backStack
@@ -89,20 +88,28 @@ fun AppNavigation(
                         onNavigateToGeneralSettings = {
                             navViewModel.navigate(AppRoutes.SettingsGeneral)
                         },
-                        onNavigateToAppearanceSettings = {},
+                        onNavigateToAppearanceSettings = {
+                            navViewModel.navigate(AppRoutes.SettingsAppearance)
+                        },
                         onNavigateToReaderSettings = {},
                         onNavigateToLibrarySettings = {},
                         onNavigateToBrowseSettings = {
                             navViewModel.navigate(AppRoutes.SettingsBrowse)
-                        },
-                        settingsManager = settingsManager
+                        }
                     )
 
                     is AppRoutes.Reader -> ReaderScreen(
                         bookId = navKey.bookId,
                     )
 
-                    is AppRoutes.SettingsAppearance -> TODO()
+                    is AppRoutes.SettingsAppearance -> {
+                        AppearanceSettingsScreen(
+                            onBackClick = {
+                                navViewModel.pop()
+                            }
+                        )
+                    }
+
                     is AppRoutes.SettingsBrowse -> BrowseSettingsScreen(
                         onNavigateBack = { navViewModel.pop() }
                     )

@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.lycosmic.lithe.data.model.DisplayMode
+import io.github.lycosmic.lithe.data.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -18,7 +19,7 @@ class SettingsManager @Inject constructor(
 ) {
     // DataStore Keys
     private object Keys {
-        val IS_DARK_MODE = booleanPreferencesKey("is_dark_mode")
+        val THEME_MODE = stringPreferencesKey("theme")
 
         val FILE_DISPLAY_MODE = stringPreferencesKey("file_display_mode")
 
@@ -32,16 +33,19 @@ class SettingsManager @Inject constructor(
     companion object {
         const val GRID_COLUMN_COUNT_DEFAULT = 3 // 默认 3 列
         const val LANGUAGE_CODE_DEFAULT = "zh-CN"
+        const val THEME_MODE_DEFAULT = "system"
     }
 
-    // --- 暗黑模式 ---
-    val isDarkMode: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.IS_DARK_MODE] ?: false // 默认亮色模式
+    // --- 主题模式 ---
+    val themeMode: Flow<ThemeMode> = dataStore.data.map { preferences ->
+        ThemeMode.fromValue(
+            preferences[Keys.THEME_MODE] ?: THEME_MODE_DEFAULT // 默认跟随系统
+        )
     }
 
-    suspend fun setDarkMode(isDarkMode: Boolean) {
+    suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { preferences ->
-            preferences[Keys.IS_DARK_MODE] = isDarkMode
+            preferences[Keys.THEME_MODE] = mode.value
         }
     }
 
