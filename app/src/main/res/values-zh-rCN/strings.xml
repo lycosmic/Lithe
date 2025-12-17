@@ -37,4 +37,15 @@
     <string name="double_tap_to_exit_message_again">再次点击返回退出</string>
     <string name="add_all_selected_books_success">成功添加所有已选择的书。</string>
     <string name="add_selected_books_success">成功添加 %s 本书。</string>
+    <string name="add_directory">添加文件夹</string>
+    <string name="remove_directory">移除文件夹</string>
+    <string name="scan">扫描</string>
+    <string name="back">返回</string>
+    <string name="tip">提示</string>
+    <string name="display">显示</string>
+    <string name="auto">自动</string>
+    <string name="column_count">"%d 每行"</string>
+    <string name="display_mode">显示模式</string>
+    <string name="grid_size">网格大小</string>
+    <string name="browse_settings_directories_message">这些文件夹用于扫描和检索浏览器中的文件。在此处删除文件夹并不会从库中删除实际文件或书籍。要撤销访问权限，请单击相应的按钮。</string>
 </resources>

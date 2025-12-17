@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.OptionItem
 import io.github.lycosmic.lithe.data.model.ScannedDirectory
@@ -135,12 +136,12 @@ fun SettingBrowseScaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text("浏览") },
+                title = { Text(stringResource(R.string.browse)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClicked) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "返回"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 },
@@ -167,13 +168,13 @@ fun SettingBrowseScaffold(
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Icon(
                     imageVector = Icons.Outlined.Info,
-                    contentDescription = "提示",
+                    contentDescription = stringResource(R.string.tip),
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "这些文件夹用于扫描和检索浏览器中的文件。在此处删除文件夹并不会从库中删除实际文件或书籍。要撤销访问权限，请单击相应的按钮。",
+                    text = stringResource(R.string.browse_settings_directories_message),
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -189,7 +190,7 @@ fun SettingBrowseScaffold(
             // --- 显示 ---
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Text(
-                    text = "显示",
+                    text = stringResource(R.string.display),
                     modifier = Modifier.padding(vertical = 8.dp),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         color = MaterialTheme.colorScheme.primary
@@ -217,7 +218,7 @@ fun ScanArea(
     onAddDirectoryClicked: () -> Unit,
 ) {
     Text(
-        text = "扫描",
+        text = stringResource(R.string.scan),
         modifier = Modifier.padding(top = 24.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
         style = MaterialTheme.typography.bodyLarge.copy(
             color = MaterialTheme.colorScheme.primary
@@ -266,7 +267,7 @@ fun ScanArea(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Clear,
-                                contentDescription = "移除文件夹"
+                                contentDescription = stringResource(R.string.remove_directory)
                             )
                         }
                     }
@@ -278,7 +279,7 @@ fun ScanArea(
 
     ListItem(
         headlineContent = {
-            Text(text = "添加文件夹")
+            Text(text = stringResource(R.string.add_directory))
         },
         leadingContent = {
             Icon(
@@ -307,13 +308,13 @@ fun DisplayModeArea(
 ) {
 
     val tipText = if (gridColumnCount == valueRange.first) {
-        "自动"
+        stringResource(R.string.auto)
     } else {
-        "$gridColumnCount 每行"
+        stringResource(R.string.column_count, gridColumnCount)
     }
 
     Text(
-        text = "显示模式"
+        text = stringResource(R.string.display_mode)
     )
 
     Spacer(modifier = Modifier.height(8.dp))
@@ -349,7 +350,7 @@ fun DisplayModeArea(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "网格大小")
+                Text(text = stringResource(R.string.grid_size))
 
                 Text(text = tipText, textAlign = TextAlign.Center)
             }

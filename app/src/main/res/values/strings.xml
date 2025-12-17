@@ -36,4 +36,15 @@
     <string name="double_tap_to_exit_message_again">Double tap to exit app again to exit</string>
     <string name="add_all_selected_books_success">Successfully added all selected books.</string>
     <string name="add_selected_books_success">Successfully added %s books.</string>
+    <string name="add_directory">Add Directory</string>
+    <string name="remove_directory">Remove Directory</string>
+    <string name="scan">Scan</string>
+    <string name="back">Back</string>
+    <string name="tip">Tip</string>
+    <string name="display">Display</string>
+    <string name="auto">Auto</string>
+    <string name="column_count">"%d per row"</string>
+    <string name="display_mode">Display Mode</string>
+    <string name="grid_size">Grid Size</string>
+    <string name="browse_settings_directories_message">These folders are used to scan and retrieve files from the browser. Deleting the folder here does not delete the actual files or books from the library. To revoke access, click the corresponding button.</string>
 </resources>
