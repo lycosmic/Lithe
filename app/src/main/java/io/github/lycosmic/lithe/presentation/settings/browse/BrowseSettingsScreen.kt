@@ -149,7 +149,7 @@ fun SettingBrowseScaffold(
             )
         },
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
@@ -157,80 +157,23 @@ fun SettingBrowseScaffold(
                     bottom = innerPadding.calculateBottomPadding(),
                 )
         ) {
-            // --- 扫描 ---
-            ScanArea(
-                directories = directories,
-                onAddDirectoryClicked = onAddDirectoryClicked,
-                onDeleteDirectoryClicked = onDeleteDirectoryClicked,
-            )
-
-            // --- 提示 ---
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Icon(
-                    imageVector = Icons.Outlined.Info,
-                    contentDescription = stringResource(R.string.tip),
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
+            // --- 扫描区域 ---
+            item {
                 Text(
-                    text = stringResource(R.string.browse_settings_directories_message),
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // --- 分割线 ---
-            HorizontalDivider()
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // --- 显示 ---
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.display),
-                    modifier = Modifier.padding(vertical = 8.dp),
+                    text = stringResource(R.string.scan),
+                    modifier = Modifier.padding(
+                        top = 24.dp,
+                        bottom = 16.dp,
+                        start = 16.dp,
+                        end = 16.dp
+                    ),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         color = MaterialTheme.colorScheme.primary
                     )
                 )
-
-                DisplayModeArea(
-                    displayMode = displayMode,
-                    gridColumnCount = gridColumnCount,
-                    onDisplayModeChanged = onDisplayModeChanged,
-                    onGridColumnCountChanged = onGridColumnCountChanged
-                )
             }
-        }
-    }
-}
 
-/**
- * 扫描区域
- */
-@Composable
-fun ScanArea(
-    directories: List<ScannedDirectory>,
-    onDeleteDirectoryClicked: (ScannedDirectory) -> Unit,
-    onAddDirectoryClicked: () -> Unit,
-) {
-    Text(
-        text = stringResource(R.string.scan),
-        modifier = Modifier.padding(top = 24.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
-        style = MaterialTheme.typography.bodyLarge.copy(
-            color = MaterialTheme.colorScheme.primary
-        )
-    )
-
-    AnimatedVisibility(
-        visible = directories.isNotEmpty(),
-    ) {
-        LazyColumn {
             items(items = directories, key = { it.id }) { directory ->
-
                 // 文件夹
                 ListItem(
                     modifier = Modifier
@@ -274,23 +217,76 @@ fun ScanArea(
                 )
 
             }
+
+            item {
+                ListItem(
+                    headlineContent = {
+                        Text(text = stringResource(R.string.add_directory))
+                    },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = null
+                        )
+                    },
+                    modifier = Modifier.clickable {
+                        onAddDirectoryClicked()
+                    }
+                )
+            }
+
+            // --- 提示 ---
+            item {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = stringResource(R.string.tip),
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = stringResource(R.string.browse_settings_directories_message),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // --- 分割线 ---
+            item {
+                HorizontalDivider()
+            }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            // --- 显示 ---
+            item {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.display),
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    )
+
+                    DisplayModeArea(
+                        displayMode = displayMode,
+                        gridColumnCount = gridColumnCount,
+                        onDisplayModeChanged = onDisplayModeChanged,
+                        onGridColumnCountChanged = onGridColumnCountChanged
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
+            }
         }
     }
-
-    ListItem(
-        headlineContent = {
-            Text(text = stringResource(R.string.add_directory))
-        },
-        leadingContent = {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = null
-            )
-        },
-        modifier = Modifier.clickable {
-            onAddDirectoryClicked()
-        }
-    )
 }
 
 
