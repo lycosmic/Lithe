@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         logI {
-            "MainActivity onCreate"
+            "MainActivity 初始化成功"
         }
         enableEdgeToEdge()
         setContent {
