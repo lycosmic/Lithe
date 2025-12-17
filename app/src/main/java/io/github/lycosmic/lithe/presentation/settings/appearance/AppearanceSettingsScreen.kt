@@ -1,7 +1,14 @@
 package io.github.lycosmic.lithe.presentation.settings.appearance
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,8 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
+import io.github.lycosmic.lithe.data.model.AppThemeOption
 import io.github.lycosmic.lithe.data.model.OptionItem
 import io.github.lycosmic.lithe.data.model.ThemeMode
+import io.github.lycosmic.lithe.presentation.settings.appearance.components.ThemePreviewItem
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
 
@@ -37,6 +46,9 @@ fun AppearanceSettingsScreen(
     viewModel: AppearanceSettingsViewModel = hiltViewModel()
 ) {
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
+
+    val currentThemeId by
+    viewModel.appThemeId.collectAsStateWithLifecycle(initialValue = AppThemeOption.MERCURY.id)
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -76,6 +88,7 @@ fun AppearanceSettingsScreen(
             Modifier
                 .padding(paddings)
                 .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
 
             Text(
@@ -118,6 +131,39 @@ fun AppearanceSettingsScreen(
                 }
             )
 
+            // --- 应用主题
+            Text(
+                text = stringResource(R.string.app_theme),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+
+            ThemeSelector(
+                currentThemeId = currentThemeId,
+                onThemeSelected = { themeId ->
+                    viewModel.onEvent(AppearanceSettingsEvent.OnAppThemeChange(themeId))
+                }
+            )
+
+
+        }
+    }
+}
+
+@Composable
+private fun ThemeSelector(currentThemeId: String, onThemeSelected: (String) -> Unit) {
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(items = AppThemeOption.entries, key = { it.id }) { themeOption ->
+            ThemePreviewItem(
+                appTheme = themeOption,
+                isSelected = themeOption.id == currentThemeId,
+                onClick = { onThemeSelected(themeOption.id) }
+            )
         }
     }
 }

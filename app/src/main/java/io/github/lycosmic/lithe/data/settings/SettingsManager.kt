@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import io.github.lycosmic.lithe.data.model.AppThemeOption
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
@@ -19,15 +20,18 @@ class SettingsManager @Inject constructor(
 ) {
     // DataStore Keys
     private object Keys {
-        val THEME_MODE = stringPreferencesKey("theme")
+        val THEME_MODE = stringPreferencesKey("theme") // 主题模式
 
-        val FILE_DISPLAY_MODE = stringPreferencesKey("file_display_mode")
+        val APP_THEME = stringPreferencesKey("app_theme") // 应用主题
 
-        val GRID_COLUMN_COUNT = stringPreferencesKey("grid_column_count")
+        val FILE_DISPLAY_MODE = stringPreferencesKey("file_display_mode") // 文件显示模式
 
-        val LANGUAGE_CODE = stringPreferencesKey("language_code")
+        val GRID_COLUMN_COUNT = stringPreferencesKey("grid_column_count") // 文件网格列数
 
-        val IS_DOUBLE_BACK_TO_EXIT_ENABLED = booleanPreferencesKey("is_double_back_to_exit_enabled")
+        val LANGUAGE_CODE = stringPreferencesKey("language_code") // 应用语言代码
+
+        val IS_DOUBLE_BACK_TO_EXIT_ENABLED =
+            booleanPreferencesKey("is_double_back_to_exit_enabled") // 是否启用双击返回退出
     }
 
     companion object {
@@ -102,6 +106,22 @@ class SettingsManager @Inject constructor(
     suspend fun setDoubleBackToExitEnabled(isEnabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[Keys.IS_DOUBLE_BACK_TO_EXIT_ENABLED] = isEnabled
+        }
+    }
+
+    // --- 应用主题 ---
+    val appTheme: Flow<AppThemeOption> = dataStore.data.map { preferences ->
+        AppThemeOption.fromId(
+            preferences[Keys.APP_THEME] ?: AppThemeOption.MERCURY.id
+        )
+    }
+
+    /**
+     * 设置应用主题
+     */
+    suspend fun setAppTheme(theme: AppThemeOption) {
+        dataStore.edit { preferences ->
+            preferences[Keys.APP_THEME] = theme.id
         }
     }
 

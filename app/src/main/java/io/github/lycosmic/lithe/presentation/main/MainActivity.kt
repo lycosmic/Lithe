@@ -26,6 +26,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.lycosmic.lithe.data.model.AppThemeOption
 import io.github.lycosmic.lithe.data.model.ThemeMode
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.extension.logI
@@ -66,6 +67,10 @@ class MainActivity : AppCompatActivity() {
                 ThemeMode.DARK -> true
             }
 
+            val appTheme by settingsManager.appTheme.collectAsStateWithLifecycle(
+                initialValue = AppThemeOption.MERCURY
+            )
+
             val navViewModel = hiltViewModel<AppNavigationViewModel>()
 
             LaunchedEffect(Unit) {
@@ -81,7 +86,7 @@ class MainActivity : AppCompatActivity() {
 
             val showBottomBar = currentTab != null
 
-            LitheTheme(isDarkTheme = isDark) {
+            LitheTheme(appTheme = appTheme, isDarkTheme = isDark) {
                 Scaffold(
                     bottomBar = {
                         AnimatedVisibility(

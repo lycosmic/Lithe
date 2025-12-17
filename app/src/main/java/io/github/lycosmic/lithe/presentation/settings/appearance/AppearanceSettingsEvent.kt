@@ -12,4 +12,9 @@ sealed class AppearanceSettingsEvent {
      * 点击主题模式
      */
     data class OnThemeModeClick(val mode: ThemeMode) : AppearanceSettingsEvent()
+
+    /**
+     * 改变应用主题
+     */
+    data class OnAppThemeChange(val themeId: String) : AppearanceSettingsEvent()
 }

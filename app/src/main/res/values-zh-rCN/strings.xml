@@ -54,4 +54,22 @@
     <string name="disabled">已禁用</string>
     <string name="enabled">已启用</string>
     <string name="browse_settings_directories_message">这些文件夹用于扫描和检索浏览器中的文件。在此处删除文件夹并不会从库中删除实际文件或书籍。要撤销访问权限，请单击相应的按钮。</string>
+    <string name="app_theme">应用主题</string>
+    <string name="mercury">水星</string>
+    <string name="neptune">海王星</string>
+    <string name="earth">地球</string>
+    <string name="io">木卫一</string>
+    <string name="enceladus">土卫二</string>
+    <string name="pluto">冥王星</string>
+    <string name="mars">火星</string>
+    <string name="callisto">木卫四</string>
+    <string name="jupiter">木星</string>
+    <string name="ceres">谷神星</string>
+    <string name="eris">阋神星</string>
+    <string name="saturn">土星</string>
+    <string name="ganymede">木卫三</string>
+    <string name="venus">金星</string>
+    <string name="makemake">鸟神星</string>
+    <string name="uranus">天王星</string>
+    <string name="iapetus">土卫八</string>
 </resources>

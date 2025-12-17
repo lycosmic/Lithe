@@ -3,6 +3,7 @@ package io.github.lycosmic.lithe.presentation.settings.appearance
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.lithe.data.model.AppThemeOption
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.ThemeMode
 import io.github.lycosmic.lithe.data.settings.SettingsManager
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +29,12 @@ class AppearanceSettingsViewModel @Inject constructor(
         initialValue = ThemeMode.SYSTEM
     )
 
+    /**
+     * 应用主题 ID
+     */
+    val appThemeId: Flow<String> = settingsManager.appTheme.map { it.id }
+
+
     private val _effects = MutableSharedFlow<AppearanceSettingsEffect>()
     val effects = _effects.asSharedFlow()
 
@@ -40,6 +48,10 @@ class AppearanceSettingsViewModel @Inject constructor(
                 is AppearanceSettingsEvent.OnThemeModeClick -> {
                     updateThemeMode(event.mode)
                 }
+
+                is AppearanceSettingsEvent.OnAppThemeChange -> {
+                    updateAppTheme(event.themeId)
+                }
             }
         }
     }
@@ -50,6 +62,15 @@ class AppearanceSettingsViewModel @Inject constructor(
     fun updateThemeMode(mode: ThemeMode) {
         viewModelScope.launch {
             settingsManager.setThemeMode(mode)
+        }
+    }
+
+    /**
+     * 更新应用主题
+     */
+    fun updateAppTheme(themeId: String) {
+        viewModelScope.launch {
+            settingsManager.setAppTheme(AppThemeOption.fromId(themeId))
         }
     }
 }
