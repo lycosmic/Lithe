@@ -34,6 +34,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.domain.model.AppLanguage
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.presentation.settings.general.components.LanguageChip
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,14 +81,11 @@ fun GeneralSettingsScreen(
                 .padding(paddings)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()) // 允许页面滚动
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(horizontal = 16.dp)
         ) {
-
-            Text(
-                text = stringResource(R.string.app_language),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 16.dp)
+            SettingsSubGroupTitle(
+                title = stringResource(R.string.app_language),
+                modifier = Modifier.padding(vertical = 16.dp)
             )
 
             // 使用 FlowRow 实现自动换行布局

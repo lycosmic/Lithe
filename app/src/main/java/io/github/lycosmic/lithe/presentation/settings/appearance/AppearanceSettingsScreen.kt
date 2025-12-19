@@ -37,6 +37,8 @@ import io.github.lycosmic.lithe.data.model.AppThemeOption
 import io.github.lycosmic.lithe.data.model.OptionItem
 import io.github.lycosmic.lithe.data.model.ThemeMode
 import io.github.lycosmic.lithe.presentation.settings.appearance.components.ThemePreviewItem
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
 
@@ -96,22 +98,18 @@ fun AppearanceSettingsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.theme_preference),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.padding(vertical = 8.dp)
+                SettingsGroupTitle(
+                    title = {
+                        stringResource(R.string.theme_preference)
+                    },
+                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                 )
 
                 // --- 暗黑主题
-                Text(
-                    text = stringResource(R.string.dark_theme),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                SettingsSubGroupTitle(
+                    title = stringResource(R.string.dark_theme),
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
-
 
                 LitheSegmentedButton(
                     items = listOf(
@@ -137,10 +135,8 @@ fun AppearanceSettingsScreen(
                 )
 
                 // --- 应用主题
-                Text(
-                    text = stringResource(R.string.app_theme),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                SettingsSubGroupTitle(
+                    title = stringResource(R.string.app_theme),
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }

@@ -1,0 +1,37 @@
+package io.github.lycosmic.lithe.ui.components
+
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
+
+
+/**
+ * 带样式的文本
+ */
+@Composable
+fun StyledText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = LocalTextStyle.current,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    overflow: TextOverflow = TextOverflow.Ellipsis
+) {
+    BasicText(
+        modifier = modifier,
+        text = text,
+        style = style.copy(
+            textDirection = TextDirection.Content,
+            color = style.color.takeOrElse { LocalContentColor.current }
+        ),
+        maxLines = maxLines,
+        minLines = minLines,
+        overflow = overflow
+    )
+}

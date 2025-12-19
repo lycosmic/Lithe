@@ -59,6 +59,8 @@ import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.OptionItem
 import io.github.lycosmic.lithe.data.model.ScannedDirectory
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -159,16 +161,13 @@ fun SettingBrowseScaffold(
         ) {
             // --- 扫描区域 ---
             item {
-                Text(
-                    text = stringResource(R.string.scan),
+                SettingsGroupTitle(
+                    title = { stringResource(R.string.scan) },
                     modifier = Modifier.padding(
-                        top = 24.dp,
-                        bottom = 16.dp,
                         start = 16.dp,
-                        end = 16.dp
-                    ),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.primary
+                        end = 16.dp,
+                        top = 16.dp,
+                        bottom = 8.dp
                     )
                 )
             }
@@ -237,7 +236,7 @@ fun SettingBrowseScaffold(
 
             // --- 提示 ---
             item {
-                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)) {
                     Icon(
                         imageVector = Icons.Outlined.Info,
                         contentDescription = stringResource(R.string.tip),
@@ -252,27 +251,22 @@ fun SettingBrowseScaffold(
                 }
             }
 
-
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
             // --- 分割线 ---
             item {
                 HorizontalDivider()
             }
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+
             // --- 显示 ---
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    Text(
-                        text = stringResource(R.string.display),
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                    SettingsGroupTitle(
+                        title = { stringResource(R.string.display) },
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    )
+
+                    SettingsSubGroupTitle(
+                        title = stringResource(R.string.display_mode),
+                        modifier = Modifier.padding(vertical = 8.dp)
                     )
 
                     DisplayModeArea(
@@ -308,12 +302,6 @@ fun DisplayModeArea(
     } else {
         stringResource(R.string.column_count, gridColumnCount)
     }
-
-    Text(
-        text = stringResource(R.string.display_mode)
-    )
-
-    Spacer(modifier = Modifier.height(8.dp))
 
     LitheSegmentedButton(
         items = DisplayMode.entries.map { mode ->
