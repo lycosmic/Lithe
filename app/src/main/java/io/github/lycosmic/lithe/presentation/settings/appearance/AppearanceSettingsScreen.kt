@@ -48,13 +48,13 @@ fun AppearanceSettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: AppearanceSettingsViewModel = hiltViewModel()
 ) {
-    val themeMode by viewModel.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
+    val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
 
     val currentThemeId by
-    viewModel.appThemeId.collectAsStateWithLifecycle(initialValue = AppThemeOption.MERCURY.id)
+    viewModel.appThemeId.collectAsStateWithLifecycle()
 
     val isNavLabelVisible by
-    viewModel.isNavLabelVisible.collectAsStateWithLifecycle(initialValue = false)
+    viewModel.isNavLabelVisible.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 

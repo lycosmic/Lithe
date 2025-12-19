@@ -7,9 +7,9 @@ import io.github.lycosmic.lithe.data.model.AppThemeOption
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.ThemeMode
 import io.github.lycosmic.lithe.data.settings.SettingsManager
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -23,7 +23,7 @@ class AppearanceSettingsViewModel @Inject constructor(
     /**
      * 主题模式
      */
-    val themeMode: Flow<ThemeMode> = settingsManager.themeMode.stateIn(
+    val themeMode: StateFlow<ThemeMode> = settingsManager.themeMode.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = ThemeMode.SYSTEM
@@ -32,12 +32,16 @@ class AppearanceSettingsViewModel @Inject constructor(
     /**
      * 应用主题 ID
      */
-    val appThemeId: Flow<String> = settingsManager.appTheme.map { it.id }
+    val appThemeId: StateFlow<String> = settingsManager.appTheme.map { it.id }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = AppThemeOption.MERCURY.id
+    )
 
     /**
      * 导航栏标签
      */
-    val isNavLabelVisible: Flow<Boolean> = settingsManager.showNavigationBarLabels.stateIn(
+    val isNavLabelVisible: StateFlow<Boolean> = settingsManager.showNavigationBarLabels.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = true
