@@ -14,12 +14,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.ChromeReaderMode
-import androidx.compose.material.icons.automirrored.outlined.LibraryBooks
+import androidx.compose.material.icons.outlined.CollectionsBookmark
+import androidx.compose.material.icons.outlined.DisplaySettings
 import androidx.compose.material.icons.outlined.Explore
-import androidx.compose.material.icons.outlined.FolderOpen
+import androidx.compose.material.icons.outlined.LocalLibrary
 import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,9 +36,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.github.lycosmic.lithe.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,13 +63,13 @@ fun SettingsScreen(
         topBar = {
             LargeTopAppBar(
                 title = {
-                    Text(text = "设置")
+                    Text(text = stringResource(id = R.string.settings_title))
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "返回"
+                            contentDescription = null
                         )
                     }
                 },
@@ -83,34 +84,34 @@ fun SettingsScreen(
                 .verticalScroll(state = rememberScrollState()),
         ) {
             SettingsItem(
-                title = "常规",
-                subTitle = "应用语言",
-                icon = Icons.Outlined.Tune,
+                title = stringResource(id = R.string.settings_general),
+                subTitle = stringResource(id = R.string.settings_app_language),
+                icon = Icons.Outlined.DisplaySettings,
                 onClick = onNavigateToGeneralSettings
             )
             SettingsItem(
-                title = "外观",
-                subTitle = "主题颜色",
+                title = stringResource(id = R.string.settings_appearance),
+                subTitle = stringResource(id = R.string.settings_theme_color),
                 icon = Icons.Outlined.Palette,
                 onClick = onNavigateToAppearanceSettings
             )
             SettingsItem(
-                title = "阅读器",
-                subTitle = "字体文本",
-                icon = Icons.AutoMirrored.Outlined.ChromeReaderMode,
+                title = stringResource(id = R.string.settings_reader),
+                subTitle = stringResource(id = R.string.settings_font_text),
+                icon = Icons.Outlined.LocalLibrary,
                 iconContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 onClick = onNavigateToReaderSettings
             )
             SettingsItem(
-                title = "书库",
-                subTitle = "分类、显示、标签页",
-                icon = Icons.AutoMirrored.Outlined.LibraryBooks,
+                title = stringResource(id = R.string.settings_library),
+                subTitle = stringResource(id = R.string.settings_category_display_tab),
+                icon = Icons.Outlined.CollectionsBookmark,
                 onClick = onNavigateToLibrarySettings
             )
             SettingsItem(
-                title = "浏览",
-                subTitle = "扫描、显示",
-                icon = Icons.Outlined.FolderOpen,
+                title = stringResource(id = R.string.settings_browse),
+                subTitle = stringResource(id = R.string.settings_scan_display),
+                icon = Icons.Outlined.Explore,
                 onClick = onNavigateToBrowseSettings
             )
         }
@@ -167,11 +168,11 @@ fun SettingsItem(
 @Composable
 fun SettingsItemPreview() {
     SettingsItem(
-        title = "浏览",
+        title = stringResource(R.string.settings_browse),
         icon = Icons.Outlined.Explore,
         modifier = Modifier.fillMaxWidth(),
         iconContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-        subTitle = "扫描、显示",
+        subTitle = stringResource(R.string.settings_scan_display),
         onClick = {}
     )
 }

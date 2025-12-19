@@ -22,6 +22,7 @@
     <string name="about">关于</string>
     <string name="help">帮助</string>
     <string name="settings">设置</string>
+    <string name="settings_title">设置</string>
     <string name="exit_search">退出搜索</string>
     <string name="list">列表</string>
     <string name="grid">网格</string>
@@ -72,4 +73,14 @@
     <string name="makemake">鸟神星</string>
     <string name="uranus">天王星</string>
     <string name="iapetus">土卫八</string>
+    <string name="settings_general">常规</string>
+    <string name="settings_appearance">外观</string>
+    <string name="settings_reader">阅读器</string>
+    <string name="settings_library">书库</string>
+    <string name="settings_browse">浏览</string>
+    <string name="settings_app_language">应用语言</string>
+    <string name="settings_theme_color">主题颜色</string>
+    <string name="settings_font_text">字体文本</string>
+    <string name="settings_category_display_tab">分类、显示、标签页</string>
+    <string name="settings_scan_display">扫描、显示</string>
 </resources>
