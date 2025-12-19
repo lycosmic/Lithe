@@ -49,6 +49,7 @@ fun ThemePreviewItem(
     val outlineColor = MaterialTheme.colorScheme.outlineVariant  // 边框色
 
     val onSurfaceColor = colorScheme.onSurface // 文本色，用于顶部栏
+    val onSurfaceVariantColor = colorScheme.onSurfaceVariant
     val surfaceColor = colorScheme.surface // 容器色，用于卡片背景
     val surfaceContainerColor = colorScheme.surfaceContainer // 表面色，用于底部栏和内容区域
 
@@ -142,7 +143,7 @@ fun ThemePreviewItem(
                     Modifier
                         .height(20.dp)
                         .width(60.dp)
-                        .background(primaryColor, RoundedCornerShape(10.dp))
+                        .background(onSurfaceVariantColor, RoundedCornerShape(10.dp))
                 )
 
             }
