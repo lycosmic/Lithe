@@ -3,6 +3,7 @@ package io.github.lycosmic.lithe.presentation.settings.appearance
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
@@ -17,11 +18,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -49,6 +52,9 @@ fun AppearanceSettingsScreen(
 
     val currentThemeId by
     viewModel.appThemeId.collectAsStateWithLifecycle(initialValue = AppThemeOption.MERCURY.id)
+
+    val isNavLabelVisible by
+    viewModel.isNavLabelVisible.collectAsStateWithLifecycle(initialValue = false)
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -145,6 +151,36 @@ fun AppearanceSettingsScreen(
                     viewModel.onEvent(AppearanceSettingsEvent.OnAppThemeChange(themeId))
                 }
             )
+
+            // --- 显示导航标签 ---
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.show_navigation_labels),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = stringResource(R.string.show_navigation_labels_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Switch(
+                    checked = isNavLabelVisible,
+                    onCheckedChange = {
+                        viewModel.onEvent(
+                            AppearanceSettingsEvent.OnNavLabelVisibleChange(it)
+                        )
+                    }
+                )
+            }
 
         }
     }

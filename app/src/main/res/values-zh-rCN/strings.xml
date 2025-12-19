@@ -83,4 +83,6 @@
     <string name="settings_font_text">字体文本</string>
     <string name="settings_category_display_tab">分类、显示、标签页</string>
     <string name="settings_scan_display">扫描、显示</string>
+    <string name="show_navigation_labels">显示导航标签</string>
+    <string name="show_navigation_labels_description">显示导航栏图标下的标签</string>
 </resources>

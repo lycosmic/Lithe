@@ -71,6 +71,10 @@ class MainActivity : AppCompatActivity() {
                 initialValue = AppThemeOption.MERCURY
             )
 
+            val showNavigationBarLabels by settingsManager.showNavigationBarLabels.collectAsStateWithLifecycle(
+                initialValue = true
+            )
+
             val navViewModel = hiltViewModel<AppNavigationViewModel>()
 
             LaunchedEffect(Unit) {
@@ -94,7 +98,12 @@ class MainActivity : AppCompatActivity() {
                             enter = slideInVertically { it } + expandVertically(),
                             exit = slideOutVertically { it } + shrinkVertically()
                         ) {
+                            // 导航栏
                             NavigationBar {
+                                logI {
+                                    "当前路由: ${currentRoute.value}, 当前标签: ${currentTab?.label}"
+                                }
+
                                 AppTabs.entries.forEach { tab ->
                                     val isSelected = currentTab == tab
                                     NavigationBarItem(
@@ -109,7 +118,11 @@ class MainActivity : AppCompatActivity() {
                                                 contentDescription = tab.label
                                             )
                                         },
-                                        label = { Text(tab.label) }
+                                        label = {
+                                            if (showNavigationBarLabels) {
+                                                Text(tab.label)
+                                            }
+                                        }
                                     )
                                 }
                             }

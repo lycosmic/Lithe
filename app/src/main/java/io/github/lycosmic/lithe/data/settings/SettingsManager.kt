@@ -32,6 +32,9 @@ class SettingsManager @Inject constructor(
 
         val IS_DOUBLE_BACK_TO_EXIT_ENABLED =
             booleanPreferencesKey("is_double_back_to_exit_enabled") // 是否启用双击返回退出
+
+        val SHOW_NAVIGATION_BAR_LABELS =
+            booleanPreferencesKey("show_navigation_bar_labels") // 是否显示导航栏标签
     }
 
     companion object {
@@ -122,6 +125,20 @@ class SettingsManager @Inject constructor(
     suspend fun setAppTheme(theme: AppThemeOption) {
         dataStore.edit { preferences ->
             preferences[Keys.APP_THEME] = theme.id
+        }
+    }
+
+    // -- 导航栏标签 ---
+    val showNavigationBarLabels: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[Keys.SHOW_NAVIGATION_BAR_LABELS] ?: true
+    }
+
+    /**
+     * 设置导航栏标签是否可见
+     */
+    suspend fun setShowNavigationBarLabels(isEnabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[Keys.SHOW_NAVIGATION_BAR_LABELS] = isEnabled
         }
     }
 

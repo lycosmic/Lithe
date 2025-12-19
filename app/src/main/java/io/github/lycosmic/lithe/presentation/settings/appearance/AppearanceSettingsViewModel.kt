@@ -34,6 +34,15 @@ class AppearanceSettingsViewModel @Inject constructor(
      */
     val appThemeId: Flow<String> = settingsManager.appTheme.map { it.id }
 
+    /**
+     * 导航栏标签
+     */
+    val isNavLabelVisible: Flow<Boolean> = settingsManager.showNavigationBarLabels.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = true
+    )
+
 
     private val _effects = MutableSharedFlow<AppearanceSettingsEffect>()
     val effects = _effects.asSharedFlow()
@@ -51,6 +60,10 @@ class AppearanceSettingsViewModel @Inject constructor(
 
                 is AppearanceSettingsEvent.OnAppThemeChange -> {
                     updateAppTheme(event.themeId)
+                }
+
+                is AppearanceSettingsEvent.OnNavLabelVisibleChange -> {
+                    updateNavLabelVisible(event.visible)
                 }
             }
         }
@@ -71,6 +84,15 @@ class AppearanceSettingsViewModel @Inject constructor(
     fun updateAppTheme(themeId: String) {
         viewModelScope.launch {
             settingsManager.setAppTheme(AppThemeOption.fromId(themeId))
+        }
+    }
+
+    /**
+     * 更新导航栏标签可见性
+     */
+    fun updateNavLabelVisible(isVisible: Boolean) {
+        viewModelScope.launch {
+            settingsManager.setShowNavigationBarLabels(isVisible)
         }
     }
 }
