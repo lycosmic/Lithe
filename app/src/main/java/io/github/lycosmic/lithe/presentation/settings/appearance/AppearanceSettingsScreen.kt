@@ -18,7 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -39,6 +38,7 @@ import io.github.lycosmic.lithe.data.model.ThemeMode
 import io.github.lycosmic.lithe.presentation.settings.appearance.components.ThemePreviewItem
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsSwitch
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
 
@@ -168,7 +168,7 @@ fun AppearanceSettingsScreen(
                     )
                 }
 
-                Switch(
+                SettingsSwitch(
                     checked = isNavLabelVisible,
                     onCheckedChange = {
                         viewModel.onEvent(
