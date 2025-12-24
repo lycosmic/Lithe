@@ -97,4 +97,6 @@
     <string name="green">绿色</string>
     <string name="blue">蓝色</string>
     <string name="color_preset_editor_title">命名一个预设…</string>
+    <string name="quick_color_preset_change">快速更改颜色预设</string>
+    <string name="swipe_to_change_color_preset">向左或向右滑动顶栏以更改颜色预设</string>
 </resources>

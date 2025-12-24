@@ -60,6 +60,15 @@ class AppearanceSettingsViewModel @Inject constructor(
     )
 
     /**
+     * 快速更改颜色预设
+     */
+    val quickChangeColorPreset: StateFlow<Boolean> = settingsManager.quickChangeColorPreset.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = false
+    )
+
+    /**
      * 数据库中的颜色预设列表
      */
     private val presetsFlow = colorPresetDao.getAllPresets()
@@ -292,6 +301,10 @@ class AppearanceSettingsViewModel @Inject constructor(
                             getSortOrder(preset)
                         )
                     )
+                }
+
+                is AppearanceSettingsEvent.OnQuickChangeColorPresetEnabledChange -> {
+                    settingsManager.setQuickChangeColorPresetEnabled(event.enabled)
                 }
             }
         }

@@ -90,6 +90,10 @@ fun AppearanceSettingsScreen(
     val isNavLabelVisible by
     viewModel.isNavLabelVisible.collectAsStateWithLifecycle()
 
+    // 是否启用快速更改颜色预设
+    val isQuickChangeColorPresetEnabled by
+    viewModel.quickChangeColorPreset.collectAsStateWithLifecycle()
+
     // 滚动行为，用于实现 AppBar 的折叠效果
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -335,7 +339,36 @@ fun AppearanceSettingsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.quick_color_preset_change),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = stringResource(R.string.swipe_to_change_color_preset),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
 
+                    SettingsSwitch(
+                        checked = isQuickChangeColorPresetEnabled,
+                        onCheckedChange = {
+                            viewModel.onEvent(
+                                AppearanceSettingsEvent.OnQuickChangeColorPresetEnabledChange(it)
+                            )
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
             }
 
         }

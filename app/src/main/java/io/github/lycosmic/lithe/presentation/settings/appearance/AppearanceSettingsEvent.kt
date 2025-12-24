@@ -67,4 +67,10 @@ sealed class AppearanceSettingsEvent {
      */
     data class OnColorPresetTextColorChange(val preset: ColorPreset, val color: Color) :
         AppearanceSettingsEvent()
+
+    /**
+     * 快速更改颜色预设
+     */
+    data class OnQuickChangeColorPresetEnabledChange(val enabled: Boolean) :
+        AppearanceSettingsEvent()
 }

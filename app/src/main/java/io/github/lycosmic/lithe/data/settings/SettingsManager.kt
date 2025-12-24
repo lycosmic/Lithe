@@ -38,6 +38,9 @@ class SettingsManager @Inject constructor(
             booleanPreferencesKey("show_navigation_bar_labels") // 是否显示导航栏标签
 
         val CURRENT_COLOR_PRESET_ID = longPreferencesKey("current_color_preset_id") // 当前选中的颜色预设
+
+        val QUICK_CHANGE_COLOR_PRESET =
+            booleanPreferencesKey("quick_change_color_preset") // 是否启用快速更改颜色预设
     }
 
     companion object {
@@ -156,6 +159,20 @@ class SettingsManager @Inject constructor(
     suspend fun setCurrentColorPresetId(id: Long?) {
         dataStore.edit { preferences ->
             preferences[Keys.CURRENT_COLOR_PRESET_ID] = id ?: -1L
+        }
+    }
+
+    // --- 快速更改颜色预设 ---
+    val quickChangeColorPreset: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[Keys.QUICK_CHANGE_COLOR_PRESET] ?: false
+    }
+
+    /**
+     * 设置快速更改颜色预设
+     */
+    suspend fun setQuickChangeColorPresetEnabled(isEnabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[Keys.QUICK_CHANGE_COLOR_PRESET] = isEnabled
         }
     }
 
