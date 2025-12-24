@@ -53,4 +53,10 @@ interface ColorPresetDao {
      */
     @Update
     suspend fun updatePreset(preset: ColorPresetEntity)
+
+    /**
+     * 批量更新颜色预设，用于拖拽颜色预设后，保存新的排序
+     */
+    @Update
+    suspend fun updatePresets(presets: List<ColorPresetEntity>)
 }

@@ -11,7 +11,9 @@ import io.github.lycosmic.lithe.data.model.ThemeMode
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.domain.model.ColorPreset
 import io.github.lycosmic.lithe.domain.model.ColorPreset.Companion.toEntity
+import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logE
+import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.extension.logW
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -73,7 +75,7 @@ class AppearanceSettingsViewModel @Inject constructor(
      */
     val presets: StateFlow<List<ColorPreset>> =
         selectedIdFlow.combine(presetsFlow) { selectedId, presets ->
-            presets.map { entity ->
+            presets.sortedBy { it.sortOrder }.map { entity ->
                 ColorPreset(
                     id = entity.id ?: 0,
                     name = entity.name,
@@ -151,18 +153,32 @@ class AppearanceSettingsViewModel @Inject constructor(
                     settingsManager.setCurrentColorPresetId(event.preset.id)
                 }
 
-                is AppearanceSettingsEvent.OnColorPresetDragEnd -> {
+                is AppearanceSettingsEvent.OnColorPresetDragStopped -> {
                     // 拖拽结束，更新排序
+                    logI {
+                        "拖拽结束，更新数据库中颜色预设的排序"
+                    }
+
+                    val newPresets = event.presets.mapIndexed { index, preset ->
+                        preset.toEntity(index)
+                    }
+                    logD {
+                        "新排序为：${newPresets.map { it.name }}"
+                    }
+                    colorPresetDao.updatePresets(newPresets)
                 }
 
                 AppearanceSettingsEvent.OnAddColorPresetClick -> {
                     // 新增颜色预设
                     val maxSortOrder = colorPresetDao.getMaxSortOrder()
+                    logD {
+                        "新增颜色预设，最大排序为：$maxSortOrder"
+                    }
                     colorPresetDao.insertPreset(
                         ColorPreset.defaultColorPreset.copy(
                             isSelected = true
                         ).toEntity(
-                            maxSortOrder ?: 0
+                            maxSortOrder?.plus(1) ?: 0
                         )
                     )
                 }

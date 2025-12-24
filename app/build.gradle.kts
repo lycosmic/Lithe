@@ -96,7 +96,7 @@ dependencies {
     // Timber
     implementation(libs.timber)
 
-    // Drag & Drop
+    // Drag & Drop, url: https://github.com/Calvin-LL/Reorderable
     implementation(libs.reorderable)
 
     // ---------------- 初始依赖 ----------------

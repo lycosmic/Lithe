@@ -1,6 +1,7 @@
 package io.github.lycosmic.lithe.presentation.settings.appearance
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -17,9 +18,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -39,12 +40,16 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -89,17 +94,27 @@ fun AppearanceSettingsScreen(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     // 颜色预设
-    val presetsList by viewModel.presets.collectAsStateWithLifecycle()
+    val presetsListFromDb by viewModel.presets.collectAsStateWithLifecycle()
+    // 本地维护的颜色预设
+    val localPresets = remember { mutableStateListOf<ColorPreset>() }
+    LaunchedEffect(presetsListFromDb) {
+        // 同步数据库中的颜色预设
+        localPresets.clear()
+        localPresets.addAll(presetsListFromDb)
+    }
 
     // 当前的颜色预设
     val selectedPreset by viewModel.currentPreset.collectAsStateWithLifecycle()
 
     // 可拖拽的列表状态
-    val reorderableListState = rememberReorderableLazyListState(
-        lazyListState = LazyListState()
-    ) { from, to ->
+    val lazyListState = rememberLazyListState()
+    val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
         logV {
             "改变颜色预设顺序，from: $from, to: $to"
+        }
+        // 更新列表顺序
+        localPresets.apply {
+            add(to.index, removeAt(from.index))
         }
     }
 
@@ -242,14 +257,19 @@ fun AppearanceSettingsScreen(
 
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
+                    state = lazyListState,
                     contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    items(items = presetsList, key = { it.id }) { preset ->
+                    items(items = localPresets, key = { it.id }) { preset ->
+                        // 可排序的列表项
                         ReorderableItem(
-                            state = reorderableListState,
+                            state = reorderableLazyListState,
                             key = preset.id
-                        ) {
+                        ) { isDragging ->
+                            // 拖拽项的阴影高度
+                            val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+
                             ColorPresetOption(
                                 colorPreset = preset,
                                 onClick = {
@@ -260,15 +280,12 @@ fun AppearanceSettingsScreen(
                                         )
                                     )
                                 },
-                                dragEnabled = preset.isSelected && presetsList.size > 1,
+                                dragEnabled = preset.isSelected && localPresets.size > 1,
+                                elevation = elevation,
                                 onDragStopped = {
-                                    // 拖拽结束
-                                    logV {
-                                        "拖拽颜色预设结束，${preset.name}"
-                                    }
                                     viewModel.onEvent(
-                                        AppearanceSettingsEvent.OnColorPresetDragEnd(
-                                            preset
+                                        AppearanceSettingsEvent.OnColorPresetDragStopped(
+                                            localPresets
                                         )
                                     )
                                 }
@@ -350,10 +367,12 @@ private fun ThemeSelector(currentThemeId: String, onThemeSelected: (String) -> U
  */
 @Composable
 fun ReorderableCollectionItemScope.ColorPresetOption(
+    modifier: Modifier = Modifier,
     colorPreset: ColorPreset,
     onClick: () -> Unit,
     dragEnabled: Boolean,
-    onDragStopped: () -> Unit,
+    onDragStopped: () -> Unit, // 拖拽结束
+    elevation: Dp = 0.dp
 ) {
     val title = colorPreset.name.ifBlank {
         stringResource(R.string.color_preset_query, colorPreset.id.toString())
@@ -367,8 +386,9 @@ fun ReorderableCollectionItemScope.ColorPresetOption(
     }
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .clip(CircleShape)
+            .shadow(elevation)
             .border(width = 2.dp, color = borderColor, shape = CircleShape)
             .padding(2.dp)
             .background(colorPreset.backgroundColor, CircleShape)
@@ -415,8 +435,11 @@ fun ReorderableCollectionItemScope.ColorPresetOption(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .size(18.dp)
-                    .longPressDraggableHandle(
-                        onDragStopped = onDragStopped
+                    .draggableHandle(
+                        onDragStarted = {
+
+                        },
+                        onDragStopped = onDragStopped,
                     ),
                 tint = colorPreset.textColor
             )
@@ -430,6 +453,6 @@ fun ReorderableCollectionItemScope.ColorPresetOption(
 @Composable
 private fun AppearanceSettingsScreenPreview() {
     LitheTheme {
-        AppearanceSettingsScreen(onBackClick = {})
+
     }
 }

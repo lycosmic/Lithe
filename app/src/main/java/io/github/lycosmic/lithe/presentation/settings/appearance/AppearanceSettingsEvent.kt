@@ -33,7 +33,7 @@ sealed class AppearanceSettingsEvent {
     /**
      * 颜色预设拖拽结束
      */
-    data class OnColorPresetDragEnd(val preset: ColorPreset) : AppearanceSettingsEvent()
+    data class OnColorPresetDragStopped(val presets: List<ColorPreset>) : AppearanceSettingsEvent()
 
     /**
      * 点击了删除颜色预设
