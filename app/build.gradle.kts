@@ -96,6 +96,9 @@ dependencies {
     // Timber
     implementation(libs.timber)
 
+    // Drag & Drop
+    implementation(libs.reorderable)
+
     // ---------------- 初始依赖 ----------------
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

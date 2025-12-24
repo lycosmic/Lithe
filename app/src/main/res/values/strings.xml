@@ -84,4 +84,16 @@
     <string name="settings_scan_display">Scan, Display</string>
     <string name="show_navigation_labels">Show Navigation Labels</string>
     <string name="show_navigation_labels_description">Show labels below navigation bar icons</string>
+    <string name="color_presets">Color Presets</string>
+    <string name="color">Color</string>
+    <string name="color_preset_query">Preset %1$s</string>
+    <string name="selected_content_desc">Selected</string>
+    <string name="drag_content_desc">Drag</string>
+    <string name="color_preset_editor_background_color">Background Color</string>
+    <string name="color_preset_editor_text_color">Text Color</string>
+    <string name="undo">Undo</string>
+    <string name="red">Red</string>
+    <string name="green">Green</string>
+    <string name="blue">Blue</string>
+    <string name="color_preset_editor_title">Name a preset…</string>
 </resources>

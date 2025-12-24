@@ -85,4 +85,16 @@
     <string name="settings_scan_display">扫描、显示</string>
     <string name="show_navigation_labels">显示导航标签</string>
     <string name="show_navigation_labels_description">显示导航栏图标下的标签</string>
+    <string name="color_presets">颜色预设</string>
+    <string name="color">颜色</string>
+    <string name="color_preset_query">预设 %1$s</string>
+    <string name="selected_content_desc">已选</string>
+    <string name="drag_content_desc">拖动</string>
+    <string name="color_preset_editor_background_color">背景颜色</string>
+    <string name="color_preset_editor_text_color">字体颜色</string>
+    <string name="undo">撤销</string>
+    <string name="red">红色</string>
+    <string name="green">绿色</string>
+    <string name="blue">蓝色</string>
+    <string name="color_preset_editor_title">命名一个预设…</string>
 </resources>

@@ -10,6 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import io.github.lycosmic.lithe.data.local.AppDatabase
 import io.github.lycosmic.lithe.data.local.BookDao
 import io.github.lycosmic.lithe.data.local.DirectoryDao
+import io.github.lycosmic.lithe.data.local.dao.ColorPresetDao
 import javax.inject.Singleton
 
 
@@ -45,5 +46,13 @@ object DatabaseModule {
         appDatabase: AppDatabase
     ): DirectoryDao {
         return appDatabase.directoryDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideColorPresetDao(
+        appDatabase: AppDatabase
+    ): ColorPresetDao {
+        return appDatabase.colorPresetDao()
     }
 }

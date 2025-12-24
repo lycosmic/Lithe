@@ -1,24 +1,34 @@
 package io.github.lycosmic.lithe.presentation.settings.appearance
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.lithe.data.local.dao.ColorPresetDao
 import io.github.lycosmic.lithe.data.model.AppThemeOption
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.ThemeMode
 import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.lithe.domain.model.ColorPreset
+import io.github.lycosmic.lithe.domain.model.ColorPreset.Companion.toEntity
+import io.github.lycosmic.lithe.extension.logE
+import io.github.lycosmic.lithe.extension.logW
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class AppearanceSettingsViewModel @Inject constructor(
-    private val settingsManager: SettingsManager
+    private val settingsManager: SettingsManager,
+    private val colorPresetDao: ColorPresetDao,
 ) : ViewModel() {
     /**
      * 主题模式
@@ -47,6 +57,73 @@ class AppearanceSettingsViewModel @Inject constructor(
         initialValue = true
     )
 
+    /**
+     * 数据库中的颜色预设列表
+     */
+    private val presetsFlow = colorPresetDao.getAllPresets()
+
+    /**
+     * 当前选中的颜色预设 ID
+     */
+    private val selectedIdFlow: Flow<Long> = settingsManager.currentColorPresetId
+
+
+    /**
+     * 颜色预设列表
+     */
+    val presets: StateFlow<List<ColorPreset>> =
+        selectedIdFlow.combine(presetsFlow) { selectedId, presets ->
+            presets.map { entity ->
+                ColorPreset(
+                    id = entity.id ?: 0,
+                    name = entity.name,
+                    isSelected = entity.id == selectedId,
+                    backgroundColor = Color(entity.backgroundColorArgb),
+                    textColor = Color(entity.textColorArgb)
+                )
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+            initialValue = emptyList()
+        )
+
+    /**
+     * 当前选中的颜色预设
+     */
+    val currentPreset: StateFlow<ColorPreset?> = presets
+        .map { list ->
+            list.find { it.isSelected }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+            initialValue = null
+        )
+
+    init {
+        viewModelScope.launch {
+            var presetsSync = colorPresetDao.getAllPresetsSync()
+
+            // 如果没有颜色预设，则插入默认的
+            if (presetsSync.isEmpty()) {
+                val maxSortOrder = colorPresetDao.getMaxSortOrder()
+                colorPresetDao.insertPreset(
+                    ColorPreset.defaultColorPreset.copy(
+                        isSelected = true
+                    ).toEntity(
+                        maxSortOrder ?: 0
+                    )
+                )
+            }
+
+            // 重新获取颜色预设
+            presetsSync = colorPresetDao.getAllPresetsSync()
+
+            // 更新选中的颜色预设
+            settingsManager.setCurrentColorPresetId(presetsSync.first().id)
+        }
+    }
 
     private val _effects = MutableSharedFlow<AppearanceSettingsEffect>()
     val effects = _effects.asSharedFlow()
@@ -69,8 +146,138 @@ class AppearanceSettingsViewModel @Inject constructor(
                 is AppearanceSettingsEvent.OnNavLabelVisibleChange -> {
                     updateNavLabelVisible(event.visible)
                 }
+
+                is AppearanceSettingsEvent.OnColorPresetClick -> {
+                    settingsManager.setCurrentColorPresetId(event.preset.id)
+                }
+
+                is AppearanceSettingsEvent.OnColorPresetDragEnd -> {
+                    // 拖拽结束，更新排序
+                }
+
+                AppearanceSettingsEvent.OnAddColorPresetClick -> {
+                    // 新增颜色预设
+                    val maxSortOrder = colorPresetDao.getMaxSortOrder()
+                    colorPresetDao.insertPreset(
+                        ColorPreset.defaultColorPreset.copy(
+                            isSelected = true
+                        ).toEntity(
+                            maxSortOrder ?: 0
+                        )
+                    )
+                }
+
+                is AppearanceSettingsEvent.OnColorPresetNameChange -> {
+                    // 修改颜色预设名称
+                    val preset = presets.value.find { it.id == event.preset.id } ?: run {
+                        logE {
+                            "当前要修改的颜色预设不存在，id: ${event.preset.id}"
+                        }
+                        return@launch
+                    }
+                    colorPresetDao.updatePreset(
+                        preset.copy(
+                            name = event.name
+                        ).toEntity(
+                            getSortOrder(preset)
+                        )
+                    )
+                }
+
+                is AppearanceSettingsEvent.OnDeleteColorPresetClick -> {
+                    if (presets.value.size <= 1) {
+                        logW {
+                            "颜色预设列表至少需要有一个颜色预设，无法删除"
+                        }
+                        return@launch
+                    }
+
+                    val preset = presets.value.find { it.id == event.preset.id } ?: run {
+                        logE {
+                            "当前要删除的颜色预设不存在，id: ${event.preset.id}"
+                        }
+                        return@launch
+                    }
+
+                    colorPresetDao.deletePreset(preset.toEntity(-1))
+                }
+
+                is AppearanceSettingsEvent.OnShuffleColorPresetClick -> {
+                    // 打乱颜色预设的颜色值
+                    val preset = presets.value.find { it.id == event.preset.id } ?: run {
+                        logE {
+                            "当前要打乱的颜色预设不存在，id: ${event.preset.id}"
+                        }
+                        return@launch
+                    }
+
+                    colorPresetDao.updatePreset(
+                        preset.copy(
+                            backgroundColor = Color(
+                                Random.nextInt(
+                                    Constants.MAX_COLOR_VALUE
+                                ),
+                                Random.nextInt(
+                                    Constants.MAX_COLOR_VALUE
+                                ),
+                                Random.nextInt(
+                                    Constants.MAX_COLOR_VALUE
+                                )
+                            ),
+                            textColor = Color(
+                                Random.nextInt(
+                                    Constants.MAX_COLOR_VALUE
+                                ),
+                                Random.nextInt(
+                                    Constants.MAX_COLOR_VALUE
+                                ),
+                                Random.nextInt(
+                                    Constants.MAX_COLOR_VALUE
+                                )
+                            )
+                        ).toEntity(
+                            getSortOrder(preset)
+                        )
+                    )
+                }
+
+                is AppearanceSettingsEvent.OnColorPresetBgColorChange -> {
+                    val preset = presets.value.find { it.id == event.preset.id } ?: run {
+                        logE {
+                            "当前要修改的颜色预设不存在，id: ${event.preset.id}"
+                        }
+                        return@launch
+                    }
+                    colorPresetDao.updatePreset(
+                        preset.copy(backgroundColor = event.color).toEntity(
+                            getSortOrder(preset)
+                        )
+                    )
+                }
+
+                is AppearanceSettingsEvent.OnColorPresetTextColorChange -> {
+                    val preset = presets.value.find { it.id == event.preset.id } ?: run {
+                        logE {
+                            "当前要修改的颜色预设不存在，id: ${event.preset.id}"
+                        }
+                        return@launch
+                    }
+                    colorPresetDao.updatePreset(
+                        preset.copy(textColor = event.color).toEntity(
+                            getSortOrder(preset)
+                        )
+                    )
+                }
             }
         }
+    }
+
+    /**
+     * 获取当前颜色预设的排序
+     */
+    private suspend fun getSortOrder(preset: ColorPreset): Int {
+        return colorPresetDao.getPresetSortOrderById(preset.id)
+            ?: colorPresetDao.getMaxSortOrder() ?: 0
     }
 
     /**

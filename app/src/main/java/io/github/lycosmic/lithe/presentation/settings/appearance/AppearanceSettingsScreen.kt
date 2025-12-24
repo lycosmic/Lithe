@@ -1,18 +1,34 @@
 package io.github.lycosmic.lithe.presentation.settings.appearance
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -25,6 +41,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,12 +52,19 @@ import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.model.AppThemeOption
 import io.github.lycosmic.lithe.data.model.OptionItem
 import io.github.lycosmic.lithe.data.model.ThemeMode
+import io.github.lycosmic.lithe.domain.model.ColorPreset
+import io.github.lycosmic.lithe.extension.logV
+import io.github.lycosmic.lithe.presentation.settings.appearance.components.ColorPresetEditorCard
 import io.github.lycosmic.lithe.presentation.settings.appearance.components.ThemePreviewItem
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSwitch
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
+import io.github.lycosmic.lithe.ui.components.StyledText
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
+import sh.calvin.reorderable.ReorderableCollectionItemScope
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,16 +74,34 @@ fun AppearanceSettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: AppearanceSettingsViewModel = hiltViewModel()
 ) {
+    // 当前主题模式
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
 
+    // 当前主题
     val currentThemeId by
     viewModel.appThemeId.collectAsStateWithLifecycle()
 
+    // 导航栏标签可见性
     val isNavLabelVisible by
     viewModel.isNavLabelVisible.collectAsStateWithLifecycle()
 
+    // 滚动行为，用于实现 AppBar 的折叠效果
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
+    // 颜色预设
+    val presetsList by viewModel.presets.collectAsStateWithLifecycle()
+
+    // 当前的颜色预设
+    val selectedPreset by viewModel.currentPreset.collectAsStateWithLifecycle()
+
+    // 可拖拽的列表状态
+    val reorderableListState = rememberReorderableLazyListState(
+        lazyListState = LazyListState()
+    ) { from, to ->
+        logV {
+            "改变颜色预设顺序，from: $from, to: $to"
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect {
@@ -178,10 +220,114 @@ fun AppearanceSettingsScreen(
                 )
             }
 
+            HorizontalDivider()
+
+            // --- 颜色预设 ---
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                SettingsGroupTitle(
+                    title = {
+                        stringResource(R.string.color)
+                    },
+                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                )
+
+                SettingsSubGroupTitle(
+                    title = stringResource(R.string.color_presets),
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(items = presetsList, key = { it.id }) { preset ->
+                        ReorderableItem(
+                            state = reorderableListState,
+                            key = preset.id
+                        ) {
+                            ColorPresetOption(
+                                colorPreset = preset,
+                                onClick = {
+                                    // 点击了颜色预设
+                                    viewModel.onEvent(
+                                        AppearanceSettingsEvent.OnColorPresetClick(
+                                            preset
+                                        )
+                                    )
+                                },
+                                dragEnabled = preset.isSelected && presetsList.size > 1,
+                                onDragStopped = {
+                                    // 拖拽结束
+                                    logV {
+                                        "拖拽颜色预设结束，${preset.name}"
+                                    }
+                                    viewModel.onEvent(
+                                        AppearanceSettingsEvent.OnColorPresetDragEnd(
+                                            preset
+                                        )
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- 颜色预设编辑器 ---
+                ColorPresetEditorCard(
+                    colorPreset = selectedPreset ?: ColorPreset.defaultColorPreset,
+                    onColorPresetNameChange = { colorPreset, newName ->
+                        viewModel.onEvent(
+                            AppearanceSettingsEvent.OnColorPresetNameChange(colorPreset, newName)
+                        )
+                    },
+                    onDelete = {
+                        viewModel.onEvent(
+                            AppearanceSettingsEvent.OnDeleteColorPresetClick(it)
+                        )
+                    },
+                    onShuffle = {
+                        viewModel.onEvent(AppearanceSettingsEvent.OnShuffleColorPresetClick(it))
+                    },
+                    onCreateNew = {
+                        viewModel.onEvent(AppearanceSettingsEvent.OnAddColorPresetClick)
+                    },
+                    onBgColorChange = { preset, newBgColor ->
+                        viewModel.onEvent(
+                            AppearanceSettingsEvent.OnColorPresetBgColorChange(
+                                preset,
+                                newBgColor
+                            )
+                        )
+                    },
+                    onTextColorChange = { preset, newTextColor ->
+                        viewModel.onEvent(
+                            AppearanceSettingsEvent.OnColorPresetTextColorChange(
+                                preset,
+                                newTextColor
+                            )
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+
+            }
+
         }
     }
 }
 
+/**
+ * 应用主题选择器
+ */
 @Composable
 private fun ThemeSelector(currentThemeId: String, onThemeSelected: (String) -> Unit) {
     LazyRow(
@@ -197,6 +343,86 @@ private fun ThemeSelector(currentThemeId: String, onThemeSelected: (String) -> U
             )
         }
     }
+}
+
+/**
+ * 颜色预设标签
+ */
+@Composable
+fun ReorderableCollectionItemScope.ColorPresetOption(
+    colorPreset: ColorPreset,
+    onClick: () -> Unit,
+    dragEnabled: Boolean,
+    onDragStopped: () -> Unit,
+) {
+    val title = colorPreset.name.ifBlank {
+        stringResource(R.string.color_preset_query, colorPreset.id.toString())
+    }
+
+    // 边框颜色
+    val borderColor = if (colorPreset.isSelected) {
+        colorPreset.textColor
+    } else {
+        colorPreset.textColor.copy(alpha = 0.3f)
+    }
+
+    Row(
+        modifier = Modifier
+            .clip(CircleShape)
+            .border(width = 2.dp, color = borderColor, shape = CircleShape)
+            .padding(2.dp)
+            .background(colorPreset.backgroundColor, CircleShape)
+            .clickable(enabled = !colorPreset.isSelected) {
+                onClick()
+            }
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // 选中图标
+        AnimatedVisibility(
+            visible = colorPreset.isSelected,
+            enter = expandHorizontally() + fadeIn(),
+            exit = shrinkHorizontally() + fadeOut()
+        ) {
+            Icon(
+                imageVector = Icons.Default.Done,
+                contentDescription = stringResource(id = R.string.selected_content_desc),
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .size(18.dp),
+                tint = colorPreset.textColor
+            )
+        }
+
+        // 预设名称
+        StyledText(
+            text = title.trim(),
+            style = MaterialTheme.typography.labelLarge.copy(
+                color = colorPreset.textColor
+            ),
+            maxLines = 1
+        )
+
+        // 拖动手柄
+        AnimatedVisibility(
+            visible = dragEnabled,
+            enter = expandHorizontally() + fadeIn(),
+            exit = shrinkHorizontally() + fadeOut()
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.DragHandle,
+                contentDescription = stringResource(id = R.string.drag_content_desc),
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .size(18.dp)
+                    .longPressDraggableHandle(
+                        onDragStopped = onDragStopped
+                    ),
+                tint = colorPreset.textColor
+            )
+        }
+    }
+
 }
 
 

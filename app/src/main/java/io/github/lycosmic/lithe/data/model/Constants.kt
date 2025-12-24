@@ -11,4 +11,9 @@ object Constants {
      * 双击返回键的间隔时间(毫秒)
      */
     const val DOUBLE_CLICK_BACK_INTERVAL_MILLIS: Long = 2000L
+
+    /**
+     * 颜色的最大值
+     */
+    const val MAX_COLOR_VALUE = 255
 }

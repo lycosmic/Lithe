@@ -1,6 +1,8 @@
 package io.github.lycosmic.lithe.presentation.settings.appearance
 
+import androidx.compose.ui.graphics.Color
 import io.github.lycosmic.lithe.data.model.ThemeMode
+import io.github.lycosmic.lithe.domain.model.ColorPreset
 
 sealed class AppearanceSettingsEvent {
     /**
@@ -22,4 +24,47 @@ sealed class AppearanceSettingsEvent {
      * 导航栏标签可见性改变
      */
     data class OnNavLabelVisibleChange(val visible: Boolean) : AppearanceSettingsEvent()
+
+    /**
+     * 点击了颜色预设
+     */
+    data class OnColorPresetClick(val preset: ColorPreset) : AppearanceSettingsEvent()
+
+    /**
+     * 颜色预设拖拽结束
+     */
+    data class OnColorPresetDragEnd(val preset: ColorPreset) : AppearanceSettingsEvent()
+
+    /**
+     * 点击了删除颜色预设
+     */
+    data class OnDeleteColorPresetClick(val preset: ColorPreset) : AppearanceSettingsEvent()
+
+    /**
+     * 点击了添加颜色预设
+     */
+    object OnAddColorPresetClick : AppearanceSettingsEvent()
+
+    /**
+     * 点击了打乱颜色预设
+     */
+    data class OnShuffleColorPresetClick(val preset: ColorPreset) : AppearanceSettingsEvent()
+
+    /**
+     * 修改颜色预设名称
+     */
+    data class OnColorPresetNameChange(val preset: ColorPreset, val name: String) :
+        AppearanceSettingsEvent()
+
+    /**
+     * 颜色预设中背景颜色改变
+     */
+    data class OnColorPresetBgColorChange(val preset: ColorPreset, val color: Color) :
+        AppearanceSettingsEvent()
+
+    /**
+     * 颜色预设中文字颜色改变
+     */
+    data class OnColorPresetTextColorChange(val preset: ColorPreset, val color: Color) :
+        AppearanceSettingsEvent()
 }

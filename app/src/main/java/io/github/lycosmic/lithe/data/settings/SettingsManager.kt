@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.lycosmic.lithe.data.model.AppThemeOption
 import io.github.lycosmic.lithe.data.model.DisplayMode
@@ -35,6 +36,8 @@ class SettingsManager @Inject constructor(
 
         val SHOW_NAVIGATION_BAR_LABELS =
             booleanPreferencesKey("show_navigation_bar_labels") // 是否显示导航栏标签
+
+        val CURRENT_COLOR_PRESET_ID = longPreferencesKey("current_color_preset_id") // 当前选中的颜色预设
     }
 
     companion object {
@@ -139,6 +142,20 @@ class SettingsManager @Inject constructor(
     suspend fun setShowNavigationBarLabels(isEnabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[Keys.SHOW_NAVIGATION_BAR_LABELS] = isEnabled
+        }
+    }
+
+    // --- 当前选中的颜色预设 ---
+    val currentColorPresetId: Flow<Long> = dataStore.data.map { preferences ->
+        preferences[Keys.CURRENT_COLOR_PRESET_ID] ?: -1L
+    }
+
+    /**
+     * 设置当前选中的颜色预设
+     */
+    suspend fun setCurrentColorPresetId(id: Long?) {
+        dataStore.edit { preferences ->
+            preferences[Keys.CURRENT_COLOR_PRESET_ID] = id ?: -1L
         }
     }
 
