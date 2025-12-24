@@ -171,7 +171,7 @@ class AppearanceSettingsViewModel @Inject constructor(
                     // 修改颜色预设名称
                     val preset = presets.value.find { it.id == event.preset.id } ?: run {
                         logE {
-                            "当前要修改的颜色预设不存在，id: ${event.preset.id}"
+                            "[修改颜色预设的名称] 当前要修改的颜色预设不存在，id: ${event.preset.id}"
                         }
                         return@launch
                     }
@@ -187,26 +187,35 @@ class AppearanceSettingsViewModel @Inject constructor(
                 is AppearanceSettingsEvent.OnDeleteColorPresetClick -> {
                     if (presets.value.size <= 1) {
                         logW {
-                            "颜色预设列表至少需要有一个颜色预设，无法删除"
+                            "[删除颜色预设] 颜色预设列表至少需要有一个颜色预设，无法删除"
                         }
                         return@launch
                     }
 
                     val preset = presets.value.find { it.id == event.preset.id } ?: run {
                         logE {
-                            "当前要删除的颜色预设不存在，id: ${event.preset.id}"
+                            "[删除颜色预设] 当前要删除的颜色预设不存在，id: ${event.preset.id}"
                         }
                         return@launch
                     }
 
+                    val nextIndex = if (presets.value.lastIndex == presets.value.indexOf(preset)) {
+                        presets.value.lastIndex - 1
+                    } else {
+                        presets.value.indexOf(preset) + 1
+                    }
+
                     colorPresetDao.deletePreset(preset.toEntity(-1))
+                    // 选择下一个颜色预设
+                    val nextPreset = presets.value[nextIndex]
+                    settingsManager.setCurrentColorPresetId(nextPreset.id)
                 }
 
                 is AppearanceSettingsEvent.OnShuffleColorPresetClick -> {
                     // 打乱颜色预设的颜色值
                     val preset = presets.value.find { it.id == event.preset.id } ?: run {
                         logE {
-                            "当前要打乱的颜色预设不存在，id: ${event.preset.id}"
+                            "[打乱颜色预设的颜色值] 当前要打乱的颜色预设不存在，id: ${event.preset.id}"
                         }
                         return@launch
                     }
@@ -244,7 +253,7 @@ class AppearanceSettingsViewModel @Inject constructor(
                 is AppearanceSettingsEvent.OnColorPresetBgColorChange -> {
                     val preset = presets.value.find { it.id == event.preset.id } ?: run {
                         logE {
-                            "当前要修改的颜色预设不存在，id: ${event.preset.id}"
+                            "[修改颜色预设的背景颜色] 当前要修改的颜色预设不存在，id: ${event.preset.id}"
                         }
                         return@launch
                     }
@@ -258,7 +267,7 @@ class AppearanceSettingsViewModel @Inject constructor(
                 is AppearanceSettingsEvent.OnColorPresetTextColorChange -> {
                     val preset = presets.value.find { it.id == event.preset.id } ?: run {
                         logE {
-                            "当前要修改的颜色预设不存在，id: ${event.preset.id}"
+                            "[修改颜色预设的文本颜色] 当前要修改的颜色预设不存在，id: ${event.preset.id}"
                         }
                         return@launch
                     }
