@@ -62,8 +62,8 @@ import io.github.lycosmic.lithe.extension.logV
 import io.github.lycosmic.lithe.presentation.settings.appearance.components.ColorPresetEditorCard
 import io.github.lycosmic.lithe.presentation.settings.appearance.components.ThemePreviewItem
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSwitch
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
-import io.github.lycosmic.lithe.presentation.settings.components.SettingsSwitch
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 import io.github.lycosmic.lithe.ui.components.StyledText
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
@@ -210,34 +210,15 @@ fun AppearanceSettingsScreen(
             )
 
             // --- 显示导航标签 ---
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.show_navigation_labels),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = stringResource(R.string.show_navigation_labels_description),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+            SettingsItemWithSwitch(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                title = stringResource(R.string.show_navigation_labels),
+                subtitle = stringResource(R.string.show_navigation_labels_description),
+                checked = isNavLabelVisible,
+                onCheckedChange = {
+                    viewModel.onEvent(AppearanceSettingsEvent.OnNavLabelVisibleChange(it))
                 }
-
-                SettingsSwitch(
-                    checked = isNavLabelVisible,
-                    onCheckedChange = {
-                        viewModel.onEvent(
-                            AppearanceSettingsEvent.OnNavLabelVisibleChange(it)
-                        )
-                    }
-                )
-            }
+            )
 
             HorizontalDivider()
 
@@ -339,34 +320,17 @@ fun AppearanceSettingsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.quick_color_preset_change),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = stringResource(R.string.swipe_to_change_color_preset),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                SettingsItemWithSwitch(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                    title = stringResource(R.string.quick_color_preset_change),
+                    subtitle = stringResource(R.string.swipe_to_change_color_preset),
+                    checked = isQuickChangeColorPresetEnabled,
+                    onCheckedChange = {
+                        viewModel.onEvent(
+                            AppearanceSettingsEvent.OnQuickChangeColorPresetEnabledChange(it)
                         )
                     }
-
-                    SettingsSwitch(
-                        checked = isQuickChangeColorPresetEnabled,
-                        onCheckedChange = {
-                            viewModel.onEvent(
-                                AppearanceSettingsEvent.OnQuickChangeColorPresetEnabledChange(it)
-                            )
-                        }
-                    )
-                }
+                )
 
                 Spacer(modifier = Modifier.height(32.dp))
             }

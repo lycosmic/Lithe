@@ -3,7 +3,6 @@ package io.github.lycosmic.lithe.presentation.settings.general
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,7 +23,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -33,8 +31,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.domain.model.AppLanguage
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSwitch
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
-import io.github.lycosmic.lithe.presentation.settings.components.SettingsSwitch
 import io.github.lycosmic.lithe.presentation.settings.general.components.LanguageChip
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,30 +106,14 @@ fun GeneralSettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // 双击返回退出部分
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.double_tap_to_exit),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = stringResource(R.string.double_tap_to_exit_message),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+            SettingsItemWithSwitch(
+                title = stringResource(R.string.double_tap_to_exit),
+                subtitle = stringResource(R.string.double_tap_to_exit_message),
+                checked = uiState.isDoubleBackToExitEnabled,
+                onCheckedChange = {
+                    viewModel.onEvent(GeneralSettingsEvent.OnDoubleClickExitClick(it))
                 }
-
-                SettingsSwitch(
-                    checked = uiState.isDoubleBackToExitEnabled,
-                    onCheckedChange = {
-                        viewModel.onEvent(GeneralSettingsEvent.OnDoubleClickExitClick(it))
-                    }
-                )
-            }
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
         }
