@@ -89,6 +89,12 @@ fun BrowseScreen(
 
     val isSearchMode by viewModel.isSearchMode.collectAsStateWithLifecycle()
 
+    // 显示模式
+    val displayMode by viewModel.fileBrowseDisplayMode.collectAsStateWithLifecycle()
+
+    // 网格大小
+    val gridColumnCount by viewModel.gridColumnCount.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
@@ -240,6 +246,18 @@ fun BrowseScreen(
                     )
                 )
                 showFilterSheet = true
+            },
+            currentBrowseDisplayMode = displayMode,
+            onDisplayModeChanged = {
+                viewModel.onEvent(
+                    BrowseEvent.OnDisplayModeChange(
+                        it
+                    )
+                )
+            },
+            currentGridSize = gridColumnCount,
+            onGridSizeChanged = {
+                viewModel.onEvent(BrowseEvent.OnGridSizeChange(it))
             }
         )
 

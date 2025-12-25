@@ -1,6 +1,12 @@
 package io.github.lycosmic.lithe.presentation.browse.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,18 +45,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
+import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
+import io.github.lycosmic.lithe.data.model.OptionItem
 import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
 import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_IS_ASCENDING
 import io.github.lycosmic.lithe.domain.model.TabType
+import io.github.lycosmic.lithe.presentation.settings.components.GridSizeSlider
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
+import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrowseFilterSheet(
     show: Boolean,
     onDismissRequest: () -> Unit,
-    currentSortType: SortType,
-    isAscending: Boolean,
+    currentSortType: SortType, // 排序方式
+    isAscending: Boolean, // 排序是否为升序
+    currentBrowseDisplayMode: BrowseDisplayMode, // 文件显示模式
+    onDisplayModeChanged: (BrowseDisplayMode) -> Unit,
+    currentGridSize: Int, // 网格大小
+    onGridSizeChanged: (Int) -> Unit,
     onSortTypeChanged: (sortType: SortType, isAscending: Boolean) -> Unit,
     currentFilterOptions: List<FilterOption>,
     onFilterChange: (FilterOption) -> Unit,
@@ -116,7 +131,12 @@ fun BrowseFilterSheet(
                     }
 
                     TabType.DISPLAY -> {
-                        Text("过滤选项开发中...")
+                        DisplayContent(
+                            currentBrowseDisplayMode = currentBrowseDisplayMode,
+                            onDisplayModeChanged = onDisplayModeChanged,
+                            currentGridSize = currentGridSize,
+                            onGridSizeChanged = onGridSizeChanged
+                        )
                     }
                 }
             }
@@ -223,6 +243,61 @@ private fun FilterContent(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
+        }
+    }
+}
+
+
+@Composable
+private fun DisplayContent(
+    currentBrowseDisplayMode: BrowseDisplayMode, // 文件显示模式
+    currentGridSize: Int, // 网格大小
+    onDisplayModeChanged: (BrowseDisplayMode) -> Unit,
+    onGridSizeChanged: (Int) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+    ) {
+        // --- 显示模式 ---
+        SettingsSubGroupTitle(
+            title = stringResource(R.string.display_mode),
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+        LitheSegmentedButton(
+            items = BrowseDisplayMode.entries.map { mode ->
+                OptionItem(
+                    value = mode,
+                    label = stringResource(id = mode.labelResId),
+                    selected = mode == currentBrowseDisplayMode
+                )
+            }.toList(),
+            onClick = { clickedMode ->
+                onDisplayModeChanged(clickedMode)
+            }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        AnimatedVisibility(
+            visible = currentBrowseDisplayMode == BrowseDisplayMode.Grid,
+            enter = slideInVertically(
+                animationSpec = tween(),
+                initialOffsetY = { -it / 2 }
+            ) + fadeIn(),
+            exit = slideOutVertically(
+                animationSpec = tween(),
+                targetOffsetY = { -it / 2 }
+            ) + fadeOut(),
+        ) {
+            GridSizeSlider(
+                value = currentGridSize,
+                onValueChange = {
+                    onGridSizeChanged(it)
+                },
+            )
         }
     }
 }

@@ -1,5 +1,6 @@
 package io.github.lycosmic.lithe.presentation.browse
 
+import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
 import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
@@ -81,4 +82,14 @@ sealed class BrowseEvent {
      * 搜索框中的文字改变
      */
     data class OnSearchTextChange(val text: String) : BrowseEvent()
+
+    /**
+     * 显示模式改变
+     */
+    data class OnDisplayModeChange(val newDisplayMode: BrowseDisplayMode) : BrowseEvent()
+
+    /**
+     * 网格大小改变
+     */
+    data class OnGridSizeChange(val newGridSize: Int) : BrowseEvent()
 }

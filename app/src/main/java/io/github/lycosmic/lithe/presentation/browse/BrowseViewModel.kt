@@ -35,7 +35,7 @@ import javax.inject.Inject
 class BrowseViewModel @Inject constructor(
     private val fileProcessingUseCase: FileProcessingUseCase,
     private val bookImportUseCase: BookImportUseCase,
-    settingsManager: SettingsManager
+    private val settingsManager: SettingsManager
 ) : ViewModel() {
 
     // 原始的文件列表
@@ -214,6 +214,14 @@ class BrowseViewModel @Inject constructor(
 
                 is BrowseEvent.OnSearchTextChange -> {
                     _searchText.value = event.text
+                }
+
+                is BrowseEvent.OnDisplayModeChange -> {
+                    settingsManager.setFileDisplayMode(event.newDisplayMode)
+                }
+
+                is BrowseEvent.OnGridSizeChange -> {
+                    settingsManager.setFileGridColumnCount(event.newGridSize)
                 }
             }
         }
