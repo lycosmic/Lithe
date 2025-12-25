@@ -103,8 +103,8 @@ class BookImportUseCase @Inject constructor(
                 lastReadPosition = null,
                 lastReadTime = null
             )
-            val insertCount = bookRepository.importBook(book)
-            successCount += insertCount
+            bookRepository.importBook(book)
+            successCount++
         }
 
         logD { "导入用户选择的书籍完成，成功导入 $successCount 本书" }
