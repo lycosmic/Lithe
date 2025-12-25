@@ -1,5 +1,11 @@
 package io.github.lycosmic.lithe.presentation.settings.library
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,15 +31,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.LibraryDisplayMode
 import io.github.lycosmic.lithe.data.model.OptionItem
+import io.github.lycosmic.lithe.presentation.settings.components.GridSizeSlider
 import io.github.lycosmic.lithe.presentation.settings.components.InfoTip
 import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
@@ -48,12 +57,42 @@ fun LibrarySettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: LibrarySettingsViewModel = hiltViewModel()
 ) {
+    // 书籍显示模式
+    val bookDisplayMode by viewModel.bookDisplayMode.collectAsStateWithLifecycle()
+
+    // 网格列数
+    val bookGridColumnCount by viewModel.bookGridColumnCount.collectAsStateWithLifecycle()
+
+    // 书籍标题位置
+    val bookTitlePosition by viewModel.bookTitlePosition.collectAsStateWithLifecycle()
+
+    // 显示阅读按钮
+    val showReadButton by viewModel.showReadButton.collectAsStateWithLifecycle()
+
+    // 显示阅读进度
+    val showReadProgress by viewModel.showReadProgress.collectAsStateWithLifecycle()
+
+    // 显示分类标签
+    val showCategoryTab by viewModel.showCategoryTab.collectAsStateWithLifecycle()
+
+    // 显示分类标签的默认分类
+    val alwaysShowDefaultCategoryTab by viewModel.alwaysShowDefaultCategoryTab.collectAsStateWithLifecycle()
+
+    // 显示书籍数量
+    val showBookCount by viewModel.showBookCount.collectAsStateWithLifecycle()
+
+    // 每个分类有不同的排序方式
+    val eachCategoryHasDifferentSort by viewModel.eachCategoryHasDifferentSort.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 LibrarySettingsEffect.NavigateBack -> {
                     navigateBack()
+                }
+
+                LibrarySettingsEffect.OpenCreateCategoryDialog -> {
+
                 }
             }
         }
@@ -139,54 +178,84 @@ fun LibrarySettingsScreen(
                     OptionItem(
                         value = displayMode,
                         label = stringResource(displayMode.labelResId),
-                        selected = true
+                        selected = displayMode == bookDisplayMode
                     )
                 }
             ) { libraryDisplayMode ->
-
+                viewModel.onEvent(LibrarySettingsEvent.OnBookDisplayModeChange(libraryDisplayMode))
             }
 
-            // --- 网格大小 ---
-            SettingsSubGroupTitle(
-                title = "标题位置",
-                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+            // --- 网格大小和标题位置
+            AnimatedVisibility(
+                visible = bookDisplayMode == LibraryDisplayMode.Grid,
+                enter = slideInVertically(
+                    animationSpec = tween(),
+                    initialOffsetY = { -it / 2 }
+                ) + fadeIn(),
+                exit = slideOutVertically(
+                    animationSpec = tween(),
+                    targetOffsetY = { -it / 2 }
+                ) + fadeOut(),
             ) {
-                BookTitlePosition.entries.forEach { titlePosition ->
-                    SelectionChip(
-                        text = stringResource(titlePosition.labelResId),
-                        isSelected = true,
+                Column {
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    GridSizeSlider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        value = bookGridColumnCount,
+                        onValueChange = {
+                            viewModel.onEvent(LibrarySettingsEvent.OnBookGridColumnCountChange(it))
+                        },
+                    )
+
+                    SettingsSubGroupTitle(
+                        title = stringResource(R.string.title_position),
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // 点击了标题位置标签
+                        BookTitlePosition.entries.forEach { titlePosition ->
+                            SelectionChip(
+                                text = stringResource(titlePosition.labelResId),
+                                isSelected = bookTitlePosition == titlePosition,
+                            ) {
+                                // 点击了标题位置标签
+                                viewModel.onEvent(
+                                    LibrarySettingsEvent.OnBookTitlePositionChange(
+                                        titlePosition
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
 
             // --- 显示阅读按钮 ---
             SettingsItemWithSwitch(
-                title = "显示“阅读”按钮",
-                checked = true,
+                title = stringResource(R.string.show_read_button),
+                checked = showReadButton,
                 isDividerVisible = true,
                 onCheckedChange = {
-
+                    viewModel.onEvent(LibrarySettingsEvent.OnBookShowReadButtonChange(it))
                 }
             )
 
             // --- 显示进度 ---
             SettingsItemWithSwitch(
-                title = "显示进度",
-                checked = true,
+                title = stringResource(R.string.show_progress),
+                checked = showReadProgress,
                 isDividerVisible = true,
                 onCheckedChange = {
-
+                    viewModel.onEvent(LibrarySettingsEvent.OnBookShowProgressChange(it))
                 },
             )
 
@@ -197,35 +266,35 @@ fun LibrarySettingsScreen(
             // --- 标签页 ---
             SettingsGroupTitle(
                 title = {
-                    "标签页"
+                    stringResource(R.string.tab_title)
                 },
                 modifier = Modifier.padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
             )
 
             SettingsItemWithSwitch(
-                title = "显示分类标签页",
-                checked = true,
+                title = stringResource(R.string.show_category_tab),
+                checked = showCategoryTab,
                 isDividerVisible = true,
                 onCheckedChange = {
-
+                    viewModel.onEvent(LibrarySettingsEvent.OnCategoryTabVisibleChange(it))
                 },
             )
 
             SettingsItemWithSwitch(
-                title = "始终显示默认标签页",
-                checked = true,
+                title = stringResource(R.string.always_show_default_tab),
+                checked = alwaysShowDefaultCategoryTab,
                 isDividerVisible = true,
                 onCheckedChange = {
-
+                    viewModel.onEvent(LibrarySettingsEvent.OnDefaultCategoryTabVisibleChange(it))
                 },
             )
 
             SettingsItemWithSwitch(
-                title = "显示书籍数",
-                checked = true,
+                title = stringResource(R.string.show_book_count),
+                checked = showBookCount,
                 isDividerVisible = true,
                 onCheckedChange = {
-
+                    viewModel.onEvent(LibrarySettingsEvent.OnCategoryBookCountVisibleChange(it))
                 },
             )
 
@@ -236,24 +305,26 @@ fun LibrarySettingsScreen(
             // --- 排序 ---
             SettingsGroupTitle(
                 title = {
-                    "排序"
+                    stringResource(R.string.sort)
                 },
                 modifier = Modifier.padding(16.dp)
             )
 
             SettingsItemWithSwitch(
-                title = "每个分类不同排序依据",
-                checked = true,
+                title = stringResource(R.string.different_sort_per_category),
+                checked = eachCategoryHasDifferentSort,
                 isDividerVisible = true,
                 onCheckedChange = {
-
+                    viewModel.onEvent(LibrarySettingsEvent.OnCategorySortDifferentChange(it))
                 },
             )
 
             InfoTip(
-                message = "可以在书库中更改排序。",
+                message = stringResource(R.string.sort_info_message),
                 modifier = Modifier.padding(16.dp)
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

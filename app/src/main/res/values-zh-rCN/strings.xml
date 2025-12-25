@@ -108,4 +108,14 @@
     <string name="hidden">隐藏</string>
     <string name="below">下方</string>
     <string name="inside">内部</string>
+    <string name="title_position">标题位置</string>
+    <string name="show_read_button">显示"阅读"按钮</string>
+    <string name="show_progress">显示进度</string>
+    <string name="tab_title">标签页</string>
+    <string name="show_category_tab">显示分类标签页</string>
+    <string name="always_show_default_tab">始终显示默认标签页</string>
+    <string name="show_book_count">显示书籍数</string>
+    <string name="sort">排序</string>
+    <string name="different_sort_per_category">每个分类不同排序依据</string>
+    <string name="sort_info_message">可以在书库中更改排序。</string>
 </resources>

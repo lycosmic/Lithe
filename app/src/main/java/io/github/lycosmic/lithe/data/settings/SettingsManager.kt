@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.lycosmic.lithe.data.model.AppThemeOption
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
+import io.github.lycosmic.lithe.data.model.LibraryDisplayMode
 import io.github.lycosmic.lithe.data.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -202,16 +203,16 @@ class SettingsManager @Inject constructor(
     }
 
     // --- 书籍显示模式 ---
-    val bookDisplayMode: Flow<BrowseDisplayMode> = dataStore.data.map { preferences ->
-        BrowseDisplayMode.valueOf(
-            preferences[Keys.BOOK_DISPLAY_MODE] ?: BrowseDisplayMode.List.name
+    val bookDisplayMode: Flow<LibraryDisplayMode> = dataStore.data.map { preferences ->
+        LibraryDisplayMode.valueOf(
+            preferences[Keys.BOOK_DISPLAY_MODE] ?: LibraryDisplayMode.List.name
         )
     }
 
     /**
      * 设置书籍显示模式
      */
-    suspend fun setBookDisplayMode(mode: BrowseDisplayMode) {
+    suspend fun setBookDisplayMode(mode: LibraryDisplayMode) {
         dataStore.edit { preferences ->
             preferences[Keys.BOOK_DISPLAY_MODE] = mode.name
         }
