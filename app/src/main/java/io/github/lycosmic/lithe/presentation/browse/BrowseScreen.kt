@@ -1,7 +1,9 @@
 package io.github.lycosmic.lithe.presentation.browse
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,11 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
+import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
 import io.github.lycosmic.lithe.presentation.browse.components.AddBookConfirmationDialog
 import io.github.lycosmic.lithe.presentation.browse.components.BrowseFilterSheet
 import io.github.lycosmic.lithe.presentation.browse.components.DefaultBrowseTopAppBar
 import io.github.lycosmic.lithe.presentation.browse.components.DirectoryHeader
 import io.github.lycosmic.lithe.presentation.browse.components.EmptyBrowseScreen
+import io.github.lycosmic.lithe.presentation.browse.components.FileGridItem
 import io.github.lycosmic.lithe.presentation.browse.components.FileRowItem
 import io.github.lycosmic.lithe.presentation.browse.components.SearchBrowseTopAppBar
 import io.github.lycosmic.lithe.presentation.browse.components.SelectBrowseTopAppBar
@@ -202,24 +206,82 @@ fun BrowseScreen(
                         }
                     }
 
-                    items(files) { file ->
-                        FileRowItem(
-                            file = file,
-                            isSelected = selectedFiles.contains(file.uri.toString()),
-                            isMultiSelectMode = isMultiSelectMode,
-                            onCheckboxClick = {
-                                // 点击复选框
-                                viewModel.onEvent(BrowseEvent.OnFileCheckboxClick(file))
-                            },
-                            onClick = {
-                                // 点击文件选中该文件
-                                viewModel.onEvent(BrowseEvent.OnFileClick(file))
-                            },
-                            onLongClick = {
-                                // 长按文件选中,一次性选中该文件夹下的所有文件
-                                viewModel.onEvent(BrowseEvent.OnFileLongClick(files))
+                    when (displayMode) {
+                        BrowseDisplayMode.List -> {
+                            items(items = files, key = { file -> file.uri.toString() }) { file ->
+                                FileRowItem(
+                                    file = file,
+                                    isSelected = selectedFiles.contains(file.uri.toString()),
+                                    isMultiSelectMode = isMultiSelectMode,
+                                    onCheckboxClick = {
+                                        // 点击复选框
+                                        viewModel.onEvent(BrowseEvent.OnFileCheckboxClick(file))
+                                    },
+                                    onClick = {
+                                        // 点击文件选中该文件
+                                        viewModel.onEvent(BrowseEvent.OnFileClick(file))
+                                    },
+                                    onLongClick = {
+                                        // 长按文件选中,一次性选中该文件夹下的所有文件
+                                        viewModel.onEvent(BrowseEvent.OnFileLongClick(files))
+                                    }
+                                )
                             }
-                        )
+                        }
+
+                        BrowseDisplayMode.Grid -> {
+                            // 二维行列表
+                            val rows = files.chunked(gridColumnCount)
+
+                            this@LazyColumn.items(
+                                items = rows,
+                                key = { rowFiles -> rowFiles.first().uri.toString() }
+                            ) { rowFiles ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp)
+                                        .padding(bottom = 8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    for (file in rowFiles) {
+                                        Box(modifier = Modifier.weight(1f)) {
+                                            FileGridItem(
+                                                fileItem = file,
+                                                isSelected = selectedFiles.contains(file.uri.toString()),
+                                                isMultiSelectMode = isMultiSelectMode,
+                                                onCheckboxClick = {
+                                                    viewModel.onEvent(
+                                                        BrowseEvent.OnFileCheckboxClick(file)
+                                                    )
+                                                },
+                                                onClick = {
+                                                    viewModel.onEvent(
+                                                        BrowseEvent.OnFileClick(
+                                                            file
+                                                        )
+                                                    )
+                                                },
+                                                onLongClick = {
+                                                    viewModel.onEvent(
+                                                        BrowseEvent.OnFileLongClick(
+                                                            files
+                                                        )
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    }
+
+                                    // 处理最后一行不满的情况
+                                    val remainingCount = gridColumnCount - rowFiles.size
+                                    repeat(remainingCount) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
+
+                        }
                     }
 
                     // 组之间的间距

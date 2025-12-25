@@ -36,8 +36,8 @@ object FileUtils {
      * 格式化日期
      */
     @SuppressLint("SimpleDateFormat")
-    fun formatDate(timeStamp: Long): String {
-        return SimpleDateFormat("HH:mm dd MM月 yyyy", Locale.getDefault())
+    fun formatDate(timeStamp: Long, pattern: String = "HH:mm dd MM月 yyyy"): String {
+        return SimpleDateFormat(pattern, Locale.getDefault())
             .format(Date(timeStamp))
     }
 

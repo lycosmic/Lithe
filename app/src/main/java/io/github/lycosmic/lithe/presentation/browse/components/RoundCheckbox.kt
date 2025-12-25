@@ -20,16 +20,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * 圆形复选框
+ */
 @Composable
 fun RoundCheckbox(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tint: Color = MaterialTheme.colorScheme.surface,
 ) {
     // 选中时的背景色
-    val backgroundColor = if (checked) MaterialTheme.colorScheme.primary else Color.Transparent
+    val backgroundColor = if (checked) MaterialTheme.colorScheme.secondary else Color.Transparent
     // 未选中时的边框色
-    val borderColor = if (checked) Color.Transparent else MaterialTheme.colorScheme.onSurfaceVariant
+    val borderColor = if (checked) Color.Transparent else MaterialTheme.colorScheme.outline
 
     Box(
         modifier = modifier
@@ -47,7 +51,7 @@ fun RoundCheckbox(
             Icon(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = tint,
                 modifier = Modifier.size(16.dp)
             )
         }
