@@ -61,4 +61,9 @@ sealed class LibrarySettingsEvent {
      * 每个分类不同排序依据改变
      */
     data class OnCategorySortDifferentChange(val sortDifferent: Boolean) : LibrarySettingsEvent()
+
+    /**
+     * 创建分类
+     */
+    data class OnCreateCategory(val name: String) : LibrarySettingsEvent()
 }

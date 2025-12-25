@@ -118,4 +118,7 @@
     <string name="sort">排序</string>
     <string name="different_sort_per_category">每个分类不同排序依据</string>
     <string name="sort_info_message">可以在书库中更改排序。</string>
+    <string name="category_exists">该分类名称已存在</string>
+    <string name="category_name">标题</string>
+    <string name="category_name_cannot_be_empty">这个字段不应为空</string>
 </resources>

@@ -10,4 +10,9 @@ sealed class LibrarySettingsEffect {
      * 打开创建分类对话框
      */
     object OpenCreateCategoryDialog : LibrarySettingsEffect()
+
+    /**
+     * 显示分类名称已存在提示
+     */
+    object CategoryNameExists : LibrarySettingsEffect()
 }

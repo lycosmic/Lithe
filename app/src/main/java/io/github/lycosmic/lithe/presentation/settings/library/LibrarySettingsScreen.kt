@@ -32,6 +32,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -48,7 +51,9 @@ import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSwitch
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
+import io.github.lycosmic.lithe.presentation.settings.library.components.CreateCategoryDialog
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
+import io.github.lycosmic.lithe.utils.toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,6 +89,9 @@ fun LibrarySettingsScreen(
     // 每个分类有不同的排序方式
     val eachCategoryHasDifferentSort by viewModel.eachCategoryHasDifferentSort.collectAsStateWithLifecycle()
 
+    // 创建分类对话框可见性
+    var createCategoryDialogVisible by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
@@ -92,7 +100,11 @@ fun LibrarySettingsScreen(
                 }
 
                 LibrarySettingsEffect.OpenCreateCategoryDialog -> {
+                    createCategoryDialogVisible = true
+                }
 
+                LibrarySettingsEffect.CategoryNameExists -> {
+                    R.string.category_exists.toast()
                 }
             }
         }
@@ -162,12 +174,12 @@ fun LibrarySettingsScreen(
             // --- 显示模式 ---
             SettingsGroupTitle(
                 title = {
-                    "显示"
+                    stringResource(R.string.display)
                 },
                 modifier = Modifier.padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
             )
             SettingsSubGroupTitle(
-                title = "显示模式",
+                title = stringResource(R.string.display_mode),
                 modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
             )
 
@@ -326,5 +338,20 @@ fun LibrarySettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
         }
-    }
+
+        if (createCategoryDialogVisible) {
+            CreateCategoryDialog(
+                onDismissRequest = {
+                    createCategoryDialogVisible = false
+                },
+                onConfirm = {
+                    createCategoryDialogVisible = false
+                    viewModel.onEvent(LibrarySettingsEvent.OnCreateCategory(it))
+                }
+            )
+        }
+
+    } // End of Scaffold
+
 }
+

@@ -1,0 +1,36 @@
+package io.github.lycosmic.lithe.data.local.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
+import kotlinx.coroutines.flow.Flow
+
+
+@Dao
+interface CategoryDao {
+    /**
+     * 插入分类
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCategory(category: CategoryEntity)
+
+    /**
+     * 获取所有分类 (返回 Flow)
+     */
+    @Query("SELECT * FROM categories ORDER BY createdAt DESC")
+    fun getAllCategories(): Flow<List<CategoryEntity>>
+
+    /**
+     * 获取所有分类 (返回 List)
+     */
+    @Query("SELECT * FROM categories ORDER BY createdAt DESC")
+    suspend fun getAllCategoriesSync(): List<CategoryEntity>
+
+    /**
+     * 通过名称获取分类数量
+     */
+    @Query("SELECT COUNT(*) FROM categories WHERE name = :name")
+    suspend fun countCategoriesByName(name: String): Int
+}

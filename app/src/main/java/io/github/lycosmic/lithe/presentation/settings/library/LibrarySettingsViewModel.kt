@@ -3,10 +3,13 @@ package io.github.lycosmic.lithe.presentation.settings.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.lithe.data.local.dao.CategoryDao
+import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.lithe.extension.logW
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LibrarySettingsViewModel @Inject constructor(
-    private val settingsManager: SettingsManager
+    private val settingsManager: SettingsManager,
+    private val categoryDao: CategoryDao
 ) : ViewModel() {
 
     /**
@@ -172,6 +176,25 @@ class LibrarySettingsViewModel @Inject constructor(
             is LibrarySettingsEvent.OnDefaultCategoryTabVisibleChange -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     settingsManager.setAlwaysShowDefaultCategoryTab(event.visible)
+                }
+            }
+
+            is LibrarySettingsEvent.OnCreateCategory -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val categoryName = event.name
+                    if (categoryDao.countCategoriesByName(categoryName) > 0) {
+                        logW {
+                            "分类名称已存在"
+                        }
+                        _effects.emit(LibrarySettingsEffect.CategoryNameExists)
+                        return@launch
+                    }
+
+                    val category = CategoryEntity(
+                        name = categoryName,
+                    )
+
+                    categoryDao.insertCategory(category)
                 }
             }
         }
