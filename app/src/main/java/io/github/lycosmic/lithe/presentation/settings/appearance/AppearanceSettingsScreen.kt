@@ -239,46 +239,53 @@ fun AppearanceSettingsScreen(
                     title = stringResource(R.string.color_presets),
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
+            }
 
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    state = lazyListState,
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    items(items = localPresets, key = { it.id }) { preset ->
-                        // 可排序的列表项
-                        ReorderableItem(
-                            state = reorderableLazyListState,
-                            key = preset.id
-                        ) { isDragging ->
-                            // 拖拽项的阴影高度
-                            val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                state = lazyListState,
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(items = localPresets, key = { it.id }) { preset ->
+                    // 可排序的列表项
+                    ReorderableItem(
+                        state = reorderableLazyListState,
+                        key = preset.id
+                    ) { isDragging ->
+                        // 拖拽项的阴影高度
+                        val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
-                            ColorPresetOption(
-                                colorPreset = preset,
-                                onClick = {
-                                    // 点击了颜色预设
-                                    viewModel.onEvent(
-                                        AppearanceSettingsEvent.OnColorPresetClick(
-                                            preset
-                                        )
+                        ColorPresetOption(
+                            colorPreset = preset,
+                            onClick = {
+                                // 点击了颜色预设
+                                viewModel.onEvent(
+                                    AppearanceSettingsEvent.OnColorPresetClick(
+                                        preset
                                     )
-                                },
-                                dragEnabled = preset.isSelected && localPresets.size > 1,
-                                elevation = elevation,
-                                onDragStopped = {
-                                    viewModel.onEvent(
-                                        AppearanceSettingsEvent.OnColorPresetDragStopped(
-                                            localPresets
-                                        )
+                                )
+                            },
+                            dragEnabled = preset.isSelected && localPresets.size > 1,
+                            elevation = elevation,
+                            onDragStopped = {
+                                viewModel.onEvent(
+                                    AppearanceSettingsEvent.OnColorPresetDragStopped(
+                                        localPresets
                                     )
-                                }
-                            )
-                        }
+                                )
+                            }
+                        )
                     }
                 }
+            }
 
+
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // --- 颜色预设编辑器 ---
@@ -333,6 +340,7 @@ fun AppearanceSettingsScreen(
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
+
             }
 
         }
