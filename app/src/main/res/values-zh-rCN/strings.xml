@@ -100,4 +100,7 @@
     <string name="quick_color_preset_change">快速更改颜色预设</string>
     <string name="swipe_to_change_color_preset">向左或向右滑动顶栏以更改颜色预设</string>
     <string name="library_settings">书库</string>
+    <string name="category">分类</string>
+    <string name="create_category">创建分类</string>
+    <string name="category_info_message">书籍一开始被添加到默认分类但可以属于在此创建的几个自定义分类。删除此处的分类不会从书库删除书籍。按住并移动分类图标重新安排分类。</string>
 </resources>

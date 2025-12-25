@@ -74,14 +74,14 @@ fun LibrarySettingsScreen(
         ) {
             SettingsGroupTitle(
                 title = {
-                    "分类"
+                    stringResource(R.string.category)
                 },
                 modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)
             )
 
             ListItem(
                 headlineContent = {
-                    Text(text = "创建分类")
+                    Text(text = stringResource(R.string.create_category))
                 },
                 leadingContent = {
                     Icon(
@@ -96,7 +96,7 @@ fun LibrarySettingsScreen(
 
             InfoTip(
                 modifier = Modifier.padding(16.dp),
-                message = "书籍一开始被添加到默认分类但可以属于在此创建的几个自定义分类。删除此处的分类不会从书库删除书籍。按住并移动分类图标重新安排分类。"
+                message = stringResource(R.string.category_info_message)
             )
 
             HorizontalDivider()
