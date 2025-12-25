@@ -14,6 +14,7 @@ import io.github.lycosmic.lithe.presentation.settings.SettingsScreen
 import io.github.lycosmic.lithe.presentation.settings.appearance.AppearanceSettingsScreen
 import io.github.lycosmic.lithe.presentation.settings.browse.BrowseSettingsScreen
 import io.github.lycosmic.lithe.presentation.settings.general.GeneralSettingsScreen
+import io.github.lycosmic.lithe.presentation.settings.library.LibrarySettingsScreen
 
 @Composable
 fun AppNavigation(
@@ -92,7 +93,9 @@ fun AppNavigation(
                             navViewModel.navigate(AppRoutes.SettingsAppearance)
                         },
                         onNavigateToReaderSettings = {},
-                        onNavigateToLibrarySettings = {},
+                        onNavigateToLibrarySettings = {
+                            navViewModel.navigate(AppRoutes.SettingsLibrary)
+                        },
                         onNavigateToBrowseSettings = {
                             navViewModel.navigate(AppRoutes.SettingsBrowse)
                         }
@@ -122,7 +125,10 @@ fun AppNavigation(
                         )
                     }
 
-                    is AppRoutes.SettingsLibrary -> TODO()
+                    is AppRoutes.SettingsLibrary -> {
+                        LibrarySettingsScreen()
+                    }
+
                     is AppRoutes.SettingsReader -> TODO()
                     is AppRoutes.BookDetail -> {
                         val bookId = navKey.bookId
