@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -33,4 +34,16 @@ interface CategoryDao {
      */
     @Query("SELECT COUNT(*) FROM categories WHERE name = :name")
     suspend fun countCategoriesByName(name: String): Int
+
+    /**
+     * 更新分类
+     */
+    @Update
+    suspend fun updateCategory(category: CategoryEntity)
+
+    /**
+     * 删除分类
+     */
+    @Query("DELETE FROM categories WHERE id = :id")
+    suspend fun deleteCategory(id: Long)
 }

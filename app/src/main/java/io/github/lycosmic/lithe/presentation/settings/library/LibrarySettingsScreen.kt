@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
+import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.LibraryDisplayMode
 import io.github.lycosmic.lithe.data.model.OptionItem
@@ -51,7 +52,9 @@ import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSwitch
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
+import io.github.lycosmic.lithe.presentation.settings.library.components.CategoryList
 import io.github.lycosmic.lithe.presentation.settings.library.components.CreateCategoryDialog
+import io.github.lycosmic.lithe.presentation.settings.library.components.UpdateCategoryDialog
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 import io.github.lycosmic.lithe.utils.toast
 
@@ -92,6 +95,14 @@ fun LibrarySettingsScreen(
     // 创建分类对话框可见性
     var createCategoryDialogVisible by remember { mutableStateOf(false) }
 
+    // 编辑分类对话框可见性
+    var updateCategoryDialogVisible by remember { mutableStateOf<CategoryEntity?>(null) }
+
+    // 删除分类对话框可见性
+    var deleteCategoryDialogVisible by remember { mutableStateOf<Long?>(null) }
+
+    val categories by viewModel.categoryList.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
@@ -105,6 +116,14 @@ fun LibrarySettingsScreen(
 
                 LibrarySettingsEffect.CategoryNameExists -> {
                     R.string.category_exists.toast()
+                }
+
+                is LibrarySettingsEffect.OpenDeleteCategoryDialog -> {
+                    deleteCategoryDialogVisible = effect.categoryId
+                }
+
+                is LibrarySettingsEffect.OpenEditCategoryDialog -> {
+                    updateCategoryDialogVisible = effect.category
                 }
             }
         }
@@ -145,6 +164,17 @@ fun LibrarySettingsScreen(
                     stringResource(R.string.category)
                 },
                 modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)
+            )
+
+            // --- 分类列表 ---
+            CategoryList(
+                categories = categories,
+                onEditClick = {
+                    viewModel.onEvent(LibrarySettingsEvent.OnEditCategoryClick(it))
+                },
+                onDeleteClick = {
+                    viewModel.onEvent(LibrarySettingsEvent.OnDeleteCategoryClick(it.id))
+                }
             )
 
             // --- 创建分类 ---
@@ -347,6 +377,19 @@ fun LibrarySettingsScreen(
                 onConfirm = {
                     createCategoryDialogVisible = false
                     viewModel.onEvent(LibrarySettingsEvent.OnCreateCategory(it))
+                }
+            )
+        }
+
+        updateCategoryDialogVisible?.let {
+            UpdateCategoryDialog(
+                initialText = it.name,
+                onDismissRequest = {
+                    updateCategoryDialogVisible = null // 置空即关闭
+                },
+                onConfirm = { newName ->
+                    viewModel.onEvent(LibrarySettingsEvent.OnUpdateCategory(it.copy(name = newName)))
+                    updateCategoryDialogVisible = null
                 }
             )
         }

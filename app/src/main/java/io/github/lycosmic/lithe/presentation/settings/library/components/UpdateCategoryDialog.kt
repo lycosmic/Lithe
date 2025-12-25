@@ -16,28 +16,33 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import io.github.lycosmic.lithe.R
 import kotlinx.coroutines.delay
 
-
 /**
- * 创建书籍分类对话框
+ * 修改书籍分类对话框
  */
 @Composable
-fun CreateCategoryDialog(
-    onDismissRequest: () -> Unit, // 点击取消或对话框外部区域
-    onConfirm: (String) -> Unit // 点击确定
+fun UpdateCategoryDialog(
+    initialText: String,
+    onDismissRequest: () -> Unit,
+    onConfirm: (String) -> Unit
 ) {
-    var text by remember { mutableStateOf("") }
+    var textValue by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = initialText,
+                // 选中所有文本
+                selection = TextRange(0, initialText.length)
+            )
+        )
+    }
 
-    // 是否处于错误状态，显示红框
-    var isError by remember { mutableStateOf(false) }
-
-    // 用于自动弹出键盘
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    // 输入框获取焦点并弹出键盘
     LaunchedEffect(Unit) {
         delay(100)
         focusRequester.requestFocus()
@@ -46,38 +51,30 @@ fun CreateCategoryDialog(
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(text = stringResource(id = R.string.create_category)) },
+        title = { Text(text = stringResource(id = R.string.edit_category)) },
         text = {
             OutlinedTextField(
-                value = text,
+                value = textValue,
                 onValueChange = {
-                    text = it
-                    if (it.isNotBlank()) isError = false
+                    textValue = it
                 },
-                label = {
-                    Text(text = stringResource(id = R.string.category_name))
+                placeholder = {
+                    // 提示文本
+                    Text(text = initialText)
                 },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(focusRequester), // 绑定聚焦器
-                isError = isError,
-                supportingText = { // 错误提示
-                    if (isError) {
-                        Text(text = stringResource(id = R.string.category_name_cannot_be_empty))
-                    }
-                }
+                    .focusRequester(focusRequester),
             )
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (text.isNotBlank()) {
-                        isError = false
-                        onConfirm(text)
+                    if (textValue.text.isNotBlank()) {
+                        onConfirm(textValue.text)
                     } else {
-                        // 触发错误状态
-                        isError = true
+                        onDismissRequest()
                     }
                 },
             ) {

@@ -121,4 +121,5 @@
     <string name="category_exists">该分类名称已存在</string>
     <string name="category_name">标题</string>
     <string name="category_name_cannot_be_empty">这个字段不应为空</string>
+    <string name="edit_category">编辑</string>
 </resources>

@@ -1,5 +1,6 @@
 package io.github.lycosmic.lithe.presentation.settings.library
 
+import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.LibraryDisplayMode
 
@@ -66,4 +67,19 @@ sealed class LibrarySettingsEvent {
      * 创建分类
      */
     data class OnCreateCategory(val name: String) : LibrarySettingsEvent()
+
+    /**
+     * 点击编辑分类
+     */
+    data class OnEditCategoryClick(val category: CategoryEntity) : LibrarySettingsEvent()
+
+    /**
+     * 更新分类
+     */
+    data class OnUpdateCategory(val category: CategoryEntity) : LibrarySettingsEvent()
+
+    /**
+     * 点击删除分类
+     */
+    data class OnDeleteCategoryClick(val categoryId: Long) : LibrarySettingsEvent()
 }

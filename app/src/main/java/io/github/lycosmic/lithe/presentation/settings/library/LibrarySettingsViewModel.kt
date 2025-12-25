@@ -3,13 +3,16 @@ package io.github.lycosmic.lithe.presentation.settings.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.local.dao.CategoryDao
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
 import io.github.lycosmic.lithe.data.model.Constants
+import io.github.lycosmic.lithe.data.repository.CategoryRepository
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.extension.logW
+import io.github.lycosmic.lithe.presentation.settings.library.LibrarySettingsEffect.CategoryNameExists
+import io.github.lycosmic.lithe.presentation.settings.library.LibrarySettingsEffect.OpenDeleteCategoryDialog
+import io.github.lycosmic.lithe.presentation.settings.library.LibrarySettingsEffect.OpenEditCategoryDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LibrarySettingsViewModel @Inject constructor(
     private val settingsManager: SettingsManager,
-    private val categoryDao: CategoryDao
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
 
     /**
@@ -105,6 +108,13 @@ class LibrarySettingsViewModel @Inject constructor(
         initialValue = true
     )
 
+    // 当前的分类列表
+    val categoryList = categoryRepository.getCategories().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = emptyList()
+    )
+
 
     private val _effects = MutableSharedFlow<LibrarySettingsEffect>()
     val effects = _effects.asSharedFlow()
@@ -182,11 +192,11 @@ class LibrarySettingsViewModel @Inject constructor(
             is LibrarySettingsEvent.OnCreateCategory -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     val categoryName = event.name
-                    if (categoryDao.countCategoriesByName(categoryName) > 0) {
+                    if (categoryRepository.countCategoriesByName(categoryName) > 0) {
                         logW {
-                            "分类名称已存在"
+                            "分类名称[${categoryName}]已存在"
                         }
-                        _effects.emit(LibrarySettingsEffect.CategoryNameExists)
+                        _effects.emit(CategoryNameExists)
                         return@launch
                     }
 
@@ -194,7 +204,38 @@ class LibrarySettingsViewModel @Inject constructor(
                         name = categoryName,
                     )
 
-                    categoryDao.insertCategory(category)
+                    categoryRepository.insertCategory(category)
+                }
+            }
+
+
+            is LibrarySettingsEvent.OnEditCategoryClick -> {
+                viewModelScope.launch {
+                    // 打开编辑分类名称对话框
+                    _effects.emit(OpenEditCategoryDialog(event.category))
+                }
+            }
+
+            is LibrarySettingsEvent.OnDeleteCategoryClick -> {
+                viewModelScope.launch {
+                    // 打开删除分类对话框
+                    _effects.emit(OpenDeleteCategoryDialog(event.categoryId))
+                }
+            }
+
+            is LibrarySettingsEvent.OnUpdateCategory -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val category = event.category
+                    val categoryName = category.name
+                    if (categoryRepository.countCategoriesByName(categoryName) > 0) {
+                        logW {
+                            "分类名称[${categoryName}]已存在"
+                        }
+                        _effects.emit(CategoryNameExists)
+                        return@launch
+                    }
+
+                    categoryRepository.updateCategory(category)
                 }
             }
         }
