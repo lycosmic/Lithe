@@ -1,5 +1,7 @@
 package io.github.lycosmic.lithe.data.model
 
+import androidx.compose.ui.unit.dp
+
 object Constants {
     /**
      * StateFlow 停止订阅超时时间(毫秒)
@@ -22,4 +24,9 @@ object Constants {
      * 0 表示自动
      */
     val GRID_SIZE_INT_RANGE = 0..10
+
+    /**
+     * 最小的网格项宽度
+     */
+    val MIN_GRID_ITEM_WIDTH = 170.dp
 }
