@@ -30,7 +30,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.outlined.Folder
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -59,6 +58,7 @@ import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.OptionItem
 import io.github.lycosmic.lithe.data.model.ScannedDirectory
+import io.github.lycosmic.lithe.presentation.settings.components.InfoTip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
@@ -236,19 +236,10 @@ fun SettingBrowseScaffold(
 
             // --- 提示 ---
             item {
-                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)) {
-                    Icon(
-                        imageVector = Icons.Outlined.Info,
-                        contentDescription = stringResource(R.string.tip),
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = stringResource(R.string.browse_settings_directories_message),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
+                InfoTip(
+                    message = stringResource(R.string.browse_settings_directories_message),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+                )
             }
 
             // --- 分割线 ---

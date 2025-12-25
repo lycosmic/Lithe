@@ -98,4 +98,5 @@
     <string name="color_preset_editor_title">Name a preset…</string>
     <string name="quick_color_preset_change">Quick Color Preset Change</string>
     <string name="swipe_to_change_color_preset">Swipe the top bar to change color preset</string>
+    <string name="library_settings">书库</string>
 </resources>

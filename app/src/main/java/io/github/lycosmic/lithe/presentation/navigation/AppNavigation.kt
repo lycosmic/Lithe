@@ -126,7 +126,11 @@ fun AppNavigation(
                     }
 
                     is AppRoutes.SettingsLibrary -> {
-                        LibrarySettingsScreen()
+                        LibrarySettingsScreen(
+                            navigateBack = {
+                                navViewModel.pop()
+                            }
+                        )
                     }
 
                     is AppRoutes.SettingsReader -> TODO()
