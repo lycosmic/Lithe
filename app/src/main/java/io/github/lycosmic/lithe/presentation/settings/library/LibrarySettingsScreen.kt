@@ -54,6 +54,7 @@ import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWit
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.presentation.settings.library.components.CategoryList
 import io.github.lycosmic.lithe.presentation.settings.library.components.CreateCategoryDialog
+import io.github.lycosmic.lithe.presentation.settings.library.components.DeleteCategoryDialog
 import io.github.lycosmic.lithe.presentation.settings.library.components.UpdateCategoryDialog
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 import io.github.lycosmic.lithe.utils.toast
@@ -390,6 +391,18 @@ fun LibrarySettingsScreen(
                 onConfirm = { newName ->
                     viewModel.onEvent(LibrarySettingsEvent.OnUpdateCategory(it.copy(name = newName)))
                     updateCategoryDialogVisible = null
+                }
+            )
+        }
+
+        deleteCategoryDialogVisible?.let { categoryId ->
+            DeleteCategoryDialog(
+                onDismissRequest = {
+                    deleteCategoryDialogVisible = null
+                },
+                onConfirm = {
+                    viewModel.onEvent(LibrarySettingsEvent.OnDeleteCategory(categoryId))
+                    deleteCategoryDialogVisible = null
                 }
             )
         }

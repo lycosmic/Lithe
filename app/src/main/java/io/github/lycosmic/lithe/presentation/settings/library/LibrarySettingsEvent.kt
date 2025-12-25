@@ -82,4 +82,9 @@ sealed class LibrarySettingsEvent {
      * 点击删除分类
      */
     data class OnDeleteCategoryClick(val categoryId: Long) : LibrarySettingsEvent()
+
+    /**
+     * 删除分类
+     */
+    data class OnDeleteCategory(val categoryId: Long) : LibrarySettingsEvent()
 }

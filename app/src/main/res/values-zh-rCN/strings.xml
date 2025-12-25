@@ -122,4 +122,7 @@
     <string name="category_name">标题</string>
     <string name="category_name_cannot_be_empty">这个字段不应为空</string>
     <string name="edit_category">编辑</string>
+    <string name="delete_category">删除分类</string>
+    <string name="delete_category_title">删除分类？</string>
+    <string name="delete_category_message">这本书将会从数据库中删除，但不会从您的设备上删除。</string>
 </resources>

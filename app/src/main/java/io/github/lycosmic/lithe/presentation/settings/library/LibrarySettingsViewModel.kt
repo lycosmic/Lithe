@@ -9,6 +9,7 @@ import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.repository.CategoryRepository
 import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.extension.logW
 import io.github.lycosmic.lithe.presentation.settings.library.LibrarySettingsEffect.CategoryNameExists
 import io.github.lycosmic.lithe.presentation.settings.library.LibrarySettingsEffect.OpenDeleteCategoryDialog
@@ -236,6 +237,24 @@ class LibrarySettingsViewModel @Inject constructor(
                     }
 
                     categoryRepository.updateCategory(category)
+                }
+            }
+
+            is LibrarySettingsEvent.OnDeleteCategory -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val id = event.categoryId
+                    logI {
+                        "删除分类，分类ID：${id}"
+                    }
+
+                    if (categoryRepository.getCategoryById(id) == null) {
+                        logW {
+                            "要删除的分类不存在，分类ID：${id}"
+                        }
+                        return@launch
+                    }
+
+                    categoryRepository.deleteCategory(event.categoryId)
                 }
             }
         }

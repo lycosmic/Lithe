@@ -28,4 +28,8 @@ class CategoryRepository @Inject constructor(
     suspend fun updateCategory(category: CategoryEntity) {
         categoryDao.updateCategory(category)
     }
+
+    suspend fun getCategoryById(categoryId: Long): CategoryEntity? {
+        return categoryDao.getCategoryById(categoryId)
+    }
 }
