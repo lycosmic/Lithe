@@ -102,4 +102,9 @@
     <string name="category">Category</string>
     <string name="create_category">Create Category</string>
     <string name="category_info_message">Books are initially added to the default category but can belong to a few custom categories created here. Deleting a category here does not delete the books from the library. Hold and move the category icon to rearrange the categories.</string>
+    <string name="library_display_mode_list">列表</string>
+    <string name="library_display_mode_grid">网格</string>
+    <string name="hidden">隐藏</string>
+    <string name="below">下方</string>
+    <string name="inside">内部</string>
 </resources>

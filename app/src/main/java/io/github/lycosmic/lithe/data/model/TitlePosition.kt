@@ -1,0 +1,12 @@
+package io.github.lycosmic.lithe.data.model
+
+import io.github.lycosmic.lithe.R
+
+/**
+ * 书籍标题的位置
+ */
+enum class TitlePosition(val labelResId: Int) {
+    Hidden(R.string.hidden),  // 隐藏
+    Below(R.string.below),   // 下方
+    Inside(R.string.inside)   // 内部
+}

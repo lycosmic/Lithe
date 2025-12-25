@@ -149,7 +149,7 @@ private fun itemShape(index: Int, count: Int): Shape {
 
 @Preview(showBackground = true)
 @Composable
-fun LitheSegmentedButtonPreview() {
+private fun LitheSegmentedButtonPreview() {
     var selectedIndex by remember { mutableIntStateOf(1) }
     val items = listOf(
         OptionItem(0, "Day", selected = selectedIndex == 0),

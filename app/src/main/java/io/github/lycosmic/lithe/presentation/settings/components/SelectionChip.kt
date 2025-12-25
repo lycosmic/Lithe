@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.presentation.settings.general.components
+package io.github.lycosmic.lithe.presentation.settings.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -25,10 +25,10 @@ import io.github.lycosmic.lithe.ui.theme.LitheTheme
 
 
 /**
- * 语言选择标签 (Chip)
+ * 选择标签 (Chip)
  */
 @Composable
-fun LanguageChip(
+fun SelectionChip(
     text: String,
     isSelected: Boolean,
     onClick: () -> Unit
@@ -70,7 +70,7 @@ private fun LanguageChipPreview() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            LanguageChip(text = "简体中文", isSelected = isSelected) {
+            SelectionChip(text = "简体中文", isSelected = isSelected) {
                 isSelected = !isSelected
             }
         }

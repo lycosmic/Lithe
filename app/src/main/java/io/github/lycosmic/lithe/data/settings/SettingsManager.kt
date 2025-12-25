@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.lycosmic.lithe.data.model.AppThemeOption
-import io.github.lycosmic.lithe.data.model.DisplayMode
+import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
 import io.github.lycosmic.lithe.data.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -63,13 +63,13 @@ class SettingsManager @Inject constructor(
     }
 
     // --- 文件显示模式 ---
-    val fileDisplayMode: Flow<DisplayMode> = dataStore.data.map { preferences ->
-        DisplayMode.valueOf(
-            preferences[Keys.FILE_DISPLAY_MODE] ?: DisplayMode.List.name
+    val fileBrowseDisplayMode: Flow<BrowseDisplayMode> = dataStore.data.map { preferences ->
+        BrowseDisplayMode.valueOf(
+            preferences[Keys.FILE_DISPLAY_MODE] ?: BrowseDisplayMode.List.name
         )
     }
 
-    suspend fun setFileDisplayMode(mode: DisplayMode) {
+    suspend fun setFileDisplayMode(mode: BrowseDisplayMode) {
         dataStore.edit { preferences ->
             preferences[Keys.FILE_DISPLAY_MODE] = mode.name
         }

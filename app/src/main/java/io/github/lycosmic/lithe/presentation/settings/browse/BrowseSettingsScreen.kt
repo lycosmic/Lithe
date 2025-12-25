@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.model.DisplayMode
+import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
 import io.github.lycosmic.lithe.data.model.OptionItem
 import io.github.lycosmic.lithe.data.model.ScannedDirectory
 import io.github.lycosmic.lithe.presentation.settings.components.InfoTip
@@ -73,7 +73,7 @@ fun BrowseSettingsScreen(
 
     val directories by viewModel.scannedDirectories.collectAsStateWithLifecycle()
 
-    val displayMode by viewModel.displayMode.collectAsStateWithLifecycle()
+    val displayMode by viewModel.browseDisplayMode.collectAsStateWithLifecycle()
 
     val gridColumnCount by viewModel.gridColumnCount.collectAsStateWithLifecycle()
 
@@ -99,7 +99,7 @@ fun BrowseSettingsScreen(
 
     SettingBrowseScaffold(
         directories = directories,
-        displayMode = displayMode,
+        browseDisplayMode = displayMode,
         onDeleteDirectoryClicked = { directory ->
             viewModel.onEvent(BrowseSettingEvent.DeleteDirectoryClicked(directory))
         },
@@ -123,12 +123,12 @@ fun BrowseSettingsScreen(
 @Composable
 fun SettingBrowseScaffold(
     directories: List<ScannedDirectory>,
-    displayMode: DisplayMode,
+    browseDisplayMode: BrowseDisplayMode,
     onBackClicked: () -> Unit,
     gridColumnCount: Int,
     onGridColumnCountChanged: (Int) -> Unit,
     onDeleteDirectoryClicked: (ScannedDirectory) -> Unit,
-    onDisplayModeChanged: (DisplayMode) -> Unit,
+    onDisplayModeChanged: (BrowseDisplayMode) -> Unit,
     onAddDirectoryClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -261,7 +261,7 @@ fun SettingBrowseScaffold(
                     )
 
                     DisplayModeArea(
-                        displayMode = displayMode,
+                        browseDisplayMode = browseDisplayMode,
                         gridColumnCount = gridColumnCount,
                         onDisplayModeChanged = onDisplayModeChanged,
                         onGridColumnCountChanged = onGridColumnCountChanged
@@ -281,11 +281,11 @@ fun SettingBrowseScaffold(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DisplayModeArea(
-    displayMode: DisplayMode,
+    browseDisplayMode: BrowseDisplayMode,
     gridColumnCount: Int,
     valueRange: IntRange = 0..10,
     onGridColumnCountChanged: (Int) -> Unit,
-    onDisplayModeChanged: (DisplayMode) -> Unit,
+    onDisplayModeChanged: (BrowseDisplayMode) -> Unit,
 ) {
 
     val tipText = if (gridColumnCount == valueRange.first) {
@@ -295,11 +295,11 @@ fun DisplayModeArea(
     }
 
     LitheSegmentedButton(
-        items = DisplayMode.entries.map { mode ->
+        items = BrowseDisplayMode.entries.map { mode ->
             OptionItem(
                 value = mode,
                 label = stringResource(id = mode.labelResId),
-                selected = mode == displayMode
+                selected = mode == browseDisplayMode
             )
         }.toList(),
         onClick = { clickedMode ->
@@ -310,7 +310,7 @@ fun DisplayModeArea(
     Spacer(modifier = Modifier.height(16.dp))
 
     AnimatedVisibility(
-        visible = displayMode == DisplayMode.Grid,
+        visible = browseDisplayMode == BrowseDisplayMode.Grid,
         enter = slideInVertically(
             animationSpec = tween(),
             initialOffsetY = { -it / 2 }

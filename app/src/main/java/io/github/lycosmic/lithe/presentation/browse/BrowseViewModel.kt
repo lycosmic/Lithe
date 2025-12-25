@@ -3,8 +3,8 @@ package io.github.lycosmic.lithe.presentation.browse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
 import io.github.lycosmic.lithe.data.model.Constants
-import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.data.settings.SettingsManager
@@ -82,10 +82,10 @@ class BrowseViewModel @Inject constructor(
     val searchText = _searchText.asStateFlow()
 
     // 文件显示模式
-    val fileDisplayMode = settingsManager.fileDisplayMode.stateIn(
+    val fileBrowseDisplayMode = settingsManager.fileBrowseDisplayMode.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
-        DisplayMode.List
+        BrowseDisplayMode.List
     )
 
     // 网格列数

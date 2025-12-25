@@ -103,4 +103,9 @@
     <string name="category">分类</string>
     <string name="create_category">创建分类</string>
     <string name="category_info_message">书籍一开始被添加到默认分类但可以属于在此创建的几个自定义分类。删除此处的分类不会从书库删除书籍。按住并移动分类图标重新安排分类。</string>
+    <string name="library_display_mode_list">列表</string>
+    <string name="library_display_mode_grid">网格</string>
+    <string name="hidden">隐藏</string>
+    <string name="below">下方</string>
+    <string name="inside">内部</string>
 </resources>
