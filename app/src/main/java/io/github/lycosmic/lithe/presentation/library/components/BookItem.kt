@@ -1,6 +1,5 @@
 package io.github.lycosmic.lithe.presentation.library.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -23,7 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,14 +42,14 @@ fun BookItem(
 ) {
     // 容器颜色
     val containerColor = if (isSelected) {
-        MaterialTheme.colorScheme.primary
+        MaterialTheme.colorScheme.secondaryContainer
     } else {
-        MaterialTheme.colorScheme.surface
+        Color.Transparent
     }
 
     // 标题颜色
     val titleColor = if (isSelected) {
-        MaterialTheme.colorScheme.onPrimary
+        MaterialTheme.colorScheme.onSecondaryContainer
     } else {
         MaterialTheme.colorScheme.onSurface
     }
@@ -75,7 +74,7 @@ fun BookItem(
                     onClick = onClick,
                     onLongClick = onLongClick
                 ),
-            color = MaterialTheme.colorScheme.primaryContainer,
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
             shape = coverShape,
         ) {
             Box(
@@ -88,12 +87,15 @@ fun BookItem(
                         contentDescription = null,
                     )
                 } else {
-                    // 占位符
-                    Image(
+                    // 图片图标占位符
+                    Icon(
                         imageVector = Icons.Default.Image,
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .fillMaxWidth(0.7f)
+                            .aspectRatio(1f),
+                        tint = MaterialTheme.colorScheme.surfaceContainerHigh
                     )
                 }
 
@@ -103,14 +105,14 @@ fun BookItem(
                         .align(Alignment.TopStart)
                         .padding(top = 4.dp, start = 4.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(color = MaterialTheme.colorScheme.primary)
+                        .background(MaterialTheme.colorScheme.tertiary)
                         .padding(vertical = 4.dp, horizontal = 6.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "${(readProgress * 100).toInt()}%",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onTertiary
                     )
                 }
 
@@ -120,14 +122,14 @@ fun BookItem(
                         .align(Alignment.BottomEnd)
                         .padding(8.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(color = MaterialTheme.colorScheme.primary),
+                        .background(color = MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = null,
                         modifier = Modifier.padding(4.dp),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
