@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -95,6 +97,9 @@ class BrowseViewModel @Inject constructor(
         SettingsManager.GRID_COLUMN_COUNT_DEFAULT
     )
 
+    // 控制文件夹头部是否固定的状态
+    private val _pinnedHeaders = MutableStateFlow<Set<String>>(emptySet())
+    val pinnedHeaders: StateFlow<Set<String>> = _pinnedHeaders.asStateFlow()
 
     // 分组、排序、文件类型过滤、关键词过滤后的文件列表
     val processedFiles = combine(
@@ -222,6 +227,10 @@ class BrowseViewModel @Inject constructor(
 
                 is BrowseEvent.OnGridSizeChange -> {
                     settingsManager.setFileGridColumnCount(event.newGridSize)
+                }
+
+                is BrowseEvent.OnPinHeaderClick -> {
+                    toggleHeaderPin(event.path)
                 }
             }
         }
@@ -391,5 +400,20 @@ class BrowseViewModel @Inject constructor(
         }
 
         _parsedBooks.value = newList
+    }
+
+    /**
+     * 切换头部固定状态
+     */
+    fun toggleHeaderPin(path: String) {
+        _pinnedHeaders.update { currentPins ->
+            if (currentPins.contains(path)) {
+                // 如果已固定，则取消固定
+                currentPins - path
+            } else {
+                // 如果未固定，则固定
+                currentPins + path
+            }
+        }
     }
 }

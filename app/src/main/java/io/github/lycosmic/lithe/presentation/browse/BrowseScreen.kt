@@ -95,6 +95,9 @@ fun BrowseScreen(
     // 网格大小
     val gridColumnCount by viewModel.gridColumnCount.collectAsStateWithLifecycle()
 
+    // 固定的文件夹头部列表
+    val pinnedHeaders by viewModel.pinnedHeaders.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
@@ -190,8 +193,12 @@ fun BrowseScreen(
                 directoryWithFiles.forEach { (path, files) ->
                     // stickyHeader 让路径吸顶
                     stickyHeader {
-                        DirectoryHeader(path = path) {
-                            // 固定到顶部
+                        DirectoryHeader(
+                            path = path,
+                            isPinned = pinnedHeaders.contains(path)
+                        ) {
+                            // 点击固定按钮，切换固定状态
+                            viewModel.onEvent(BrowseEvent.OnPinHeaderClick(path))
                         }
                     }
 

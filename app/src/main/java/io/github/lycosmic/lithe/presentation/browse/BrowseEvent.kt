@@ -92,4 +92,9 @@ sealed class BrowseEvent {
      * 网格大小改变
      */
     data class OnGridSizeChange(val newGridSize: Int) : BrowseEvent()
+
+    /**
+     * 点击固定头部按钮
+     */
+    data class OnPinHeaderClick(val path: String) : BrowseEvent()
 }

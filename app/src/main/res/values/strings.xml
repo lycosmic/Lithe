@@ -124,4 +124,6 @@
     <string name="delete_category">删除分类</string>
     <string name="delete_category_title">删除分类？</string>
     <string name="delete_category_message">This category will be deleted from the database, but not from your device.</string>
+    <string name="unpin">取消固定</string>
+    <string name="pin_to_top">固定到顶部</string>
 </resources>
