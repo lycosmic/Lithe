@@ -4,8 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -29,9 +31,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import io.github.lycosmic.lithe.R
+import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.LibraryDisplayMode
 import io.github.lycosmic.lithe.data.model.OptionItem
-import io.github.lycosmic.lithe.data.model.TitlePosition
 import io.github.lycosmic.lithe.presentation.settings.components.InfoTip
 import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
@@ -145,7 +147,6 @@ fun LibrarySettingsScreen(
             }
 
             // --- 网格大小 ---
-
             SettingsSubGroupTitle(
                 title = "标题位置",
                 modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
@@ -158,7 +159,7 @@ fun LibrarySettingsScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TitlePosition.entries.forEach { titlePosition ->
+                BookTitlePosition.entries.forEach { titlePosition ->
                     SelectionChip(
                         text = stringResource(titlePosition.labelResId),
                         isSelected = true,
@@ -176,8 +177,7 @@ fun LibrarySettingsScreen(
                 isDividerVisible = true,
                 onCheckedChange = {
 
-                },
-                modifier = Modifier.padding(horizontal = 16.dp)
+                }
             )
 
             // --- 显示进度 ---
@@ -188,8 +188,9 @@ fun LibrarySettingsScreen(
                 onCheckedChange = {
 
                 },
-                modifier = Modifier.padding(horizontal = 16.dp)
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             HorizontalDivider()
 
@@ -208,7 +209,6 @@ fun LibrarySettingsScreen(
                 onCheckedChange = {
 
                 },
-                modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             SettingsItemWithSwitch(
@@ -218,7 +218,6 @@ fun LibrarySettingsScreen(
                 onCheckedChange = {
 
                 },
-                modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             SettingsItemWithSwitch(
@@ -228,9 +227,9 @@ fun LibrarySettingsScreen(
                 onCheckedChange = {
 
                 },
-                modifier = Modifier.padding(horizontal = 16.dp)
             )
 
+            Spacer(modifier = Modifier.height(16.dp))
 
             HorizontalDivider()
 
@@ -249,7 +248,11 @@ fun LibrarySettingsScreen(
                 onCheckedChange = {
 
                 },
-                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            InfoTip(
+                message = "可以在书库中更改排序。",
+                modifier = Modifier.padding(16.dp)
             )
         }
     }

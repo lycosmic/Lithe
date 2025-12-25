@@ -1,5 +1,6 @@
 package io.github.lycosmic.lithe.presentation.settings.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,7 +28,13 @@ fun SettingsItemWithSwitch(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable {
+                onCheckedChange(!checked)
+            }
+            .padding(vertical = 4.dp)
+            .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

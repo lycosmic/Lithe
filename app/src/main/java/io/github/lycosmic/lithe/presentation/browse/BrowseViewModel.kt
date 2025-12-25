@@ -89,7 +89,7 @@ class BrowseViewModel @Inject constructor(
     )
 
     // 网格列数
-    val gridColumnCount = settingsManager.gridColumnCount.stateIn(
+    val gridColumnCount = settingsManager.fileGridColumnCount.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         SettingsManager.GRID_COLUMN_COUNT_DEFAULT
