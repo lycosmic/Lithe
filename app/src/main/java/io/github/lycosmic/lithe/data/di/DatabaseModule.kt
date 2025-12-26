@@ -47,11 +47,7 @@ object DatabaseModule {
                     val currentTime = System.currentTimeMillis()
 
                     db.execSQL(
-                        "INSERT INTO $CATEGORY_TABLE_NAME (id, name, createdAt) VALUES (${Constants.DEFAULT_CATEGORY_ID}, \"${
-                            context.getString(
-                                Constants.DEFAULT_CATEGORY_NAME
-                            )
-                        }\", $currentTime)"
+                        "INSERT INTO $CATEGORY_TABLE_NAME (id, name, createdAt) VALUES (${Constants.DEFAULT_CATEGORY_ID}, \"\", $currentTime)"
                     )
                 }
             }
