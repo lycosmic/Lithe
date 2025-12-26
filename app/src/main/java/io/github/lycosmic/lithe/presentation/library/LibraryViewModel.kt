@@ -160,12 +160,8 @@ class LibraryViewModel @Inject constructor(
                 }
 
                 LibraryEvent.OnDeleteClicked -> {
-                    _selectedBooks.value.forEach { bookId ->
-                        // 删除书籍
-                        bookRepository.deleteBook(bookId)
-                    }
-                    // 清空选中列表
-                    _selectedBooks.value = emptySet()
+                    // 打开删除确认面板
+                    _effects.emit(LibraryEffect.ShowDeleteBookConfirmDialog)
                 }
 
                 LibraryEvent.OnSelectAllClicked -> {
@@ -195,6 +191,25 @@ class LibraryViewModel @Inject constructor(
 
                 LibraryEvent.OnMoveCategoryClicked -> {
 
+                }
+
+                LibraryEvent.OnSettingsClicked -> {
+                    _effects.emit(LibraryEffect.OnNavigateToSettings)
+                }
+
+                LibraryEvent.OnDeleteDialogConfirmed -> {
+                    // 删除所选书籍
+                    _selectedBooks.value.forEach { bookId ->
+                        // 删除书籍
+                        bookRepository.deleteBook(bookId)
+                    }
+                    // 清空选中列表
+                    _selectedBooks.value = emptySet()
+                    _effects.emit(LibraryEffect.CloseDeleteBookConfirmDialog)
+                }
+
+                LibraryEvent.OnDeleteDialogDismissed -> {
+                    _effects.emit(LibraryEffect.CloseDeleteBookConfirmDialog)
                 }
             }
         }

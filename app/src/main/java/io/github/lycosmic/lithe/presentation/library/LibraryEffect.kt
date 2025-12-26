@@ -38,7 +38,27 @@ sealed class LibraryEffect {
     data object OpenFilterBottomSheet : LibraryEffect()
 
     /**
+     * 关闭筛选面板
+     */
+    data object CloseFilterBottomSheet : LibraryEffect()
+
+    /**
      * 打开更多选项面板
      */
     data object OpenMoreOptionsBottomSheet : LibraryEffect()
+
+    /**
+     * 关闭更多选项面板
+     */
+    data object CloseMoreOptionsBottomSheet : LibraryEffect()
+
+    /**
+     * 显示删除书籍确认对话框
+     */
+    data object ShowDeleteBookConfirmDialog : LibraryEffect()
+
+    /**
+     * 关闭删除书籍确认对话框
+     */
+    data object CloseDeleteBookConfirmDialog : LibraryEffect()
 }

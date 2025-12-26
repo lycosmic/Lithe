@@ -126,9 +126,13 @@
     <string name="delete_category_message">This category will be deleted from the database, but not from your device.</string>
     <string name="unpin">Unpin</string>
     <string name="pin_to_top">Pin to Top</string>
-    <string name="selected_books">已选择 %d 本</string>
-    <string name="select_all_books">选中所有书籍</string>
-    <string name="move_selected_books">移动所选书籍\n</string>
-    <string name="delete_selected_books">删除所选书籍</string>
-    <string name="library">书库</string>
+    <string name="selected_books">Selected %d Books</string>
+    <string name="select_all_books">Select All Books</string>
+    <string name="move_selected_books">Move Selected Books\n</string>
+    <string name="delete_selected_books">Delete Selected Books</string>
+    <string name="library">Library</string>
+    <string name="delete_book">Delete Book</string>
+    <string name="delete_book_title">Delete Book?</string>
+    <string name="library_delete_book_title">Delete Book?</string>
+    <string name="library_delete_book_message">All selected books (%d) will be deleted from the database, but not from your device.</string>
 </resources>

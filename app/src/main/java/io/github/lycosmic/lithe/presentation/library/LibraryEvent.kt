@@ -76,4 +76,19 @@ sealed class LibraryEvent {
      * 点击移动书籍分类
      */
     object OnMoveCategoryClicked : LibraryEvent()
+
+    /**
+     * 点击设置
+     */
+    object OnSettingsClicked : LibraryEvent()
+
+    /**
+     * 点击删除书籍对话框取消
+     */
+    object OnDeleteDialogDismissed : LibraryEvent()
+
+    /**
+     * 点击删除书籍对话框确认
+     */
+    object OnDeleteDialogConfirmed : LibraryEvent()
 }

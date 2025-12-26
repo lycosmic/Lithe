@@ -132,4 +132,8 @@
     <string name="move_selected_books">移动所选书籍\n</string>
     <string name="delete_selected_books">删除所选书籍</string>
     <string name="library">书库</string>
+    <string name="delete_book">删除书籍</string>
+    <string name="delete_book_title">删除书籍？</string>
+    <string name="library_delete_book_title">删除书籍？</string>
+    <string name="library_delete_book_message">所有已选择的书（%d）将会从数据库中删除，但不会从您的设备上删除。</string>
 </resources>

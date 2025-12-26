@@ -28,6 +28,7 @@ import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.model.Constants.DOUBLE_CLICK_BACK_INTERVAL_MILLIS
 import io.github.lycosmic.lithe.presentation.library.components.BookItem
 import io.github.lycosmic.lithe.presentation.library.components.EmptyLibraryState
+import io.github.lycosmic.lithe.presentation.library.components.LibraryDeleteBookDialog
 import io.github.lycosmic.lithe.presentation.library.components.LibraryTopAppBar
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
@@ -62,6 +63,9 @@ fun LibraryScreen(
     val totalBookCount by viewModel.totalBooksCount.collectAsStateWithLifecycle()
 
     val isBookCountVisible by viewModel.showBookCount.collectAsStateWithLifecycle()
+
+    // 删除书籍确认对话框是否可见
+    var isDeleteBookDialogVisible by remember { mutableStateOf(false) }
 
     // 处于搜索模式下
     val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
@@ -134,6 +138,22 @@ fun LibraryScreen(
 
                 LibraryEffect.OpenMoreOptionsBottomSheet -> {
                     showMoreOptionsBottomSheet = true
+                }
+
+                LibraryEffect.CloseDeleteBookConfirmDialog -> {
+                    isDeleteBookDialogVisible = false
+                }
+
+                LibraryEffect.CloseFilterBottomSheet -> {
+                    showFilterBottomSheet = false
+                }
+
+                LibraryEffect.CloseMoreOptionsBottomSheet -> {
+                    showMoreOptionsBottomSheet = false
+                }
+
+                LibraryEffect.ShowDeleteBookConfirmDialog -> {
+                    isDeleteBookDialogVisible = true
                 }
             }
         }
@@ -214,6 +234,19 @@ fun LibraryScreen(
             }
         }
 
+        if (isDeleteBookDialogVisible) {
+            LibraryDeleteBookDialog(
+                deleteBookCount = selectedBooks.size,
+                onDismissRequest = {
+                    viewModel.onEvent(LibraryEvent.OnDeleteDialogDismissed)
+                },
+                onConfirm = {
+                    viewModel.onEvent(LibraryEvent.OnDeleteDialogConfirmed)
+                }
+            )
+        }
+
+
         LitheActionSheet(
             showBottomSheet = showMoreOptionsBottomSheet,
             onDismissRequest = {
@@ -247,7 +280,7 @@ fun LibraryScreen(
                         isDestructive = false,
                         onClick = {
                             showMoreOptionsBottomSheet = false
-                            viewModel.onEvent(LibraryEvent.OnMoreClicked)
+                            viewModel.onEvent(LibraryEvent.OnSettingsClicked)
                         },
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer
