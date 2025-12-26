@@ -136,4 +136,6 @@
     <string name="delete_book_title">删除书籍？</string>
     <string name="library_delete_book_title">删除书籍？</string>
     <string name="library_delete_book_message">所有已选择的书（%d）将会从数据库中删除，但不会从您的设备上删除。</string>
+    <string name="delete_all_selected_book_success">成功删除所有已选择的书。</string>
+    <string name="delete_count_book_success">已删除 %d 本书</string>
 </resources>

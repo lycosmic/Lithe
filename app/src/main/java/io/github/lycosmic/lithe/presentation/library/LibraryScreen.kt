@@ -33,6 +33,7 @@ import io.github.lycosmic.lithe.presentation.library.components.LibraryTopAppBar
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 import io.github.lycosmic.lithe.utils.ToastUtil
+import io.github.lycosmic.lithe.utils.toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -154,6 +155,14 @@ fun LibraryScreen(
 
                 LibraryEffect.ShowDeleteBookConfirmDialog -> {
                     isDeleteBookDialogVisible = true
+                }
+
+                LibraryEffect.ShowDeleteBookSuccessToast -> {
+                    R.string.delete_all_selected_book_success.toast()
+                }
+
+                is LibraryEffect.ShowDeleteBookCountToast -> {
+                    R.string.delete_count_book_success.toast()
                 }
             }
         }

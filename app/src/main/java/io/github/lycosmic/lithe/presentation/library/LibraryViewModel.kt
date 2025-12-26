@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToAbout
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToBookDetail
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToBrowser
@@ -198,11 +199,27 @@ class LibraryViewModel @Inject constructor(
                 }
 
                 LibraryEvent.OnDeleteDialogConfirmed -> {
+                    if (_selectedBooks.value.isEmpty()) {
+                        logE {
+                            "删除书籍失败：未选择任何书籍"
+                        }
+                        return@launch
+                    }
+                    // 删除书籍成功数
+                    var successCount = 0
+
                     // 删除所选书籍
                     _selectedBooks.value.forEach { bookId ->
                         // 删除书籍
                         bookRepository.deleteBook(bookId)
+                        successCount++
                     }
+                    if (successCount == _selectedBooks.value.size) {
+                        _effects.emit(LibraryEffect.ShowDeleteBookSuccessToast)
+                    } else {
+                        _effects.emit(LibraryEffect.ShowDeleteBookCountToast(successCount))
+                    }
+
                     // 清空选中列表
                     _selectedBooks.value = emptySet()
                     _effects.emit(LibraryEffect.CloseDeleteBookConfirmDialog)

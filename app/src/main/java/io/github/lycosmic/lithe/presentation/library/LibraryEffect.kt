@@ -61,4 +61,14 @@ sealed class LibraryEffect {
      * 关闭删除书籍确认对话框
      */
     data object CloseDeleteBookConfirmDialog : LibraryEffect()
+
+    /**
+     * 显示成功删除所选提示
+     */
+    data object ShowDeleteBookSuccessToast : LibraryEffect()
+
+    /**
+     * 显示成功删除的书籍数提示
+     */
+    data class ShowDeleteBookCountToast(val count: Int) : LibraryEffect()
 }
