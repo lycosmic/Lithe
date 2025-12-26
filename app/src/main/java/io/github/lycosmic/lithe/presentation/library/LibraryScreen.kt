@@ -59,6 +59,10 @@ fun LibraryScreen(
 
     val context = LocalContext.current
 
+    val totalBookCount by viewModel.totalBooksCount.collectAsStateWithLifecycle()
+
+    val isBookCountVisible by viewModel.showBookCount.collectAsStateWithLifecycle()
+
     // 双击返回键退出
     val isDoubleBackToExitEnabled by viewModel.isDoubleBackToExitEnabled.collectAsStateWithLifecycle()
 
@@ -125,6 +129,8 @@ fun LibraryScreen(
         topBar = {
             LibraryTopAppBar(
                 libraryTopBarState = topBarState,
+                bookCount = totalBookCount,
+                isBookCountVisible = isBookCountVisible,
                 selectedBookCount = selectedBooks.size,
                 searchText = searchText,
                 onSearchTextChange = {

@@ -34,6 +34,20 @@ class LibraryViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
+    // 总书籍数
+    val totalBooksCount = _rawBooks.map { it.size }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = 0
+    )
+
+    // 是否显示书籍数
+    val showBookCount = settingsManager.showBookCount.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = false
+    )
+
     // 当前选中的书籍, 存储书籍ID
     private val _selectedBooks = MutableStateFlow<Set<Long>>(emptySet())
     val selectedBooks = _selectedBooks.asStateFlow()

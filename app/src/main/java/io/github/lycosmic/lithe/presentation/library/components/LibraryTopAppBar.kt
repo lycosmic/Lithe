@@ -1,6 +1,9 @@
 package io.github.lycosmic.lithe.presentation.library.components
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
@@ -22,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.library.LibraryTopBarState
 
@@ -29,6 +33,8 @@ import io.github.lycosmic.lithe.presentation.library.LibraryTopBarState
 @Composable
 fun LibraryTopAppBar(
     libraryTopBarState: LibraryTopBarState,
+    bookCount: Int,
+    isBookCountVisible: Boolean,
     selectedBookCount: Int,
     searchText: String,
     onSearchTextChange: (String) -> Unit,
@@ -43,6 +49,8 @@ fun LibraryTopAppBar(
 ) {
     when (libraryTopBarState) {
         LibraryTopBarState.DEFAULT -> DefaultLibraryTopAppBar(
+            bookCount = bookCount,
+            isBookCountVisible = isBookCountVisible,
             onSearchClick,
             onFilterClick,
             onMoreClick
@@ -72,15 +80,27 @@ fun LibraryTopAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DefaultLibraryTopAppBar(
+    bookCount: Int,
+    isBookCountVisible: Boolean,
     onSearchClick: () -> Unit,
     onFilterClick: () -> Unit,
     onMoreClick: () -> Unit,
 ) {
     TopAppBar(
         title = {
-            Text(
-                text = stringResource(R.string.library),
-            )
+            Row {
+                Text(
+                    text = stringResource(R.string.library),
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                // 数字角标
+                CountBadge(
+                    count = bookCount,
+                    visible = isBookCountVisible,
+                )
+            }
         },
         actions = {
             IconButton(
