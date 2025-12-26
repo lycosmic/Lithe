@@ -9,19 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.MoveUp
-import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,6 +28,7 @@ import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.model.Constants.DOUBLE_CLICK_BACK_INTERVAL_MILLIS
 import io.github.lycosmic.lithe.presentation.library.components.BookItem
 import io.github.lycosmic.lithe.presentation.library.components.EmptyLibraryState
+import io.github.lycosmic.lithe.presentation.library.components.LibraryTopAppBar
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 import io.github.lycosmic.lithe.utils.ToastUtil
@@ -54,19 +45,24 @@ fun LibraryScreen(
     onGoToBookRead: (Long) -> Unit,
     onGoToBrowser: () -> Unit,
 ) {
-    var showBottomSheet by remember { mutableStateOf(false) }
+    var showMoreOptionsBottomSheet by remember { mutableStateOf(false) }
+
+    var showFilterBottomSheet by remember { mutableStateOf(false) }
 
     val books by viewModel.books.collectAsStateWithLifecycle()
 
     val selectedBooks by viewModel.selectedBooks.collectAsStateWithLifecycle()
 
-    val isSelectionMode by viewModel.isSelectionMode.collectAsStateWithLifecycle()
+    val topBarState by viewModel.topBarState.collectAsStateWithLifecycle()
+
+    val searchText by viewModel.searchText.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
     // 双击返回键退出
     val isDoubleBackToExitEnabled by viewModel.isDoubleBackToExitEnabled.collectAsStateWithLifecycle()
 
+    // 上一次按下返回的时间
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
 
     // 拦截返回键
@@ -112,6 +108,14 @@ fun LibraryScreen(
                 LibraryEffect.OnNavigateToBrowser -> {
                     onGoToBrowser()
                 }
+
+                LibraryEffect.OpenFilterBottomSheet -> {
+                    showFilterBottomSheet = true
+                }
+
+                LibraryEffect.OpenMoreOptionsBottomSheet -> {
+                    showMoreOptionsBottomSheet = true
+                }
             }
         }
     }
@@ -119,63 +123,38 @@ fun LibraryScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            if (isSelectionMode) {
-                TopAppBar(
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                viewModel.onEvent(LibraryEvent.OnCancelSelectionClicked)
-                            }
-                        ) {
-                            Icon(imageVector = Icons.Default.Clear, contentDescription = "取消选择")
-                        }
-                    },
-                    title = {
-                        Text(text = "已选择 ${selectedBooks.size} 本")
-                    },
-                    actions = {
-                        IconButton(onClick = {
-                            viewModel.onEvent(LibraryEvent.OnSelectAllClicked)
-                        }) {
-                            Icon(imageVector = Icons.Default.SelectAll, contentDescription = "全选")
-                        }
-
-                        // 移动
-                        IconButton(onClick = {
-                            viewModel.onEvent(LibraryEvent.OnMoveClicked)
-                        }) {
-                            Icon(imageVector = Icons.Default.MoveUp, contentDescription = "移动")
-                        }
-
-                        IconButton(onClick = {
-                            viewModel.onEvent(LibraryEvent.OnDeleteClicked)
-                        }) {
-                            Icon(imageVector = Icons.Default.Delete, contentDescription = "删除")
-                        }
-
-                    }
-                )
-            } else {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "书库",
-                        )
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = {
-                                showBottomSheet = true
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = "更多"
-                            )
-                        }
-                    },
-                )
-            }
+            LibraryTopAppBar(
+                libraryTopBarState = topBarState,
+                selectedBookCount = selectedBooks.size,
+                searchText = searchText,
+                onSearchTextChange = {
+                    viewModel.onEvent(LibraryEvent.OnSearchTextChanged(it))
+                },
+                onExitSearchClick = {
+                    viewModel.onEvent(LibraryEvent.OnExitSearchClicked)
+                },
+                onSearchClick = {
+                    viewModel.onEvent(LibraryEvent.OnSearchClicked)
+                },
+                onFilterClick = {
+                    viewModel.onEvent(LibraryEvent.OnFilterClicked)
+                },
+                onMoreClick = {
+                    viewModel.onEvent(LibraryEvent.OnMoreClicked)
+                },
+                onCancelSelectClick = {
+                    viewModel.onEvent(LibraryEvent.OnCancelSelectionClicked)
+                },
+                onSelectAllClick = {
+                    viewModel.onEvent(LibraryEvent.OnSelectAllClicked)
+                },
+                onMoveCategoryClick = {
+                    viewModel.onEvent(LibraryEvent.OnMoveCategoryClicked)
+                },
+                onDeleteClick = {
+                    viewModel.onEvent(LibraryEvent.OnDeleteClicked)
+                },
+            )
 
         },
     ) { innerPadding ->
@@ -215,9 +194,9 @@ fun LibraryScreen(
         }
 
         LitheActionSheet(
-            showBottomSheet = showBottomSheet,
+            showBottomSheet = showMoreOptionsBottomSheet,
             onDismissRequest = {
-                showBottomSheet = false
+                showMoreOptionsBottomSheet = false
             },
             groups = listOf(
                 listOf(
@@ -226,7 +205,7 @@ fun LibraryScreen(
                         icon = null,
                         isDestructive = false,
                         onClick = {
-                            showBottomSheet = false
+                            showMoreOptionsBottomSheet = false
                             viewModel.onEvent(LibraryEvent.OnAboutClicked)
                         }
                     ),
@@ -235,7 +214,7 @@ fun LibraryScreen(
                         icon = null,
                         isDestructive = false,
                         onClick = {
-                            showBottomSheet = false
+                            showMoreOptionsBottomSheet = false
                             viewModel.onEvent(LibraryEvent.OnHelpClicked)
                         }
                     )
@@ -246,8 +225,8 @@ fun LibraryScreen(
                         icon = null,
                         isDestructive = false,
                         onClick = {
-                            showBottomSheet = false
-                            viewModel.onEvent(LibraryEvent.OnSettingsClicked)
+                            showMoreOptionsBottomSheet = false
+                            viewModel.onEvent(LibraryEvent.OnMoreClicked)
                         },
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer

@@ -42,14 +42,14 @@ fun BookItem(
 ) {
     // 容器颜色
     val containerColor = if (isSelected) {
-        MaterialTheme.colorScheme.secondaryContainer
+        MaterialTheme.colorScheme.secondary
     } else {
         Color.Transparent
     }
 
     // 标题颜色
     val titleColor = if (isSelected) {
-        MaterialTheme.colorScheme.onSecondaryContainer
+        MaterialTheme.colorScheme.onSecondary
     } else {
         MaterialTheme.colorScheme.onSurface
     }

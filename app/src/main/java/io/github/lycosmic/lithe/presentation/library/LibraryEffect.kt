@@ -31,4 +31,14 @@ sealed class LibraryEffect {
      * 导航到书籍浏览页面
      */
     data object OnNavigateToBrowser : LibraryEffect()
+
+    /**
+     * 打开筛选面板
+     */
+    data object OpenFilterBottomSheet : LibraryEffect()
+
+    /**
+     * 打开更多选项面板
+     */
+    data object OpenMoreOptionsBottomSheet : LibraryEffect()
 }

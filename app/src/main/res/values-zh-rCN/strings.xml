@@ -127,4 +127,9 @@
     <string name="delete_category_message">这本书将会从数据库中删除，但不会从您的设备上删除。</string>
     <string name="unpin">取消固定</string>
     <string name="pin_to_top">固定到顶部</string>
+    <string name="selected_books">已选择 %d 本</string>
+    <string name="select_all_books">选中所有书籍</string>
+    <string name="move_selected_books">移动所选书籍\n</string>
+    <string name="delete_selected_books">删除所选书籍</string>
+    <string name="library">书库</string>
 </resources>

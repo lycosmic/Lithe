@@ -10,12 +10,12 @@ import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToA
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToBookDetail
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToBrowser
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToHelp
-import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToSettings
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -27,8 +27,8 @@ class LibraryViewModel @Inject constructor(
     settingsManager: SettingsManager
 ) : ViewModel() {
 
-    // 书籍列表
-    val books = bookRepository.getAllBooks().stateIn(
+    // 原始的书籍列表
+    private val _rawBooks = bookRepository.getAllBooks().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = emptyList()
@@ -45,11 +45,57 @@ class LibraryViewModel @Inject constructor(
         initialValue = false
     )
 
+    // 当前是否处于搜索模式
+    private val _isSearching = MutableStateFlow(false)
+
     // 是否开启双击返回
     val isDoubleBackToExitEnabled = settingsManager.isDoubleBackToExitEnabled.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = false
+    )
+
+    // 搜索文本
+    private val _searchText = MutableStateFlow("")
+    val searchText = _searchText.asStateFlow()
+
+    // 展示给用户的书籍列表
+    val books = combine(
+        _rawBooks,
+        _selectedBooks,
+        _isSearching,
+        _searchText
+    ) { rawBooks, selectedBooks, isSearching, searchText ->
+        // 如果是搜索模式, 则进行搜索过滤
+        if (isSearching) {
+            return@combine rawBooks.filter { book ->
+                book.title.contains(searchText, ignoreCase = true)
+            }
+        }
+
+        return@combine rawBooks
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = emptyList()
+    )
+
+    // 顶部栏状态
+    val topBarState = combine(
+        _selectedBooks,
+        _isSearching,
+    ) { selectedBooks, isSearching ->
+        // 优先级: 多选模式 > 搜索模式 > 默认模式
+        if (selectedBooks.isNotEmpty()) {
+            return@combine LibraryTopBarState.SELECT_BOOK
+        } else if (isSearching) {
+            return@combine LibraryTopBarState.SEARCH_BOOK
+        }
+        return@combine LibraryTopBarState.DEFAULT
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        LibraryTopBarState.DEFAULT
     )
 
     private val _effects = MutableSharedFlow<LibraryEffect>()
@@ -81,11 +127,14 @@ class LibraryViewModel @Inject constructor(
                     _effects.emit(OnNavigateToHelp)
                 }
 
-                is LibraryEvent.OnSettingsClicked -> {
-                    _effects.emit(OnNavigateToSettings)
+                is LibraryEvent.OnMoreClicked -> {
+                    _effects.emit(LibraryEffect.OpenMoreOptionsBottomSheet)
                 }
 
-                is LibraryEvent.OnStartReadingClicked -> TODO()
+                is LibraryEvent.OnStartReadingClicked -> {
+
+                }
+
                 is LibraryEvent.OnAddBookClicked -> {
                     _effects.emit(OnNavigateToBrowser)
                 }
@@ -104,13 +153,33 @@ class LibraryViewModel @Inject constructor(
                     _selectedBooks.value = emptySet()
                 }
 
-                LibraryEvent.OnMoveClicked -> {
-                    TODO()
-                }
-
                 LibraryEvent.OnSelectAllClicked -> {
                     // 选中所有书籍
                     selectAllBooks()
+                }
+
+                is LibraryEvent.OnSearchTextChanged -> {
+                    // 更新搜索文本
+                    _searchText.value = event.text
+                }
+
+                LibraryEvent.OnSearchClicked -> {
+                    // 进入搜索模式
+                    _isSearching.value = true
+                }
+
+                LibraryEvent.OnExitSearchClicked -> {
+                    // 退出搜索模式
+                    _isSearching.value = false
+                }
+
+                LibraryEvent.OnFilterClicked -> {
+                    // 打开过滤器
+                    _effects.emit(LibraryEffect.OpenFilterBottomSheet)
+                }
+
+                LibraryEvent.OnMoveCategoryClicked -> {
+
                 }
             }
         }

@@ -18,9 +18,9 @@ sealed class LibraryEvent {
     data class OnStartReadingClicked(val bookId: Long) : LibraryEvent()
 
     /**
-     * 点击设置
+     * 点击更多
      */
-    data object OnSettingsClicked : LibraryEvent()
+    data object OnMoreClicked : LibraryEvent()
 
     /**
      * 点击关于
@@ -38,22 +38,42 @@ sealed class LibraryEvent {
     data object OnAddBookClicked : LibraryEvent()
 
     /**
-     * 点击取消选中
+     * 点击取消所有选中的书籍
      */
     data object OnCancelSelectionClicked : LibraryEvent()
 
     /**
-     * 点击全选
+     * 点击全选书籍
      */
     data object OnSelectAllClicked : LibraryEvent()
 
     /**
-     * 点击删除
+     * 点击删除书籍
      */
     data object OnDeleteClicked : LibraryEvent()
 
     /**
-     * 点击移动
+     * 搜索文本改变
      */
-    data object OnMoveClicked : LibraryEvent()
+    data class OnSearchTextChanged(val text: String) : LibraryEvent()
+
+    /**
+     * 点击搜索框
+     */
+    object OnSearchClicked : LibraryEvent()
+
+    /**
+     * 点击退出搜索
+     */
+    object OnExitSearchClicked : LibraryEvent()
+
+    /**
+     * 点击过滤按钮
+     */
+    object OnFilterClicked : LibraryEvent()
+
+    /**
+     * 点击移动书籍分类
+     */
+    object OnMoveCategoryClicked : LibraryEvent()
 }
