@@ -61,6 +61,7 @@ class LibraryViewModel @Inject constructor(
 
     // 当前是否处于搜索模式
     private val _isSearching = MutableStateFlow(false)
+    val isSearching = _isSearching.asStateFlow()
 
     // 是否开启双击返回
     val isDoubleBackToExitEnabled = settingsManager.isDoubleBackToExitEnabled.stateIn(

@@ -63,6 +63,12 @@ fun LibraryScreen(
 
     val isBookCountVisible by viewModel.showBookCount.collectAsStateWithLifecycle()
 
+    // 处于搜索模式下
+    val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
+
+    // 处于多选模式下
+    val isSelectionMode by viewModel.isSelectionMode.collectAsStateWithLifecycle()
+
     // 双击返回键退出
     val isDoubleBackToExitEnabled by viewModel.isDoubleBackToExitEnabled.collectAsStateWithLifecycle()
 
@@ -70,19 +76,28 @@ fun LibraryScreen(
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
 
     // 拦截返回键
-    BackHandler(enabled = true) {
-        if (isDoubleBackToExitEnabled) {
-            val currentTime = System.currentTimeMillis()
-            if (currentTime - lastBackPressTime < DOUBLE_CLICK_BACK_INTERVAL_MILLIS) {
-                (context as? Activity)?.finish()
-            } else {
-                // 第一次按下
-                lastBackPressTime = currentTime
-                ToastUtil.show(R.string.double_tap_to_exit_message_again)
+    BackHandler(enabled = isDoubleBackToExitEnabled || isSearching || isSelectionMode) {
+        // 优先级：多选模式 > 搜索模式 > 默认模式
+        when {
+            isSelectionMode -> {
+                viewModel.onEvent(LibraryEvent.OnCancelSelectionClicked)
             }
-        } else {
-            // 直接退出
-            (context as? Activity)?.finish()
+
+            isSearching -> {
+                viewModel.onEvent(LibraryEvent.OnExitSearchClicked)
+            }
+
+            isDoubleBackToExitEnabled -> {
+                // 处于双击返回键退出模式下
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastBackPressTime < DOUBLE_CLICK_BACK_INTERVAL_MILLIS) {
+                    (context as? Activity)?.finish()
+                } else {
+                    // 第一次按下
+                    lastBackPressTime = currentTime
+                    ToastUtil.show(R.string.double_tap_to_exit_message_again)
+                }
+            }
         }
     }
 
