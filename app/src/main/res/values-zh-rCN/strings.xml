@@ -138,4 +138,8 @@
     <string name="library_delete_book_message">所有已选择的书（%d）将会从数据库中删除，但不会从您的设备上删除。</string>
     <string name="delete_all_selected_book_success">成功删除所有已选择的书。</string>
     <string name="delete_count_book_success">已删除 %d 本书</string>
+    <string name="book_sort_type_alphabetical">字母顺序</string>
+    <string name="book_sort_type_last_read_time">上次阅读</string>
+    <string name="book_sort_type_progress">进度</string>
+    <string name="book_sort_type_author">作者</string>
 </resources>

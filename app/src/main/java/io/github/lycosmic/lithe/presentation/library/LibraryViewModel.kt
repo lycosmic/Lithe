@@ -3,14 +3,25 @@ package io.github.lycosmic.lithe.presentation.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.lithe.data.model.BookSortType
+import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.Constants
+import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.extension.logE
+import io.github.lycosmic.lithe.presentation.library.LibraryEffect.CloseDeleteBookConfirmDialog
+import io.github.lycosmic.lithe.presentation.library.LibraryEffect.CloseFilterBottomSheet
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToAbout
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToBookDetail
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToBrowser
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToHelp
+import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToSettings
+import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OpenFilterBottomSheet
+import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OpenMoreOptionsBottomSheet
+import io.github.lycosmic.lithe.presentation.library.LibraryEffect.ShowDeleteBookConfirmDialog
+import io.github.lycosmic.lithe.presentation.library.LibraryEffect.ShowDeleteBookCountToast
+import io.github.lycosmic.lithe.presentation.library.LibraryEffect.ShowDeleteBookSuccessToast
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,7 +36,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val bookRepository: BookRepository,
-    settingsManager: SettingsManager
+    private val settingsManager: SettingsManager
 ) : ViewModel() {
 
     // 原始的书籍列表
@@ -42,12 +53,6 @@ class LibraryViewModel @Inject constructor(
         initialValue = 0
     )
 
-    // 是否显示书籍数
-    val showBookCount = settingsManager.showBookCount.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
-        initialValue = false
-    )
 
     // 当前选中的书籍, 存储书籍ID
     private val _selectedBooks = MutableStateFlow<Set<Long>>(emptySet())
@@ -117,6 +122,93 @@ class LibraryViewModel @Inject constructor(
     private val _effects = MutableSharedFlow<LibraryEffect>()
     val effects = _effects.asSharedFlow()
 
+    // --- 设置相关 ---
+    // 排序
+    val sortType = settingsManager.bookSortType.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = BookSortType.DEFAULT_BOOK_SORT_TYPE
+    )
+
+    // 排序顺序
+    val sortOrder = settingsManager.bookSortOrder.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = false
+    )
+
+    /**
+     * 书籍显示模式
+     */
+    val bookDisplayMode = settingsManager.bookDisplayMode.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = DisplayMode.List
+    )
+
+    /**
+     * 书籍网格大小
+     */
+    val bookGridColumnCount = settingsManager.bookGridColumnCount.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = Constants.GRID_SIZE_INT_RANGE.first
+    )
+
+    /**
+     * 书籍标题位置
+     */
+    val bookTitlePosition = settingsManager.bookTitlePosition.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = BookTitlePosition.Below
+    )
+
+    /**
+     * 显示阅读按钮
+     */
+    val showReadButton = settingsManager.showReadButton.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = true
+    )
+
+    /**
+     * 显示阅读进度
+     */
+    val showReadProgress = settingsManager.showReadProgress.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = true
+    )
+
+    /**
+     * 显示分类标签页
+     */
+    val showCategoryTab = settingsManager.showCategoryTab.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = true
+    )
+
+    /**
+     * 总是显示默认分类标签页
+     */
+    val alwaysShowDefaultCategoryTab = settingsManager.alwaysShowDefaultCategoryTab.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = true
+    )
+
+    /**
+     * 是否显示书籍数量
+     */
+    val showBookCount = settingsManager.showBookCount.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = true
+    )
+
     fun onEvent(event: LibraryEvent) {
         viewModelScope.launch {
             when (event) {
@@ -144,7 +236,7 @@ class LibraryViewModel @Inject constructor(
                 }
 
                 is LibraryEvent.OnMoreClicked -> {
-                    _effects.emit(LibraryEffect.OpenMoreOptionsBottomSheet)
+                    _effects.emit(OpenMoreOptionsBottomSheet)
                 }
 
                 is LibraryEvent.OnStartReadingClicked -> {
@@ -162,7 +254,7 @@ class LibraryViewModel @Inject constructor(
 
                 LibraryEvent.OnDeleteClicked -> {
                     // 打开删除确认面板
-                    _effects.emit(LibraryEffect.ShowDeleteBookConfirmDialog)
+                    _effects.emit(ShowDeleteBookConfirmDialog)
                 }
 
                 LibraryEvent.OnSelectAllClicked -> {
@@ -187,7 +279,7 @@ class LibraryViewModel @Inject constructor(
 
                 LibraryEvent.OnFilterClicked -> {
                     // 打开过滤器
-                    _effects.emit(LibraryEffect.OpenFilterBottomSheet)
+                    _effects.emit(OpenFilterBottomSheet)
                 }
 
                 LibraryEvent.OnMoveCategoryClicked -> {
@@ -195,7 +287,7 @@ class LibraryViewModel @Inject constructor(
                 }
 
                 LibraryEvent.OnSettingsClicked -> {
-                    _effects.emit(LibraryEffect.OnNavigateToSettings)
+                    _effects.emit(OnNavigateToSettings)
                 }
 
                 LibraryEvent.OnDeleteDialogConfirmed -> {
@@ -215,18 +307,60 @@ class LibraryViewModel @Inject constructor(
                         successCount++
                     }
                     if (successCount == _selectedBooks.value.size) {
-                        _effects.emit(LibraryEffect.ShowDeleteBookSuccessToast)
+                        _effects.emit(ShowDeleteBookSuccessToast)
                     } else {
-                        _effects.emit(LibraryEffect.ShowDeleteBookCountToast(successCount))
+                        _effects.emit(ShowDeleteBookCountToast(successCount))
                     }
 
                     // 清空选中列表
                     _selectedBooks.value = emptySet()
-                    _effects.emit(LibraryEffect.CloseDeleteBookConfirmDialog)
+                    _effects.emit(CloseDeleteBookConfirmDialog)
                 }
 
                 LibraryEvent.OnDeleteDialogDismissed -> {
-                    _effects.emit(LibraryEffect.CloseDeleteBookConfirmDialog)
+                    _effects.emit(CloseDeleteBookConfirmDialog)
+                }
+
+                LibraryEvent.OnFilterBottomSheetDismissed -> {
+                    _effects.emit(CloseFilterBottomSheet)
+                }
+
+
+                is LibraryEvent.OnSortChanged -> {
+                    settingsManager.setBookSortType(event.sortType)
+                    settingsManager.setBookSortOrder(event.isAscending)
+                }
+
+                is LibraryEvent.OnDisplayModeChanged -> {
+                    settingsManager.setBookDisplayMode(event.displayMode)
+                }
+
+                is LibraryEvent.OnGridSizeChanged -> {
+                    settingsManager.setBookGridColumnCount(event.gridSize)
+                }
+
+                is LibraryEvent.OnBookTitlePositionChanged -> {
+                    settingsManager.setBookTitlePosition(event.titlePosition)
+                }
+
+                is LibraryEvent.OnReadButtonVisibleChanged -> {
+                    settingsManager.setShowReadButton(event.visible)
+                }
+
+                is LibraryEvent.OnProgressVisibleChanged -> {
+                    settingsManager.setShowReadProgress(event.visible)
+                }
+
+                is LibraryEvent.OnCategoryTabVisibleChanged -> {
+                    settingsManager.setShowCategoryTab(event.visible)
+                }
+
+                is LibraryEvent.OnDefaultCategoryTabVisibleChanged -> {
+                    settingsManager.setAlwaysShowDefaultCategoryTab(event.visible)
+                }
+
+                is LibraryEvent.OnBookCountVisibleChanged -> {
+                    settingsManager.setShowBookCount(event.visible)
                 }
             }
         }

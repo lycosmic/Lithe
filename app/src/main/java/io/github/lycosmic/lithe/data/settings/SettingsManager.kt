@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.lycosmic.lithe.data.model.AppThemeOption
+import io.github.lycosmic.lithe.data.model.BookSortType
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.ThemeMode
@@ -22,34 +23,47 @@ class SettingsManager @Inject constructor(
 ) {
     // DataStore Keys
     private object Keys {
-        val THEME_MODE = stringPreferencesKey("theme") // 主题模式
+        // 主题模式
+        val THEME_MODE = stringPreferencesKey("theme")
 
-        val APP_THEME = stringPreferencesKey("app_theme") // 应用主题
+        // 应用主题
+        val APP_THEME = stringPreferencesKey("app_theme")
 
-        val FILE_DISPLAY_MODE = stringPreferencesKey("file_display_mode") // 文件显示模式
+        // 文件显示模式
+        val FILE_DISPLAY_MODE = stringPreferencesKey("file_display_mode")
 
-        val FILE_GRID_COLUMN_COUNT = stringPreferencesKey("file_grid_column_count") // 文件网格列数
+        // 文件网格列数
+        val FILE_GRID_COLUMN_COUNT = stringPreferencesKey("file_grid_column_count")
 
-        val LANGUAGE_CODE = stringPreferencesKey("language_code") // 应用语言代码
+        // 应用语言代码
+        val LANGUAGE_CODE = stringPreferencesKey("language_code")
 
+        // 是否启用双击返回退出
         val IS_DOUBLE_BACK_TO_EXIT_ENABLED =
-            booleanPreferencesKey("is_double_back_to_exit_enabled") // 是否启用双击返回退出
+            booleanPreferencesKey("is_double_back_to_exit_enabled")
 
+        // 是否显示导航栏标签
         val SHOW_NAVIGATION_BAR_LABELS =
-            booleanPreferencesKey("show_navigation_bar_labels") // 是否显示导航栏标签
+            booleanPreferencesKey("show_navigation_bar_labels")
 
-        val CURRENT_COLOR_PRESET_ID = longPreferencesKey("current_color_preset_id") // 当前选中的颜色预设
+        // 当前选中的颜色预设
+        val CURRENT_COLOR_PRESET_ID = longPreferencesKey("current_color_preset_id")
 
+        // 是否启用快速更改颜色预设
         val QUICK_CHANGE_COLOR_PRESET =
-            booleanPreferencesKey("quick_change_color_preset") // 是否启用快速更改颜色预设
+            booleanPreferencesKey("quick_change_color_preset")
 
-        val BOOK_DISPLAY_MODE = stringPreferencesKey("book_display_mode") // 书籍显示模式
+        // 书籍显示模式
+        val BOOK_DISPLAY_MODE = stringPreferencesKey("book_display_mode")
 
-        val BOOK_GRID_COLUMN_COUNT = stringPreferencesKey("book_grid_column_count") // 书籍网格列数
+        // 书籍网格列数
+        val BOOK_GRID_COLUMN_COUNT = stringPreferencesKey("book_grid_column_count")
 
-        val BOOK_TITLE_POSITION = stringPreferencesKey("book_title_position") // 书籍标题位置
+        // 书籍标题位置
+        val BOOK_TITLE_POSITION = stringPreferencesKey("book_title_position")
 
-        val SHOW_READ_BUTTON = booleanPreferencesKey("show_read_button") // 是否显示阅读按钮
+        // 是否显示阅读按钮
+        val SHOW_READ_BUTTON = booleanPreferencesKey("show_read_button")
 
         // 是否显示阅读进度
         val SHOW_READ_PROGRESS = booleanPreferencesKey("show_read_progress")
@@ -66,6 +80,12 @@ class SettingsManager @Inject constructor(
         // 是否每个分类都有不同的排序依据
         val DIFFERENT_SORT_ORDER_PER_CATEGORY =
             booleanPreferencesKey("different_sort_order_per_category")
+
+        // 书籍排序依据
+        val BOOK_SORT_TYPE = stringPreferencesKey("book_sort_type")
+
+        // 书籍排序顺序
+        val BOOK_SORT_ORDER = booleanPreferencesKey("book_sort_order")
     }
 
     companion object {
@@ -328,6 +348,36 @@ class SettingsManager @Inject constructor(
     suspend fun setEachCategoryHasDifferentSort(isEnabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[Keys.DIFFERENT_SORT_ORDER_PER_CATEGORY] = isEnabled
+        }
+    }
+
+    // --- 书籍排序方式 ---
+    val bookSortType: Flow<BookSortType> = dataStore.data.map { preferences ->
+        BookSortType.valueOf(
+            preferences[Keys.BOOK_SORT_TYPE] ?: BookSortType.DEFAULT_BOOK_SORT_TYPE.name
+        )
+    }
+
+    // --- 书籍排序是否升序 ---
+    val bookSortOrder: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[Keys.BOOK_SORT_ORDER] ?: false
+    }
+
+    /**
+     * 设置书籍排序方式
+     */
+    suspend fun setBookSortType(type: BookSortType) {
+        dataStore.edit { preferences ->
+            preferences[Keys.BOOK_SORT_TYPE] = type.name
+        }
+    }
+
+    /**
+     * 设置书籍排序是否升序
+     */
+    suspend fun setBookSortOrder(isAscending: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[Keys.BOOK_SORT_ORDER] = isAscending
         }
     }
 

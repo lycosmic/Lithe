@@ -29,6 +29,7 @@ import io.github.lycosmic.lithe.data.model.Constants.DOUBLE_CLICK_BACK_INTERVAL_
 import io.github.lycosmic.lithe.presentation.library.components.BookItem
 import io.github.lycosmic.lithe.presentation.library.components.EmptyLibraryState
 import io.github.lycosmic.lithe.presentation.library.components.LibraryDeleteBookDialog
+import io.github.lycosmic.lithe.presentation.library.components.LibraryFilterSheet
 import io.github.lycosmic.lithe.presentation.library.components.LibraryTopAppBar
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
@@ -63,6 +64,26 @@ fun LibraryScreen(
 
     val totalBookCount by viewModel.totalBooksCount.collectAsStateWithLifecycle()
 
+    // 排序方式和顺序
+    val sortType by viewModel.sortType.collectAsStateWithLifecycle()
+    val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
+
+    // 显示模式
+    val bookDisplayMode by viewModel.bookDisplayMode.collectAsStateWithLifecycle()
+
+    // 网格大小和标题位置
+    val bookGridColumnCount by viewModel.bookGridColumnCount.collectAsStateWithLifecycle()
+    val bookTitlePosition by viewModel.bookTitlePosition.collectAsStateWithLifecycle()
+
+    // 显示阅读按钮和阅读进度
+    val showReadButton by viewModel.showReadButton.collectAsStateWithLifecycle()
+    val showReadProgress by viewModel.showReadProgress.collectAsStateWithLifecycle()
+
+    // 显示分类标签和显示默认标签页
+    val showCategoryTab by viewModel.showCategoryTab.collectAsStateWithLifecycle()
+    val alwaysShowDefaultCategoryTab by viewModel.alwaysShowDefaultCategoryTab.collectAsStateWithLifecycle()
+
+    // 显示书籍数量
     val isBookCountVisible by viewModel.showBookCount.collectAsStateWithLifecycle()
 
     // 删除书籍确认对话框是否可见
@@ -296,6 +317,50 @@ fun LibraryScreen(
                     )
                 )
             )
+        )
+
+        LibraryFilterSheet(
+            visible = showFilterBottomSheet,
+            onDismissRequest = {
+                viewModel.onEvent(LibraryEvent.OnFilterBottomSheetDismissed)
+            },
+            sortType = sortType,
+            isAscending = sortOrder,
+            onSortTypeChanged = { sortOrder, isAscending ->
+                viewModel.onEvent(LibraryEvent.OnSortChanged(sortOrder, isAscending))
+            },
+            displayMode = bookDisplayMode,
+            onDisplayModeChanged = {
+                viewModel.onEvent(LibraryEvent.OnDisplayModeChanged(it))
+            },
+            gridSize = bookGridColumnCount,
+            onGridSizeChanged = {
+                viewModel.onEvent(LibraryEvent.OnGridSizeChanged(it))
+            },
+            bookTitlePosition = bookTitlePosition,
+            onBookTitlePositionChanged = {
+                viewModel.onEvent(LibraryEvent.OnBookTitlePositionChanged(it))
+            },
+            isReadButtonVisible = showReadButton,
+            onReadButtonVisibleChange = {
+                viewModel.onEvent(LibraryEvent.OnReadButtonVisibleChanged(it))
+            },
+            isProgressVisible = showReadProgress,
+            onProgressVisibleChange = {
+                viewModel.onEvent(LibraryEvent.OnProgressVisibleChanged(it))
+            },
+            isCategoryTabVisible = showCategoryTab,
+            onCategoryTabVisibleChange = {
+                viewModel.onEvent(LibraryEvent.OnCategoryTabVisibleChanged(it))
+            },
+            isDefaultCategoryTabVisible = alwaysShowDefaultCategoryTab,
+            onDefaultCategoryTabVisibleChange = {
+                viewModel.onEvent(LibraryEvent.OnDefaultCategoryTabVisibleChanged(it))
+            },
+            isBookCountVisible = isBookCountVisible,
+            onBookCountVisibleChange = {
+                viewModel.onEvent(LibraryEvent.OnBookCountVisibleChanged(it))
+            }
         )
     }
 }
