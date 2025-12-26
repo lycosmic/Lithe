@@ -13,6 +13,10 @@ class CategoryRepository @Inject constructor(
         return categoryDao.getAllCategories()
     }
 
+    fun getCategoriesExcludeDefault(): Flow<List<CategoryEntity>> {
+        return categoryDao.getAllCategoriesExcludeDefault()
+    }
+
     suspend fun countCategoriesByName(categoryName: String): Int {
         return categoryDao.countCategoriesByName(categoryName)
     }

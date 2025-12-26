@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
+import io.github.lycosmic.lithe.data.model.Constants
 import kotlinx.coroutines.flow.Flow
 
 
@@ -22,6 +23,12 @@ interface CategoryDao {
      */
     @Query("SELECT * FROM categories ORDER BY createdAt DESC")
     fun getAllCategories(): Flow<List<CategoryEntity>>
+
+    /**
+     * 获取所有分类，不包括默认分类 (返回 Flow)
+     */
+    @Query("SELECT * FROM categories WHERE id != ${Constants.DEFAULT_CATEGORY_ID} ORDER BY createdAt DESC")
+    fun getAllCategoriesExcludeDefault(): Flow<List<CategoryEntity>>
 
     /**
      * 获取所有分类 (返回 List)

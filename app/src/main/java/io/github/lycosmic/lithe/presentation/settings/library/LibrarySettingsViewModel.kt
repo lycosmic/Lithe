@@ -110,7 +110,7 @@ class LibrarySettingsViewModel @Inject constructor(
     )
 
     // 当前的分类列表
-    val categoryList = categoryRepository.getCategories().stateIn(
+    val categoryList = categoryRepository.getCategoriesExcludeDefault().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = emptyList()
