@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import io.github.lycosmic.lithe.data.local.converter.BookTypeConverters
+import io.github.lycosmic.lithe.data.model.Constants.DEFAULT_CATEGORY_ID
 import kotlinx.serialization.Serializable
 
 @Entity(
@@ -24,6 +25,8 @@ data class Book(
     val description: String?, // 简介
 
     val language: String?,
+
+    val categoryId: Long = DEFAULT_CATEGORY_ID, // 分类 ID
 
     val publisher: String?,
 

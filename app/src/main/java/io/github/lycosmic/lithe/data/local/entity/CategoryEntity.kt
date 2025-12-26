@@ -3,11 +3,11 @@ package io.github.lycosmic.lithe.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-
+const val CATEGORY_TABLE_NAME = "categories"
 /**
  * 分类实体类
  */
-@Entity(tableName = "categories")
+@Entity(tableName = CATEGORY_TABLE_NAME)
 data class CategoryEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,

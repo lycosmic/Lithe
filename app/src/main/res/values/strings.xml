@@ -141,4 +141,5 @@
     <string name="book_sort_type_last_read_time">上次阅读</string>
     <string name="book_sort_type_progress">进度</string>
     <string name="book_sort_type_author">作者</string>
+    <string name="default_category_name">默认</string>
 </resources>

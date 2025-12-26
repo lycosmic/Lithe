@@ -1,6 +1,7 @@
 package io.github.lycosmic.lithe.data.model
 
 import androidx.compose.ui.unit.dp
+import io.github.lycosmic.lithe.R
 
 object Constants {
     /**
@@ -29,4 +30,14 @@ object Constants {
      * 最小的网格项宽度
      */
     val MIN_GRID_ITEM_WIDTH = 170.dp
+
+    /**
+     * 默认的分类 ID
+     */
+    const val DEFAULT_CATEGORY_ID = 1L
+
+    /**
+     * 默认的分类名称
+     */
+    val DEFAULT_CATEGORY_NAME: Int = R.string.default_category_name
 }
