@@ -3,6 +3,7 @@ package io.github.lycosmic.lithe.presentation.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.lithe.data.model.Book
 import io.github.lycosmic.lithe.data.model.BookSortType
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.Constants
@@ -24,6 +25,7 @@ import io.github.lycosmic.lithe.presentation.library.LibraryEffect.ShowDeleteBoo
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.ShowDeleteBookSuccessToast
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -69,6 +71,27 @@ class LibraryViewModel @Inject constructor(
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
 
+    /**
+     * 排序
+     */
+    private val _sortType = settingsManager.bookSortType
+    val sortType = _sortType.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = BookSortType.DEFAULT_BOOK_SORT_TYPE
+    )
+
+    /**
+     * 排序顺序
+     */
+    private val _sortOrder = settingsManager.bookSortOrder
+    val sortOrder = _sortOrder.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = false
+    )
+
+
     // 是否开启双击返回
     val isDoubleBackToExitEnabled = settingsManager.isDoubleBackToExitEnabled.stateIn(
         scope = viewModelScope,
@@ -83,18 +106,22 @@ class LibraryViewModel @Inject constructor(
     // 展示给用户的书籍列表
     val books = combine(
         _rawBooks,
-        _selectedBooks,
+        _sortType,
+        _sortOrder,
         _isSearching,
-        _searchText
-    ) { rawBooks, selectedBooks, isSearching, searchText ->
+        _searchText,
+    ) { rawBooks, sortType, isAscending, isSearching, searchText ->
+        // 排序
+        val sortedBooks = sortBooks(rawBooks, sortType, isAscending)
+
         // 如果是搜索模式, 则进行搜索过滤
         if (isSearching) {
-            return@combine rawBooks.filter { book ->
+            return@combine sortedBooks.filter { book ->
                 book.title.contains(searchText, ignoreCase = true)
             }
         }
 
-        return@combine rawBooks
+        return@combine sortedBooks
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
@@ -119,24 +146,10 @@ class LibraryViewModel @Inject constructor(
         LibraryTopBarState.DEFAULT
     )
 
-    private val _effects = MutableSharedFlow<LibraryEffect>()
-    val effects = _effects.asSharedFlow()
+    private val _effects: MutableSharedFlow<LibraryEffect> = MutableSharedFlow()
+    val effects: SharedFlow<LibraryEffect> = _effects.asSharedFlow()
 
     // --- 设置相关 ---
-    // 排序
-    val sortType = settingsManager.bookSortType.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
-        initialValue = BookSortType.DEFAULT_BOOK_SORT_TYPE
-    )
-
-    // 排序顺序
-    val sortOrder = settingsManager.bookSortOrder.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
-        initialValue = false
-    )
-
     /**
      * 书籍显示模式
      */
@@ -394,6 +407,31 @@ class LibraryViewModel @Inject constructor(
     fun selectAllBooks() {
         val allIds = books.value.map { it.id }.toSet()
         _selectedBooks.value = allIds
+    }
+
+    /**
+     * 对书籍进行排序
+     */
+    private fun sortBooks(
+        books: List<Book>,
+        sortType: BookSortType,
+        isAscending: Boolean
+    ): List<Book> {
+        return if (isAscending) {
+            when (sortType) {
+                BookSortType.ALPHABETICAL -> books.sortedBy { it.title.lowercase() }
+                BookSortType.LAST_READ_TIME -> books.sortedBy { it.lastReadTime }
+                BookSortType.PROGRESS -> books.sortedBy { it.progress }
+                BookSortType.AUTHOR -> books.sortedBy { it.author.lowercase() }
+            }
+        } else {
+            when (sortType) {
+                BookSortType.ALPHABETICAL -> books.sortedByDescending { it.title.lowercase() }
+                BookSortType.LAST_READ_TIME -> books.sortedByDescending { it.lastReadTime }
+                BookSortType.PROGRESS -> books.sortedByDescending { it.progress }
+                BookSortType.AUTHOR -> books.sortedByDescending { it.author.lowercase() }
+            }
+        }
     }
 
 }
