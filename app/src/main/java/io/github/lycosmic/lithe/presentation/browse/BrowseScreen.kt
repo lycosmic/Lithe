@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
 import io.github.lycosmic.lithe.data.model.Constants
+import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.presentation.browse.components.AddBookConfirmationDialog
 import io.github.lycosmic.lithe.presentation.browse.components.BrowseFilterSheet
 import io.github.lycosmic.lithe.presentation.browse.components.DefaultBrowseTopAppBar
@@ -96,7 +96,7 @@ fun BrowseScreen(
     val isSearchMode by viewModel.isSearchMode.collectAsStateWithLifecycle()
 
     // 显示模式
-    val displayMode by viewModel.fileBrowseDisplayMode.collectAsStateWithLifecycle()
+    val displayMode by viewModel.fileDisplayMode.collectAsStateWithLifecycle()
 
     // 网格大小
     val gridColumnCount by viewModel.gridColumnCount.collectAsStateWithLifecycle()
@@ -221,7 +221,7 @@ fun BrowseScreen(
                         }
 
                         when (displayMode) {
-                            BrowseDisplayMode.List -> {
+                            DisplayMode.List -> {
                                 items(
                                     items = files,
                                     key = { file -> file.uri.toString() }) { file ->
@@ -245,7 +245,7 @@ fun BrowseScreen(
                                 }
                             }
 
-                            BrowseDisplayMode.Grid -> {
+                            DisplayMode.Grid -> {
                                 // 二维行列表
                                 val rows = files.chunked(actualColumns)
 
@@ -333,7 +333,7 @@ fun BrowseScreen(
                 )
                 showFilterSheet = true
             },
-            currentBrowseDisplayMode = displayMode,
+            currentDisplayMode = displayMode,
             onDisplayModeChanged = {
                 viewModel.onEvent(
                     BrowseEvent.OnDisplayModeChange(

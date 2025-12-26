@@ -4,8 +4,8 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
 import io.github.lycosmic.lithe.data.model.Constants
+import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.ScannedDirectory
 import io.github.lycosmic.lithe.data.repository.DirectoryRepository
 import io.github.lycosmic.lithe.data.settings.SettingsManager
@@ -32,10 +32,10 @@ class BrowseSettingsViewModel @Inject constructor(
     )
 
     // 当前的文件夹显示模式
-    val browseDisplayMode = settingsManager.fileBrowseDisplayMode.stateIn(
+    val displayMode = settingsManager.fileDisplayMode.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
-        initialValue = BrowseDisplayMode.List
+        initialValue = DisplayMode.List
     )
 
     // 当前的网格列数
@@ -79,7 +79,7 @@ class BrowseSettingsViewModel @Inject constructor(
     /**
      * 修改文件显示模式
      */
-    fun onDisplayModeChanged(newMode: BrowseDisplayMode) {
+    fun onDisplayModeChanged(newMode: DisplayMode) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsManager.setFileDisplayMode(newMode)
         }

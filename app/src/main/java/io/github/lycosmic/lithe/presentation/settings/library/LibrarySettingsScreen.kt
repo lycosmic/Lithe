@@ -44,7 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
-import io.github.lycosmic.lithe.data.model.LibraryDisplayMode
+import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.OptionItem
 import io.github.lycosmic.lithe.presentation.settings.components.GridSizeSlider
 import io.github.lycosmic.lithe.presentation.settings.components.InfoTip
@@ -217,7 +217,7 @@ fun LibrarySettingsScreen(
             // --- 网格或列表 ---
             LitheSegmentedButton(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                items = LibraryDisplayMode.entries.map { displayMode ->
+                items = DisplayMode.entries.map { displayMode ->
                     OptionItem(
                         value = displayMode,
                         label = stringResource(displayMode.labelResId),
@@ -230,7 +230,7 @@ fun LibrarySettingsScreen(
 
             // --- 网格大小和标题位置
             AnimatedVisibility(
-                visible = bookDisplayMode == LibraryDisplayMode.Grid,
+                visible = bookDisplayMode == DisplayMode.Grid,
                 enter = slideInVertically(
                     animationSpec = tween(),
                     initialOffsetY = { -it / 2 }

@@ -2,7 +2,7 @@ package io.github.lycosmic.lithe.presentation.settings.library
 
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
-import io.github.lycosmic.lithe.data.model.LibraryDisplayMode
+import io.github.lycosmic.lithe.data.model.DisplayMode
 
 sealed class LibrarySettingsEvent {
     /**
@@ -18,7 +18,7 @@ sealed class LibrarySettingsEvent {
     /**
      * 书籍显示模式改变
      */
-    data class OnBookDisplayModeChange(val libraryDisplayMode: LibraryDisplayMode) :
+    data class OnBookDisplayModeChange(val displayMode: DisplayMode) :
         LibrarySettingsEvent()
 
     /**

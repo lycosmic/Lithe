@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
-import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
 import io.github.lycosmic.lithe.data.model.Constants
+import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.repository.CategoryRepository
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.extension.logI
@@ -34,7 +34,7 @@ class LibrarySettingsViewModel @Inject constructor(
     val bookDisplayMode = settingsManager.bookDisplayMode.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
-        initialValue = BrowseDisplayMode.List
+        initialValue = DisplayMode.List
     )
 
     /**
@@ -138,7 +138,7 @@ class LibrarySettingsViewModel @Inject constructor(
 
             is LibrarySettingsEvent.OnBookDisplayModeChange -> {
                 viewModelScope.launch(Dispatchers.IO) {
-                    settingsManager.setBookDisplayMode(event.libraryDisplayMode)
+                    settingsManager.setBookDisplayMode(event.displayMode)
                 }
             }
 

@@ -1,7 +1,7 @@
 package io.github.lycosmic.lithe.presentation.settings.browse
 
 import android.net.Uri
-import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
+import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.ScannedDirectory
 
 
@@ -19,7 +19,7 @@ sealed class BrowseSettingEvent {
     /**
      * 文件显示模式被改变
      */
-    data class DisplayModeChanged(val newMode: BrowseDisplayMode) : BrowseSettingEvent()
+    data class DisplayModeChanged(val newMode: DisplayMode) : BrowseSettingEvent()
 
     /**
      * 网格列数被改变

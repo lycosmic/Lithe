@@ -45,7 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.model.BrowseDisplayMode
+import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.OptionItem
 import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
@@ -62,8 +62,8 @@ fun BrowseFilterSheet(
     onDismissRequest: () -> Unit,
     currentSortType: SortType, // 排序方式
     isAscending: Boolean, // 排序是否为升序
-    currentBrowseDisplayMode: BrowseDisplayMode, // 文件显示模式
-    onDisplayModeChanged: (BrowseDisplayMode) -> Unit,
+    currentDisplayMode: DisplayMode, // 文件显示模式
+    onDisplayModeChanged: (DisplayMode) -> Unit,
     currentGridSize: Int, // 网格大小
     onGridSizeChanged: (Int) -> Unit,
     onSortTypeChanged: (sortType: SortType, isAscending: Boolean) -> Unit,
@@ -132,7 +132,7 @@ fun BrowseFilterSheet(
 
                     TabType.DISPLAY -> {
                         DisplayContent(
-                            currentBrowseDisplayMode = currentBrowseDisplayMode,
+                            currentDisplayMode = currentDisplayMode,
                             onDisplayModeChanged = onDisplayModeChanged,
                             currentGridSize = currentGridSize,
                             onGridSizeChanged = onGridSizeChanged
@@ -250,9 +250,9 @@ private fun FilterContent(
 
 @Composable
 private fun DisplayContent(
-    currentBrowseDisplayMode: BrowseDisplayMode, // 文件显示模式
+    currentDisplayMode: DisplayMode, // 文件显示模式
     currentGridSize: Int, // 网格大小
-    onDisplayModeChanged: (BrowseDisplayMode) -> Unit,
+    onDisplayModeChanged: (DisplayMode) -> Unit,
     onGridSizeChanged: (Int) -> Unit
 ) {
     Column(
@@ -267,11 +267,11 @@ private fun DisplayContent(
         )
 
         LitheSegmentedButton(
-            items = BrowseDisplayMode.entries.map { mode ->
+            items = DisplayMode.entries.map { mode ->
                 OptionItem(
                     value = mode,
                     label = stringResource(id = mode.labelResId),
-                    selected = mode == currentBrowseDisplayMode
+                    selected = mode == currentDisplayMode
                 )
             }.toList(),
             onClick = { clickedMode ->
@@ -282,7 +282,7 @@ private fun DisplayContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         AnimatedVisibility(
-            visible = currentBrowseDisplayMode == BrowseDisplayMode.Grid,
+            visible = currentDisplayMode == DisplayMode.Grid,
             enter = slideInVertically(
                 animationSpec = tween(),
                 initialOffsetY = { -it / 2 }
