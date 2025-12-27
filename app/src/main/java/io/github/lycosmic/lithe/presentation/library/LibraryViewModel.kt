@@ -9,6 +9,7 @@ import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.repository.BookRepository
+import io.github.lycosmic.lithe.data.repository.CategoryRepository
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.CloseDeleteBookConfirmDialog
@@ -38,11 +39,20 @@ import javax.inject.Inject
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val bookRepository: BookRepository,
+    categoryRepository: CategoryRepository,
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
     // 原始的书籍列表
     private val _rawBooks = bookRepository.getAllBooks().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        initialValue = emptyList()
+    )
+    val rawBooks = _rawBooks
+
+    // 分类列表
+    private val _categories = categoryRepository.getCategories().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = emptyList()
@@ -103,25 +113,42 @@ class LibraryViewModel @Inject constructor(
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
-    // 展示给用户的书籍列表
-    val books = combine(
-        _rawBooks,
+    // 过滤状态
+    private val _filterStateFlow = combine(
         _sortType,
         _sortOrder,
         _isSearching,
-        _searchText,
-    ) { rawBooks, sortType, isAscending, isSearching, searchText ->
+        _searchText
+    ) { type, order, searching, text ->
+        BookFilterState(type, order, searching, text)
+    }
+
+    // 展示给用户的书籍列表
+    val groupedBooks = combine(
+        _rawBooks,
+        _filterStateFlow,
+        _categories,
+    ) { rawBooks, filterState, categories ->
         // 排序
-        val sortedBooks = sortBooks(rawBooks, sortType, isAscending)
+        val sortedBooks = sortBooks(rawBooks, filterState.sortType, filterState.isAscending)
 
         // 如果是搜索模式, 则进行搜索过滤
-        if (isSearching) {
-            return@combine sortedBooks.filter { book ->
-                book.title.contains(searchText, ignoreCase = true)
+        val filteredBooks = if (filterState.isSearching) {
+            sortedBooks.filter { book ->
+                book.title.contains(filterState.searchText, ignoreCase = true)
             }
+        } else {
+            sortedBooks
         }
 
-        return@combine sortedBooks
+        // 按照分类进行分组
+        val booksMap = filteredBooks.groupBy { it.categoryId }
+        val groupedResult = categories.map { category ->
+            val booksInThisCategory = booksMap[category.id] ?: emptyList()
+            LibraryBookGroup(category = category, books = booksInThisCategory)
+        }
+
+        return@combine groupedResult
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
@@ -405,7 +432,7 @@ class LibraryViewModel @Inject constructor(
      * 选中所有的书籍
      */
     fun selectAllBooks() {
-        val allIds = books.value.map { it.id }.toSet()
+        val allIds = rawBooks.value.map { it.id }.toSet()
         _selectedBooks.value = allIds
     }
 

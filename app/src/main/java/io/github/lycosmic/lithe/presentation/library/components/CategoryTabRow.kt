@@ -18,9 +18,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 
 /**
@@ -29,7 +31,7 @@ import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 @Composable
 fun CategoryTabRow(
     categories: List<CategoryEntity>,
-    bookCounts: List<Int>,
+    bookCountsList: List<Int>,
     selectedIndex: Int,
     onTabSelected: (Int) -> Unit, // 点击分类标签
     modifier: Modifier = Modifier,
@@ -65,6 +67,9 @@ fun CategoryTabRow(
             // 是否被选中
             val isSelected = selectedIndex == index
 
+            val categoryName =
+                category.name.ifBlank { stringResource(id = R.string.default_category_name) }
+
             Tab(
                 selected = isSelected,
                 onClick = {
@@ -77,7 +82,7 @@ fun CategoryTabRow(
                     ) {
                         // 分类名称
                         Text(
-                            text = category.name,
+                            text = categoryName,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Normal,
                             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
@@ -87,7 +92,7 @@ fun CategoryTabRow(
 
                         // 分类书籍数
                         CountBadge(
-                            count = bookCounts[index]
+                            count = bookCountsList[index]
                         )
                     }
                 }
@@ -112,7 +117,7 @@ private fun CategoryTabRowPrev() {
 
     CategoryTabRow(
         categories = categories,
-        bookCounts = listOf(10, 20, 30),
+        bookCountsList = listOf(10, 20, 30),
         selectedIndex = selectedTab,
         onTabSelected = {
             selectedTab = it

@@ -3,12 +3,15 @@ package io.github.lycosmic.lithe.presentation.library
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -18,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.model.Constants.DOUBLE_CLICK_BACK_INTERVAL_MILLIS
 import io.github.lycosmic.lithe.presentation.library.components.BookItem
+import io.github.lycosmic.lithe.presentation.library.components.CategoryTabRow
 import io.github.lycosmic.lithe.presentation.library.components.EmptyLibraryState
 import io.github.lycosmic.lithe.presentation.library.components.LibraryDeleteBookDialog
 import io.github.lycosmic.lithe.presentation.library.components.LibraryFilterSheet
@@ -35,6 +40,7 @@ import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 import io.github.lycosmic.lithe.utils.ToastUtil
 import io.github.lycosmic.lithe.utils.toast
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +58,7 @@ fun LibraryScreen(
 
     var showFilterBottomSheet by remember { mutableStateOf(false) }
 
-    val books by viewModel.books.collectAsStateWithLifecycle()
+    val groupedBooks by viewModel.groupedBooks.collectAsStateWithLifecycle()
 
     val selectedBooks by viewModel.selectedBooks.collectAsStateWithLifecycle()
 
@@ -100,6 +106,11 @@ fun LibraryScreen(
 
     // 上一次按下返回的时间
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
+
+    // 分页状态
+    val pagerState = rememberPagerState(pageCount = { groupedBooks.size })
+
+    val scope = rememberCoroutineScope()
 
     // 拦截返回键
     BackHandler(enabled = isDoubleBackToExitEnabled || isSearching || isSelectionMode) {
@@ -192,77 +203,103 @@ fun LibraryScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            LibraryTopAppBar(
-                libraryTopBarState = topBarState,
-                bookCount = totalBookCount,
-                isBookCountVisible = isBookCountVisible,
-                selectedBookCount = selectedBooks.size,
-                searchText = searchText,
-                onSearchTextChange = {
-                    viewModel.onEvent(LibraryEvent.OnSearchTextChanged(it))
-                },
-                onExitSearchClick = {
-                    viewModel.onEvent(LibraryEvent.OnExitSearchClicked)
-                },
-                onSearchClick = {
-                    viewModel.onEvent(LibraryEvent.OnSearchClicked)
-                },
-                onFilterClick = {
-                    viewModel.onEvent(LibraryEvent.OnFilterClicked)
-                },
-                onMoreClick = {
-                    viewModel.onEvent(LibraryEvent.OnMoreClicked)
-                },
-                onCancelSelectClick = {
-                    viewModel.onEvent(LibraryEvent.OnCancelSelectionClicked)
-                },
-                onSelectAllClick = {
-                    viewModel.onEvent(LibraryEvent.OnSelectAllClicked)
-                },
-                onMoveCategoryClick = {
-                    viewModel.onEvent(LibraryEvent.OnMoveCategoryClicked)
-                },
-                onDeleteClick = {
-                    viewModel.onEvent(LibraryEvent.OnDeleteClicked)
-                },
-            )
+            Column {
+                LibraryTopAppBar(
+                    libraryTopBarState = topBarState,
+                    bookCount = totalBookCount,
+                    isBookCountVisible = isBookCountVisible,
+                    selectedBookCount = selectedBooks.size,
+                    searchText = searchText,
+                    onSearchTextChange = {
+                        viewModel.onEvent(LibraryEvent.OnSearchTextChanged(it))
+                    },
+                    onExitSearchClick = {
+                        viewModel.onEvent(LibraryEvent.OnExitSearchClicked)
+                    },
+                    onSearchClick = {
+                        viewModel.onEvent(LibraryEvent.OnSearchClicked)
+                    },
+                    onFilterClick = {
+                        viewModel.onEvent(LibraryEvent.OnFilterClicked)
+                    },
+                    onMoreClick = {
+                        viewModel.onEvent(LibraryEvent.OnMoreClicked)
+                    },
+                    onCancelSelectClick = {
+                        viewModel.onEvent(LibraryEvent.OnCancelSelectionClicked)
+                    },
+                    onSelectAllClick = {
+                        viewModel.onEvent(LibraryEvent.OnSelectAllClicked)
+                    },
+                    onMoveCategoryClick = {
+                        viewModel.onEvent(LibraryEvent.OnMoveCategoryClicked)
+                    },
+                    onDeleteClick = {
+                        viewModel.onEvent(LibraryEvent.OnDeleteClicked)
+                    },
+                )
 
-        },
-    ) { innerPadding ->
-
-        if (books.isEmpty()) {
-            // 引导页
-            EmptyLibraryState(modifier = Modifier.padding(paddingValues = innerPadding)) {
-                viewModel.onEvent(LibraryEvent.OnAddBookClicked)
-            }
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3), // TODO 手动调整列数
-                contentPadding = PaddingValues(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
-            ) {
-                items(items = books, key = { book ->
-                    book.id
-                }) { book ->
-                    BookItem(
-                        title = book.title,
-                        coverPath = book.coverPath,
-                        readProgress = book.progress,
-                        isSelected = selectedBooks.contains(book.id),
-                        onClick = {
-                            viewModel.onEvent(LibraryEvent.OnBookClicked(book.id))
+                if (showCategoryTab && groupedBooks.isNotEmpty()) {
+                    CategoryTabRow(
+                        categories = groupedBooks.map {
+                            it.category
                         },
-                        onLongClick = {
-                            viewModel.onEvent(LibraryEvent.OnBookLongClicked(book.id))
-                        }
+                        bookCountsList = groupedBooks.map { bookGroup ->
+                            bookGroup.books.size
+                        },
+                        selectedIndex = pagerState.currentPage,
+                        onTabSelected = { index ->
+                            scope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
+                        },
                     )
                 }
             }
+
+        },
+    ) { innerPadding ->
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { pagerIndex ->
+            val books = groupedBooks[pagerIndex].books
+            if (books.isEmpty()) {
+                // 引导页
+                EmptyLibraryState(modifier = Modifier.padding(paddingValues = innerPadding)) {
+                    viewModel.onEvent(LibraryEvent.OnAddBookClicked)
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3), // TODO 手动调整列数
+                    contentPadding = PaddingValues(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize(),
+                ) {
+                    items(items = books, key = { book ->
+                        book.id
+                    }) { book ->
+                        BookItem(
+                            title = book.title,
+                            coverPath = book.coverPath,
+                            readProgress = book.progress,
+                            isSelected = selectedBooks.contains(book.id),
+                            onClick = {
+                                viewModel.onEvent(LibraryEvent.OnBookClicked(book.id))
+                            },
+                            onLongClick = {
+                                viewModel.onEvent(LibraryEvent.OnBookLongClicked(book.id))
+                            }
+                        )
+                    }
+                }
+            }
         }
+
+
 
         if (isDeleteBookDialogVisible) {
             LibraryDeleteBookDialog(
