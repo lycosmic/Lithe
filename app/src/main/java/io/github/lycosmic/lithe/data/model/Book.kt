@@ -1,10 +1,10 @@
 package io.github.lycosmic.lithe.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import io.github.lycosmic.lithe.data.local.converter.BookTypeConverters
-import io.github.lycosmic.lithe.data.model.Constants.DEFAULT_CATEGORY_ID
 import kotlinx.serialization.Serializable
 
 @Entity(
@@ -14,6 +14,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Book(
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = COL_ID)
     val id: Long = 0,
 
     val title: String, // 书名
@@ -25,8 +26,6 @@ data class Book(
     val description: String?, // 简介
 
     val language: String?,
-
-    val categoryId: Long = DEFAULT_CATEGORY_ID, // 分类 ID
 
     val publisher: String?,
 
@@ -68,5 +67,7 @@ data class Book(
             publisher = "未知",
             subjects = emptyList(),
         )
+
+        const val COL_ID = "id"
     }
 }

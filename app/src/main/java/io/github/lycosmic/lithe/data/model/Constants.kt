@@ -29,9 +29,4 @@ object Constants {
      * 最小的网格项宽度
      */
     val MIN_GRID_ITEM_WIDTH = 170.dp
-
-    /**
-     * 默认的分类 ID
-     */
-    const val DEFAULT_CATEGORY_ID = 1L
 }

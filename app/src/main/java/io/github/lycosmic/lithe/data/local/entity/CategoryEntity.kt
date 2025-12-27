@@ -1,17 +1,28 @@
 package io.github.lycosmic.lithe.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-
-const val CATEGORY_TABLE_NAME = "categories"
 
 /**
  * 分类实体类
  */
-@Entity(tableName = CATEGORY_TABLE_NAME)
+@Entity(tableName = CategoryEntity.TABLE_NAME)
 data class CategoryEntity(
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = COL_ID)
     val id: Long = 0,
     val name: String,
     val createdAt: Long = System.currentTimeMillis(), // 创建时间
-)
+) {
+    companion object {
+        // 表名
+        const val TABLE_NAME = "categories"
+
+        // 列名
+        const val COL_ID = "id"
+
+        // 默认分类 ID
+        const val DEFAULT_CATEGORY_ID = 0L
+    }
+}

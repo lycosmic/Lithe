@@ -14,8 +14,7 @@ import io.github.lycosmic.lithe.data.local.BookDao
 import io.github.lycosmic.lithe.data.local.DirectoryDao
 import io.github.lycosmic.lithe.data.local.dao.CategoryDao
 import io.github.lycosmic.lithe.data.local.dao.ColorPresetDao
-import io.github.lycosmic.lithe.data.local.entity.CATEGORY_TABLE_NAME
-import io.github.lycosmic.lithe.data.model.Constants
+import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.extension.logI
 import javax.inject.Singleton
 
@@ -47,7 +46,7 @@ object DatabaseModule {
                     val currentTime = System.currentTimeMillis()
 
                     db.execSQL(
-                        "INSERT INTO $CATEGORY_TABLE_NAME (id, name, createdAt) VALUES (${Constants.DEFAULT_CATEGORY_ID}, \"\", $currentTime)"
+                        "INSERT INTO ${CategoryEntity.TABLE_NAME} (id, name, createdAt) VALUES (${CategoryEntity.DEFAULT_CATEGORY_ID}, \"\", $currentTime)"
                     )
                 }
             }

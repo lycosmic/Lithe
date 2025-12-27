@@ -58,7 +58,7 @@ fun LibraryScreen(
 
     var showFilterBottomSheet by remember { mutableStateOf(false) }
 
-    val groupedBooks by viewModel.groupedBooks.collectAsStateWithLifecycle()
+    val categoryWithBooksList by viewModel.categoryWithBooksList.collectAsStateWithLifecycle()
 
     val selectedBooks by viewModel.selectedBooks.collectAsStateWithLifecycle()
 
@@ -108,7 +108,7 @@ fun LibraryScreen(
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
 
     // 分页状态
-    val pagerState = rememberPagerState(pageCount = { groupedBooks.size })
+    val pagerState = rememberPagerState(pageCount = { categoryWithBooksList.size })
 
     val scope = rememberCoroutineScope()
 
@@ -239,12 +239,12 @@ fun LibraryScreen(
                     },
                 )
 
-                if (showCategoryTab && groupedBooks.isNotEmpty()) {
+                if (showCategoryTab && categoryWithBooksList.isNotEmpty()) {
                     CategoryTabRow(
-                        categories = groupedBooks.map {
+                        categories = categoryWithBooksList.map {
                             it.category
                         },
-                        bookCountsList = groupedBooks.map { bookGroup ->
+                        bookCountsList = categoryWithBooksList.map { bookGroup ->
                             bookGroup.books.size
                         },
                         isBookCountVisible = isBookCountVisible,
@@ -264,7 +264,7 @@ fun LibraryScreen(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { pagerIndex ->
-            val books = groupedBooks[pagerIndex].books
+            val books = categoryWithBooksList[pagerIndex].books
             if (books.isEmpty()) {
                 // 引导页
                 EmptyLibraryState(modifier = Modifier.padding(paddingValues = innerPadding)) {

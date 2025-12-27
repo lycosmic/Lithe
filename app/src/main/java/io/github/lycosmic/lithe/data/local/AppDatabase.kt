@@ -4,13 +4,23 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import io.github.lycosmic.lithe.data.local.dao.CategoryDao
 import io.github.lycosmic.lithe.data.local.dao.ColorPresetDao
+import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.local.entity.ColorPresetEntity
 import io.github.lycosmic.lithe.data.model.Book
 import io.github.lycosmic.lithe.data.model.ScannedDirectory
 
 @Database(
-    entities = [Book::class, ScannedDirectory::class, ColorPresetEntity::class, CategoryEntity::class],
+    entities = [
+        // 书籍和分类
+        Book::class,
+        CategoryEntity::class,
+        BookCategoryCrossRef::class,
+        // 已授权的目录
+        ScannedDirectory::class,
+        // 颜色预设
+        ColorPresetEntity::class,
+    ],
     version = 1
 )
 abstract class AppDatabase : RoomDatabase() {

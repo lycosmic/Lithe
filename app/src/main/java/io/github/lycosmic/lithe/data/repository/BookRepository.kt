@@ -1,6 +1,7 @@
 package io.github.lycosmic.lithe.data.repository
 
 import io.github.lycosmic.lithe.data.local.BookDao
+import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
 import io.github.lycosmic.lithe.data.model.Book
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -40,4 +41,22 @@ class BookRepository @Inject constructor(
      * 根据标识符获取书籍
      */
     suspend fun getBookByUniqueId(uniqueId: String) = bookDao.getBookByUniqueId(uniqueId = uniqueId)
+
+    /**
+     * 获取所有书籍和分类关系
+     */
+    fun getBooksWithCategories() = bookDao.getBooksWithCategories()
+
+    /**
+     * 获取所有分类和书籍关系
+     */
+    fun getCategoryWithBooks() = bookDao.getCategoriesWithBooks()
+
+    /**
+     * 插入书籍分类关联
+     */
+    suspend fun insertBookCategoryCrossRefs(refs: List<BookCategoryCrossRef>) {
+        bookDao.insertBookCategoryCrossRefs(refs = refs)
+    }
+
 }

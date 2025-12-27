@@ -6,10 +6,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.model.Book
 import io.github.lycosmic.lithe.data.model.BookSortType
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
+import io.github.lycosmic.lithe.data.model.CategoryWithBooks
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.repository.BookRepository
-import io.github.lycosmic.lithe.data.repository.CategoryRepository
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.CloseDeleteBookConfirmDialog
@@ -39,7 +39,6 @@ import javax.inject.Inject
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val bookRepository: BookRepository,
-    categoryRepository: CategoryRepository,
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
@@ -51,13 +50,8 @@ class LibraryViewModel @Inject constructor(
     )
     val rawBooks = _rawBooks
 
-    // 分类列表
-    private val _categories = categoryRepository.getCategories().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
-        initialValue = emptyList()
-    )
-
+    // 书籍和分类关系查询结果
+    private val _categoryWithBooksList = bookRepository.getCategoryWithBooks()
     // 总书籍数
     val totalBooksCount = _rawBooks.map { it.size }.stateIn(
         scope = viewModelScope,
@@ -77,7 +71,9 @@ class LibraryViewModel @Inject constructor(
         initialValue = false
     )
 
-    // 当前是否处于搜索模式
+    /**
+     * 当前是否处于搜索模式
+     */
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
 
@@ -124,31 +120,35 @@ class LibraryViewModel @Inject constructor(
     }
 
     // 展示给用户的书籍列表
-    val groupedBooks = combine(
-        _rawBooks,
+    val categoryWithBooksList = combine(
+        _categoryWithBooksList,
         _filterStateFlow,
-        _categories,
-    ) { rawBooks, filterState, categories ->
+    ) { categoryWithBooksList, filterState ->
         // 排序
-        val sortedBooks = sortBooks(rawBooks, filterState.sortType, filterState.isAscending)
+        val sortedCategoryWithBooksList = categoryWithBooksList.map { categoryWithBooks ->
+            val books =
+                sortBooks(categoryWithBooks.books, filterState.sortType, filterState.isAscending)
+            val category = categoryWithBooks.category
+            CategoryWithBooks(
+                category = category,
+                books = books
+            )
+        }
 
         // 如果是搜索模式, 则进行搜索过滤
-        val filteredBooks = if (filterState.isSearching) {
-            sortedBooks.filter { book ->
-                book.title.contains(filterState.searchText, ignoreCase = true)
+        val filteredCategoryWithBooksList = if (filterState.isSearching) {
+            sortedCategoryWithBooksList.map { categoryWithBooks ->
+                val books = filterBooks(categoryWithBooks.books, filterState.searchText)
+                CategoryWithBooks(
+                    category = categoryWithBooks.category,
+                    books = books
+                )
             }
         } else {
-            sortedBooks
+            sortedCategoryWithBooksList
         }
 
-        // 按照分类进行分组
-        val booksMap = filteredBooks.groupBy { it.categoryId }
-        val groupedResult = categories.sortedBy { it.id }.map { category ->
-            val booksInThisCategory = booksMap[category.id] ?: emptyList()
-            LibraryBookGroup(category = category, books = booksInThisCategory)
-        }
-
-        return@combine groupedResult
+        return@combine filteredCategoryWithBooksList
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
@@ -461,4 +461,12 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 对书籍进行文本过滤
+     */
+    private fun filterBooks(books: List<Book>, searchText: String): List<Book> {
+        return books.filter { book ->
+            book.title.contains(searchText, ignoreCase = true)
+        }
+    }
 }
