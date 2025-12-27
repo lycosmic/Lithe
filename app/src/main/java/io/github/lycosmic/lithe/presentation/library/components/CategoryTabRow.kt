@@ -32,6 +32,7 @@ import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 fun CategoryTabRow(
     categories: List<CategoryEntity>,
     bookCountsList: List<Int>,
+    isBookCountVisible: Boolean,
     selectedIndex: Int,
     onTabSelected: (Int) -> Unit, // 点击分类标签
     modifier: Modifier = Modifier,
@@ -88,12 +89,14 @@ fun CategoryTabRow(
                             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
-                        Spacer(modifier = Modifier.width(4.dp))
+                        if (isBookCountVisible) {
+                            Spacer(modifier = Modifier.width(6.dp))
 
-                        // 分类书籍数
-                        CountBadge(
-                            count = bookCountsList[index]
-                        )
+                            // 分类书籍数
+                            CountBadge(
+                                count = bookCountsList[index]
+                            )
+                        }
                     }
                 }
             )
@@ -121,6 +124,7 @@ private fun CategoryTabRowPrev() {
         selectedIndex = selectedTab,
         onTabSelected = {
             selectedTab = it
-        }
+        },
+        isBookCountVisible = true
     )
 }

@@ -247,6 +247,7 @@ fun LibraryScreen(
                         bookCountsList = groupedBooks.map { bookGroup ->
                             bookGroup.books.size
                         },
+                        isBookCountVisible = isBookCountVisible,
                         selectedIndex = pagerState.currentPage,
                         onTabSelected = { index ->
                             scope.launch {
