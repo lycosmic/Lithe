@@ -36,7 +36,8 @@ class FileProcessingUseCase @Inject constructor(
         sortType: SortType,
         isAscending: Boolean,
         filters: List<FilterOption>,
-        searchText: String
+        searchText: String,
+        dbFileUris: Set<String>
     ): Map<String, List<FileItem>> {
         // 文件类型筛选
         val filteredFiles = if (isFilterValid(filters)) {
@@ -49,13 +50,18 @@ class FileProcessingUseCase @Inject constructor(
             rawFiles
         }
 
+        // 过滤掉已导入的文件
+        val filteredImportedFiles = filteredFiles.filter { file ->
+            !dbFileUris.contains(file.uri.toString())
+        }
+
         // 关键词筛选
         val searchResult = if (searchText.isNotEmpty()) {
-            filteredFiles.filter { item ->
+            filteredImportedFiles.filter { item ->
                 item.name.contains(searchText)
             }
         } else {
-            filteredFiles
+            filteredImportedFiles
         }
 
         // 排序

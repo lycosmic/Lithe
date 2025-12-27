@@ -7,6 +7,7 @@ import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.model.FileItem
+import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
@@ -15,6 +16,7 @@ import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_SORT_TYP
 import io.github.lycosmic.lithe.domain.usecase.BookImportUseCase
 import io.github.lycosmic.lithe.domain.usecase.FileProcessingUseCase
 import io.github.lycosmic.lithe.presentation.browse.model.BrowseTopBarState
+import io.github.lycosmic.lithe.presentation.browse.model.FileFilterState
 import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -37,6 +39,7 @@ import javax.inject.Inject
 class BrowseViewModel @Inject constructor(
     private val fileProcessingUseCase: FileProcessingUseCase,
     private val bookImportUseCase: BookImportUseCase,
+    bookRepository: BookRepository,
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
@@ -83,6 +86,13 @@ class BrowseViewModel @Inject constructor(
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
+    // 在数据库中的书籍文件Uri列表
+    private val _dbFileUris = bookRepository.getAllBooks().map {
+        return@map it.map { book ->
+            book.fileUri
+        }.toSet()
+    }
+
     // 文件显示模式
     val fileDisplayMode = settingsManager.fileDisplayMode.stateIn(
         viewModelScope,
@@ -101,20 +111,34 @@ class BrowseViewModel @Inject constructor(
     private val _pinnedHeaders = MutableStateFlow<Set<String>>(emptySet())
     val pinnedHeaders: StateFlow<Set<String>> = _pinnedHeaders.asStateFlow()
 
-    // 分组、排序、文件类型过滤、关键词过滤后的文件列表
-    val processedFiles = combine(
-        _rawFileItems,
+    private val _fileFilterState = combine(
         _sortType,
         _isAscending,
         _filterList,
-        _searchText
-    ) { files, sort, isAscending, filters, searchText ->
-        fileProcessingUseCase.processFiles(
-            rawFiles = files,
+        _searchText,
+        _dbFileUris
+    ) { sort, isAscending, filters, searchText, dbFileUris ->
+        FileFilterState(
             sortType = sort,
             isAscending = isAscending,
-            filters = filters,
-            searchText = searchText
+            filterOptions = filters,
+            searchText = searchText,
+            bookFileUris = dbFileUris
+        )
+    }
+
+    // 分组、排序、文件类型过滤、关键词过滤后的文件列表
+    val processedFiles = combine(
+        _rawFileItems,
+        _fileFilterState,
+    ) { files, fileFilterState ->
+        fileProcessingUseCase.processFiles(
+            rawFiles = files,
+            sortType = fileFilterState.sortType,
+            isAscending = fileFilterState.isAscending,
+            filters = fileFilterState.filterOptions,
+            searchText = fileFilterState.searchText,
+            dbFileUris = fileFilterState.bookFileUris
         )
     }.stateIn(
         viewModelScope,
