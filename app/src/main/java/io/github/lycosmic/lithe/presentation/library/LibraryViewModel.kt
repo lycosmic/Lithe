@@ -143,7 +143,7 @@ class LibraryViewModel @Inject constructor(
 
         // 按照分类进行分组
         val booksMap = filteredBooks.groupBy { it.categoryId }
-        val groupedResult = categories.map { category ->
+        val groupedResult = categories.sortedBy { it.id }.map { category ->
             val booksInThisCategory = booksMap[category.id] ?: emptyList()
             LibraryBookGroup(category = category, books = booksInThisCategory)
         }
