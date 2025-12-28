@@ -145,4 +145,10 @@
     <string name="add_books">Add Books?</string>
     <string name="add_books_confirmation_dialog_message">You can pick which books you want to add. You can edit the book title and cover image later. The loading process may take several minutes.</string>
     <string name="unknown_author">Unknown</string>
+    <string name="file_info">File Info</string>
+    <string name="move_book">Move</string>
+    <string name="delete_book_description">Delete</string>
+    <string name="no_description">No description.</string>
+    <string name="start_reading">Start reading</string>
+    <string name="never_opened">Never</string>
 </resources>

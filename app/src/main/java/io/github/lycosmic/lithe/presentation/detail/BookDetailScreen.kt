@@ -45,12 +45,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.detail.components.DeleteBookDialog
 import io.github.lycosmic.lithe.presentation.detail.components.FileInfoBottomSheet
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
@@ -140,7 +142,7 @@ fun BookDetailScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "返回"
+                            contentDescription = stringResource(id = R.string.back)
                         )
                     }
                 },
@@ -150,7 +152,10 @@ fun BookDetailScreen(
                             bottomSheetVisible = !bottomSheetVisible
                         }
                     ) {
-                        Icon(imageVector = Icons.Outlined.Info, contentDescription = "文件信息")
+                        Icon(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = stringResource(id = R.string.file_info)
+                        )
                     }
                 },
             )
@@ -277,12 +282,12 @@ fun BookDetailScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.MoveUp,
-                                contentDescription = "移动",
+                                contentDescription = stringResource(id = R.string.move_book),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "移动",
+                                text = stringResource(id = R.string.move_book),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -312,12 +317,12 @@ fun BookDetailScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Delete,
-                                contentDescription = "删除",
+                                contentDescription = stringResource(id = R.string.delete_book_description),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "删除",
+                                text = stringResource(id = R.string.delete_book_description),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -329,7 +334,8 @@ fun BookDetailScreen(
                 // 简介
                 item {
                     Text(
-                        text = book.description ?: "无简介", modifier = Modifier
+                        text = book.description ?: stringResource(id = R.string.no_description),
+                        modifier = Modifier
                             .fillMaxWidth()
                             .padding(
                                 top = 16.dp
@@ -347,7 +353,7 @@ fun BookDetailScreen(
                             .fillMaxWidth()
                             .padding(top = 16.dp)
                     ) {
-                        Text(text = "开始阅读")
+                        Text(text = stringResource(id = R.string.start_reading))
                     }
                 }
 
@@ -365,7 +371,7 @@ fun BookDetailScreen(
 
 
         val lastOpenTime = if (book.lastReadTime == null) {
-            "永不"
+            stringResource(id = R.string.never_opened)
         } else {
             FileUtils.formatDate(book.lastReadTime!!)
         }
