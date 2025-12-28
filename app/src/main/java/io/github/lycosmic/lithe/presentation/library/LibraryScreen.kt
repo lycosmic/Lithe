@@ -2,6 +2,7 @@ package io.github.lycosmic.lithe.presentation.library
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -249,7 +250,9 @@ fun LibraryScreen(
                     },
                 )
 
-                if (showCategoryTab && categoryWithBooksList.isNotEmpty()) {
+                AnimatedVisibility(
+                    visible = showCategoryTab && categoryWithBooksList.isNotEmpty()
+                ) {
                     CategoryTabRow(
                         categories = categoryWithBooksList.map {
                             it.category
