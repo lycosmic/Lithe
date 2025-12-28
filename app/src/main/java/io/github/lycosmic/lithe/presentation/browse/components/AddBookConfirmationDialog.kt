@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook
 import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
 
@@ -43,25 +45,25 @@ fun AddBookConfirmationDialog(
         modifier = modifier,
         onDismissRequest = onDismissRequest,
         confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("确定")
+            TextButton(enabled = !isDialogLoading, onClick = onConfirm) {
+                Text(stringResource(R.string.confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onCancel) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         },
         icon = {
             Icon(imageVector = Icons.Outlined.AddChart, contentDescription = null)
         },
-        title = { Text("添加书籍？") },
+        title = { Text(stringResource(R.string.add_books)) },
         text = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "您可以挑选您想添加哪些书。您可以在之后编辑书的标题与封面图片。加载过程可能会花费数分钟。",
+                    text = stringResource(R.string.add_books_confirmation_dialog_message),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -83,7 +85,8 @@ fun AddBookConfirmationDialog(
                             key = { it.file.uri.toString() }) { bookToAdd ->
                             BookToAddItem(
                                 title = bookToAdd.metadata.title ?: bookToAdd.file.name,
-                                author = bookToAdd.metadata.authors?.joinToString(", ") ?: "未知",
+                                author = bookToAdd.metadata.authors?.joinToString(", ")
+                                    ?: stringResource(R.string.unknown_author),
                                 isSelected = bookToAdd.isSelected,
                                 onItemClicked = { onToggleSelection(bookToAdd) },
                                 onCheckboxClicked = { onToggleSelection(bookToAdd) }

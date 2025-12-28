@@ -135,11 +135,14 @@
     <string name="delete_book_title">Delete Book?</string>
     <string name="library_delete_book_title">Delete Book?</string>
     <string name="library_delete_book_message">All selected books (%d) will be deleted from the database, but not from your device.</string>
-    <string name="delete_all_selected_book_success">成功删除所有已选择的书。</string>
-    <string name="delete_count_book_success">已删除 %d 本书</string>
-    <string name="book_sort_type_alphabetical">字母顺序</string>
-    <string name="book_sort_type_last_read_time">上次阅读</string>
-    <string name="book_sort_type_progress">进度</string>
-    <string name="book_sort_type_author">作者</string>
-    <string name="default_category_name">默认</string>
+    <string name="delete_all_selected_book_success">Successfully deleted all selected books.</string>
+    <string name="delete_count_book_success">Successfully deleted %d books.</string>
+    <string name="book_sort_type_alphabetical">Alphabetical</string>
+    <string name="book_sort_type_last_read_time">Last Read Time</string>
+    <string name="book_sort_type_progress">Progress</string>
+    <string name="book_sort_type_author">Author</string>
+    <string name="default_category_name">Default</string>
+    <string name="add_books">Add Books?</string>
+    <string name="add_books_confirmation_dialog_message">You can pick which books you want to add. You can edit the book title and cover image later. The loading process may take several minutes.</string>
+    <string name="unknown_author">Unknown</string>
 </resources>

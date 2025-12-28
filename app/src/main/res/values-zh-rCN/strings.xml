@@ -143,4 +143,7 @@
     <string name="book_sort_type_progress">进度</string>
     <string name="book_sort_type_author">作者</string>
     <string name="default_category_name">默认</string>
+    <string name="add_books">添加书籍？</string>
+    <string name="add_books_confirmation_dialog_message">您可以挑选您想添加哪些书。您可以在之后编辑书的标题与封面图片。加载过程可能会花费数分钟。</string>
+    <string name="unknown_author">未知</string>
 </resources>
