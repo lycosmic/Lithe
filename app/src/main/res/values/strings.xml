@@ -151,4 +151,9 @@
     <string name="no_description">No description.</string>
     <string name="start_reading">Start reading</string>
     <string name="never_opened">Never</string>
+    <string name="move_book_category_dialog_title">Move</string>
+    <string name="move_book_category_dialog_no_category">No category.</string>
+    <string name="move_book_category_dialog_edit_button">Edit</string>
+    <string name="move_book_category_dialog_cancel_button">Cancel</string>
+    <string name="move_book_category_dialog_confirm_button">Confirm</string>
 </resources>

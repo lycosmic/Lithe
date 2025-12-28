@@ -22,11 +22,13 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
 
@@ -63,7 +65,7 @@ fun MoveBookCategoryDialog(
             Column(modifier = Modifier.padding(vertical = 16.dp)) {
                 // 标题
                 StyledText(
-                    text = "移动",
+                    text = stringResource(id = R.string.move_book_category_dialog_title),
                     style = MaterialTheme.typography.headlineSmall.copy(
                         textAlign = TextAlign.Start,
                         color = MaterialTheme.colorScheme.onSurface
@@ -102,6 +104,14 @@ fun MoveBookCategoryDialog(
                     }
                 }
 
+                // --- 无分类提示 ---
+                if (categories.isEmpty()) {
+                    StyledText(
+                        text = stringResource(id = R.string.move_book_category_dialog_no_category),
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
                 // 底部按钮栏
                 Row(
@@ -112,7 +122,8 @@ fun MoveBookCategoryDialog(
                 ) {
                     TextButton(onClick = onEdit) {
                         StyledText(
-                            text = "编辑", style = MaterialTheme.typography.labelLarge.copy(
+                            text = stringResource(id = R.string.move_book_category_dialog_edit_button),
+                            style = MaterialTheme.typography.labelLarge.copy(
                                 color = MaterialTheme.colorScheme.primary
                             )
                         )
@@ -122,7 +133,7 @@ fun MoveBookCategoryDialog(
 
                     TextButton(onClick = onDismissRequest) {
                         StyledText(
-                            text = "取消",
+                            text = stringResource(id = R.string.move_book_category_dialog_cancel_button),
                             style = MaterialTheme.typography.labelLarge.copy(
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -130,7 +141,7 @@ fun MoveBookCategoryDialog(
                     }
                     TextButton(onClick = { onConfirm(selectedIds.toList()) }) {
                         StyledText(
-                            text = "确定",
+                            text = stringResource(id = R.string.move_book_category_dialog_confirm_button),
                             style = MaterialTheme.typography.labelLarge.copy(
                                 color = MaterialTheme.colorScheme.primary
                             )

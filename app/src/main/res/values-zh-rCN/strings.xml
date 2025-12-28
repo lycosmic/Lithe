@@ -152,4 +152,9 @@
     <string name="no_description">无简介。</string>
     <string name="start_reading">开始阅读</string>
     <string name="never_opened">永不</string>
+    <string name="move_book_category_dialog_title">移动</string>
+    <string name="move_book_category_dialog_no_category">无分类。</string>
+    <string name="move_book_category_dialog_edit_button">编辑</string>
+    <string name="move_book_category_dialog_cancel_button">取消</string>
+    <string name="move_book_category_dialog_confirm_button">确定</string>
 </resources>
