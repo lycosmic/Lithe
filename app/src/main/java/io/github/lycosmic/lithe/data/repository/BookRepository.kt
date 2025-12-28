@@ -1,8 +1,8 @@
 package io.github.lycosmic.lithe.data.repository
 
-import io.github.lycosmic.lithe.data.local.BookDao
+import io.github.lycosmic.lithe.data.local.dao.BookDao
+import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
-import io.github.lycosmic.lithe.data.model.Book
 import javax.inject.Inject
 import javax.inject.Singleton
 

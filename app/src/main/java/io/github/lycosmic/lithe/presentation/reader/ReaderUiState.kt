@@ -1,6 +1,6 @@
 package io.github.lycosmic.lithe.presentation.reader
 
-import io.github.lycosmic.lithe.data.model.Book
+import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.model.BookSpineItem
 import io.github.lycosmic.lithe.data.model.ReaderContent
 

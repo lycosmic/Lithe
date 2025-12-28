@@ -22,7 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.model.ScannedDirectory
+import io.github.lycosmic.lithe.data.local.entity.ScannedDirectory
 
 @Composable
 fun LazyItemScope.DirectoryListItem(

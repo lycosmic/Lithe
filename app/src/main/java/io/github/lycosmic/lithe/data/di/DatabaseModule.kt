@@ -10,10 +10,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.lycosmic.lithe.data.local.AppDatabase
-import io.github.lycosmic.lithe.data.local.BookDao
-import io.github.lycosmic.lithe.data.local.DirectoryDao
+import io.github.lycosmic.lithe.data.local.dao.BookDao
 import io.github.lycosmic.lithe.data.local.dao.CategoryDao
 import io.github.lycosmic.lithe.data.local.dao.ColorPresetDao
+import io.github.lycosmic.lithe.data.local.dao.DirectoryDao
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.extension.logI
 import javax.inject.Singleton

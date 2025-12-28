@@ -3,7 +3,7 @@ package io.github.lycosmic.lithe.presentation.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.model.Book
+import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.model.BookSortType
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.CategoryWithBooks

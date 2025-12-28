@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data.local
+package io.github.lycosmic.lithe.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,12 +6,11 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
-import io.github.lycosmic.lithe.data.model.Book
 import io.github.lycosmic.lithe.data.model.BookWithCategories
 import io.github.lycosmic.lithe.data.model.CategoryWithBooks
 import kotlinx.coroutines.flow.Flow
-
 
 @Dao
 interface BookDao {
@@ -28,7 +27,7 @@ interface BookDao {
     /**
      * 插入书籍，返回新书的 ID
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertBook(book: Book): Long
 
     @Delete
@@ -43,7 +42,7 @@ interface BookDao {
     /**
      * 插入书籍分类关联
      */
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.Companion.IGNORE)
     suspend fun insertBookCategoryCrossRefs(refs: List<BookCategoryCrossRef>)
 
     /**

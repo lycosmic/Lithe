@@ -3,6 +3,7 @@ package io.github.lycosmic.lithe.data.model
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
+import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 

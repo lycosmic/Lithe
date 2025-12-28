@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.model.Book
+import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.utils.UriUtils

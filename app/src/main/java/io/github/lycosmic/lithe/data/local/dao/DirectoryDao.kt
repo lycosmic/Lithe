@@ -1,13 +1,12 @@
-package io.github.lycosmic.lithe.data.local
+package io.github.lycosmic.lithe.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import io.github.lycosmic.lithe.data.model.ScannedDirectory
+import io.github.lycosmic.lithe.data.local.entity.ScannedDirectory
 import kotlinx.coroutines.flow.Flow
-
 
 @Dao
 interface DirectoryDao {
@@ -26,7 +25,7 @@ interface DirectoryDao {
     /**
      * 添加目录
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertDirectory(directory: ScannedDirectory)
 
     /**

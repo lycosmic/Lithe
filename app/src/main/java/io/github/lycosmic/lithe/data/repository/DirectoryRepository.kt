@@ -6,10 +6,10 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
-import io.github.lycosmic.lithe.data.local.DirectoryDao
+import io.github.lycosmic.lithe.data.local.dao.DirectoryDao
+import io.github.lycosmic.lithe.data.local.entity.ScannedDirectory
 import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.model.FileItem
-import io.github.lycosmic.lithe.data.model.ScannedDirectory
 import io.github.lycosmic.lithe.utils.UriUtils
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers

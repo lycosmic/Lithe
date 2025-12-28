@@ -1,10 +1,11 @@
-package io.github.lycosmic.lithe.data.model
+package io.github.lycosmic.lithe.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import io.github.lycosmic.lithe.data.local.converter.BookTypeConverters
+import io.github.lycosmic.lithe.data.model.BookSpineItem
 import kotlinx.serialization.Serializable
 
 @Entity(

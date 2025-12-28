@@ -1,9 +1,9 @@
 package io.github.lycosmic.lithe.domain.usecase
 
 import android.app.Application
+import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
-import io.github.lycosmic.lithe.data.model.Book
 import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepository

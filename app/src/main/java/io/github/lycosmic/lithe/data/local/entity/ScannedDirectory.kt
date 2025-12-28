@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data.model
+package io.github.lycosmic.lithe.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
