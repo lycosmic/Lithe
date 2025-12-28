@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.local.entity.ScannedDirectory
+import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.OptionItem
 import io.github.lycosmic.lithe.presentation.settings.browse.components.DirectoryListItem
@@ -107,12 +107,12 @@ fun BrowseSettingsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingBrowseScaffold(
-    directories: List<ScannedDirectory>,
+    directories: List<AuthorizedDirectory>,
     displayMode: DisplayMode,
     onBackClicked: () -> Unit,
     gridColumnCount: Int,
     onGridColumnCountChanged: (Int) -> Unit,
-    onDeleteDirectoryClicked: (ScannedDirectory) -> Unit,
+    onDeleteDirectoryClicked: (AuthorizedDirectory) -> Unit,
     onDisplayModeChanged: (DisplayMode) -> Unit,
     onAddDirectoryClicked: () -> Unit,
     modifier: Modifier = Modifier

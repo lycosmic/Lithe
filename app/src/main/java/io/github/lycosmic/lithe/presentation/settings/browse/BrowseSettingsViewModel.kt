@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.local.entity.ScannedDirectory
+import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.repository.DirectoryRepository
@@ -97,7 +97,7 @@ class BrowseSettingsViewModel @Inject constructor(
     /**
      * 移除文件夹
      */
-    fun removeDirectory(directory: ScannedDirectory) {
+    fun removeDirectory(directory: AuthorizedDirectory) {
         viewModelScope.launch(Dispatchers.IO) {
             directoryRepository.removeDirectory(directory)
         }

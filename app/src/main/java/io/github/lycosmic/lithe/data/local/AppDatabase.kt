@@ -6,11 +6,11 @@ import io.github.lycosmic.lithe.data.local.dao.BookDao
 import io.github.lycosmic.lithe.data.local.dao.CategoryDao
 import io.github.lycosmic.lithe.data.local.dao.ColorPresetDao
 import io.github.lycosmic.lithe.data.local.dao.DirectoryDao
+import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
 import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.local.entity.ColorPresetEntity
-import io.github.lycosmic.lithe.data.local.entity.ScannedDirectory
 
 @Database(
     entities = [
@@ -19,7 +19,7 @@ import io.github.lycosmic.lithe.data.local.entity.ScannedDirectory
         CategoryEntity::class,
         BookCategoryCrossRef::class,
         // 已授权的目录
-        ScannedDirectory::class,
+        AuthorizedDirectory::class,
         // 颜色预设
         ColorPresetEntity::class,
     ],

@@ -1,7 +1,7 @@
 package io.github.lycosmic.lithe.presentation.settings.browse
 
 import android.net.Uri
-import io.github.lycosmic.lithe.data.local.entity.ScannedDirectory
+import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
 import io.github.lycosmic.lithe.data.model.DisplayMode
 
 
@@ -14,7 +14,7 @@ sealed class BrowseSettingEvent {
     /**
      * 删除文件夹被点击
      */
-    data class DeleteDirectoryClicked(val directory: ScannedDirectory) : BrowseSettingEvent()
+    data class DeleteDirectoryClicked(val directory: AuthorizedDirectory) : BrowseSettingEvent()
 
     /**
      * 文件显示模式被改变

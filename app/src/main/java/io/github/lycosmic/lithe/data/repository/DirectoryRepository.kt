@@ -7,7 +7,7 @@ import android.provider.DocumentsContract
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import io.github.lycosmic.lithe.data.local.dao.DirectoryDao
-import io.github.lycosmic.lithe.data.local.entity.ScannedDirectory
+import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
 import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.utils.UriUtils
@@ -31,7 +31,7 @@ class DirectoryRepository @Inject constructor(
     /**
      * 获取已添加的文件夹列表
      */
-    fun getDirectories(): Flow<List<ScannedDirectory>> {
+    fun getDirectories(): Flow<List<AuthorizedDirectory>> {
         return directoryDao.getScannedDirectoriesFlow()
     }
 
@@ -55,19 +55,19 @@ class DirectoryRepository @Inject constructor(
         // 获取文件的路径信息
         val (rootName, relativePath) = UriUtils.parseUriToPath(uri)
 
-        val scannedDirectory = ScannedDirectory(
+        val authorizedDirectory = AuthorizedDirectory(
             uri = uri.toString(),
             root = rootName,
             path = relativePath
         )
 
-        directoryDao.insertDirectory(scannedDirectory)
+        directoryDao.insertDirectory(authorizedDirectory)
     }
 
     /**
      * 移除文件夹
      */
-    suspend fun removeDirectory(directory: ScannedDirectory) = withContext(Dispatchers.IO) {
+    suspend fun removeDirectory(directory: AuthorizedDirectory) = withContext(Dispatchers.IO) {
         directoryDao.deleteDirectory(directory)
     }
 
@@ -76,7 +76,7 @@ class DirectoryRepository @Inject constructor(
      * 扫描所有已授权文件夹下的书籍,用于自动刷新场景,文件夹列表由 ViewModel 提供
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun scanAllBooks(directories: List<ScannedDirectory>): List<FileItem> =
+    suspend fun scanAllBooks(directories: List<AuthorizedDirectory>): List<FileItem> =
         withContext(Dispatchers.IO) {
             supervisorScope { // 为了不影响其他任务
                 val allFiles = mutableListOf<FileItem>()
