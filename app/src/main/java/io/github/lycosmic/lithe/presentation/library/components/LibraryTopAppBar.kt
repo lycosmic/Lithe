@@ -46,14 +46,18 @@ fun LibraryTopAppBar(
     onExitSearchClick: () -> Unit,
     onMoveCategoryClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    showCategoryTab: Boolean,
+    currentCategoryName: String,
 ) {
     when (libraryTopBarState) {
         LibraryTopBarState.DEFAULT -> DefaultLibraryTopAppBar(
             bookCount = bookCount,
             isBookCountVisible = isBookCountVisible,
-            onSearchClick,
-            onFilterClick,
-            onMoreClick
+            categoryName = currentCategoryName,
+            isCategoryTabVisible = showCategoryTab,
+            onSearchClick = onSearchClick,
+            onFilterClick = onFilterClick,
+            onMoreClick = onMoreClick
         )
 
         LibraryTopBarState.SEARCH_BOOK -> SearchLibraryTopAppBar(
@@ -85,12 +89,24 @@ fun DefaultLibraryTopAppBar(
     onSearchClick: () -> Unit,
     onFilterClick: () -> Unit,
     onMoreClick: () -> Unit,
+    isCategoryTabVisible: Boolean,
+    categoryName: String,
 ) {
+
+    val titleText = when {
+        isCategoryTabVisible -> stringResource(R.string.library)
+        else -> {
+            categoryName.ifEmpty {
+                stringResource(R.string.default_category_name)
+            }
+        }
+    }
+
     TopAppBar(
         title = {
             Row {
                 Text(
-                    text = stringResource(R.string.library),
+                    text = titleText,
                 )
 
                 Spacer(modifier = Modifier.width(6.dp))

@@ -110,6 +110,14 @@ fun LibraryScreen(
     // 分页状态
     val pagerState = rememberPagerState(pageCount = { categoryWithBooksList.size })
 
+    // 当前选中的标签名称
+    val currentCategoryName by remember(pagerState.currentPage) {
+        mutableStateOf(
+            categoryWithBooksList.getOrNull(pagerState.currentPage)?.category?.name ?: ""
+        )
+    }
+
+
     val scope = rememberCoroutineScope()
 
     // 拦截返回键
@@ -207,6 +215,8 @@ fun LibraryScreen(
                 LibraryTopAppBar(
                     libraryTopBarState = topBarState,
                     bookCount = totalBookCount,
+                    currentCategoryName = currentCategoryName,
+                    showCategoryTab = showCategoryTab,
                     isBookCountVisible = isBookCountVisible,
                     selectedBookCount = selectedBooks.size,
                     searchText = searchText,
