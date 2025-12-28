@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -54,6 +56,9 @@ import io.github.lycosmic.lithe.presentation.detail.components.FileInfoBottomShe
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
 import io.github.lycosmic.lithe.utils.FileUtils
 import io.github.lycosmic.lithe.utils.ToastUtil
+import my.nanihadesuka.compose.InternalLazyColumnScrollbar
+import my.nanihadesuka.compose.ScrollbarSelectionMode
+import my.nanihadesuka.compose.ScrollbarSettings
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,6 +85,19 @@ fun BookDetailScreen(
 
     // 控制删除书籍的对话框显隐
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // 列表状态
+    val listState = rememberLazyListState()
+
+    val scrollbarSettings = ScrollbarSettings(
+        thumbUnselectedColor = MaterialTheme.colorScheme.secondary,
+        thumbSelectedColor = MaterialTheme.colorScheme.secondary.copy(0.8f),
+        hideDelayMillis = 2000,
+        durationAnimationMillis = 300,
+        selectionMode = ScrollbarSelectionMode.Disabled,
+        thumbThickness = 8.dp,
+        scrollbarPadding = 4.dp
+    )
 
     LaunchedEffect(key1 = Unit) {
         viewModel.effects.collect { effect ->
@@ -139,190 +157,210 @@ fun BookDetailScreen(
         },
         modifier = modifier
     ) { paddings ->
-        Column(
-            modifier = Modifier
-                .padding(paddings)
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp)
-        ) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
+        Box(Modifier.padding(paddings)) {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp)
             ) {
-                Box(
-                    Modifier
-                        .weight(1f)
-                        .padding(end = 20.dp)
-                        .aspectRatio(0.7f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            color = MaterialTheme.colorScheme.primaryContainer
-                        )
-                ) {
-                    if (book.coverPath != null) {
-                        AsyncImage(
-                            model = book.coverPath,
-                            contentDescription = null,
-                            modifier = Modifier.matchParentSize()
-                        )
-                    } else {
-                        Image(
-                            imageVector = Icons.Default.Image,
-                            contentDescription = null,
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                            modifier = Modifier.matchParentSize()
-                        )
-                    }
-                }
+                item {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Box(
+                            Modifier
+                                .weight(1f)
+                                .padding(end = 20.dp)
+                                .aspectRatio(0.7f)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    color = MaterialTheme.colorScheme.primaryContainer
+                                )
+                        ) {
+                            if (book.coverPath != null) {
+                                AsyncImage(
+                                    model = book.coverPath,
+                                    contentDescription = null,
+                                    modifier = Modifier.matchParentSize()
+                                )
+                            } else {
+                                Image(
+                                    imageVector = Icons.Default.Image,
+                                    contentDescription = null,
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                                    modifier = Modifier.matchParentSize()
+                                )
+                            }
+                        }
 
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically),
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    Text(
-                        text = book.title,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                    Row(modifier = Modifier.align(Alignment.Start)) {
-                        Icon(
-                            imageVector = Icons.Outlined.Person, contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = book.author,
-                            modifier = Modifier
-                                .padding(start = 4.dp)
-                                .align(Alignment.CenterVertically),
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Start,
-                        )
-                    }
-
-
-                    Row(modifier = Modifier.align(Alignment.Start)) {
-                        LinearProgressIndicator(
-                            progress = {
-                                book.progress
-                            },
+                        Column(
                             modifier = Modifier
                                 .weight(1f)
-                                .height(4.dp)
-                                .clip(MaterialTheme.shapes.small)
                                 .align(Alignment.CenterVertically),
-                            color = MaterialTheme.colorScheme.primary,
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                        )
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Text(
+                                text = book.title,
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
+                            Row(modifier = Modifier.align(Alignment.Start)) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Person, contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Text(
+                                    text = book.author,
+                                    modifier = Modifier
+                                        .padding(start = 4.dp)
+                                        .align(Alignment.CenterVertically),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Start,
+                                )
+                            }
 
-                        Text(
-                            text = "${book.progress * 100}%",
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
+
+                            Row(modifier = Modifier.align(Alignment.Start)) {
+                                LinearProgressIndicator(
+                                    progress = {
+                                        book.progress
+                                    },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(4.dp)
+                                        .clip(MaterialTheme.shapes.small)
+                                        .align(Alignment.CenterVertically),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+
+                                Text(
+                                    text = "${book.progress * 100}%",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(start = 4.dp)
+                                )
+                            }
+                        }
+
+
                     }
                 }
 
 
-            }
-
-
-            val buttonVerticalPadding = 16.dp
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-            ) {
-                // --- 移动按钮 ---
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 8.dp,
-                                topEnd = 0.dp,
-                                bottomStart = 8.dp,
-                                bottomEnd = 0.dp
+                val buttonVerticalPadding = 16.dp
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    ) {
+                        // --- 移动按钮 ---
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(
+                                    RoundedCornerShape(
+                                        topStart = 8.dp,
+                                        topEnd = 0.dp,
+                                        bottomStart = 8.dp,
+                                        bottomEnd = 0.dp
+                                    )
+                                )
+                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                                .clickable {
+                                    viewModel.onEvent(BookDetailEvent.OnMoveClicked)
+                                }
+                                .padding(vertical = buttonVerticalPadding),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.MoveUp,
+                                contentDescription = "移动",
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
-                        )
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .clickable {
-                            viewModel.onEvent(BookDetailEvent.OnMoveClicked)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "移动",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         }
-                        .padding(vertical = buttonVerticalPadding),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.MoveUp,
-                        contentDescription = "移动",
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
+
+                        Spacer(modifier = Modifier.width(4.dp))
+
+                        // --- 删除按钮 ---
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(
+                                    RoundedCornerShape(
+                                        topStart = 0.dp,
+                                        topEnd = 8.dp,
+                                        bottomStart = 0.dp,
+                                        bottomEnd = 8.dp
+                                    )
+                                )
+                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                                .clickable {
+                                    viewModel.onEvent(BookDetailEvent.OnDeleteClicked)
+                                }
+                                .padding(vertical = buttonVerticalPadding),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = "删除",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "删除",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+
+
+                // 简介
+                item {
                     Text(
-                        text = "移动",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        text = book.description ?: "无简介", modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                top = 16.dp
+                            )
                     )
                 }
 
-                Spacer(modifier = Modifier.width(4.dp))
+                // 开始阅读按钮
+                item {
+                    Button(
+                        onClick = {
+                            onNavigateToReader(bookId)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    ) {
+                        Text(text = "开始阅读")
+                    }
+                }
 
-                // --- 删除按钮 ---
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 0.dp,
-                                topEnd = 8.dp,
-                                bottomStart = 0.dp,
-                                bottomEnd = 8.dp
-                            )
-                        )
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .clickable {
-                            viewModel.onEvent(BookDetailEvent.OnDeleteClicked)
-                        }
-                        .padding(vertical = buttonVerticalPadding),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        contentDescription = "删除",
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "删除",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
 
-
-            // 简介
-            Text(
-                text = book.description ?: "无简介", modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = 16.dp
-                    )
+            // 滚动条
+            InternalLazyColumnScrollbar(
+                state = listState,
+                settings = scrollbarSettings
             )
-
-            // 开始阅读按钮
-            Button(
-                onClick = {
-                    onNavigateToReader(bookId)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-            ) {
-                Text(text = "开始阅读")
-            }
         }
 
 

@@ -99,6 +99,9 @@ dependencies {
     // Drag & Drop, url: https://github.com/Calvin-LL/Reorderable
     implementation(libs.reorderable)
 
+    // LazyColumnScrollbar, url: https://github.com/nanihadesuka/LazyColumnScrollbar
+    implementation(libs.lazycolumnscrollbar)
+
     // ---------------- 初始依赖 ----------------
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
