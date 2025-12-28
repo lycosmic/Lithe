@@ -52,6 +52,7 @@ class LibraryViewModel @Inject constructor(
 
     // 书籍和分类关系查询结果
     private val _categoryWithBooksList = bookRepository.getCategoryWithBooks()
+
     // 总书籍数
     val totalBooksCount = _rawBooks.map { it.size }.stateIn(
         scope = viewModelScope,
@@ -133,7 +134,7 @@ class LibraryViewModel @Inject constructor(
                 category = category,
                 books = books
             )
-        }
+        }.sortedBy { it.category.id }
 
         // 如果是搜索模式, 则进行搜索过滤
         val filteredCategoryWithBooksList = if (filterState.isSearching) {
