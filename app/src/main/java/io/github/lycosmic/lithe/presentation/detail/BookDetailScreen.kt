@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -35,8 +36,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -89,7 +93,7 @@ fun BookDetailScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     // 列表状态
-    val listState = rememberLazyListState()
+    val scrollState = rememberLazyListState()
 
     val scrollbarSettings = ScrollbarSettings(
         thumbUnselectedColor = MaterialTheme.colorScheme.secondary,
@@ -100,6 +104,21 @@ fun BookDetailScreen(
         thumbThickness = 8.dp,
         scrollbarPadding = 4.dp
     )
+
+    // 滚动行为
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    // 控制顶部栏的透明度
+    val appBarAlpha by remember {
+        derivedStateOf {
+            // 完全不透明的滚动位置
+            val targetOffset = 300f
+            // 当前的滚动百分比
+            val fraction = (scrollState.firstVisibleItemScrollOffset.toFloat() / targetOffset)
+                .coerceIn(0f, 1f)
+            fraction
+        }
+    }
 
     LaunchedEffect(key1 = Unit) {
         viewModel.effects.collect { effect ->
@@ -131,6 +150,11 @@ fun BookDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors().copy(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(
+                        alpha = appBarAlpha
+                    )
+                ),
                 title = {
 
                 },
@@ -158,15 +182,24 @@ fun BookDetailScreen(
                         )
                     }
                 },
+                scrollBehavior = scrollBehavior
             )
         },
-        modifier = modifier
-    ) { paddings ->
-        Box(Modifier.padding(paddings)) {
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+    ) { innerPadding ->
+        Box(
+            Modifier.padding(
+                PaddingValues(bottom = innerPadding.calculateBottomPadding())
+            )
+        ) {
             LazyColumn(
-                state = listState,
+                state = scrollState,
                 modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                    .padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = innerPadding.calculateTopPadding()
+                    )
             ) {
                 item {
                     Row(
@@ -364,7 +397,7 @@ fun BookDetailScreen(
 
             // 滚动条
             InternalLazyColumnScrollbar(
-                state = listState,
+                state = scrollState,
                 settings = scrollbarSettings
             )
         }
