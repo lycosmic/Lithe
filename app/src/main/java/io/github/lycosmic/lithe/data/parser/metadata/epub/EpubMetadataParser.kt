@@ -52,11 +52,11 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
         context: Context,
         uri: Uri
     ): ParsedMetadata {
-        // OPF 文件相对路径
+        // OPF/OPS 文件相对路径
         val opfRelativePath = getOpfPathByContainer(context, uri) ?: getOpfPath(context, uri)
         ?: DEFAULT_OPF_RELATIVE_PATH
 
-        // OPF 文件目录
+        // OPF/OPS 文件目录
         val opfParentPath = opfRelativePath.substring(0, opfRelativePath.lastIndexOf("/") + 1)
 
         // 解析 OPF 文件
@@ -66,7 +66,7 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
         }
 
         logD {
-            "OPF file parsing results: $parseResult"
+            "OPF文件解析结果: $parseResult"
         }
 
         // 封面相对路径
@@ -83,7 +83,7 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
                 ZipUtils.extractCoverToStorage(context, uri, zipRelativePath)
         }
         logD {
-            "Cover path: $localCoverPath"
+            "书籍封面已保存到本地路径: $localCoverPath"
         }
 
         // 根据 OPF 解析结果, 获取目录顺序
@@ -95,13 +95,10 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
             val chapterRelativePaths = spine.mapNotNull { id ->
                 val manifestItem = manifest[id]
                 if (manifestItem != null) {
-                    logD {
-                        "Manifest item: $manifestItem"
-                    }
                     opfParentPath + manifestItem.href
                 } else {
                     logD {
-                        "Manifest item not found, spine id: $id"
+                        "书籍目录对应的章节文件不存在，目录ID: $id"
                     }
                     null
                 }
@@ -315,6 +312,8 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
             const val NAME = "name"
             const val ITEM = "item"
             const val ID = "id"
+
+            val COVER_IMAGE_LIST = listOf("coverimage", "cover_image", "cover-image")
             const val ID_REF = "idref"
             const val HREF = "href"
             const val MEDIA_TYPE = "media-type"
@@ -342,6 +341,9 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
         var coverHref: String? = null
         val manifest = mutableMapOf<String, OpfResult.ManifestItem>()
         val spine = mutableListOf<String>()
+
+        // 保存在Item中的封面id
+        var itemCoverId: String? = null
 
         var eventType = parser.eventType
         while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -402,6 +404,10 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
 
                     ITEM -> {
                         val id = parser.getAttributeValue(null, ID)
+                        if (OpfResult.COVER_IMAGE_LIST.contains(id)) {
+                            itemCoverId = id
+                        }
+
                         val href = parser.getAttributeValue(null, HREF)
                         val mediaType = parser.getAttributeValue(null, MEDIA_TYPE)
 
@@ -421,6 +427,19 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
         if (coverId != null && manifest.containsKey(coverId)) {
             val item = manifest[coverId]
             coverHref = item?.href
+            logD {
+                "从元数据中获取封面路径: $coverHref"
+            }
+        } else if (itemCoverId != null && manifest.containsKey(itemCoverId)) {
+            logD {
+                "元数据中获取封面路径失败，尝试从Item中获取封面路径。"
+            }
+            // 尝试再次获取封面图片
+            val item = manifest[itemCoverId]
+            coverHref = item?.href
+            logD {
+                "从Item中获取封面路径: $coverHref"
+            }
         }
 
         return OpfResult(
