@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -59,7 +60,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.detail.components.DeleteBookDialog
 import io.github.lycosmic.lithe.presentation.detail.components.FileInfoBottomSheet
@@ -222,10 +222,10 @@ fun BookDetailScreen(
                 )
             }
 
-
             LazyColumn(
                 state = scrollState,
                 modifier = Modifier
+                    .fillMaxSize()
                     .padding(
                         start = 16.dp,
                         end = 16.dp,
@@ -248,8 +248,8 @@ fun BookDetailScreen(
                                 )
                         ) {
                             if (book.coverPath != null) {
-                                AsyncImage(
-                                    model = book.coverPath,
+                                AsyncCoverImage(
+                                    path = book.coverPath!!,
                                     contentDescription = null,
                                     modifier = Modifier.matchParentSize()
                                 )

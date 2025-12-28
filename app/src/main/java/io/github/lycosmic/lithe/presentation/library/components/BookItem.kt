@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import io.github.lycosmic.lithe.ui.components.AsyncCoverImage
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
 
 
@@ -82,9 +82,10 @@ fun BookItem(
                 contentAlignment = Alignment.Center
             ) {
                 if (coverPath != null) { // 有封面图
-                    AsyncImage(
-                        model = coverPath,
+                    AsyncCoverImage(
+                        path = coverPath,
                         contentDescription = null,
+                        modifier = Modifier
                     )
                 } else {
                     // 图片图标占位符
