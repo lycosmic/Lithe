@@ -23,7 +23,8 @@ import io.github.lycosmic.lithe.data.local.entity.ColorPresetEntity
         // 颜色预设
         ColorPresetEntity::class,
     ],
-    version = 1
+    version = 1,
+    exportSchema = true // 导出数据库 schema 文件
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun bookDao(): BookDao
