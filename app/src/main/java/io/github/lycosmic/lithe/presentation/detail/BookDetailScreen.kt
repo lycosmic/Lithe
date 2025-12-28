@@ -46,7 +46,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -59,6 +63,7 @@ import coil3.compose.AsyncImage
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.detail.components.DeleteBookDialog
 import io.github.lycosmic.lithe.presentation.detail.components.FileInfoBottomSheet
+import io.github.lycosmic.lithe.ui.components.AsyncCoverImage
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
 import io.github.lycosmic.lithe.utils.FileUtils
 import io.github.lycosmic.lithe.utils.ToastUtil
@@ -192,6 +197,32 @@ fun BookDetailScreen(
                 PaddingValues(bottom = innerPadding.calculateBottomPadding())
             )
         ) {
+            // --- 模糊封面背景 ---
+            book.coverPath?.let {
+                val backgroundColor = MaterialTheme.colorScheme.surface
+
+                AsyncCoverImage(
+                    path = it,
+                    animationDurationMillis = 300,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(innerPadding.calculateTopPadding() + 232.dp)
+                        .drawWithContent {
+                            drawContent()
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    0f to Color.Transparent,
+                                    0.8f to backgroundColor
+                                )
+                            )
+                        }
+                        .blur(3.dp),
+                    alpha = 0.4f
+                )
+            }
+
+
             LazyColumn(
                 state = scrollState,
                 modifier = Modifier
