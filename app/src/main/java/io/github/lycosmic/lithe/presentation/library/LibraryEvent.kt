@@ -144,6 +144,21 @@ sealed class LibraryEvent {
      */
     object OnDeleteDialogConfirmed : LibraryEvent()
 
+    /**
+     * 点击移动书籍分类对话框取消
+     */
+    object OnMoveCategoryDialogDismissed : LibraryEvent()
+
+    /**
+     * 点击移动书籍分类对话框确认
+     */
+    data class OnMoveCategoryDialogConfirmed(val selectedCategoryIds: List<Long>) : LibraryEvent()
+
+    /**
+     * 点击移动书籍分类对话框编辑
+     */
+    object OnMoveCategoryDialogEditClicked : LibraryEvent()
+
 
     // --- 搜索模式顶部栏区域 ---
     /**

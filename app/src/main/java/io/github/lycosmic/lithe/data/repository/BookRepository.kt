@@ -59,4 +59,13 @@ class BookRepository @Inject constructor(
         bookDao.insertBookCategoryCrossRefs(refs = refs)
     }
 
+    /**
+     * 移动书籍到
+     */
+    suspend fun moveBooksToCategories(bookIds: List<Long>, categoryIds: List<Long>) {
+        bookIds.forEach {
+            bookDao.moveBookToCategories(bookId = it, categoryIds = categoryIds)
+        }
+    }
+
 }

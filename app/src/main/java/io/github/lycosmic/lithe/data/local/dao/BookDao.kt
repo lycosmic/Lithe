@@ -27,7 +27,7 @@ interface BookDao {
     /**
      * 插入书籍，返回新书的 ID
      */
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertBook(book: Book): Long
 
     @Delete
@@ -50,6 +50,23 @@ interface BookDao {
      */
     @Query("DELETE FROM book_category_cross_ref WHERE book_id = :bookId")
     suspend fun deleteCrossRefsByBookId(bookId: Long)
+
+
+    /**
+     * 移动单本书籍到指定分类
+     */
+    @Transaction
+    suspend fun moveBookToCategories(bookId: Long, categoryIds: List<Long>) {
+        deleteCrossRefsByBookId(bookId)
+
+        val newRefs = categoryIds.map { categoryId ->
+            BookCategoryCrossRef(bookId = bookId, categoryId = categoryId)
+        }
+
+        if (newRefs.isNotEmpty()) {
+            insertBookCategoryCrossRefs(newRefs)
+        }
+    }
 
     /**
      * 查询书籍及其分类

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.local.entity.Book
+import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.model.BookSortType
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.CategoryWithBooks
@@ -12,6 +13,7 @@ import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.extension.logE
+import io.github.lycosmic.lithe.extension.logW
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.CloseDeleteBookConfirmDialog
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.CloseFilterBottomSheet
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToAbout
@@ -64,6 +66,7 @@ class LibraryViewModel @Inject constructor(
     // 当前选中的书籍, 存储书籍ID
     private val _selectedBooks = MutableStateFlow<Set<Long>>(emptySet())
     val selectedBooks = _selectedBooks.asStateFlow()
+
 
     // 当前是否为选中模式
     val isSelectionMode = _selectedBooks.map { it.isNotEmpty() }.stateIn(
@@ -324,7 +327,8 @@ class LibraryViewModel @Inject constructor(
                 }
 
                 LibraryEvent.OnMoveCategoryClicked -> {
-
+                    // 打开移动书籍分类面板
+                    _effects.emit(LibraryEffect.OpenMoveBookCategoryDialog)
                 }
 
                 LibraryEvent.OnSettingsClicked -> {
@@ -402,6 +406,37 @@ class LibraryViewModel @Inject constructor(
 
                 is LibraryEvent.OnBookCountVisibleChanged -> {
                     settingsManager.setShowBookCount(event.visible)
+                }
+
+                is LibraryEvent.OnMoveCategoryDialogConfirmed -> {
+                    val selectedIds = event.selectedCategoryIds.toMutableList()
+                    if (selectedIds.isEmpty()) {
+                        logW {
+                            "未选择任何分类，将移至默认分类中"
+                        }
+                        selectedIds.add(CategoryEntity.DEFAULT_CATEGORY_ID)
+                    }
+
+
+                    // 将所选书籍移动到指定分类
+                    bookRepository.moveBooksToCategories(
+                        bookIds = selectedBooks.value.toList(),
+                        categoryIds = selectedIds
+                    )
+                    // 关闭移动书籍分类面板，并清空所选书籍
+                    clearBookSelection()
+                    _effects.emit(LibraryEffect.CloseMoveBookCategoryDialog)
+                }
+
+                LibraryEvent.OnMoveCategoryDialogDismissed -> {
+                    // 关闭移动书籍分类面板
+                    _effects.emit(LibraryEffect.CloseMoveBookCategoryDialog)
+                }
+
+                LibraryEvent.OnMoveCategoryDialogEditClicked -> {
+                    // 导航至书库设置页
+                    _effects.emit(LibraryEffect.OnNavigateToLibrarySettings)
+                    _effects.emit(LibraryEffect.CloseMoveBookCategoryDialog)
                 }
             }
         }

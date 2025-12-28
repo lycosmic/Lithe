@@ -1,7 +1,7 @@
 package io.github.lycosmic.lithe.presentation.library
 
 sealed class LibraryEffect {
-
+    // --- 导航相关 ---
     /**
      * 导航到设置页面
      */
@@ -33,6 +33,13 @@ sealed class LibraryEffect {
     data object OnNavigateToBrowser : LibraryEffect()
 
     /**
+     * 导航到书库设置页面
+     */
+    data object OnNavigateToLibrarySettings : LibraryEffect()
+
+    // --- 底部抽屉相关 ---
+
+    /**
      * 打开筛选面板
      */
     data object OpenFilterBottomSheet : LibraryEffect()
@@ -52,6 +59,7 @@ sealed class LibraryEffect {
      */
     data object CloseMoreOptionsBottomSheet : LibraryEffect()
 
+    // --- 对话框相关 ---
     /**
      * 显示删除书籍确认对话框
      */
@@ -61,6 +69,18 @@ sealed class LibraryEffect {
      * 关闭删除书籍确认对话框
      */
     data object CloseDeleteBookConfirmDialog : LibraryEffect()
+
+    /**
+     * 打开移动书籍分类对话框
+     */
+    data object OpenMoveBookCategoryDialog : LibraryEffect()
+
+    /**
+     * 关闭移动书籍分类对话框
+     */
+    data object CloseMoveBookCategoryDialog : LibraryEffect()
+
+    // --- 提示相关 ---
 
     /**
      * 显示成功删除所选提示

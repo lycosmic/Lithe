@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
+import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.model.Constants.DOUBLE_CLICK_BACK_INTERVAL_MILLIS
 import io.github.lycosmic.lithe.presentation.library.components.BookItem
 import io.github.lycosmic.lithe.presentation.library.components.CategoryTabRow
@@ -39,6 +40,7 @@ import io.github.lycosmic.lithe.presentation.library.components.LibraryFilterShe
 import io.github.lycosmic.lithe.presentation.library.components.LibraryTopAppBar
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
+import io.github.lycosmic.lithe.ui.components.MoveBookCategoryDialog
 import io.github.lycosmic.lithe.utils.ToastUtil
 import io.github.lycosmic.lithe.utils.toast
 import kotlinx.coroutines.launch
@@ -54,21 +56,32 @@ fun LibraryScreen(
     onGoToBookDetail: (Long) -> Unit,
     onGoToBookRead: (Long) -> Unit,
     onGoToBrowser: () -> Unit,
+    onGoToLibrarySettings: () -> Unit,
 ) {
+    // 更多选项底部抽屉可见性
     var showMoreOptionsBottomSheet by remember { mutableStateOf(false) }
 
+    // 过滤器抽屉可见性
     var showFilterBottomSheet by remember { mutableStateOf(false) }
 
+    // 移动书籍分类对话框可见性
+    var isMoveBookCategoryDialogVisible by remember { mutableStateOf(false) }
+
+    // 分类和书籍列表
     val categoryWithBooksList by viewModel.categoryWithBooksList.collectAsStateWithLifecycle()
 
+    // 选中的书籍
     val selectedBooks by viewModel.selectedBooks.collectAsStateWithLifecycle()
 
+    // 当前顶部栏状态
     val topBarState by viewModel.topBarState.collectAsStateWithLifecycle()
 
+    // 搜索文本
     val searchText by viewModel.searchText.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
+    // 总书籍数量
     val totalBookCount by viewModel.totalBooksCount.collectAsStateWithLifecycle()
 
     // 排序方式和顺序
@@ -117,7 +130,6 @@ fun LibraryScreen(
             categoryWithBooksList.getOrNull(pagerState.currentPage)?.category?.name ?: ""
         )
     }
-
 
     val scope = rememberCoroutineScope()
 
@@ -204,6 +216,18 @@ fun LibraryScreen(
 
                 is LibraryEffect.ShowDeleteBookCountToast -> {
                     R.string.delete_count_book_success.toast()
+                }
+
+                LibraryEffect.CloseMoveBookCategoryDialog -> {
+                    isMoveBookCategoryDialogVisible = false
+                }
+
+                LibraryEffect.OnNavigateToLibrarySettings -> {
+                    onGoToLibrarySettings()
+                }
+
+                LibraryEffect.OpenMoveBookCategoryDialog -> {
+                    isMoveBookCategoryDialogVisible = true
                 }
             }
         }
@@ -324,6 +348,26 @@ fun LibraryScreen(
                 onConfirm = {
                     viewModel.onEvent(LibraryEvent.OnDeleteDialogConfirmed)
                 }
+            )
+        }
+
+        if (isMoveBookCategoryDialogVisible) {
+            MoveBookCategoryDialog(
+                selectedCategoryIds = listOf(),
+                categories = categoryWithBooksList.map {
+                    it.category
+                }.filter {
+                    it.id != CategoryEntity.DEFAULT_CATEGORY_ID
+                },
+                onDismissRequest = {
+                    viewModel.onEvent(LibraryEvent.OnMoveCategoryDialogDismissed)
+                },
+                onConfirm = {
+                    viewModel.onEvent(LibraryEvent.OnMoveCategoryDialogConfirmed(it))
+                },
+                onEdit = {
+                    viewModel.onEvent(LibraryEvent.OnMoveCategoryDialogEditClicked)
+                },
             )
         }
 
