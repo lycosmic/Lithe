@@ -1,6 +1,7 @@
 package io.github.lycosmic.lithe.presentation.library.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ fun BookItem(
     isSelected: Boolean = false,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
+    onReadButtonClick: () -> Unit
 ) {
     // 容器颜色
     val containerColor = if (isSelected) {
@@ -123,7 +125,10 @@ fun BookItem(
                         .align(Alignment.BottomEnd)
                         .padding(8.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(color = MaterialTheme.colorScheme.primaryContainer),
+                        .background(color = MaterialTheme.colorScheme.primaryContainer)
+                        .clickable {
+                            onReadButtonClick()
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -161,7 +166,8 @@ private fun BookItemPreview() {
             readProgress = 0.5f,
             isSelected = true,
             onClick = {},
-            onLongClick = {}
+            onLongClick = {},
+            onReadButtonClick = {}
         )
     }
 }

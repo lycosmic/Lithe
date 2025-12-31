@@ -25,7 +25,7 @@ sealed class LibraryEffect {
     /**
      * 导航到书籍阅读页面
      */
-    data class OnNavigateToBookRead(val bookId: Long) : LibraryEffect()
+    data class OnNavigateToReaderScreen(val bookId: Long) : LibraryEffect()
 
     /**
      * 导航到书籍浏览页面

@@ -40,8 +40,8 @@ fun AppNavigation(
                         // 注意: 对于State状态需要使用rememberSaveable, 而不是使用remember
                         saveableStateHolder.SaveableStateProvider(key = navKey.toString()) {
                             LibraryScreen(
-                                onGoToBookRead = {
-
+                                onGoToBookRead = { bookId ->
+                                    navViewModel.navigate(AppRoutes.Reader(bookId))
                                 },
                                 onGoToBookDetail = { bookId ->
                                     navViewModel.navigate(AppRoutes.BookDetail(bookId))

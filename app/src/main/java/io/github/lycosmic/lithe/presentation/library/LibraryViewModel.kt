@@ -438,6 +438,10 @@ class LibraryViewModel @Inject constructor(
                     _effects.emit(LibraryEffect.OnNavigateToLibrarySettings)
                     _effects.emit(LibraryEffect.CloseMoveBookCategoryDialog)
                 }
+
+                is LibraryEvent.OnReadButtonClicked -> {
+                    _effects.emit(LibraryEffect.OnNavigateToReaderScreen(event.bookId))
+                }
             }
         }
 

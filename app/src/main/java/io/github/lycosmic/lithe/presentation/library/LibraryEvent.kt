@@ -27,6 +27,11 @@ sealed class LibraryEvent {
      */
     data object OnAddBookClicked : LibraryEvent()
 
+    /**
+     * 点击书籍阅读按钮
+     */
+    data class OnReadButtonClicked(val bookId: Long) : LibraryEvent()
+
     // --- 通用顶部栏区域 ---
     /**
      * 点击更多

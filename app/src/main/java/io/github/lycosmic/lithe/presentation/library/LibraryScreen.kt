@@ -178,7 +178,7 @@ fun LibraryScreen(
                     onGoToBookDetail(effect.bookId)
                 }
 
-                is LibraryEffect.OnNavigateToBookRead -> {
+                is LibraryEffect.OnNavigateToReaderScreen -> {
                     onGoToBookRead(effect.bookId)
                 }
 
@@ -330,6 +330,9 @@ fun LibraryScreen(
                             },
                             onLongClick = {
                                 viewModel.onEvent(LibraryEvent.OnBookLongClicked(book.id))
+                            },
+                            onReadButtonClick = {
+                                viewModel.onEvent(LibraryEvent.OnReadButtonClicked(book.id))
                             }
                         )
                     }
