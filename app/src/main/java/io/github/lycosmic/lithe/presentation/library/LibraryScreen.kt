@@ -4,13 +4,16 @@ import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,7 +34,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
+import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.Constants.DOUBLE_CLICK_BACK_INTERVAL_MILLIS
+import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.presentation.library.components.BookItem
 import io.github.lycosmic.lithe.presentation.library.components.CategoryTabRow
 import io.github.lycosmic.lithe.presentation.library.components.EmptyLibraryState
@@ -308,33 +313,88 @@ fun LibraryScreen(
                     viewModel.onEvent(LibraryEvent.OnAddBookClicked)
                 }
             } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3), // TODO 手动调整列数
-                    contentPadding = PaddingValues(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                BoxWithConstraints(
                     modifier = Modifier
-                        .padding(innerPadding)
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .padding(paddingValues = innerPadding)
                 ) {
-                    items(items = books, key = { book ->
-                        book.id
-                    }) { book ->
-                        BookItem(
-                            title = book.title,
-                            coverPath = book.coverPath,
-                            readProgress = book.progress,
-                            isSelected = selectedBooks.contains(book.id),
-                            onClick = {
-                                viewModel.onEvent(LibraryEvent.OnBookClicked(book.id))
-                            },
-                            onLongClick = {
-                                viewModel.onEvent(LibraryEvent.OnBookLongClicked(book.id))
-                            },
-                            onReadButtonClick = {
-                                viewModel.onEvent(LibraryEvent.OnReadButtonClicked(book.id))
+                    // 实际列数
+                    val actualColumns = remember(maxWidth, bookGridColumnCount) {
+                        if (bookGridColumnCount > 0) {
+                            bookGridColumnCount
+                        } else {
+                            val calculated = (maxWidth / Constants.MIN_GRID_ITEM_WIDTH).toInt()
+                            maxOf(1, calculated)
+                        }
+                    }
+
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        when (bookDisplayMode) {
+                            DisplayMode.List -> {
+                                items(items = books, key = { it.id }) {
+
+                                }
                             }
-                        )
+
+                            // 网格
+                            DisplayMode.Grid -> {
+
+                                val rows = books.chunked(actualColumns)
+
+                                return@LazyColumn items(
+                                    items = rows,
+                                    key = { it.first().id }
+                                ) { rowBooks ->
+
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 8.dp)
+                                            .padding(bottom = 8.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        for (book in rowBooks) {
+                                            Box(modifier = Modifier.weight(1f)) {
+                                                BookItem(
+                                                    title = book.title,
+                                                    coverPath = book.coverPath,
+                                                    readProgress = book.progress,
+                                                    isSelected = selectedBooks.contains(book.id),
+                                                    onClick = {
+                                                        viewModel.onEvent(
+                                                            LibraryEvent.OnBookClicked(
+                                                                book.id
+                                                            )
+                                                        )
+                                                    },
+                                                    onLongClick = {
+                                                        viewModel.onEvent(
+                                                            LibraryEvent.OnBookLongClicked(
+                                                                book.id
+                                                            )
+                                                        )
+                                                    },
+                                                    onReadButtonClick = {
+                                                        viewModel.onEvent(
+                                                            LibraryEvent.OnReadButtonClicked(
+                                                                book.id
+                                                            )
+                                                        )
+                                                    }
+                                                )
+                                            }
+                                        }
+
+                                        // 处理最后一行不满的情况
+                                        val remainingCount = actualColumns - rowBooks.size
+                                        repeat(remainingCount) {
+                                            Spacer(modifier = Modifier.weight(1f))
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
                     }
                 }
             }
