@@ -10,5 +10,4 @@ data class ReaderUiState(
     val spine: List<BookSpineItem> = emptyList(), // 目录结构
     val currentChapterIndex: Int = 0,             // 当前第几章
     val currentContent: List<ReaderContent> = emptyList(), // 当前章的内容
-    val error: String? = null,
 )

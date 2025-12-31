@@ -14,8 +14,12 @@ import io.github.lycosmic.lithe.data.repository.BookRepository
 import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.extension.logI
+import io.github.lycosmic.lithe.presentation.reader.components.ReaderEffect
+import io.github.lycosmic.lithe.presentation.reader.components.ReaderEvent
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -30,7 +34,11 @@ class ReaderViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ReaderUiState())
     val uiState = _uiState.asStateFlow()
 
+    // 书籍内容解析器
     private var bookContentParser: BookContentParser? = null
+
+    private val _effects = MutableSharedFlow<ReaderEffect>()
+    val effects = _effects.asSharedFlow()
 
     /**
      * 加载书籍
@@ -38,13 +46,13 @@ class ReaderViewModel @Inject constructor(
     fun loadBook(bookId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             logI {
-                "Start loading books, book ID: $bookId"
+                "开始加载书籍，书籍ID: $bookId"
             }
             try {
                 val book = bookRepository.getBookById(bookId)
                 if (book == null) {
-                    _uiState.update {
-                        it.copy(isLoading = false, error = "书籍不存在")
+                    logE {
+                        "书籍不存在，ID: $bookId"
                     }
                     return@launch
                 }
@@ -69,8 +77,8 @@ class ReaderViewModel @Inject constructor(
                 // 默认加载第一章
                 val initialIndex = 0
 
-                logI {
-                    "Starts loading the contents of the initial chapter with the chapter number $initialIndex"
+                logD {
+                    "开始加载章节内容，章节名: ${spine[initialIndex].label}"
                 }
                 // 加载章节内容
                 bookContentParser?.let {
@@ -78,9 +86,8 @@ class ReaderViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 logE(e = e) {
-                    "Books fail to load, book ID: $bookId"
+                    "书籍加载失败，ID: $bookId"
                 }
-                _uiState.update { it.copy(isLoading = false, error = e.message) }
             }
         }
     }
@@ -146,6 +153,16 @@ class ReaderViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 bookContentParser?.let { parser ->
                     loadChapterContent(parser, book.fileUri.toUri(), currentState.spine, prevIndex)
+                }
+            }
+        }
+    }
+
+    fun onEvent(event: ReaderEvent) {
+        when (event) {
+            ReaderEvent.OnContentClick -> {
+                viewModelScope.launch {
+                    _effects.emit(ReaderEffect.ShowOrHideTopBarAndBottomControl)
                 }
             }
         }
