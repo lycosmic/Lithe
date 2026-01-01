@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.model.Constants
-import io.github.lycosmic.lithe.data.repository.BookRepository
+import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
 import io.github.lycosmic.lithe.utils.UriUtils
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BookDetailViewModel @Inject constructor(
-    private val bookRepository: BookRepository,
+    private val bookRepositoryImpl: BookRepositoryImpl,
 ) : ViewModel() {
 
     private val _book = MutableStateFlow(Book.defaultBook)
@@ -37,7 +37,7 @@ class BookDetailViewModel @Inject constructor(
 
     fun loadBook(bookId: Long) {
         viewModelScope.launch {
-            bookRepository.getBookFlow(bookId).stateIn(
+            bookRepositoryImpl.getBookFlowById(bookId).stateIn(
                 scope = viewModelScope,
                 started = WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
                 initialValue = Book.defaultBook
@@ -96,7 +96,7 @@ class BookDetailViewModel @Inject constructor(
     fun deleteBook() {
         viewModelScope.launch {
             _effects.emit(BookDetailEffect.DismissDeleteBookDialog)
-            bookRepository.deleteBook(book.value.id)
+            bookRepositoryImpl.deleteBook(book.value.id)
             _effects.emit(BookDetailEffect.ShowBookDeletedToast(R.string.delete_book_success))
             _effects.emit(BookDetailEffect.NavigateBack)
         }

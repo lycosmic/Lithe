@@ -7,7 +7,7 @@ import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.DisplayMode
-import io.github.lycosmic.lithe.data.repository.CategoryRepository
+import io.github.lycosmic.lithe.data.repository.CategoryRepositoryImpl
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.extension.logW
@@ -25,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LibrarySettingsViewModel @Inject constructor(
     private val settingsManager: SettingsManager,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepositoryImpl: CategoryRepositoryImpl
 ) : ViewModel() {
 
     /**
@@ -110,7 +110,7 @@ class LibrarySettingsViewModel @Inject constructor(
     )
 
     // 当前的分类列表
-    val categoryList = categoryRepository.getCategoriesExcludeDefault().stateIn(
+    val categoryList = categoryRepositoryImpl.getCategoriesFlowExcludeDefault().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = emptyList()
@@ -193,7 +193,7 @@ class LibrarySettingsViewModel @Inject constructor(
             is LibrarySettingsEvent.OnCreateCategory -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     val categoryName = event.name
-                    if (categoryRepository.countCategoriesByName(categoryName) > 0) {
+                    if (categoryRepositoryImpl.countCategoriesByName(categoryName) > 0) {
                         logW {
                             "分类名称[${categoryName}]已存在"
                         }
@@ -205,7 +205,7 @@ class LibrarySettingsViewModel @Inject constructor(
                         name = categoryName,
                     )
 
-                    categoryRepository.insertCategory(category)
+                    categoryRepositoryImpl.insertCategory(category)
                 }
             }
 
@@ -228,7 +228,7 @@ class LibrarySettingsViewModel @Inject constructor(
                 viewModelScope.launch(Dispatchers.IO) {
                     val category = event.category
                     val categoryName = category.name
-                    if (categoryRepository.countCategoriesByName(categoryName) > 0) {
+                    if (categoryRepositoryImpl.countCategoriesByName(categoryName) > 0) {
                         logW {
                             "分类名称[${categoryName}]已存在"
                         }
@@ -236,7 +236,7 @@ class LibrarySettingsViewModel @Inject constructor(
                         return@launch
                     }
 
-                    categoryRepository.updateCategory(category)
+                    categoryRepositoryImpl.updateCategory(category)
                 }
             }
 
@@ -247,14 +247,14 @@ class LibrarySettingsViewModel @Inject constructor(
                         "删除分类，分类ID：${id}"
                     }
 
-                    if (categoryRepository.getCategoryById(id) == null) {
+                    if (categoryRepositoryImpl.getCategoryById(id) == null) {
                         logW {
                             "要删除的分类不存在，分类ID：${id}"
                         }
                         return@launch
                     }
 
-                    categoryRepository.deleteCategory(event.categoryId)
+                    categoryRepositoryImpl.deleteCategory(event.categoryId)
                 }
             }
         }

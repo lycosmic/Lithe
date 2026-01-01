@@ -6,7 +6,7 @@ import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParserFactory
-import io.github.lycosmic.lithe.data.repository.BookRepository
+import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
 import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.extension.logW
@@ -20,7 +20,7 @@ import javax.inject.Inject
 class BookImportUseCase @Inject constructor(
     private val application: Application,
     private val parserFactory: BookMetadataParserFactory,
-    private val bookRepository: BookRepository
+    private val bookRepositoryImpl: BookRepositoryImpl
 ) {
     /**
      * 解析文件元数据
@@ -79,7 +79,7 @@ class BookImportUseCase @Inject constructor(
             // 书签排序
             val sortedBookmarks = metadata.bookmarks?.sortedBy { it.order }
 
-            if (bookRepository.getBookByUniqueId(uniqueId) != null) {
+            if (bookRepositoryImpl.getBookByUniqueId(uniqueId) != null) {
                 // 已有该书籍
                 logW {
                     "书库中已有该书籍: ${metadata.title}，唯一标符为 $uniqueId，忽略该文件: ${bookFile.name}"
@@ -105,13 +105,13 @@ class BookImportUseCase @Inject constructor(
                 lastReadPosition = null,
                 lastReadTime = null
             )
-            val bookId = bookRepository.importBook(book)
+            val bookId = bookRepositoryImpl.importBook(book)
             // 添加到默认分类中
             val crossRef = BookCategoryCrossRef(
                 bookId = bookId,
                 categoryId = CategoryEntity.DEFAULT_CATEGORY_ID
             )
-            bookRepository.insertBookCategoryCrossRefs(listOf(crossRef))
+            bookRepositoryImpl.insertBookCategoryCrossRefs(listOf(crossRef))
 
             successCount++
         }

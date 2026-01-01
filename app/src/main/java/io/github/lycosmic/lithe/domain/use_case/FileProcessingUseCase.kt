@@ -1,7 +1,7 @@
 package io.github.lycosmic.lithe.domain.use_case
 
 import io.github.lycosmic.lithe.data.model.FileItem
-import io.github.lycosmic.lithe.data.repository.DirectoryRepository
+import io.github.lycosmic.lithe.data.repository.DirectoryRepositoryImpl
 import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
 import kotlinx.coroutines.flow.Flow
@@ -15,16 +15,16 @@ import javax.inject.Singleton
 
 @Singleton
 class FileProcessingUseCase @Inject constructor(
-    private val directoryRepository: DirectoryRepository,
+    private val directoryRepositoryImpl: DirectoryRepositoryImpl,
 ) {
 
     /**
      * 扫描所有已授权文件夹下的文件
      */
     fun scanFiles(): Flow<List<FileItem>> {
-        return directoryRepository.getDirectories()
+        return directoryRepositoryImpl.getDirectoriesFlow()
             .map { directories ->
-                directoryRepository.scanAllBooks(directories)
+                directoryRepositoryImpl.scanFilesInDirectories(directories)
             }
     }
 

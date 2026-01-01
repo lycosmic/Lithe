@@ -7,7 +7,7 @@ import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.model.FileItem
-import io.github.lycosmic.lithe.data.repository.BookRepository
+import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
@@ -39,7 +39,7 @@ import javax.inject.Inject
 class BrowseViewModel @Inject constructor(
     private val fileProcessingUseCase: FileProcessingUseCase,
     private val bookImportUseCase: BookImportUseCase,
-    bookRepository: BookRepository,
+    bookRepositoryImpl: BookRepositoryImpl,
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
@@ -87,7 +87,7 @@ class BrowseViewModel @Inject constructor(
     val searchText = _searchText.asStateFlow()
 
     // 在数据库中的书籍文件Uri列表
-    private val _dbFileUris = bookRepository.getAllBooks().map {
+    private val _dbFileUris = bookRepositoryImpl.getAllBooks().map {
         return@map it.map { book ->
             book.fileUri
         }.toSet()

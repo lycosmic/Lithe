@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.DisplayMode
-import io.github.lycosmic.lithe.data.repository.DirectoryRepository
+import io.github.lycosmic.lithe.data.repository.DirectoryRepositoryImpl
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.extension.logV
 import kotlinx.coroutines.Dispatchers
@@ -20,12 +20,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BrowseSettingsViewModel @Inject constructor(
-    private val directoryRepository: DirectoryRepository,
+    private val directoryRepositoryImpl: DirectoryRepositoryImpl,
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
     // 已授权的文件夹列表
-    val scannedDirectories = directoryRepository.getDirectories().stateIn( // 转为热流
+    val scannedDirectories = directoryRepositoryImpl.getDirectoriesFlow().stateIn( // 转为热流
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = emptyList()
@@ -90,7 +90,7 @@ class BrowseSettingsViewModel @Inject constructor(
      */
     fun addDirectory(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            directoryRepository.addDirectory(uri)
+            directoryRepositoryImpl.insertDirectory(uri)
         }
     }
 
@@ -99,7 +99,7 @@ class BrowseSettingsViewModel @Inject constructor(
      */
     fun removeDirectory(directory: AuthorizedDirectory) {
         viewModelScope.launch(Dispatchers.IO) {
-            directoryRepository.removeDirectory(directory)
+            directoryRepositoryImpl.removeDirectory(directory)
         }
     }
 

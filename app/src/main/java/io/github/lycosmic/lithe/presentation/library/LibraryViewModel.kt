@@ -10,7 +10,7 @@ import io.github.lycosmic.lithe.data.model.BookTitlePosition
 import io.github.lycosmic.lithe.data.model.CategoryWithBooks
 import io.github.lycosmic.lithe.data.model.Constants
 import io.github.lycosmic.lithe.data.model.DisplayMode
-import io.github.lycosmic.lithe.data.repository.BookRepository
+import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.extension.logW
@@ -40,12 +40,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
-    private val bookRepository: BookRepository,
+    private val bookRepositoryImpl: BookRepositoryImpl,
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
     // 原始的书籍列表
-    private val _rawBooks = bookRepository.getAllBooks().stateIn(
+    private val _rawBooks = bookRepositoryImpl.getAllBooks().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
         initialValue = emptyList()
@@ -53,7 +53,7 @@ class LibraryViewModel @Inject constructor(
     val rawBooks = _rawBooks
 
     // 书籍和分类关系查询结果
-    private val _categoryWithBooksList = bookRepository.getCategoryWithBooks()
+    private val _categoryWithBooksList = bookRepositoryImpl.getCategoryWithBooksFlow()
 
     // 总书籍数
     val totalBooksCount = _rawBooks.map { it.size }.stateIn(
@@ -348,7 +348,7 @@ class LibraryViewModel @Inject constructor(
                     // 删除所选书籍
                     _selectedBooks.value.forEach { bookId ->
                         // 删除书籍
-                        bookRepository.deleteBook(bookId)
+                        bookRepositoryImpl.deleteBook(bookId)
                         successCount++
                     }
                     if (successCount == _selectedBooks.value.size) {
@@ -419,7 +419,7 @@ class LibraryViewModel @Inject constructor(
 
 
                     // 将所选书籍移动到指定分类
-                    bookRepository.moveBooksToCategories(
+                    bookRepositoryImpl.moveBooksToCategories(
                         bookIds = selectedBooks.value.toList(),
                         categoryIds = selectedIds
                     )

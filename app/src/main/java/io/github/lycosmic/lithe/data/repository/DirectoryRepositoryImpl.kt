@@ -10,6 +10,7 @@ import io.github.lycosmic.lithe.data.local.dao.DirectoryDao
 import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
 import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.model.FileItem
+import io.github.lycosmic.lithe.domain.repository.DirectoryRepository
 import io.github.lycosmic.lithe.utils.UriUtils
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -24,22 +25,17 @@ import javax.inject.Singleton
 
 
 @Singleton
-class DirectoryRepository @Inject constructor(
+class DirectoryRepositoryImpl @Inject constructor(
     private val directoryDao: DirectoryDao,
     private val application: Application
-) {
-    /**
-     * 获取已添加的文件夹列表
-     */
-    fun getDirectories(): Flow<List<AuthorizedDirectory>> {
+) : DirectoryRepository {
+
+    override fun getDirectoriesFlow(): Flow<List<AuthorizedDirectory>> {
         return directoryDao.getScannedDirectoriesFlow()
     }
 
 
-    /**
-     * 添加文件夹
-     */
-    suspend fun addDirectory(uri: Uri) = withContext(Dispatchers.IO) {
+    override suspend fun insertDirectory(uri: Uri): Long = withContext(Dispatchers.IO) {
         val resolver = application.contentResolver
 
         try {
@@ -49,7 +45,7 @@ class DirectoryRepository @Inject constructor(
             resolver.takePersistableUriPermission(uri, takeFlags)
         } catch (e: Exception) {
             e.printStackTrace()
-            return@withContext
+            return@withContext -1
         }
 
         // 获取文件的路径信息
@@ -64,19 +60,15 @@ class DirectoryRepository @Inject constructor(
         directoryDao.insertDirectory(authorizedDirectory)
     }
 
-    /**
-     * 移除文件夹
-     */
-    suspend fun removeDirectory(directory: AuthorizedDirectory) = withContext(Dispatchers.IO) {
-        directoryDao.deleteDirectory(directory)
-    }
+
+    override suspend fun removeDirectory(directory: AuthorizedDirectory) =
+        withContext(Dispatchers.IO) {
+            directoryDao.deleteDirectory(directory)
+        }
 
 
-    /**
-     * 扫描所有已授权文件夹下的书籍,用于自动刷新场景,文件夹列表由 ViewModel 提供
-     */
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun scanAllBooks(directories: List<AuthorizedDirectory>): List<FileItem> =
+    override suspend fun scanFilesInDirectories(directories: List<AuthorizedDirectory>): List<FileItem> =
         withContext(Dispatchers.IO) {
             supervisorScope { // 为了不影响其他任务
                 val allFiles = mutableListOf<FileItem>()

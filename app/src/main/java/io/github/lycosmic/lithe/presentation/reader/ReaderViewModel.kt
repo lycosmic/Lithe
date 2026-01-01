@@ -10,7 +10,7 @@ import io.github.lycosmic.lithe.data.model.EpubSpineItem
 import io.github.lycosmic.lithe.data.model.TxtSpineItem
 import io.github.lycosmic.lithe.data.parser.content.BookContentParser
 import io.github.lycosmic.lithe.data.parser.content.BookContentParserFactory
-import io.github.lycosmic.lithe.data.repository.BookRepository
+import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
 import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.extension.logI
@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
-    private val bookRepository: BookRepository,
+    private val bookRepositoryImpl: BookRepositoryImpl,
     private val bookContentParserFactory: BookContentParserFactory
 ) : ViewModel() {
 
@@ -49,7 +49,7 @@ class ReaderViewModel @Inject constructor(
                 "开始加载书籍，书籍ID: $bookId"
             }
             try {
-                val book = bookRepository.getBookById(bookId)
+                val book = bookRepositoryImpl.getBookById(bookId)
                 if (book == null) {
                     logE {
                         "书籍不存在，ID: $bookId"

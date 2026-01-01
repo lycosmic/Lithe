@@ -26,7 +26,7 @@ interface DirectoryDao {
      * 添加目录
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDirectory(directory: AuthorizedDirectory)
+    suspend fun insertDirectory(directory: AuthorizedDirectory): Long
 
     /**
      * 删除目录
