@@ -3,15 +3,15 @@ package io.github.lycosmic.lithe.presentation.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.local.entity.Book
+import io.github.lycosmic.lithe.data.local.entity.BookEntity
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
-import io.github.lycosmic.lithe.data.model.BookSortType
-import io.github.lycosmic.lithe.data.model.BookTitlePosition
-import io.github.lycosmic.lithe.data.model.CategoryWithBooks
-import io.github.lycosmic.lithe.data.model.Constants
-import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
 import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.lithe.domain.model.BookSortType
+import io.github.lycosmic.lithe.domain.model.BookTitlePosition
+import io.github.lycosmic.lithe.domain.model.CategoryWithBooks
+import io.github.lycosmic.lithe.domain.model.Constants
+import io.github.lycosmic.lithe.domain.model.DisplayMode
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.extension.logW
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.CloseDeleteBookConfirmDialog
@@ -131,21 +131,25 @@ class LibraryViewModel @Inject constructor(
         // 排序
         val sortedCategoryWithBooksList = categoryWithBooksList.map { categoryWithBooks ->
             val books =
-                sortBooks(categoryWithBooks.books, filterState.sortType, filterState.isAscending)
+                sortBooks(
+                    categoryWithBooks.bookEntities,
+                    filterState.sortType,
+                    filterState.isAscending
+                )
             val category = categoryWithBooks.category
             CategoryWithBooks(
                 category = category,
-                books = books
+                bookEntities = books
             )
         }.sortedBy { it.category.id }
 
         // 如果是搜索模式, 则进行搜索过滤
         val filteredCategoryWithBooksList = if (filterState.isSearching) {
             sortedCategoryWithBooksList.map { categoryWithBooks ->
-                val books = filterBooks(categoryWithBooks.books, filterState.searchText)
+                val books = filterBooks(categoryWithBooks.bookEntities, filterState.searchText)
                 CategoryWithBooks(
                     category = categoryWithBooks.category,
-                    books = books
+                    bookEntities = books
                 )
             }
         } else {
@@ -480,23 +484,23 @@ class LibraryViewModel @Inject constructor(
      * 对书籍进行排序
      */
     private fun sortBooks(
-        books: List<Book>,
+        bookEntities: List<BookEntity>,
         sortType: BookSortType,
         isAscending: Boolean
-    ): List<Book> {
+    ): List<BookEntity> {
         return if (isAscending) {
             when (sortType) {
-                BookSortType.ALPHABETICAL -> books.sortedBy { it.title.lowercase() }
-                BookSortType.LAST_READ_TIME -> books.sortedBy { it.lastReadTime }
-                BookSortType.PROGRESS -> books.sortedBy { it.progress }
-                BookSortType.AUTHOR -> books.sortedBy { it.author.lowercase() }
+                BookSortType.ALPHABETICAL -> bookEntities.sortedBy { it.title.lowercase() }
+                BookSortType.LAST_READ_TIME -> bookEntities.sortedBy { it.lastReadTime }
+                BookSortType.PROGRESS -> bookEntities.sortedBy { it.progress }
+                BookSortType.AUTHOR -> bookEntities.sortedBy { it.author.lowercase() }
             }
         } else {
             when (sortType) {
-                BookSortType.ALPHABETICAL -> books.sortedByDescending { it.title.lowercase() }
-                BookSortType.LAST_READ_TIME -> books.sortedByDescending { it.lastReadTime }
-                BookSortType.PROGRESS -> books.sortedByDescending { it.progress }
-                BookSortType.AUTHOR -> books.sortedByDescending { it.author.lowercase() }
+                BookSortType.ALPHABETICAL -> bookEntities.sortedByDescending { it.title.lowercase() }
+                BookSortType.LAST_READ_TIME -> bookEntities.sortedByDescending { it.lastReadTime }
+                BookSortType.PROGRESS -> bookEntities.sortedByDescending { it.progress }
+                BookSortType.AUTHOR -> bookEntities.sortedByDescending { it.author.lowercase() }
             }
         }
     }
@@ -504,8 +508,8 @@ class LibraryViewModel @Inject constructor(
     /**
      * 对书籍进行文本过滤
      */
-    private fun filterBooks(books: List<Book>, searchText: String): List<Book> {
-        return books.filter { book ->
+    private fun filterBooks(bookEntities: List<BookEntity>, searchText: String): List<BookEntity> {
+        return bookEntities.filter { book ->
             book.title.contains(searchText, ignoreCase = true)
         }
     }

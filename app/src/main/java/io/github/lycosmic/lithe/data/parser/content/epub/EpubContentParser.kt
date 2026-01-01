@@ -9,8 +9,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.github.lycosmic.lithe.data.model.ReaderContent
 import io.github.lycosmic.lithe.data.parser.content.BookContentParser
+import io.github.lycosmic.lithe.domain.model.ReaderContent
 import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.extension.logI

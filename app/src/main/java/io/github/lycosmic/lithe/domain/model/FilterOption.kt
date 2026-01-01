@@ -1,7 +1,5 @@
 package io.github.lycosmic.lithe.domain.model
 
-import io.github.lycosmic.lithe.data.model.FileFormat
-
 data class FilterOption(
     val format: FileFormat,
     val displayName: String,

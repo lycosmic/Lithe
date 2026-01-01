@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
-import io.github.lycosmic.lithe.data.model.Constants
-import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.repository.DirectoryRepositoryImpl
 import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.lithe.domain.model.Constants
+import io.github.lycosmic.lithe.domain.model.DisplayMode
 import io.github.lycosmic.lithe.extension.logV
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow

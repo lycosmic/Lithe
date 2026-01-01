@@ -1,7 +1,7 @@
 package io.github.lycosmic.lithe.domain.use_case
 
-import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.data.repository.DirectoryRepositoryImpl
+import io.github.lycosmic.lithe.domain.model.FileItem
 import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
 import kotlinx.coroutines.flow.Flow

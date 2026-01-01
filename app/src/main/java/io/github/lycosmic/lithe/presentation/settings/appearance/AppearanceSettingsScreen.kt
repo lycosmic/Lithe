@@ -54,10 +54,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.model.AppThemeOption
-import io.github.lycosmic.lithe.data.model.OptionItem
-import io.github.lycosmic.lithe.data.model.ThemeMode
+import io.github.lycosmic.lithe.domain.model.AppThemeOption
 import io.github.lycosmic.lithe.domain.model.ColorPreset
+import io.github.lycosmic.lithe.domain.model.OptionItem
+import io.github.lycosmic.lithe.domain.model.ThemeMode
 import io.github.lycosmic.lithe.extension.logV
 import io.github.lycosmic.lithe.presentation.settings.appearance.components.ColorPresetEditorCard
 import io.github.lycosmic.lithe.presentation.settings.appearance.components.ThemePreviewItem

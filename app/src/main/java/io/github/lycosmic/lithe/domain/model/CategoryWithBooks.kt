@@ -1,10 +1,10 @@
-package io.github.lycosmic.lithe.data.model
+package io.github.lycosmic.lithe.domain.model
 
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
-import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
+import io.github.lycosmic.lithe.data.local.entity.BookEntity
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 
 /**
@@ -16,7 +16,7 @@ data class CategoryWithBooks(
     // 分类下的所有书籍
     @Relation(
         parentColumn = CategoryEntity.COL_ID,
-        entityColumn = Book.COL_ID,
+        entityColumn = BookEntity.COL_ID,
         associateBy = Junction(
             // 指定中间表
             value = BookCategoryCrossRef::class,
@@ -24,5 +24,5 @@ data class CategoryWithBooks(
             entityColumn = BookCategoryCrossRef.COL_BOOK_ID,
         )
     )
-    val books: List<Book>
+    val bookEntities: List<BookEntity>
 )

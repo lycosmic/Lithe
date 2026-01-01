@@ -1,8 +1,8 @@
 package io.github.lycosmic.lithe.data.parser.content
 
-import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.parser.content.epub.EpubContentParser
 import io.github.lycosmic.lithe.data.parser.content.txt.TxtContentParser
+import io.github.lycosmic.lithe.domain.model.FileFormat
 import io.github.lycosmic.lithe.extension.logE
 import javax.inject.Inject
 import javax.inject.Singleton

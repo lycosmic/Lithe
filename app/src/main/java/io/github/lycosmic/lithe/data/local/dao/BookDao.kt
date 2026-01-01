@@ -6,43 +6,43 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
-import io.github.lycosmic.lithe.data.model.BookWithCategories
-import io.github.lycosmic.lithe.data.model.CategoryWithBooks
+import io.github.lycosmic.lithe.data.local.entity.BookEntity
+import io.github.lycosmic.lithe.domain.model.BookWithCategories
+import io.github.lycosmic.lithe.domain.model.CategoryWithBooks
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BookDao {
 
     @Query("SELECT * FROM books ORDER BY lastReadTime DESC")
-    fun getAllBooks(): Flow<List<Book>>
+    fun getAllBooks(): Flow<List<BookEntity>>
 
     @Query("SELECT * FROM books WHERE id = :id LIMIT 1")
-    suspend fun getBookById(id: Long): Book?
+    suspend fun getBookById(id: Long): BookEntity?
 
     @Query("SELECT * FROM books WHERE id = :id LIMIT 1")
-    fun getBookFlowById(id: Long): Flow<Book?>
+    fun getBookFlowById(id: Long): Flow<BookEntity?>
 
     /**
      * 插入书籍，返回新书的 ID
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertBook(book: Book): Long
+    suspend fun insertBook(bookEntity: BookEntity): Long
 
     @Delete
-    suspend fun deleteBook(book: Book)
+    suspend fun deleteBook(bookEntity: BookEntity)
 
     @Query("DELETE FROM books WHERE id=:id")
     suspend fun deleteBookById(id: Long)
 
     @Query("SELECT * FROM books WHERE uniqueId = :uniqueId LIMIT 1")
-    suspend fun getBookByUniqueId(uniqueId: String): Book?
+    suspend fun getBookByUniqueId(uniqueId: String): BookEntity?
 
     /**
      * 插入书籍分类关联
      */
-    @Insert(onConflict = OnConflictStrategy.Companion.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertBookCategoryCrossRefs(refs: List<BookCategoryCrossRef>)
 
     /**

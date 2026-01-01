@@ -1,9 +1,9 @@
 package io.github.lycosmic.lithe.data.parser.metadata
 
-import io.github.lycosmic.lithe.data.model.FileFormat
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser
 import io.github.lycosmic.lithe.data.parser.metadata.pdf.PdfMetadataParser
 import io.github.lycosmic.lithe.data.parser.metadata.txt.TxtMetadataParser
+import io.github.lycosmic.lithe.domain.model.FileFormat
 import io.github.lycosmic.lithe.extension.logE
 import javax.inject.Inject
 import javax.inject.Singleton

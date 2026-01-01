@@ -7,15 +7,15 @@ import io.github.lycosmic.lithe.data.local.dao.CategoryDao
 import io.github.lycosmic.lithe.data.local.dao.ColorPresetDao
 import io.github.lycosmic.lithe.data.local.dao.DirectoryDao
 import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
-import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
+import io.github.lycosmic.lithe.data.local.entity.BookEntity
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.local.entity.ColorPresetEntity
 
 @Database(
     entities = [
         // 书籍和分类
-        Book::class,
+        BookEntity::class,
         CategoryEntity::class,
         BookCategoryCrossRef::class,
         // 已授权的目录

@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data.model
+package io.github.lycosmic.lithe.domain.model
 
 /**
  * 书籍解析结果

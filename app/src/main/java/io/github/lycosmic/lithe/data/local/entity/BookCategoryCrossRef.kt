@@ -14,8 +14,8 @@ import androidx.room.Index
     primaryKeys = [BookCategoryCrossRef.COL_BOOK_ID, BookCategoryCrossRef.COL_CATEGORY_ID], // 联合主键
     foreignKeys = [
         ForeignKey(
-            entity = Book::class,
-            parentColumns = [Book.COL_ID],
+            entity = BookEntity::class,
+            parentColumns = [BookEntity.COL_ID],
             childColumns = [BookCategoryCrossRef.COL_BOOK_ID],
             onDelete = ForeignKey.CASCADE // 书删了，关联关系自动删
         ),

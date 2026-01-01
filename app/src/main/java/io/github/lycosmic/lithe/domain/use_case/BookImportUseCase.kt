@@ -1,12 +1,12 @@
 package io.github.lycosmic.lithe.domain.use_case
 
 import android.app.Application
-import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
+import io.github.lycosmic.lithe.data.local.entity.BookEntity
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
-import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
+import io.github.lycosmic.lithe.domain.model.FileItem
 import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.extension.logW
@@ -88,7 +88,7 @@ class BookImportUseCase @Inject constructor(
             }
 
             // 导入数据库
-            val book = Book(
+            val bookEntity = BookEntity(
                 title = metadata.title ?: "未知",
                 author = metadata.authors?.firstOrNull() ?: "未知",
                 description = metadata.description,
@@ -105,7 +105,7 @@ class BookImportUseCase @Inject constructor(
                 lastReadPosition = null,
                 lastReadTime = null
             )
-            val bookId = bookRepositoryImpl.importBook(book)
+            val bookId = bookRepositoryImpl.importBook(bookEntity)
             // 添加到默认分类中
             val crossRef = BookCategoryCrossRef(
                 bookId = bookId,

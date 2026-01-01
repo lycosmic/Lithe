@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.model.Constants
+import io.github.lycosmic.lithe.domain.model.Constants
 
 /**
  * 网格大小选择器

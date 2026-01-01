@@ -6,11 +6,11 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import io.github.lycosmic.lithe.data.model.AppThemeOption
-import io.github.lycosmic.lithe.data.model.BookSortType
-import io.github.lycosmic.lithe.data.model.BookTitlePosition
-import io.github.lycosmic.lithe.data.model.DisplayMode
-import io.github.lycosmic.lithe.data.model.ThemeMode
+import io.github.lycosmic.lithe.domain.model.AppThemeOption
+import io.github.lycosmic.lithe.domain.model.BookSortType
+import io.github.lycosmic.lithe.domain.model.BookTitlePosition
+import io.github.lycosmic.lithe.domain.model.DisplayMode
+import io.github.lycosmic.lithe.domain.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

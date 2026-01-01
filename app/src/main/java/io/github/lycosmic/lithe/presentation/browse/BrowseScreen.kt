@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.model.Constants
-import io.github.lycosmic.lithe.data.model.DisplayMode
+import io.github.lycosmic.lithe.domain.model.Constants
+import io.github.lycosmic.lithe.domain.model.DisplayMode
 import io.github.lycosmic.lithe.presentation.browse.components.AddBookConfirmationDialog
 import io.github.lycosmic.lithe.presentation.browse.components.BrowseFilterSheet
 import io.github.lycosmic.lithe.presentation.browse.components.DefaultBrowseTopAppBar

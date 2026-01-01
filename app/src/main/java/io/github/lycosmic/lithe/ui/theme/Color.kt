@@ -3,7 +3,7 @@ package io.github.lycosmic.lithe.ui.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
-import io.github.lycosmic.lithe.data.model.AppThemeOption
+import io.github.lycosmic.lithe.domain.model.AppThemeOption
 import io.github.lycosmic.lithe.ui.theme.color.callistoColorScheme
 import io.github.lycosmic.lithe.ui.theme.color.ceresColorScheme
 import io.github.lycosmic.lithe.ui.theme.color.earthColorScheme

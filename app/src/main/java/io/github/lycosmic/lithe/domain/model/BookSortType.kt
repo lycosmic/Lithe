@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data.model
+package io.github.lycosmic.lithe.domain.model
 
 import androidx.annotation.StringRes
 import io.github.lycosmic.lithe.R
@@ -20,9 +20,6 @@ enum class BookSortType(
     AUTHOR(R.string.book_sort_type_author);
 
     companion object {
-        // 默认降序
-        const val DEFAULT_SORT_ORDER = false
-
         // 默认按上次阅读时间排序
         val DEFAULT_BOOK_SORT_TYPE = LAST_READ_TIME
     }

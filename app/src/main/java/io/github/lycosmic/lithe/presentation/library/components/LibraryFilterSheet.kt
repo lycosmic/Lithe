@@ -44,10 +44,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.model.BookSortType
-import io.github.lycosmic.lithe.data.model.BookTitlePosition
-import io.github.lycosmic.lithe.data.model.DisplayMode
-import io.github.lycosmic.lithe.data.model.OptionItem
+import io.github.lycosmic.lithe.domain.model.BookSortType
+import io.github.lycosmic.lithe.domain.model.BookTitlePosition
+import io.github.lycosmic.lithe.domain.model.DisplayMode
+import io.github.lycosmic.lithe.domain.model.OptionItem
 import io.github.lycosmic.lithe.domain.model.TabType
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.presentation.settings.components.GridSizeSlider

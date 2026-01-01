@@ -8,8 +8,8 @@ import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import io.github.lycosmic.lithe.data.local.dao.DirectoryDao
 import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
-import io.github.lycosmic.lithe.data.model.FileFormat
-import io.github.lycosmic.lithe.data.model.FileItem
+import io.github.lycosmic.lithe.domain.model.FileFormat
+import io.github.lycosmic.lithe.domain.model.FileItem
 import io.github.lycosmic.lithe.domain.repository.DirectoryRepository
 import io.github.lycosmic.lithe.utils.UriUtils
 import kotlinx.coroutines.Deferred

@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data.model
+package io.github.lycosmic.lithe.domain.model
 
 /**
  * 主题模式

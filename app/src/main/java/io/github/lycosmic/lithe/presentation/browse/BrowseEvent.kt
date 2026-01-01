@@ -1,7 +1,7 @@
 package io.github.lycosmic.lithe.presentation.browse
 
-import io.github.lycosmic.lithe.data.model.DisplayMode
-import io.github.lycosmic.lithe.data.model.FileItem
+import io.github.lycosmic.lithe.domain.model.DisplayMode
+import io.github.lycosmic.lithe.domain.model.FileItem
 import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
 import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook

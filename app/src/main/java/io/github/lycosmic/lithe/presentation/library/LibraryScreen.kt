@@ -34,9 +34,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
-import io.github.lycosmic.lithe.data.model.Constants
-import io.github.lycosmic.lithe.data.model.Constants.DOUBLE_CLICK_BACK_INTERVAL_MILLIS
-import io.github.lycosmic.lithe.data.model.DisplayMode
+import io.github.lycosmic.lithe.domain.model.Constants
+import io.github.lycosmic.lithe.domain.model.Constants.DOUBLE_CLICK_BACK_INTERVAL_MILLIS
+import io.github.lycosmic.lithe.domain.model.DisplayMode
 import io.github.lycosmic.lithe.presentation.library.components.BookItem
 import io.github.lycosmic.lithe.presentation.library.components.CategoryTabRow
 import io.github.lycosmic.lithe.presentation.library.components.EmptyLibraryState
@@ -287,7 +287,7 @@ fun LibraryScreen(
                             it.category
                         },
                         bookCountsList = categoryWithBooksList.map { bookGroup ->
-                            bookGroup.books.size
+                            bookGroup.bookEntities.size
                         },
                         isBookCountVisible = isBookCountVisible,
                         selectedIndex = pagerState.currentPage,
@@ -306,7 +306,7 @@ fun LibraryScreen(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { pagerIndex ->
-            val books = categoryWithBooksList[pagerIndex].books
+            val books = categoryWithBooksList[pagerIndex].bookEntities
             if (books.isEmpty()) {
                 // 引导页
                 EmptyLibraryState(modifier = Modifier.padding(paddingValues = innerPadding)) {

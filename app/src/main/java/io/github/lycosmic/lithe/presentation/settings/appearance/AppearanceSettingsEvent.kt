@@ -1,8 +1,8 @@
 package io.github.lycosmic.lithe.presentation.settings.appearance
 
 import androidx.compose.ui.graphics.Color
-import io.github.lycosmic.lithe.data.model.ThemeMode
 import io.github.lycosmic.lithe.domain.model.ColorPreset
+import io.github.lycosmic.lithe.domain.model.ThemeMode
 
 sealed class AppearanceSettingsEvent {
     /**

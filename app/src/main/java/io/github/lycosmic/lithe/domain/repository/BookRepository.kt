@@ -1,21 +1,21 @@
 package io.github.lycosmic.lithe.domain.repository
 
-import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
-import io.github.lycosmic.lithe.data.model.BookWithCategories
-import io.github.lycosmic.lithe.data.model.CategoryWithBooks
+import io.github.lycosmic.lithe.data.local.entity.BookEntity
+import io.github.lycosmic.lithe.domain.model.BookWithCategories
+import io.github.lycosmic.lithe.domain.model.CategoryWithBooks
 import kotlinx.coroutines.flow.Flow
 
 interface BookRepository {
     /**
      * 获取所有书籍
      */
-    fun getAllBooks(): Flow<List<Book>>
+    fun getAllBooks(): Flow<List<BookEntity>>
 
     /**
      * 插入书籍
      */
-    suspend fun importBook(book: Book): Long
+    suspend fun importBook(bookEntity: BookEntity): Long
 
     /**
      * 删除书籍
@@ -25,17 +25,17 @@ interface BookRepository {
     /**
      * 根据ID获取书籍
      */
-    fun getBookFlowById(bookId: Long): Flow<Book?>
+    fun getBookFlowById(bookId: Long): Flow<BookEntity?>
 
     /**
      * 根据ID获取书籍
      */
-    suspend fun getBookById(bookId: Long): Book?
+    suspend fun getBookById(bookId: Long): BookEntity?
 
     /**
      * 根据标识符获取书籍
      */
-    suspend fun getBookByUniqueId(uniqueId: String): Book?
+    suspend fun getBookByUniqueId(uniqueId: String): BookEntity?
 
     /**
      * 获取所有书籍和分类关系

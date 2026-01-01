@@ -1,8 +1,8 @@
 package io.github.lycosmic.lithe.presentation.library
 
-import io.github.lycosmic.lithe.data.model.BookSortType
-import io.github.lycosmic.lithe.data.model.BookTitlePosition
-import io.github.lycosmic.lithe.data.model.DisplayMode
+import io.github.lycosmic.lithe.domain.model.BookSortType
+import io.github.lycosmic.lithe.domain.model.BookTitlePosition
+import io.github.lycosmic.lithe.domain.model.DisplayMode
 
 
 sealed class LibraryEvent {

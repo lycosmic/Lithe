@@ -1,10 +1,10 @@
 package io.github.lycosmic.lithe.data.repository
 
 import io.github.lycosmic.lithe.data.local.dao.BookDao
-import io.github.lycosmic.lithe.data.local.entity.Book
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
-import io.github.lycosmic.lithe.data.model.BookWithCategories
-import io.github.lycosmic.lithe.data.model.CategoryWithBooks
+import io.github.lycosmic.lithe.data.local.entity.BookEntity
+import io.github.lycosmic.lithe.domain.model.BookWithCategories
+import io.github.lycosmic.lithe.domain.model.CategoryWithBooks
 import io.github.lycosmic.lithe.domain.repository.BookRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -18,15 +18,15 @@ class BookRepositoryImpl @Inject constructor(
 
     override fun getAllBooks() = bookDao.getAllBooks()
 
-    override suspend fun importBook(book: Book): Long {
-        return bookDao.insertBook(book = book)
+    override suspend fun importBook(bookEntity: BookEntity): Long {
+        return bookDao.insertBook(bookEntity = bookEntity)
     }
 
     override suspend fun deleteBook(bookId: Long) {
         bookDao.deleteBookById(id = bookId)
     }
 
-    override fun getBookFlowById(bookId: Long): Flow<Book?> {
+    override fun getBookFlowById(bookId: Long): Flow<BookEntity?> {
         return bookDao.getBookFlowById(id = bookId)
     }
 

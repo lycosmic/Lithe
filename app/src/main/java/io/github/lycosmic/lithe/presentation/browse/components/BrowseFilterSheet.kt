@@ -45,9 +45,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.model.DisplayMode
-import io.github.lycosmic.lithe.data.model.OptionItem
+import io.github.lycosmic.lithe.domain.model.DisplayMode
 import io.github.lycosmic.lithe.domain.model.FilterOption
+import io.github.lycosmic.lithe.domain.model.OptionItem
 import io.github.lycosmic.lithe.domain.model.SortType
 import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_IS_ASCENDING
 import io.github.lycosmic.lithe.domain.model.TabType

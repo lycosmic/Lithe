@@ -39,8 +39,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
-import io.github.lycosmic.lithe.data.model.DisplayMode
-import io.github.lycosmic.lithe.data.model.OptionItem
+import io.github.lycosmic.lithe.domain.model.DisplayMode
+import io.github.lycosmic.lithe.domain.model.OptionItem
 import io.github.lycosmic.lithe.presentation.settings.browse.components.DirectoryListItem
 import io.github.lycosmic.lithe.presentation.settings.components.GridSizeSlider
 import io.github.lycosmic.lithe.presentation.settings.components.InfoTip

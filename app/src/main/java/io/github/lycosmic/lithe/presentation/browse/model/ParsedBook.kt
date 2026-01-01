@@ -1,7 +1,7 @@
 package io.github.lycosmic.lithe.presentation.browse.model
 
-import io.github.lycosmic.lithe.data.model.FileItem
-import io.github.lycosmic.lithe.data.model.ParsedMetadata
+import io.github.lycosmic.lithe.domain.model.FileItem
+import io.github.lycosmic.lithe.domain.model.ParsedMetadata
 
 
 /**

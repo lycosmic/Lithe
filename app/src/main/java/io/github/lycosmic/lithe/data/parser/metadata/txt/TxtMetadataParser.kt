@@ -4,9 +4,9 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import io.github.lycosmic.lithe.data.model.ParsedMetadata
-import io.github.lycosmic.lithe.data.model.TxtSpineItem
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParser
+import io.github.lycosmic.lithe.domain.model.ParsedMetadata
+import io.github.lycosmic.lithe.domain.model.TxtSpineItem
 import io.github.lycosmic.lithe.utils.CharsetUtils
 import io.github.lycosmic.lithe.utils.FileUtils
 import java.io.BufferedReader

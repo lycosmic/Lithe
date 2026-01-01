@@ -2,7 +2,7 @@ package io.github.lycosmic.lithe.domain.repository
 
 import android.net.Uri
 import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
-import io.github.lycosmic.lithe.data.model.FileItem
+import io.github.lycosmic.lithe.domain.model.FileItem
 import kotlinx.coroutines.flow.Flow
 
 interface DirectoryRepository {

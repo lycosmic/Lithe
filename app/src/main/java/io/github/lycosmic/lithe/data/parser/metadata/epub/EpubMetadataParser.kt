@@ -3,9 +3,6 @@ package io.github.lycosmic.lithe.data.parser.metadata.epub
 import android.content.Context
 import android.net.Uri
 import android.util.Xml
-import io.github.lycosmic.lithe.data.model.BookSpineItem
-import io.github.lycosmic.lithe.data.model.EpubSpineItem
-import io.github.lycosmic.lithe.data.model.ParsedMetadata
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParser
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.COVER
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.CREATOR
@@ -25,6 +22,9 @@ import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.Opf
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.SUBJECT
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.TITLE
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.UNIQUE_IDENTIFIER
+import io.github.lycosmic.lithe.domain.model.BookSpineItem
+import io.github.lycosmic.lithe.domain.model.EpubSpineItem
+import io.github.lycosmic.lithe.domain.model.ParsedMetadata
 import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.extension.logV

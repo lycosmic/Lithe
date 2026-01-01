@@ -5,12 +5,12 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.model.BookSpineItem
-import io.github.lycosmic.lithe.data.model.EpubSpineItem
-import io.github.lycosmic.lithe.data.model.TxtSpineItem
 import io.github.lycosmic.lithe.data.parser.content.BookContentParser
 import io.github.lycosmic.lithe.data.parser.content.BookContentParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
+import io.github.lycosmic.lithe.domain.model.BookSpineItem
+import io.github.lycosmic.lithe.domain.model.EpubSpineItem
+import io.github.lycosmic.lithe.domain.model.TxtSpineItem
 import io.github.lycosmic.lithe.extension.logD
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.extension.logI
@@ -62,7 +62,7 @@ class ReaderViewModel @Inject constructor(
 
                 _uiState.update {
                     it.copy(
-                        book = book,
+                        bookEntity = book,
                         isLoading = true,
                         spine = spine,
                     )
@@ -102,7 +102,7 @@ class ReaderViewModel @Inject constructor(
 
         if (spine.isEmpty()) {
             logE {
-                "Spine is empty, book ID: ${_uiState.value.book?.id}, chapter index: $index"
+                "Spine is empty, book ID: ${_uiState.value.bookEntity?.id}, chapter index: $index"
             }
             return
         }
@@ -117,7 +117,7 @@ class ReaderViewModel @Inject constructor(
         }
 
         logI {
-            "Chapter content loaded successfully, book ID: ${_uiState.value.book?.id}, chapter index: $index"
+            "Chapter content loaded successfully, book ID: ${_uiState.value.bookEntity?.id}, chapter index: $index"
         }
         _uiState.update {
             it.copy(
@@ -131,7 +131,7 @@ class ReaderViewModel @Inject constructor(
     // --- 翻页逻辑 ---
     fun loadNextChapter() {
         val currentState = _uiState.value
-        val book = currentState.book ?: return
+        val book = currentState.bookEntity ?: return
         val nextIndex = currentState.currentChapterIndex + 1
 
         if (nextIndex < currentState.spine.size) {
@@ -146,7 +146,7 @@ class ReaderViewModel @Inject constructor(
 
     fun loadPrevChapter() {
         val currentState = _uiState.value
-        val book = currentState.book ?: return
+        val book = currentState.bookEntity ?: return
         val prevIndex = currentState.currentChapterIndex - 1
 
         if (prevIndex >= 0) {

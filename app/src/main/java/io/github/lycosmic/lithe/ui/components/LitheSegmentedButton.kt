@@ -41,7 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.github.lycosmic.lithe.data.model.OptionItem
+import io.github.lycosmic.lithe.domain.model.OptionItem
 
 @Composable
 fun <T> LitheSegmentedButton(

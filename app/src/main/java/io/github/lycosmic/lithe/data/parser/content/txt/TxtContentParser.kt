@@ -4,8 +4,8 @@ import android.content.Context
 import android.net.Uri
 import androidx.compose.ui.text.AnnotatedString
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.github.lycosmic.lithe.data.model.ReaderContent
 import io.github.lycosmic.lithe.data.parser.content.BookContentParser
+import io.github.lycosmic.lithe.domain.model.ReaderContent
 import io.github.lycosmic.lithe.extension.logE
 import io.github.lycosmic.lithe.utils.CharsetUtils
 import java.io.BufferedReader

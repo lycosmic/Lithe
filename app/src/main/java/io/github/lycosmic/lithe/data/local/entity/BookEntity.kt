@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import io.github.lycosmic.lithe.data.local.converter.BookTypeConverters
-import io.github.lycosmic.lithe.data.model.BookSpineItem
+import io.github.lycosmic.lithe.domain.model.BookSpineItem
 import kotlinx.serialization.Serializable
 
 @Entity(
@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 )
 @TypeConverters(BookTypeConverters::class)
 @Serializable
-data class Book(
+data class BookEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = COL_ID)
     val id: Long = 0,
@@ -51,7 +51,7 @@ data class Book(
     val lastReadTime: Long?, // 最后阅读时间, 用于最近阅读排序
 ) {
     companion object {
-        val defaultBook = Book(
+        val defaultBookEntity = BookEntity(
             id = -1,
             title = "默认书籍",
             author = "未知",

@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
-import io.github.lycosmic.lithe.data.model.BookTitlePosition
-import io.github.lycosmic.lithe.data.model.Constants
-import io.github.lycosmic.lithe.data.model.DisplayMode
 import io.github.lycosmic.lithe.data.repository.CategoryRepositoryImpl
 import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.lithe.domain.model.BookTitlePosition
+import io.github.lycosmic.lithe.domain.model.Constants
+import io.github.lycosmic.lithe.domain.model.DisplayMode
 import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.extension.logW
 import io.github.lycosmic.lithe.presentation.settings.library.LibrarySettingsEffect.CategoryNameExists

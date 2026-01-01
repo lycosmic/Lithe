@@ -26,9 +26,9 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import io.github.lycosmic.lithe.data.model.AppThemeOption
-import io.github.lycosmic.lithe.data.model.ThemeMode
 import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.lithe.domain.model.AppThemeOption
+import io.github.lycosmic.lithe.domain.model.ThemeMode
 import io.github.lycosmic.lithe.extension.logI
 import io.github.lycosmic.lithe.presentation.navigation.AppNavigation
 import io.github.lycosmic.lithe.presentation.navigation.AppNavigationViewModel
@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 ) { paddingValues ->
                     AppNavigation(
-                        modifier = Modifier.Companion.padding(bottom = paddingValues.calculateBottomPadding()), // 防止底部栏遮挡内容
+                        modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()), // 防止底部栏遮挡内容
                         navViewModel = navViewModel
                     )
                 }

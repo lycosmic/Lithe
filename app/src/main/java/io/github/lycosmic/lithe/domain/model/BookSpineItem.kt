@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data.model
+package io.github.lycosmic.lithe.domain.model
 
 import kotlinx.serialization.Serializable
 
