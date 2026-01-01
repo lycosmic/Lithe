@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.domain.usecase
+package io.github.lycosmic.lithe.domain.use_case
 
 import android.app.Application
 import io.github.lycosmic.lithe.data.local.entity.Book

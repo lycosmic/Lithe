@@ -13,8 +13,8 @@ import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
 import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_IS_ASCENDING
 import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_SORT_TYPE
-import io.github.lycosmic.lithe.domain.usecase.BookImportUseCase
-import io.github.lycosmic.lithe.domain.usecase.FileProcessingUseCase
+import io.github.lycosmic.lithe.domain.use_case.BookImportUseCase
+import io.github.lycosmic.lithe.domain.use_case.FileProcessingUseCase
 import io.github.lycosmic.lithe.presentation.browse.model.BrowseTopBarState
 import io.github.lycosmic.lithe.presentation.browse.model.FileFilterState
 import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook

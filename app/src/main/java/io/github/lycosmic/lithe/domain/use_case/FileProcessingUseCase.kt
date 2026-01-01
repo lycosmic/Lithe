@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.domain.usecase
+package io.github.lycosmic.lithe.domain.use_case
 
 import io.github.lycosmic.lithe.data.model.FileItem
 import io.github.lycosmic.lithe.data.repository.DirectoryRepository
