@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data.di
+package io.github.lycosmic.lithe.di
 
 import android.content.Context
 import androidx.room.Room
@@ -18,11 +18,16 @@ import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.extension.logI
 import javax.inject.Singleton
 
-
+/**
+ * 提供数据库相关依赖
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
+    /**
+     * 提供 AppDatabase 的单例实例
+     */
     @Singleton
     @Provides
     fun provideAppDatabase(
@@ -45,6 +50,7 @@ object DatabaseModule {
 
                     val currentTime = System.currentTimeMillis()
 
+                    // 插入一个默认分类到数据库
                     db.execSQL(
                         "INSERT INTO ${CategoryEntity.TABLE_NAME} (id, name, createdAt) VALUES (${CategoryEntity.DEFAULT_CATEGORY_ID}, \"\", $currentTime)"
                     )
@@ -52,7 +58,6 @@ object DatabaseModule {
             }
         ).build()
     }
-
 
     @Singleton
     @Provides

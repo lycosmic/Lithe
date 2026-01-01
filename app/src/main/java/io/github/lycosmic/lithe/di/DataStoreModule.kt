@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.data.di
+package io.github.lycosmic.lithe.di
 
 import android.content.Context
 import androidx.datastore.core.DataStore
