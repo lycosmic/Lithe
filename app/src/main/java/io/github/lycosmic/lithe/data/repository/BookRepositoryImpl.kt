@@ -8,10 +8,8 @@ import io.github.lycosmic.lithe.domain.model.CategoryWithBooks
 import io.github.lycosmic.lithe.domain.repository.BookRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
-import javax.inject.Singleton
 
 
-@Singleton
 class BookRepositoryImpl @Inject constructor(
     private val bookDao: BookDao
 ) : BookRepository {

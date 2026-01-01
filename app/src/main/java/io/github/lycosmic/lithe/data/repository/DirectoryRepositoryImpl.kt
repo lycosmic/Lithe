@@ -21,10 +21,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import javax.inject.Singleton
 
 
-@Singleton
 class DirectoryRepositoryImpl @Inject constructor(
     private val directoryDao: DirectoryDao,
     private val application: Application

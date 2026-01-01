@@ -15,16 +15,16 @@ class BookMetadataParserFactory @Inject constructor(
     private val epubParser: EpubMetadataParser,
 ) {
     /**
-     * 根据文件类型, 获取对应的解析器
+     * 根据文件类型，获取对应的元数据解析器
      */
-    fun getParser(fileFormat: String): BookMetadataParser? =
+    fun getMetadataParser(fileFormat: FileFormat): BookMetadataParser? =
         when (fileFormat) {
-            FileFormat.EPUB.value -> epubParser
-            FileFormat.PDF.value -> pdfParser
-            FileFormat.TXT.value -> txtParser
-            else -> {
+            FileFormat.EPUB -> epubParser
+            FileFormat.PDF -> pdfParser
+            FileFormat.TXT -> txtParser
+            FileFormat.UNKNOWN -> {
                 logE {
-                    "不支持解析的文件格式: $fileFormat"
+                    "未知的文件类型，无法获取对应的元数据解析器"
                 }
                 null
             }

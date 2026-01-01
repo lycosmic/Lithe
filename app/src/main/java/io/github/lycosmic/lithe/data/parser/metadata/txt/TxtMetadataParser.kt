@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParser
 import io.github.lycosmic.lithe.domain.model.ParsedMetadata
 import io.github.lycosmic.lithe.domain.model.TxtSpineItem
@@ -16,10 +17,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class TxtMetadataParser @Inject constructor() : BookMetadataParser {
+class TxtMetadataParser @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+) : BookMetadataParser {
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override suspend fun parse(
-        context: Context,
         uri: Uri
     ): ParsedMetadata {
         val txtMetadata = parseTxtMetadata(context, uri)

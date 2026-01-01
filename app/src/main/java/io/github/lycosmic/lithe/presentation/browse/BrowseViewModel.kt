@@ -13,8 +13,9 @@ import io.github.lycosmic.lithe.domain.model.FilterOption
 import io.github.lycosmic.lithe.domain.model.SortType
 import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_IS_ASCENDING
 import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_SORT_TYPE
-import io.github.lycosmic.lithe.domain.use_case.BookImportUseCase
 import io.github.lycosmic.lithe.domain.use_case.FileProcessingUseCase
+import io.github.lycosmic.lithe.domain.use_case.browse.ImportBookUseCase
+import io.github.lycosmic.lithe.domain.use_case.browse.ParseFileMetadataUseCase
 import io.github.lycosmic.lithe.presentation.browse.model.BrowseTopBarState
 import io.github.lycosmic.lithe.presentation.browse.model.FileFilterState
 import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook
@@ -38,7 +39,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BrowseViewModel @Inject constructor(
     private val fileProcessingUseCase: FileProcessingUseCase,
-    private val bookImportUseCase: BookImportUseCase,
+    private val importBook: ImportBookUseCase,
+    private val parseFileMetadata: ParseFileMetadataUseCase,
     bookRepositoryImpl: BookRepositoryImpl,
     private val settingsManager: SettingsManager
 ) : ViewModel() {
@@ -345,7 +347,7 @@ class BrowseViewModel @Inject constructor(
             // 获取选中的文件
             val selectedFiles = getSelectedFiles()
             // 解析文件元数据
-            _parsedBooks.value = bookImportUseCase.parseFileMetadata(selectedFiles)
+            _parsedBooks.value = parseFileMetadata(selectedFiles)
             _isAddBooksDialogLoading.value = false
         }
     }
@@ -361,7 +363,7 @@ class BrowseViewModel @Inject constructor(
                 it.isSelected
             }
 
-            val success = bookImportUseCase.importBook(parsedBooks)
+            val success = importBook(parsedBooks)
 
             if (success.toInt() == parsedBooks.size) {
                 _effects.emit(BrowseEffect.ShowSuccessToast)

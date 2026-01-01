@@ -1,6 +1,5 @@
 package io.github.lycosmic.lithe.data.parser.metadata.pdf
 
-import android.content.Context
 import android.net.Uri
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParser
 import io.github.lycosmic.lithe.domain.model.ParsedMetadata
@@ -10,7 +9,6 @@ import javax.inject.Singleton
 @Singleton
 class PdfMetadataParser @Inject constructor() : BookMetadataParser {
     override suspend fun parse(
-        context: Context,
         uri: Uri
     ): ParsedMetadata {
         // TODO 使用文档第一页作为封面

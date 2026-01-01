@@ -3,6 +3,7 @@ package io.github.lycosmic.lithe.data.parser.metadata.epub
 import android.content.Context
 import android.net.Uri
 import android.util.Xml
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParser
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.COVER
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.CREATOR
@@ -43,13 +44,14 @@ import javax.inject.Singleton
 
 
 @Singleton
-class EpubMetadataParser @Inject constructor() : BookMetadataParser {
+class EpubMetadataParser @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+) : BookMetadataParser {
 
     /**
      * 提取元数据并保存封面到本地
      */
     override suspend fun parse(
-        context: Context,
         uri: Uri
     ): ParsedMetadata {
         // OPF/OPS 文件相对路径
@@ -57,7 +59,7 @@ class EpubMetadataParser @Inject constructor() : BookMetadataParser {
         ?: DEFAULT_OPF_RELATIVE_PATH
 
         // OPF/OPS 文件目录
-        val opfParentPath = opfRelativePath.substring(0, opfRelativePath.lastIndexOf("/") + 1)
+        val opfParentPath = opfRelativePath.take(opfRelativePath.lastIndexOf("/") + 1)
 
         // 解析 OPF 文件
         var parseResult: OpfResult? = null
