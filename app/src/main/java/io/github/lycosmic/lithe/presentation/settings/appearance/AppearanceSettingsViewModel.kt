@@ -1,20 +1,22 @@
 package io.github.lycosmic.lithe.presentation.settings.appearance
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.local.dao.ColorPresetDao
+import io.github.lycosmic.lithe.data.mapper.toEntity
 import io.github.lycosmic.lithe.data.settings.SettingsManager
-import io.github.lycosmic.lithe.domain.model.AppThemeOption
-import io.github.lycosmic.lithe.domain.model.ColorPreset
-import io.github.lycosmic.lithe.domain.model.ColorPreset.Companion.toEntity
-import io.github.lycosmic.lithe.domain.model.Constants
-import io.github.lycosmic.lithe.domain.model.ThemeMode
-import io.github.lycosmic.lithe.extension.logD
-import io.github.lycosmic.lithe.extension.logE
-import io.github.lycosmic.lithe.extension.logI
-import io.github.lycosmic.lithe.extension.logW
+import io.github.lycosmic.lithe.log.logD
+import io.github.lycosmic.lithe.log.logE
+import io.github.lycosmic.lithe.log.logI
+import io.github.lycosmic.lithe.log.logW
+import io.github.lycosmic.lithe.util.UiConfig
+import io.github.lycosmic.model.AppConstraints
+import io.github.lycosmic.model.AppThemeOption
+import io.github.lycosmic.model.ColorPreset
+import io.github.lycosmic.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,7 +39,7 @@ class AppearanceSettingsViewModel @Inject constructor(
      */
     val themeMode: StateFlow<ThemeMode> = settingsManager.themeMode.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = ThemeMode.SYSTEM
     )
 
@@ -46,7 +48,7 @@ class AppearanceSettingsViewModel @Inject constructor(
      */
     val appThemeId: StateFlow<String> = settingsManager.appTheme.map { it.id }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = AppThemeOption.MERCURY.id
     )
 
@@ -55,7 +57,7 @@ class AppearanceSettingsViewModel @Inject constructor(
      */
     val isNavLabelVisible: StateFlow<Boolean> = settingsManager.showNavigationBarLabels.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -64,7 +66,7 @@ class AppearanceSettingsViewModel @Inject constructor(
      */
     val quickChangeColorPreset: StateFlow<Boolean> = settingsManager.quickChangeColorPreset.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = false
     )
 
@@ -89,13 +91,13 @@ class AppearanceSettingsViewModel @Inject constructor(
                     id = entity.id ?: 0,
                     name = entity.name,
                     isSelected = entity.id == selectedId,
-                    backgroundColor = Color(entity.backgroundColorArgb),
-                    textColor = Color(entity.textColorArgb)
+                    backgroundColorArgb = entity.backgroundColorArgb,
+                    textColorArgb = entity.textColorArgb
                 )
             }
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+            started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
             initialValue = emptyList()
         )
 
@@ -108,7 +110,7 @@ class AppearanceSettingsViewModel @Inject constructor(
         }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+            started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
             initialValue = null
         )
 
@@ -247,28 +249,28 @@ class AppearanceSettingsViewModel @Inject constructor(
 
                     colorPresetDao.updatePreset(
                         preset.copy(
-                            backgroundColor = Color(
+                            backgroundColorArgb = Color(
                                 Random.nextInt(
-                                    Constants.MAX_COLOR_VALUE
+                                    AppConstraints.MAX_COLOR_VALUE
                                 ),
                                 Random.nextInt(
-                                    Constants.MAX_COLOR_VALUE
+                                    AppConstraints.MAX_COLOR_VALUE
                                 ),
                                 Random.nextInt(
-                                    Constants.MAX_COLOR_VALUE
+                                    AppConstraints.MAX_COLOR_VALUE
                                 )
-                            ),
-                            textColor = Color(
+                            ).toArgb(),
+                            textColorArgb = Color(
                                 Random.nextInt(
-                                    Constants.MAX_COLOR_VALUE
+                                    AppConstraints.MAX_COLOR_VALUE
                                 ),
                                 Random.nextInt(
-                                    Constants.MAX_COLOR_VALUE
+                                    AppConstraints.MAX_COLOR_VALUE
                                 ),
                                 Random.nextInt(
-                                    Constants.MAX_COLOR_VALUE
+                                    AppConstraints.MAX_COLOR_VALUE
                                 )
-                            )
+                            ).toArgb()
                         ).toEntity(
                             getSortOrder(preset)
                         )
@@ -283,7 +285,7 @@ class AppearanceSettingsViewModel @Inject constructor(
                         return@launch
                     }
                     colorPresetDao.updatePreset(
-                        preset.copy(backgroundColor = event.color).toEntity(
+                        preset.copy(backgroundColorArgb = event.colorArgb).toEntity(
                             getSortOrder(preset)
                         )
                     )
@@ -297,7 +299,7 @@ class AppearanceSettingsViewModel @Inject constructor(
                         return@launch
                     }
                     colorPresetDao.updatePreset(
-                        preset.copy(textColor = event.color).toEntity(
+                        preset.copy(textColorArgb = event.colorArgb).toEntity(
                             getSortOrder(preset)
                         )
                     )

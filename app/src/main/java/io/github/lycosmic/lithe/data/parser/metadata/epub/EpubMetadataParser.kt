@@ -3,34 +3,37 @@ package io.github.lycosmic.lithe.data.parser.metadata.epub
 import android.content.Context
 import android.net.Uri
 import android.util.Xml
+import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.github.lycosmic.lithe.data.parser.metadata.BookMetadataParser
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.COVER
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.CREATOR
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.DESCRIPTION
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.HREF
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.ID
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.IDENTIFIER
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.ID_REF
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.ITEM
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.ITEM_REF
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.LANGUAGE
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.MEDIA_TYPE
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.META
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.NAME
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.PACKAGE
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.PUBLISHER
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.SUBJECT
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.TITLE
-import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser.OpfResult.Companion.UNIQUE_IDENTIFIER
-import io.github.lycosmic.lithe.domain.model.BookSpineItem
-import io.github.lycosmic.lithe.domain.model.EpubSpineItem
-import io.github.lycosmic.lithe.domain.model.ParsedMetadata
-import io.github.lycosmic.lithe.extension.logD
-import io.github.lycosmic.lithe.extension.logE
-import io.github.lycosmic.lithe.extension.logV
-import io.github.lycosmic.lithe.extension.logW
-import io.github.lycosmic.lithe.utils.ZipUtils
+import io.github.lycosmic.lithe.data.parser.metadata.MetadataParserStrategy
+import io.github.lycosmic.lithe.log.logD
+import io.github.lycosmic.lithe.log.logE
+import io.github.lycosmic.lithe.log.logV
+import io.github.lycosmic.lithe.log.logW
+import io.github.lycosmic.lithe.util.ZipUtils
+import io.github.lycosmic.model.BookMetadata
+import io.github.lycosmic.model.BookSpineItem
+import io.github.lycosmic.model.EpubSpineItem
+import io.github.lycosmic.model.ManifestItem
+import io.github.lycosmic.model.OpfParseResult
+import io.github.lycosmic.model.OpfParseResult.Companion.COVER
+import io.github.lycosmic.model.OpfParseResult.Companion.CREATOR
+import io.github.lycosmic.model.OpfParseResult.Companion.DESCRIPTION
+import io.github.lycosmic.model.OpfParseResult.Companion.HREF
+import io.github.lycosmic.model.OpfParseResult.Companion.ID
+import io.github.lycosmic.model.OpfParseResult.Companion.IDENTIFIER
+import io.github.lycosmic.model.OpfParseResult.Companion.ID_REF
+import io.github.lycosmic.model.OpfParseResult.Companion.ITEM
+import io.github.lycosmic.model.OpfParseResult.Companion.ITEM_REF
+import io.github.lycosmic.model.OpfParseResult.Companion.LANGUAGE
+import io.github.lycosmic.model.OpfParseResult.Companion.MEDIA_TYPE
+import io.github.lycosmic.model.OpfParseResult.Companion.META
+import io.github.lycosmic.model.OpfParseResult.Companion.NAME
+import io.github.lycosmic.model.OpfParseResult.Companion.PACKAGE
+import io.github.lycosmic.model.OpfParseResult.Companion.PUBLISHER
+import io.github.lycosmic.model.OpfParseResult.Companion.SUBJECT
+import io.github.lycosmic.model.OpfParseResult.Companion.TITLE
+import io.github.lycosmic.model.OpfParseResult.Companion.UNIQUE_IDENTIFIER
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
@@ -45,15 +48,17 @@ import javax.inject.Singleton
 
 @Singleton
 class EpubMetadataParser @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-) : BookMetadataParser {
+    @param:ApplicationContext private val context: Context
+) : MetadataParserStrategy {
 
     /**
      * 提取元数据并保存封面到本地
      */
     override suspend fun parse(
-        uri: Uri
-    ): ParsedMetadata {
+        uriString: String
+    ): BookMetadata {
+        val uri = uriString.toUri()
+
         // OPF/OPS 文件相对路径
         val opfRelativePath = getOpfPathByContainer(context, uri) ?: getOpfPath(context, uri)
         ?: DEFAULT_OPF_RELATIVE_PATH
@@ -62,7 +67,7 @@ class EpubMetadataParser @Inject constructor(
         val opfParentPath = opfRelativePath.take(opfRelativePath.lastIndexOf("/") + 1)
 
         // 解析 OPF 文件
-        var parseResult: OpfResult? = null
+        var parseResult: OpfParseResult? = null
         ZipUtils.findZipEntryAndAction(context, uri, opfRelativePath) { inputStream ->
             parseResult = parseOpfXml(inputStream)
         }
@@ -128,7 +133,7 @@ class EpubMetadataParser @Inject constructor(
             }
         }
 
-        return ParsedMetadata(
+        return BookMetadata(
             uniqueId = parseResult?.uniqueIdentifier,
             title = parseResult?.title,
             authors = parseResult?.authors,
@@ -137,7 +142,6 @@ class EpubMetadataParser @Inject constructor(
             publisher = parseResult?.publisher,
             subjects = parseResult?.subjects,
             coverPath = localCoverPath,
-            bookmarks = spineItems
         )
     }
 
@@ -278,55 +282,11 @@ class EpubMetadataParser @Inject constructor(
             return@withContext null
         }
 
-    /**
-     * OPF 内容
-     */
-    private data class OpfResult(
-        val uniqueIdentifier: String? = null,
-        val title: String? = null,
-        val authors: List<String> = emptyList(),
-        val language: String? = null,
-        val description: String? = null,
-        val publisher: String? = null,
-        val subjects: List<String> = emptyList(), // 标签
-        val coverHref: String?, // 封面相对路径
-        val manifest: Map<String, ManifestItem> = emptyMap(), // 资源清单: id -> item
-        val spine: List<String> // 阅读顺序, 存放 id
-    ) {
-        data class ManifestItem(
-            val href: String,
-            val mediaType: String // 如 application/xhtml+xml, image/jpeg
-        )
-
-        companion object {
-            const val PACKAGE = "package"
-            const val UNIQUE_IDENTIFIER = "unique-identifier"
-            const val TITLE = "title"
-            const val CREATOR = "creator"
-            const val IDENTIFIER = "identifier"
-            const val LANGUAGE = "language"
-            const val DESCRIPTION = "description"
-            const val PUBLISHER = "publisher"
-            const val SUBJECT = "subject"
-            const val META = "meta"
-            const val COVER = "cover"
-            const val ITEM_REF = "itemref"
-            const val NAME = "name"
-            const val ITEM = "item"
-            const val ID = "id"
-
-            val COVER_IMAGE_LIST = listOf("coverimage", "cover_image", "cover-image")
-            const val ID_REF = "idref"
-            const val HREF = "href"
-            const val MEDIA_TYPE = "media-type"
-        }
-
-    }
 
     /**
      * 解析 OPF 内容
      */
-    private fun parseOpfXml(inputStream: InputStream): OpfResult {
+    private fun parseOpfXml(inputStream: InputStream): OpfParseResult {
         val parser = Xml.newPullParser()
         parser.setInput(inputStream, UTF_8)
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true)
@@ -341,7 +301,7 @@ class EpubMetadataParser @Inject constructor(
         val subjects = mutableListOf<String>()
         var coverId: String? = null
         var coverHref: String? = null
-        val manifest = mutableMapOf<String, OpfResult.ManifestItem>()
+        val manifest = mutableMapOf<String, ManifestItem>()
         val spine = mutableListOf<String>()
 
         // 保存在Item中的封面id
@@ -354,7 +314,8 @@ class EpubMetadataParser @Inject constructor(
 
                 when (tagName) {
                     PACKAGE -> {
-                        val uniqueId = parser.getAttributeValue(null, UNIQUE_IDENTIFIER)
+                        val uniqueId =
+                            parser.getAttributeValue(null, UNIQUE_IDENTIFIER)
                         if (uniqueId != null) {
                             uniqueIdRef = uniqueId
                         }
@@ -406,19 +367,19 @@ class EpubMetadataParser @Inject constructor(
 
                     ITEM -> {
                         val id = parser.getAttributeValue(null, ID)
-                        if (OpfResult.COVER_IMAGE_LIST.contains(id)) {
+                        if (OpfParseResult.COVER_IMAGE_LIST.contains(id)) {
                             itemCoverId = id
                         }
 
                         val href = parser.getAttributeValue(null, HREF)
                         val mediaType = parser.getAttributeValue(null, MEDIA_TYPE)
 
-                        manifest[id] = OpfResult.ManifestItem(href, mediaType)
+                        manifest[id] = ManifestItem(href, mediaType)
                     }
 
-                    ITEM_REF -> {
-                        val id = parser.getAttributeValue(null, ID_REF)
-                        spine.add(id)
+                    ITEM_REF -> { // spine
+                        val idRef = parser.getAttributeValue(null, ID_REF)
+                        spine.add(idRef)
                     }
                 }
             }
@@ -444,7 +405,7 @@ class EpubMetadataParser @Inject constructor(
             }
         }
 
-        return OpfResult(
+        return OpfParseResult(
             uniqueIdentifier,
             title ?: "Unknown Title",
             authors,

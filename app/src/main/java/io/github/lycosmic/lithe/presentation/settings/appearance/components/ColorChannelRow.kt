@@ -33,10 +33,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.domain.model.Constants
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.StyledText
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
+import io.github.lycosmic.model.AppConstraints
 
 
 /**
@@ -54,7 +54,7 @@ fun ColorChannelRow(
     // 颜色值
     val labelValue by remember(value) {
         derivedStateOf {
-            "${(value * Constants.MAX_COLOR_VALUE).toInt()}"
+            "${(value * AppConstraints.MAX_COLOR_VALUE).toInt()}"
         }
     }
     val interactionSource = remember { MutableInteractionSource() }
@@ -143,9 +143,9 @@ fun ColorChannelRowPreview() {
                     .height(10.dp)
                     .background(
                         Color(
-                            (color.red * Constants.MAX_COLOR_VALUE).toInt(),
-                            (color.green * Constants.MAX_COLOR_VALUE).toInt(),
-                            (color.blue * Constants.MAX_COLOR_VALUE).toInt()
+                            (color.red * AppConstraints.MAX_COLOR_VALUE).toInt(),
+                            (color.green * AppConstraints.MAX_COLOR_VALUE).toInt(),
+                            (color.blue * AppConstraints.MAX_COLOR_VALUE).toInt()
                         )
                     )
             )

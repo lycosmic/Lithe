@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import coil3.compose.AsyncImage
-import io.github.lycosmic.lithe.domain.model.ReaderContent
+import io.github.lycosmic.lithe.presentation.reader.model.ReaderContent
 
 /**
  * 阅读内容

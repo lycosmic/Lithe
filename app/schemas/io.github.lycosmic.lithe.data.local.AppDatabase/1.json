@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b2cca30afaadb30e89e6e671e72bf9e9",
+    "identityHash": "526c03984f7710e999c73e50a2082ab4",
     "entities": [
       {
         "tableName": "books",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `uniqueId` TEXT NOT NULL, `author` TEXT NOT NULL, `description` TEXT, `language` TEXT, `publisher` TEXT, `subjects` TEXT, `fileSize` INTEGER NOT NULL, `fileUri` TEXT NOT NULL, `format` TEXT NOT NULL, `coverPath` TEXT, `lastReadPosition` TEXT, `progress` REAL NOT NULL, `bookmarks` TEXT, `importTime` INTEGER NOT NULL, `lastReadTime` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `unique_id` TEXT NOT NULL, `author` TEXT NOT NULL, `description` TEXT, `language` TEXT, `publisher` TEXT, `subjects` TEXT, `file_size` INTEGER NOT NULL, `file_uri` TEXT NOT NULL, `format` TEXT NOT NULL, `cover_path` TEXT, `last_read_position` TEXT, `progress` REAL NOT NULL, `import_time` INTEGER NOT NULL, `last_read_time` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -22,7 +22,7 @@
           },
           {
             "fieldPath": "uniqueId",
-            "columnName": "uniqueId",
+            "columnName": "unique_id",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -54,13 +54,13 @@
           },
           {
             "fieldPath": "fileSize",
-            "columnName": "fileSize",
+            "columnName": "file_size",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
             "fieldPath": "fileUri",
-            "columnName": "fileUri",
+            "columnName": "file_uri",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -72,12 +72,12 @@
           },
           {
             "fieldPath": "coverPath",
-            "columnName": "coverPath",
+            "columnName": "cover_path",
             "affinity": "TEXT"
           },
           {
             "fieldPath": "lastReadPosition",
-            "columnName": "lastReadPosition",
+            "columnName": "last_read_position",
             "affinity": "TEXT"
           },
           {
@@ -87,19 +87,14 @@
             "notNull": true
           },
           {
-            "fieldPath": "bookmarks",
-            "columnName": "bookmarks",
-            "affinity": "TEXT"
-          },
-          {
             "fieldPath": "importTime",
-            "columnName": "importTime",
+            "columnName": "import_time",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
             "fieldPath": "lastReadTime",
-            "columnName": "lastReadTime",
+            "columnName": "last_read_time",
             "affinity": "INTEGER"
           }
         ],
@@ -210,6 +205,53 @@
         ]
       },
       {
+        "tableName": "chapters",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`book_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `index` INTEGER NOT NULL, `title` TEXT NOT NULL, `start_offset` INTEGER NOT NULL, `end_offset` INTEGER NOT NULL, `href` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "bookId",
+            "columnName": "book_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startOffset",
+            "columnName": "start_offset",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endOffset",
+            "columnName": "end_offset",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "href",
+            "columnName": "href",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "book_id"
+          ]
+        }
+      },
+      {
         "tableName": "authorized_directories",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uri` TEXT NOT NULL, `root` TEXT NOT NULL, `path` TEXT NOT NULL, `add_time` INTEGER NOT NULL)",
         "fields": [
@@ -295,7 +337,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b2cca30afaadb30e89e6e671e72bf9e9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '526c03984f7710e999c73e50a2082ab4')"
     ]
   }
 }

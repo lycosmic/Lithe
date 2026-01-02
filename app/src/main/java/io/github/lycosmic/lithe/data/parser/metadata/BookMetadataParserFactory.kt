@@ -3,8 +3,8 @@ package io.github.lycosmic.lithe.data.parser.metadata
 import io.github.lycosmic.lithe.data.parser.metadata.epub.EpubMetadataParser
 import io.github.lycosmic.lithe.data.parser.metadata.pdf.PdfMetadataParser
 import io.github.lycosmic.lithe.data.parser.metadata.txt.TxtMetadataParser
-import io.github.lycosmic.lithe.domain.model.FileFormat
-import io.github.lycosmic.lithe.extension.logE
+import io.github.lycosmic.lithe.log.logE
+import io.github.lycosmic.model.FileFormat
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,7 +17,7 @@ class BookMetadataParserFactory @Inject constructor(
     /**
      * 根据文件类型，获取对应的元数据解析器
      */
-    fun getMetadataParser(fileFormat: FileFormat): BookMetadataParser? =
+    fun getMetadataParser(fileFormat: FileFormat): MetadataParserStrategy? =
         when (fileFormat) {
             FileFormat.EPUB -> epubParser
             FileFormat.PDF -> pdfParser

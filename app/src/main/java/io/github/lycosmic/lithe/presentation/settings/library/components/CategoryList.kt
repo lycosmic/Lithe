@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
+import io.github.lycosmic.model.Category
 
 
 /**
@@ -31,9 +31,9 @@ import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
  */
 @Composable
 fun CategoryList(
-    categories: List<CategoryEntity>,
-    onEditClick: (CategoryEntity) -> Unit,     // 点击编辑图标
-    onDeleteClick: (CategoryEntity) -> Unit    // 点击删除图标
+    categories: List<Category>,
+    onEditClick: (Category) -> Unit,     // 点击编辑图标
+    onDeleteClick: (Category) -> Unit    // 点击删除图标
 ) {
     if (categories.isNotEmpty()) {
         Column(
@@ -57,7 +57,7 @@ fun CategoryList(
  */
 @Composable
 fun CategoryListItem(
-    category: CategoryEntity,
+    category: Category,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {

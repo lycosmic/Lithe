@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.domain.model.Constants
+import io.github.lycosmic.model.AppConstraints
 
 /**
  * 网格大小选择器
@@ -26,7 +26,7 @@ fun GridSizeSlider(
     value: Int,
     onValueChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    valueRange: IntRange = Constants.GRID_SIZE_INT_RANGE,
+    valueRange: IntRange = AppConstraints.GRID_SIZE_INT_RANGE,
 ) {
     val tipText = if (value == valueRange.first) {
         stringResource(R.string.auto)

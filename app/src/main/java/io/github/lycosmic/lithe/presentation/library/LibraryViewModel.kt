@@ -3,17 +3,11 @@ package io.github.lycosmic.lithe.presentation.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.local.entity.BookEntity
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
 import io.github.lycosmic.lithe.data.settings.SettingsManager
-import io.github.lycosmic.lithe.domain.model.BookSortType
-import io.github.lycosmic.lithe.domain.model.BookTitlePosition
-import io.github.lycosmic.lithe.domain.model.CategoryWithBooks
-import io.github.lycosmic.lithe.domain.model.Constants
-import io.github.lycosmic.lithe.domain.model.DisplayMode
-import io.github.lycosmic.lithe.extension.logE
-import io.github.lycosmic.lithe.extension.logW
+import io.github.lycosmic.lithe.log.logE
+import io.github.lycosmic.lithe.log.logW
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.CloseDeleteBookConfirmDialog
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.CloseFilterBottomSheet
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OnNavigateToAbout
@@ -26,6 +20,13 @@ import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OpenMoreOptio
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.ShowDeleteBookConfirmDialog
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.ShowDeleteBookCountToast
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.ShowDeleteBookSuccessToast
+import io.github.lycosmic.lithe.util.UiConfig
+import io.github.lycosmic.model.AppConstraints
+import io.github.lycosmic.model.Book
+import io.github.lycosmic.model.BookSortType
+import io.github.lycosmic.model.BookTitlePosition
+import io.github.lycosmic.model.CategoryWithBookList
+import io.github.lycosmic.model.DisplayMode
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -47,7 +48,7 @@ class LibraryViewModel @Inject constructor(
     // 原始的书籍列表
     private val _rawBooks = bookRepositoryImpl.getAllBooks().stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = emptyList()
     )
     val rawBooks = _rawBooks
@@ -58,7 +59,7 @@ class LibraryViewModel @Inject constructor(
     // 总书籍数
     val totalBooksCount = _rawBooks.map { it.size }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = 0
     )
 
@@ -71,7 +72,7 @@ class LibraryViewModel @Inject constructor(
     // 当前是否为选中模式
     val isSelectionMode = _selectedBooks.map { it.isNotEmpty() }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = false
     )
 
@@ -87,7 +88,7 @@ class LibraryViewModel @Inject constructor(
     private val _sortType = settingsManager.bookSortType
     val sortType = _sortType.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = BookSortType.DEFAULT_BOOK_SORT_TYPE
     )
 
@@ -97,7 +98,7 @@ class LibraryViewModel @Inject constructor(
     private val _sortOrder = settingsManager.bookSortOrder
     val sortOrder = _sortOrder.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = false
     )
 
@@ -105,7 +106,7 @@ class LibraryViewModel @Inject constructor(
     // 是否开启双击返回
     val isDoubleBackToExitEnabled = settingsManager.isDoubleBackToExitEnabled.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = false
     )
 
@@ -127,39 +128,39 @@ class LibraryViewModel @Inject constructor(
     val categoryWithBooksList = combine(
         _categoryWithBooksList,
         _filterStateFlow,
-    ) { categoryWithBooksList, filterState ->
+    ) { categoryWithBookLists, filterState ->
         // 排序
-        val sortedCategoryWithBooksList = categoryWithBooksList.map { categoryWithBooks ->
+        val sortedCategoryWithBookList = categoryWithBookLists.map { categoryWithBookList ->
             val books =
                 sortBooks(
-                    categoryWithBooks.bookEntities,
+                    categoryWithBookList.bookList,
                     filterState.sortType,
                     filterState.isAscending
                 )
-            val category = categoryWithBooks.category
-            CategoryWithBooks(
+            val category = categoryWithBookList.category
+            CategoryWithBookList(
                 category = category,
-                bookEntities = books
+                bookList = books
             )
         }.sortedBy { it.category.id }
 
         // 如果是搜索模式, 则进行搜索过滤
-        val filteredCategoryWithBooksList = if (filterState.isSearching) {
-            sortedCategoryWithBooksList.map { categoryWithBooks ->
-                val books = filterBooks(categoryWithBooks.bookEntities, filterState.searchText)
-                CategoryWithBooks(
-                    category = categoryWithBooks.category,
-                    bookEntities = books
+        val filteredCategoryWithBookList = if (filterState.isSearching) {
+            sortedCategoryWithBookList.map { categoryWithBookList ->
+                val books = filterBooks(categoryWithBookList.bookList, filterState.searchText)
+                CategoryWithBookList(
+                    category = categoryWithBookList.category,
+                    bookList = books
                 )
             }
         } else {
-            sortedCategoryWithBooksList
+            sortedCategoryWithBookList
         }
 
-        return@combine filteredCategoryWithBooksList
+        return@combine filteredCategoryWithBookList
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = emptyList()
     )
 
@@ -177,7 +178,7 @@ class LibraryViewModel @Inject constructor(
         return@combine LibraryTopBarState.DEFAULT
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         LibraryTopBarState.DEFAULT
     )
 
@@ -190,7 +191,7 @@ class LibraryViewModel @Inject constructor(
      */
     val bookDisplayMode = settingsManager.bookDisplayMode.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = DisplayMode.List
     )
 
@@ -199,8 +200,8 @@ class LibraryViewModel @Inject constructor(
      */
     val bookGridColumnCount = settingsManager.bookGridColumnCount.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
-        initialValue = Constants.GRID_SIZE_INT_RANGE.first
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = AppConstraints.GRID_SIZE_INT_RANGE.first
     )
 
     /**
@@ -208,7 +209,7 @@ class LibraryViewModel @Inject constructor(
      */
     val bookTitlePosition = settingsManager.bookTitlePosition.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = BookTitlePosition.Below
     )
 
@@ -217,7 +218,7 @@ class LibraryViewModel @Inject constructor(
      */
     val showReadButton = settingsManager.showReadButton.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -226,7 +227,7 @@ class LibraryViewModel @Inject constructor(
      */
     val showReadProgress = settingsManager.showReadProgress.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -235,7 +236,7 @@ class LibraryViewModel @Inject constructor(
      */
     val showCategoryTab = settingsManager.showCategoryTab.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -244,7 +245,7 @@ class LibraryViewModel @Inject constructor(
      */
     val alwaysShowDefaultCategoryTab = settingsManager.alwaysShowDefaultCategoryTab.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -253,7 +254,7 @@ class LibraryViewModel @Inject constructor(
      */
     val showBookCount = settingsManager.showBookCount.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -484,23 +485,23 @@ class LibraryViewModel @Inject constructor(
      * 对书籍进行排序
      */
     private fun sortBooks(
-        bookEntities: List<BookEntity>,
+        book: List<Book>,
         sortType: BookSortType,
         isAscending: Boolean
-    ): List<BookEntity> {
+    ): List<Book> {
         return if (isAscending) {
             when (sortType) {
-                BookSortType.ALPHABETICAL -> bookEntities.sortedBy { it.title.lowercase() }
-                BookSortType.LAST_READ_TIME -> bookEntities.sortedBy { it.lastReadTime }
-                BookSortType.PROGRESS -> bookEntities.sortedBy { it.progress }
-                BookSortType.AUTHOR -> bookEntities.sortedBy { it.author.lowercase() }
+                BookSortType.ALPHABETICAL -> book.sortedBy { it.title.lowercase() }
+                BookSortType.LAST_READ_TIME -> book.sortedBy { it.lastReadTime }
+                BookSortType.PROGRESS -> book.sortedBy { it.progress }
+                BookSortType.AUTHOR -> book.sortedBy { it.author.first().lowercase() }
             }
         } else {
             when (sortType) {
-                BookSortType.ALPHABETICAL -> bookEntities.sortedByDescending { it.title.lowercase() }
-                BookSortType.LAST_READ_TIME -> bookEntities.sortedByDescending { it.lastReadTime }
-                BookSortType.PROGRESS -> bookEntities.sortedByDescending { it.progress }
-                BookSortType.AUTHOR -> bookEntities.sortedByDescending { it.author.lowercase() }
+                BookSortType.ALPHABETICAL -> book.sortedByDescending { it.title.lowercase() }
+                BookSortType.LAST_READ_TIME -> book.sortedByDescending { it.lastReadTime }
+                BookSortType.PROGRESS -> book.sortedByDescending { it.progress }
+                BookSortType.AUTHOR -> book.sortedByDescending { it.author.first().lowercase() }
             }
         }
     }
@@ -508,7 +509,7 @@ class LibraryViewModel @Inject constructor(
     /**
      * 对书籍进行文本过滤
      */
-    private fun filterBooks(bookEntities: List<BookEntity>, searchText: String): List<BookEntity> {
+    private fun filterBooks(bookEntities: List<Book>, searchText: String): List<Book> {
         return bookEntities.filter { book ->
             book.title.contains(searchText, ignoreCase = true)
         }

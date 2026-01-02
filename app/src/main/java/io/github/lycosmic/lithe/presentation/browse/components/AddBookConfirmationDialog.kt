@@ -25,8 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook
 import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
+import io.github.lycosmic.model.ParsedBook
 
 
 @Composable
@@ -82,7 +82,7 @@ fun AddBookConfirmationDialog(
                     } else {
                         items(
                             items = selectedBooks,
-                            key = { it.file.uri.toString() }) { bookToAdd ->
+                            key = { it.file.uriString }) { bookToAdd ->
                             BookToAddItem(
                                 title = bookToAdd.metadata.title ?: bookToAdd.file.name,
                                 author = bookToAdd.metadata.authors?.joinToString(", ")

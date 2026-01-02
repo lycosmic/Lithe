@@ -8,16 +8,20 @@ import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import io.github.lycosmic.lithe.data.local.dao.DirectoryDao
 import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
-import io.github.lycosmic.lithe.domain.model.FileFormat
-import io.github.lycosmic.lithe.domain.model.FileItem
-import io.github.lycosmic.lithe.domain.repository.DirectoryRepository
-import io.github.lycosmic.lithe.utils.UriUtils
+import io.github.lycosmic.lithe.data.mapper.toDomain
+import io.github.lycosmic.lithe.data.mapper.toEntity
+import io.github.lycosmic.lithe.util.UriUtils
+import io.github.lycosmic.model.Directory
+import io.github.lycosmic.model.FileFormat
+import io.github.lycosmic.model.FileItem
+import io.github.lycosmic.repository.DirectoryRepository
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -28,12 +32,16 @@ class DirectoryRepositoryImpl @Inject constructor(
     private val application: Application
 ) : DirectoryRepository {
 
-    override fun getDirectoriesFlow(): Flow<List<AuthorizedDirectory>> {
-        return directoryDao.getScannedDirectoriesFlow()
+    override fun getDirectoriesFlow(): Flow<List<Directory>> {
+        return directoryDao.getScannedDirectoriesFlow().map {
+            it.map { authorizedDirectory ->
+                authorizedDirectory.toDomain()
+            }
+        }
     }
 
-
-    override suspend fun insertDirectory(uri: Uri): Long = withContext(Dispatchers.IO) {
+    override suspend fun insertDirectory(uriString: String): Long = withContext(Dispatchers.IO) {
+        val uri = uriString.toUri()
         val resolver = application.contentResolver
 
         try {
@@ -59,14 +67,14 @@ class DirectoryRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun removeDirectory(directory: AuthorizedDirectory) =
+    override suspend fun removeDirectory(directory: Directory) =
         withContext(Dispatchers.IO) {
-            directoryDao.deleteDirectory(directory)
+            directoryDao.deleteDirectory(directory.toEntity())
         }
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun scanFilesInDirectories(directories: List<AuthorizedDirectory>): List<FileItem> =
+    override suspend fun scanFilesInDirectories(directories: List<Directory>): List<FileItem> =
         withContext(Dispatchers.IO) {
             supervisorScope { // 为了不影响其他任务
                 val allFiles = mutableListOf<FileItem>()
@@ -75,7 +83,7 @@ class DirectoryRepositoryImpl @Inject constructor(
 
                 directories.forEach { dir ->
                     val deferred = async {
-                        val rootUri = dir.uri.toUri()
+                        val rootUri = dir.uriString.toUri()
                         val rootDocId = DocumentsContract.getTreeDocumentId(rootUri)
 
                         // 递归扫描该文件夹
@@ -123,17 +131,17 @@ class DirectoryRepositoryImpl @Inject constructor(
             } else {
                 // 这是一个文件
                 val name = file.name?.substringAfterLast(".") ?: continue
-                val type = getFileType(name)
+                val format = getFileType(name)
 
-                if (type == FileFormat.UNKNOWN) {
+                if (format == FileFormat.UNKNOWN) {
                     continue
                 }
 
                 resultList.add(
                     FileItem(
                         name = name,
-                        uri = file.uri,
-                        type = type,
+                        uriString = file.uri.toString(),
+                        format = format,
                         size = file.length(),
                         lastModified = file.lastModified(),
                         parentPath = currentDisplayPath // 记录它是属于哪个文件夹的
@@ -211,8 +219,8 @@ class DirectoryRepositoryImpl @Inject constructor(
                             resultList.add(
                                 FileItem(
                                     name = name,
-                                    uri = fileUri,
-                                    type = type,
+                                    uriString = fileUri.toString(),
+                                    format = type,
                                     size = size,
                                     lastModified = lastMod,
                                     parentPath = currentDisplayPath

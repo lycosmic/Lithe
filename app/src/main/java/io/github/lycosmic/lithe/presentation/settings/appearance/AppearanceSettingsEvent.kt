@@ -1,8 +1,8 @@
 package io.github.lycosmic.lithe.presentation.settings.appearance
 
-import androidx.compose.ui.graphics.Color
-import io.github.lycosmic.lithe.domain.model.ColorPreset
-import io.github.lycosmic.lithe.domain.model.ThemeMode
+import io.github.lycosmic.model.ColorPreset
+import io.github.lycosmic.model.ThemeMode
+
 
 sealed class AppearanceSettingsEvent {
     /**
@@ -59,13 +59,13 @@ sealed class AppearanceSettingsEvent {
     /**
      * 颜色预设中背景颜色改变
      */
-    data class OnColorPresetBgColorChange(val preset: ColorPreset, val color: Color) :
+    data class OnColorPresetBgColorChange(val preset: ColorPreset, val colorArgb: Int) :
         AppearanceSettingsEvent()
 
     /**
      * 颜色预设中文字颜色改变
      */
-    data class OnColorPresetTextColorChange(val preset: ColorPreset, val color: Color) :
+    data class OnColorPresetTextColorChange(val preset: ColorPreset, val colorArgb: Int) :
         AppearanceSettingsEvent()
 
     /**

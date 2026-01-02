@@ -7,10 +7,10 @@ import com.google.gson.JsonNull
 import com.google.gson.JsonParseException
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import io.github.lycosmic.lithe.domain.model.BookSpineItem
-import io.github.lycosmic.lithe.domain.model.EpubSpineItem
-import io.github.lycosmic.lithe.domain.model.EpubSpineItem.Companion.CONTENT_HREF_MEMBER
-import io.github.lycosmic.lithe.domain.model.TxtSpineItem
+import io.github.lycosmic.model.BookSpineItem
+import io.github.lycosmic.model.EpubSpineItem
+import io.github.lycosmic.model.EpubSpineItem.Companion.CONTENT_HREF_MEMBER
+import io.github.lycosmic.model.TxtSpineItem
 import java.lang.reflect.Type
 
 class BookSpineItemTypeAdapter : JsonDeserializer<BookSpineItem>, JsonSerializer<BookSpineItem> {

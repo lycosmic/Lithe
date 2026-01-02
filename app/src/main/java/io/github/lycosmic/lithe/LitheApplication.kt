@@ -2,8 +2,8 @@ package io.github.lycosmic.lithe
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
-import io.github.lycosmic.lithe.extension.logI
-import io.github.lycosmic.lithe.utils.ToastUtil
+import io.github.lycosmic.lithe.log.logI
+import io.github.lycosmic.lithe.util.ToastUtil
 import timber.log.Timber
 
 @HiltAndroidApp
@@ -21,7 +21,7 @@ class LitheApplication : Application() {
         if (BuildConfig.DEBUG) {
             // 自动使用类名作为 TAG
             Timber.plant(object : Timber.DebugTree() {
-                override fun createStackElementTag(element: StackTraceElement): String? {
+                override fun createStackElementTag(element: StackTraceElement): String {
                     return "${LOG_PREFIX}-${super.createStackElementTag(element)}"
                 }
             })

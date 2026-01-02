@@ -44,18 +44,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.domain.model.BookSortType
-import io.github.lycosmic.lithe.domain.model.BookTitlePosition
-import io.github.lycosmic.lithe.domain.model.DisplayMode
-import io.github.lycosmic.lithe.domain.model.OptionItem
-import io.github.lycosmic.lithe.domain.model.TabType
-import io.github.lycosmic.lithe.extension.logE
+import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.presentation.settings.components.GridSizeSlider
 import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSwitch
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
+import io.github.lycosmic.lithe.util.extensions.labelResId
+import io.github.lycosmic.lithe.util.extensions.titleResId
+import io.github.lycosmic.model.BookSortType
+import io.github.lycosmic.model.BookTitlePosition
+import io.github.lycosmic.model.DisplayMode
+import io.github.lycosmic.model.OptionItem
+import io.github.lycosmic.model.TabType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -222,7 +224,7 @@ private fun SortContent(
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Text(
-                    text = stringResource(id = type.displayNameResId),
+                    text = stringResource(id = type.labelResId),
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                 )

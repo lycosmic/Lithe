@@ -65,8 +65,8 @@ import io.github.lycosmic.lithe.presentation.detail.components.DeleteBookDialog
 import io.github.lycosmic.lithe.presentation.detail.components.FileInfoBottomSheet
 import io.github.lycosmic.lithe.ui.components.AsyncCoverImage
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
-import io.github.lycosmic.lithe.utils.FileUtils
-import io.github.lycosmic.lithe.utils.ToastUtil
+import io.github.lycosmic.lithe.util.FileUtils
+import io.github.lycosmic.lithe.util.ToastUtil
 import my.nanihadesuka.compose.InternalLazyColumnScrollbar
 import my.nanihadesuka.compose.ScrollbarSelectionMode
 import my.nanihadesuka.compose.ScrollbarSettings
@@ -280,7 +280,7 @@ fun BookDetailScreen(
                                     modifier = Modifier.size(20.dp)
                                 )
                                 Text(
-                                    text = book.author,
+                                    text = book.author.joinToString(","),
                                     modifier = Modifier
                                         .padding(start = 4.dp)
                                         .align(Alignment.CenterVertically),

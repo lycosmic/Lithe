@@ -1,21 +1,15 @@
 package io.github.lycosmic.lithe.presentation.reader
 
-import android.net.Uri
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.parser.content.BookContentParser
-import io.github.lycosmic.lithe.data.parser.content.BookContentParserFactory
 import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
-import io.github.lycosmic.lithe.domain.model.BookSpineItem
-import io.github.lycosmic.lithe.domain.model.EpubSpineItem
-import io.github.lycosmic.lithe.domain.model.TxtSpineItem
-import io.github.lycosmic.lithe.extension.logD
-import io.github.lycosmic.lithe.extension.logE
-import io.github.lycosmic.lithe.extension.logI
+import io.github.lycosmic.lithe.log.logE
+import io.github.lycosmic.lithe.log.logI
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderEffect
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderEvent
+import io.github.lycosmic.repository.BookContentParser
+import io.github.lycosmic.use_case.reader.GetChapterListUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,14 +22,12 @@ import javax.inject.Inject
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
     private val bookRepositoryImpl: BookRepositoryImpl,
-    private val bookContentParserFactory: BookContentParserFactory
+    private val bookContentParser: BookContentParser,
+    private val getChapterListUseCase: GetChapterListUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ReaderUiState())
     val uiState = _uiState.asStateFlow()
-
-    // 书籍内容解析器
-    private var bookContentParser: BookContentParser? = null
 
     private val _effects = MutableSharedFlow<ReaderEffect>()
     val effects = _effects.asSharedFlow()
@@ -45,6 +37,12 @@ class ReaderViewModel @Inject constructor(
      */
     fun loadBook(bookId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update {
+                it.copy(
+                    isLoading = true,
+                )
+            }
+
             logI {
                 "开始加载书籍，书籍ID: $bookId"
             }
@@ -57,33 +55,52 @@ class ReaderViewModel @Inject constructor(
                     return@launch
                 }
 
-                // 获取目录结构
-                val spine = book.bookmarks ?: emptyList()
-
                 _uiState.update {
                     it.copy(
-                        bookEntity = book,
-                        isLoading = true,
-                        spine = spine,
+                        book = book,
                     )
                 }
 
+                // 获取目录结构
+                val result = getChapterListUseCase(book)
 
-                // 获取解析器
-                bookContentParser = bookContentParserFactory.getParser(book.format)
-                val bookUri = book.fileUri.toUri()
+                result.fold(
+                    onSuccess = { chapters ->
+                        logI {
+                            "获取目录结构成功，目录结构: $chapters"
+                        }
+                        _uiState.update {
+                            it.copy(
+                                chapters = chapters,
+                            )
+                        }
+                    },
+                    onFailure = {
+                        logE(e = it) {
+                            "获取目录结构失败"
+                        }
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                            )
+                        }
+                    }
+                )
 
 
-                // 默认加载第一章
-                val initialIndex = 0
-
-                logD {
-                    "开始加载章节内容，章节名: ${spine[initialIndex].label}"
-                }
-                // 加载章节内容
-                bookContentParser?.let {
-                    loadChapterContent(it, bookUri, spine, initialIndex)
-                }
+//                // 获取解析器
+//                bookContentParser = bookContentParserFactory.getParser(book.format)
+//                val bookUri = book.fileUri.toUri()
+//
+//
+//                // 默认加载第一章
+//                val initialIndex = 0
+//
+//                logD {
+//                    "开始加载章节内容，章节名: ${spine[initialIndex].label}"
+//                }
+//                // 加载章节内容
+//                loadChapterContent(bookContentParser, bookUri, spine, initialIndex)
             } catch (e: Exception) {
                 logE(e = e) {
                     "书籍加载失败，ID: $bookId"
@@ -92,71 +109,68 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadChapterContent(
-        parser: BookContentParser,
-        bookUri: Uri,
-        spine: List<BookSpineItem>,
-        index: Int
-    ) {
-        _uiState.update { it.copy(isLoading = true) }
+//    private suspend fun loadChapterContent(
+//        parser: BookContentParser,
+//        bookUri: Uri,
+//        spine: List<BookSpineItem>,
+//        index: Int
+//    ) {
+//        _uiState.update { it.copy(isLoading = true) }
+//
+//        if (spine.isEmpty()) {
+//            logE {
+//                "Spine is empty, book ID: ${_uiState.value.book?.id}, chapter index: $index"
+//            }
+//            return
+//        }
+//        val chapterItem = spine[index]
+//        // 调用解析器解析具体内容
+//        val content = when (chapterItem) {
+//            is EpubSpineItem -> parser.loadChapterContent(bookUri, chapterItem.contentHref)
+//            is TxtSpineItem -> parser.loadChapterContent(bookUri, chapterItem.href)
+//        }
+//        logD {
+//            "Chapter content is $content"
+//        }
+//
+//        logI {
+//            "Chapter content loaded successfully, book ID: ${_uiState.value.bookEntity?.id}, chapter index: $index"
+//        }
+//        _uiState.update {
+//            it.copy(
+//                isLoading = false,
+//                currentChapterIndex = index,
+//                currentContent = content
+//            )
+//        }
+//    }
 
-        if (spine.isEmpty()) {
-            logE {
-                "Spine is empty, book ID: ${_uiState.value.bookEntity?.id}, chapter index: $index"
-            }
-            return
-        }
-        val chapterItem = spine[index]
-        // 调用解析器解析具体内容
-        val content = when (chapterItem) {
-            is EpubSpineItem -> parser.parseChapterContent(bookUri, chapterItem.contentHref)
-            is TxtSpineItem -> parser.parseChapterContent(bookUri, chapterItem.href)
-        }
-        logD {
-            "Chapter content is $content"
-        }
-
-        logI {
-            "Chapter content loaded successfully, book ID: ${_uiState.value.bookEntity?.id}, chapter index: $index"
-        }
-        _uiState.update {
-            it.copy(
-                isLoading = false,
-                currentChapterIndex = index,
-                currentContent = content
-            )
-        }
-    }
-
-    // --- 翻页逻辑 ---
-    fun loadNextChapter() {
-        val currentState = _uiState.value
-        val book = currentState.bookEntity ?: return
-        val nextIndex = currentState.currentChapterIndex + 1
-
-        if (nextIndex < currentState.spine.size) {
-            viewModelScope.launch(Dispatchers.IO) {
-                bookContentParser?.let { parser ->
-                    loadChapterContent(parser, book.fileUri.toUri(), currentState.spine, nextIndex)
-                }
-
-            }
-        }
-    }
-
-    fun loadPrevChapter() {
-        val currentState = _uiState.value
-        val book = currentState.bookEntity ?: return
-        val prevIndex = currentState.currentChapterIndex - 1
-
-        if (prevIndex >= 0) {
-            viewModelScope.launch(Dispatchers.IO) {
-                bookContentParser?.let { parser ->
-                    loadChapterContent(parser, book.fileUri.toUri(), currentState.spine, prevIndex)
-                }
-            }
-        }
-    }
+//    // --- 翻页逻辑 ---
+//    fun loadNextChapter() {
+//        val currentState = _uiState.value
+//        val book = currentState.book ?: return
+//        val nextIndex = currentState.currentChapterIndex + 1
+//
+//        if (nextIndex < currentState.chapters.size) {
+//            viewModelScope.launch(Dispatchers.IO) {
+//                loadChapterContent(bookContentParser, book.fileUri.toUri(), currentState.spine, nextIndex)
+//            }
+//        }
+//    }
+//
+//    fun loadPrevChapter() {
+//        val currentState = _uiState.value
+//        val book = currentState.bookEntity ?: return
+//        val prevIndex = currentState.currentChapterIndex - 1
+//
+//        if (prevIndex >= 0) {
+//            viewModelScope.launch(Dispatchers.IO) {
+//                bookContentParser?.let { parser ->
+//                    loadChapterContent(parser, book.fileUri.toUri(), currentState.spine, prevIndex)
+//                }
+//            }
+//        }
+//    }
 
     fun onEvent(event: ReaderEvent) {
         when (event) {

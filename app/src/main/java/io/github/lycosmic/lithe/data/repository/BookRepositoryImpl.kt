@@ -1,12 +1,13 @@
 package io.github.lycosmic.lithe.data.repository
 
 import io.github.lycosmic.lithe.data.local.dao.BookDao
-import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
-import io.github.lycosmic.lithe.data.local.entity.BookEntity
-import io.github.lycosmic.lithe.domain.model.BookWithCategories
-import io.github.lycosmic.lithe.domain.model.CategoryWithBooks
-import io.github.lycosmic.lithe.domain.repository.BookRepository
+import io.github.lycosmic.lithe.data.mapper.toDomain
+import io.github.lycosmic.lithe.data.mapper.toEntity
+import io.github.lycosmic.model.Book
+import io.github.lycosmic.model.CategoryWithBookList
+import io.github.lycosmic.repository.BookRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 
@@ -14,37 +15,46 @@ class BookRepositoryImpl @Inject constructor(
     private val bookDao: BookDao
 ) : BookRepository {
 
-    override fun getAllBooks() = bookDao.getAllBooks()
+    override fun getAllBooks(): Flow<List<Book>> {
+        return bookDao.getAllBooks().map {
+            it.map { book ->
+                book.toDomain()
+            }
+        }
+    }
 
-    override suspend fun importBook(bookEntity: BookEntity): Long {
-        return bookDao.insertBook(bookEntity = bookEntity)
+    override suspend fun importBook(book: Book): Long {
+        return bookDao.insertBook(bookEntity = book.toEntity())
     }
 
     override suspend fun deleteBook(bookId: Long) {
         bookDao.deleteBookById(id = bookId)
     }
 
-    override fun getBookFlowById(bookId: Long): Flow<BookEntity?> {
-        return bookDao.getBookFlowById(id = bookId)
+    override fun getBookFlowById(bookId: Long): Flow<Book?> {
+        return bookDao.getBookFlowById(id = bookId).map { it?.toDomain() }
     }
 
-    override suspend fun getBookById(bookId: Long) = bookDao.getBookById(id = bookId)
-
-    override suspend fun getBookByUniqueId(uniqueId: String) =
-        bookDao.getBookByUniqueId(uniqueId = uniqueId)
-
-    override fun getBooksWithCategoriesFlow(): Flow<List<BookWithCategories>> {
-        return bookDao.getBooksWithCategories()
+    override suspend fun getBookById(bookId: Long): Book? {
+        return bookDao.getBookById(id = bookId)?.toDomain()
     }
 
-    override fun getCategoryWithBooksFlow(): Flow<List<CategoryWithBooks>> {
-        return bookDao.getCategoriesWithBooks()
+    override suspend fun getBookByUniqueId(uniqueId: String): Book? {
+        return bookDao.getBookByUniqueId(uniqueId = uniqueId)?.toDomain()
     }
 
-    override suspend fun insertBookCategoryCrossRefs(refs: List<BookCategoryCrossRef>) {
-        bookDao.insertBookCategoryCrossRefs(refs = refs)
+    override fun getCategoryWithBooksFlow(): Flow<List<CategoryWithBookList>> {
+        return bookDao.getCategoriesWithBooks().map {
+            it.map { categoryWithBooks ->
+                CategoryWithBookList(
+                    category = categoryWithBooks.category.toDomain(),
+                    bookList = categoryWithBooks.bookEntities.map { bookEntity ->
+                        bookEntity.toDomain()
+                    }
+                )
+            }
+        }
     }
-
     override suspend fun moveBooksToCategories(bookIds: List<Long>, categoryIds: List<Long>) {
         bookIds.forEach {
             bookDao.moveBookToCategories(bookId = it, categoryIds = categoryIds)

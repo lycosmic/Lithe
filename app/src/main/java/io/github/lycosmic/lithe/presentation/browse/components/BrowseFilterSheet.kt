@@ -45,28 +45,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.domain.model.DisplayMode
-import io.github.lycosmic.lithe.domain.model.FilterOption
-import io.github.lycosmic.lithe.domain.model.OptionItem
-import io.github.lycosmic.lithe.domain.model.SortType
-import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_IS_ASCENDING
-import io.github.lycosmic.lithe.domain.model.TabType
 import io.github.lycosmic.lithe.presentation.settings.components.GridSizeSlider
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
+import io.github.lycosmic.lithe.util.extensions.labelResId
+import io.github.lycosmic.lithe.util.extensions.titleResId
+import io.github.lycosmic.model.DisplayMode
+import io.github.lycosmic.model.FileSortType
+import io.github.lycosmic.model.FilterOption
+import io.github.lycosmic.model.OptionItem
+import io.github.lycosmic.model.TabType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrowseFilterSheet(
     show: Boolean,
     onDismissRequest: () -> Unit,
-    currentSortType: SortType, // 排序方式
+    currentSortType: FileSortType, // 排序方式
     isAscending: Boolean, // 排序是否为升序
     currentDisplayMode: DisplayMode, // 文件显示模式
     onDisplayModeChanged: (DisplayMode) -> Unit,
     currentGridSize: Int, // 网格大小
     onGridSizeChanged: (Int) -> Unit,
-    onSortTypeChanged: (sortType: SortType, isAscending: Boolean) -> Unit,
+    onSortTypeChanged: (sortType: FileSortType, isAscending: Boolean) -> Unit,
     currentFilterOptions: List<FilterOption>,
     onFilterChange: (FilterOption) -> Unit,
     modifier: Modifier = Modifier,
@@ -149,12 +150,12 @@ fun BrowseFilterSheet(
  */
 @Composable
 private fun SortContent(
-    currentSortType: SortType,
+    currentSortType: FileSortType,
     isAscending: Boolean,
-    onSortChange: (SortType, Boolean) -> Unit
+    onSortChange: (FileSortType, Boolean) -> Unit
 ) {
     Column {
-        SortType.entries.forEach { type ->
+        FileSortType.entries.forEach { type ->
             val isSelected = currentSortType == type
 
             val rotation by animateFloatAsState(
@@ -171,7 +172,7 @@ private fun SortContent(
                             onSortChange(type, !isAscending)
                         } else {
                             // 如果是其他项，默认降序
-                            onSortChange(type, DEFAULT_IS_ASCENDING)
+                            onSortChange(type, false)
                         }
                     }
                     .padding(horizontal = 24.dp, vertical = 16.dp),
@@ -193,7 +194,7 @@ private fun SortContent(
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Text(
-                    text = stringResource(id = type.displayNameResId),
+                    text = stringResource(id = type.labelResId),
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                 )
@@ -266,7 +267,7 @@ private fun DisplayContent(
             modifier = Modifier.padding(vertical = 8.dp)
         )
 
-        LitheSegmentedButton(
+        LitheSegmentedButton<DisplayMode>(
             items = DisplayMode.entries.map { mode ->
                 OptionItem(
                     value = mode,

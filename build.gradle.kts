@@ -8,4 +8,5 @@ plugins {
     alias(libs.plugins.google.hilt) apply false
     // KSP 插件
     alias(libs.plugins.google.ksp) apply false
+    alias(libs.plugins.jetbrains.kotlin.jvm) apply false
 }

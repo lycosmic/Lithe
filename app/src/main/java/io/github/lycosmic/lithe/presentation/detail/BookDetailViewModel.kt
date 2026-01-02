@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.local.entity.BookEntity
 import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
-import io.github.lycosmic.lithe.domain.model.Constants
-import io.github.lycosmic.lithe.utils.UriUtils
+import io.github.lycosmic.lithe.util.UiConfig
+import io.github.lycosmic.lithe.util.UriUtils
+import io.github.lycosmic.model.Book
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -24,8 +24,8 @@ class BookDetailViewModel @Inject constructor(
     private val bookRepositoryImpl: BookRepositoryImpl,
 ) : ViewModel() {
 
-    private val _bookEntity = MutableStateFlow(BookEntity.defaultBookEntity)
-    val book = _bookEntity.asStateFlow()
+    private val _book = MutableStateFlow(Book.Empty)
+    val book = _book.asStateFlow()
 
     // 自己维护的文件路径, 用来判断文件是否为空, 或有损坏
     private val _filePath = MutableStateFlow<String?>(null)
@@ -39,10 +39,10 @@ class BookDetailViewModel @Inject constructor(
         viewModelScope.launch {
             bookRepositoryImpl.getBookFlowById(bookId).stateIn(
                 scope = viewModelScope,
-                started = WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
-                initialValue = BookEntity.defaultBookEntity
+                started = WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+                initialValue = Book.Empty
             ).filterNotNull().collect { book ->
-                _bookEntity.value = book
+                _book.value = book
 
                 book.let {
                     // 初始的文件路径

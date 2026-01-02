@@ -10,6 +10,7 @@ import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
 import io.github.lycosmic.lithe.data.local.entity.BookEntity
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
+import io.github.lycosmic.lithe.data.local.entity.ChapterEntity
 import io.github.lycosmic.lithe.data.local.entity.ColorPresetEntity
 
 @Database(
@@ -18,6 +19,8 @@ import io.github.lycosmic.lithe.data.local.entity.ColorPresetEntity
         BookEntity::class,
         CategoryEntity::class,
         BookCategoryCrossRef::class,
+        // 书籍目录
+        ChapterEntity::class,
         // 已授权的目录
         AuthorizedDirectory::class,
         // 颜色预设

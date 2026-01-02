@@ -29,8 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.domain.model.Constants
-import io.github.lycosmic.lithe.domain.model.DisplayMode
 import io.github.lycosmic.lithe.presentation.browse.components.AddBookConfirmationDialog
 import io.github.lycosmic.lithe.presentation.browse.components.BrowseFilterSheet
 import io.github.lycosmic.lithe.presentation.browse.components.DefaultBrowseTopAppBar
@@ -43,7 +41,9 @@ import io.github.lycosmic.lithe.presentation.browse.components.SelectBrowseTopAp
 import io.github.lycosmic.lithe.presentation.browse.model.BrowseTopBarState
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
-import io.github.lycosmic.lithe.utils.toast
+import io.github.lycosmic.lithe.ui.theme.Dimens
+import io.github.lycosmic.lithe.util.toast
+import io.github.lycosmic.model.DisplayMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -198,7 +198,7 @@ fun BrowseScreen(
                         gridColumnCount
                     } else {
                         // 自动：列数 = 可用宽度 / 最小Item宽度
-                        val calculated = (maxWidth / Constants.MIN_GRID_ITEM_WIDTH).toInt()
+                        val calculated = (maxWidth / Dimens.MinGridItemWidth).toInt()
                         maxOf(1, calculated)
                     }
                 }
@@ -224,10 +224,10 @@ fun BrowseScreen(
                             DisplayMode.List -> {
                                 items(
                                     items = files,
-                                    key = { file -> file.uri.toString() }) { file ->
+                                    key = { file -> file.uriString }) { file ->
                                     FileRowItem(
                                         file = file,
-                                        isSelected = selectedFiles.contains(file.uri.toString()),
+                                        isSelected = selectedFiles.contains(file.uriString),
                                         isMultiSelectMode = isMultiSelectMode,
                                         onCheckboxClick = {
                                             // 点击复选框
@@ -251,7 +251,7 @@ fun BrowseScreen(
 
                                 this@LazyColumn.items(
                                     items = rows,
-                                    key = { rowFiles -> rowFiles.first().uri.toString() }
+                                    key = { rowFiles -> rowFiles.first().uriString }
                                 ) { rowFiles ->
                                     Row(
                                         modifier = Modifier
@@ -264,7 +264,7 @@ fun BrowseScreen(
                                             Box(modifier = Modifier.weight(1f)) {
                                                 FileGridItem(
                                                     fileItem = file,
-                                                    isSelected = selectedFiles.contains(file.uri.toString()),
+                                                    isSelected = selectedFiles.contains(file.uriString),
                                                     isMultiSelectMode = isMultiSelectMode,
                                                     onCheckboxClick = {
                                                         viewModel.onEvent(

@@ -31,16 +31,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.domain.model.ColorPreset
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.StyledText
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
+import io.github.lycosmic.lithe.util.extensions.backgroundColor
+import io.github.lycosmic.lithe.util.extensions.textColor
+import io.github.lycosmic.model.ColorPreset
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -53,8 +56,8 @@ import kotlinx.coroutines.flow.debounce
 fun ColorPresetEditorCard(
     colorPreset: ColorPreset, // 颜色预设
     onColorPresetNameChange: (ColorPreset, String) -> Unit, // 颜色预设名称改变
-    onBgColorChange: (ColorPreset, Color) -> Unit, // 背景颜色改变
-    onTextColorChange: (ColorPreset, Color) -> Unit, // 文本颜色改变
+    onBgColorChange: (ColorPreset, colorArgb: Int) -> Unit, // 背景颜色改变
+    onTextColorChange: (ColorPreset, colorArgb: Int) -> Unit, // 文本颜色改变
     onDelete: (ColorPreset) -> Unit, // 删除颜色预设
     onShuffle: (ColorPreset) -> Unit, // 打乱颜色预设
     onCreateNew: () -> Unit, // 创建颜色预设
@@ -74,7 +77,7 @@ fun ColorPresetEditorCard(
         snapshotFlow {
             localBgColor
         }.debounce(50).collectLatest {
-            onBgColorChange(colorPreset, it)
+            onBgColorChange(colorPreset, it.toArgb())
         }
     }
 
@@ -82,7 +85,7 @@ fun ColorPresetEditorCard(
         snapshotFlow {
             localTextColor
         }.debounce(50).collectLatest {
-            onTextColorChange(colorPreset, it)
+            onTextColorChange(colorPreset, it.toArgb())
         }
     }
 

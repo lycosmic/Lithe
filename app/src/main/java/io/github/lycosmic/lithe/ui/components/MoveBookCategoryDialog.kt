@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
+import io.github.lycosmic.model.Category
 
 
 /**
@@ -39,7 +39,7 @@ import io.github.lycosmic.lithe.ui.theme.LitheTheme
 @Composable
 fun MoveBookCategoryDialog(
     selectedCategoryIds: List<Long>, // 当前已选中的分类ID
-    categories: List<CategoryEntity>, // 分类列表
+    categories: List<Category>, // 分类列表
     onDismissRequest: () -> Unit,
     onConfirm: (List<Long>) -> Unit,
     onEdit: () -> Unit, // 点击编辑按钮
@@ -160,7 +160,7 @@ private fun MoveBookCategoryDialogPreview() {
     LitheTheme {
         MoveBookCategoryDialog(
             selectedCategoryIds = listOf(1),
-            categories = listOf(CategoryEntity(1, "分类1"), CategoryEntity(2, "分类2")),
+            categories = listOf(Category(1, "分类1"), Category(2, "分类2")),
             onDismissRequest = {},
             onConfirm = {},
             onEdit = {}

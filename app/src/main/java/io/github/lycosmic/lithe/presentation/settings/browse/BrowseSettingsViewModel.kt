@@ -4,12 +4,12 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
 import io.github.lycosmic.lithe.data.repository.DirectoryRepositoryImpl
 import io.github.lycosmic.lithe.data.settings.SettingsManager
-import io.github.lycosmic.lithe.domain.model.Constants
-import io.github.lycosmic.lithe.domain.model.DisplayMode
-import io.github.lycosmic.lithe.extension.logV
+import io.github.lycosmic.lithe.log.logV
+import io.github.lycosmic.lithe.util.UiConfig
+import io.github.lycosmic.model.Directory
+import io.github.lycosmic.model.DisplayMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,21 +27,21 @@ class BrowseSettingsViewModel @Inject constructor(
     // 已授权的文件夹列表
     val scannedDirectories = directoryRepositoryImpl.getDirectoriesFlow().stateIn( // 转为热流
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = emptyList()
     )
 
     // 当前的文件夹显示模式
     val displayMode = settingsManager.fileDisplayMode.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = DisplayMode.List
     )
 
     // 当前的网格列数
     val gridColumnCount = settingsManager.fileGridColumnCount.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         initialValue = SettingsManager.GRID_COLUMN_COUNT_DEFAULT
     )
 
@@ -90,14 +90,14 @@ class BrowseSettingsViewModel @Inject constructor(
      */
     fun addDirectory(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            directoryRepositoryImpl.insertDirectory(uri)
+            directoryRepositoryImpl.insertDirectory(uri.toString())
         }
     }
 
     /**
      * 移除文件夹
      */
-    fun removeDirectory(directory: AuthorizedDirectory) {
+    fun removeDirectory(directory: Directory) {
         viewModelScope.launch(Dispatchers.IO) {
             directoryRepositoryImpl.removeDirectory(directory)
         }

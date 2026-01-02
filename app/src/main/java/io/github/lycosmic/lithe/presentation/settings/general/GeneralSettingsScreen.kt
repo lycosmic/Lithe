@@ -30,10 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.domain.model.AppLanguage
 import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSwitch
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
+import io.github.lycosmic.model.AppLanguage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

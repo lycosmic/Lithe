@@ -22,12 +22,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.local.entity.AuthorizedDirectory
+import io.github.lycosmic.model.Directory
 
 @Composable
 fun LazyItemScope.DirectoryListItem(
-    directory: AuthorizedDirectory,
-    onDeleteClick: (AuthorizedDirectory) -> Unit,
+    directory: Directory,
+    onDeleteClick: (Directory) -> Unit,
     modifier: Modifier = Modifier
 ) {
     ListItem(

@@ -5,20 +5,18 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
 import io.github.lycosmic.lithe.data.settings.SettingsManager
-import io.github.lycosmic.lithe.domain.model.Constants
-import io.github.lycosmic.lithe.domain.model.DisplayMode
-import io.github.lycosmic.lithe.domain.model.FileFormat
-import io.github.lycosmic.lithe.domain.model.FileItem
-import io.github.lycosmic.lithe.domain.model.FilterOption
-import io.github.lycosmic.lithe.domain.model.SortType
-import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_IS_ASCENDING
-import io.github.lycosmic.lithe.domain.model.SortType.Companion.DEFAULT_SORT_TYPE
-import io.github.lycosmic.lithe.domain.use_case.FileProcessingUseCase
-import io.github.lycosmic.lithe.domain.use_case.browse.ImportBookUseCase
-import io.github.lycosmic.lithe.domain.use_case.browse.ParseFileMetadataUseCase
 import io.github.lycosmic.lithe.presentation.browse.model.BrowseTopBarState
 import io.github.lycosmic.lithe.presentation.browse.model.FileFilterState
-import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook
+import io.github.lycosmic.lithe.util.UiConfig
+import io.github.lycosmic.model.DisplayMode
+import io.github.lycosmic.model.FileFormat
+import io.github.lycosmic.model.FileItem
+import io.github.lycosmic.model.FileSortType
+import io.github.lycosmic.model.FilterOption
+import io.github.lycosmic.model.ParsedBook
+import io.github.lycosmic.use_case.FileProcessingUseCase
+import io.github.lycosmic.use_case.browse.ImportBookUseCase
+import io.github.lycosmic.use_case.browse.ParseFileMetadataUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -65,14 +63,14 @@ class BrowseViewModel @Inject constructor(
     val isAddBooksDialogLoading = _isAddBooksDialogLoading.asStateFlow()
 
     // 当前的排序
-    private val _sortType = MutableStateFlow(DEFAULT_SORT_TYPE)
+    private val _sortType = MutableStateFlow(FileSortType.DEFAULT_SORT_TYPE)
     val sortType = _sortType.asStateFlow()
 
-    private val _isAscending = MutableStateFlow(DEFAULT_IS_ASCENDING)
+    private val _isAscending = MutableStateFlow(FileSortType.DEFAULT_IS_ASCENDING)
     val isAscending = _isAscending.asStateFlow()
 
     // 当前的过滤列表
-    private val _filterList = MutableStateFlow(FilterOption.defaultFilterOptions)
+    private val _filterList = MutableStateFlow(FilterOption.filterOptions)
     val filterList = _filterList.asStateFlow()
 
     // 当前是否为搜索模式
@@ -98,14 +96,14 @@ class BrowseViewModel @Inject constructor(
     // 文件显示模式
     val fileDisplayMode = settingsManager.fileDisplayMode.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         DisplayMode.List
     )
 
     // 网格列数
     val gridColumnCount = settingsManager.fileGridColumnCount.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         SettingsManager.GRID_COLUMN_COUNT_DEFAULT
     )
 
@@ -144,7 +142,7 @@ class BrowseViewModel @Inject constructor(
         )
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         emptyMap()
     )
 
@@ -163,7 +161,7 @@ class BrowseViewModel @Inject constructor(
         return@combine BrowseTopBarState.DEFAULT
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(Constants.STATE_FLOW_STOP_TIMEOUT_MILLIS),
+        SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
         BrowseTopBarState.DEFAULT
     )
 
@@ -266,7 +264,7 @@ class BrowseViewModel @Inject constructor(
     /**
      * 更新类型和顺序
      */
-    fun updateSort(type: SortType, ascending: Boolean) {
+    fun updateSort(type: FileSortType, ascending: Boolean) {
         _sortType.value = type
         _isAscending.value = ascending
     }
@@ -289,7 +287,7 @@ class BrowseViewModel @Inject constructor(
     fun toggleSelection(file: FileItem) {
         val currentSet = _selectedFileUris.value.toMutableSet()
 
-        val key = file.uri.toString()
+        val key = file.uriString
         val exists = currentSet.contains(key)
         if (exists) {
             currentSet.remove(key)
@@ -309,7 +307,7 @@ class BrowseViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val fileItems = processedFiles.value.map { entry ->
                 entry.value.map { item ->
-                    item.uri.toString()
+                    item.uriString
                 }
             }.flatten().toSet()
             _selectedFileUris.value = fileItems
@@ -347,7 +345,12 @@ class BrowseViewModel @Inject constructor(
             // 获取选中的文件
             val selectedFiles = getSelectedFiles()
             // 解析文件元数据
-            _parsedBooks.value = parseFileMetadata(selectedFiles)
+            val result = parseFileMetadata(selectedFiles)
+            result.onSuccess {
+                _parsedBooks.value = it
+            }.onFailure {
+                // TODO 错误处理
+            }
             _isAddBooksDialogLoading.value = false
         }
     }
@@ -363,12 +366,17 @@ class BrowseViewModel @Inject constructor(
                 it.isSelected
             }
 
-            val success = importBook(parsedBooks)
+            val result = importBook(parsedBooks)
 
-            if (success.toInt() == parsedBooks.size) {
-                _effects.emit(BrowseEffect.ShowSuccessToast)
-            } else {
-                _effects.emit(BrowseEffect.ShowSuccessCountToast(success))
+            result.onSuccess {
+                if (it.toInt() == parsedBooks.size) {
+                    _effects.emit(BrowseEffect.ShowSuccessToast)
+                } else {
+                    _effects.emit(BrowseEffect.ShowSuccessCountToast(it))
+                }
+            }.onFailure {
+                // TODO 错误处理
+
             }
 
             // 导入完成后，清空选中状态
@@ -382,7 +390,7 @@ class BrowseViewModel @Inject constructor(
     private fun getSelectedFiles(): List<FileItem> {
         // 获取选中的文件
         val selectedFiles = _rawFileItems.value.filter { fileItem ->
-            _selectedFileUris.value.contains(fileItem.uri.toString())
+            _selectedFileUris.value.contains(fileItem.uriString)
         }
         return selectedFiles
     }
@@ -416,7 +424,7 @@ class BrowseViewModel @Inject constructor(
     fun toggleBookSelection(bookItem: ParsedBook) {
         // 修改选中项的选中状态
         val newList = _parsedBooks.value.map { bookToAdd ->
-            if (bookToAdd.file.uri == bookItem.file.uri) {
+            if (bookToAdd.file.uriString == bookItem.file.uriString) {
                 // 修改选中状态
                 bookToAdd.copy(isSelected = !bookToAdd.isSelected)
             } else {

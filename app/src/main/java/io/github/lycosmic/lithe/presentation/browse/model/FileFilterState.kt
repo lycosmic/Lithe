@@ -1,13 +1,14 @@
 package io.github.lycosmic.lithe.presentation.browse.model
 
-import io.github.lycosmic.lithe.domain.model.FilterOption
-import io.github.lycosmic.lithe.domain.model.SortType
+import io.github.lycosmic.model.FileSortType
+import io.github.lycosmic.model.FilterOption
+
 
 /**
  * 文件过滤状态
  */
 data class FileFilterState(
-    val sortType: SortType,
+    val sortType: FileSortType,
     val isAscending: Boolean,
     val filterOptions: List<FilterOption>,
     val searchText: String,

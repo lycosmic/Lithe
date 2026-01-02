@@ -8,20 +8,21 @@ import androidx.room.Query
 import androidx.room.Transaction
 import io.github.lycosmic.lithe.data.local.entity.BookCategoryCrossRef
 import io.github.lycosmic.lithe.data.local.entity.BookEntity
-import io.github.lycosmic.lithe.domain.model.BookWithCategories
-import io.github.lycosmic.lithe.domain.model.CategoryWithBooks
+import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
+import io.github.lycosmic.lithe.data.local.relation.BookWithCategories
+import io.github.lycosmic.lithe.data.local.relation.CategoryWithBooks
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BookDao {
 
-    @Query("SELECT * FROM books ORDER BY lastReadTime DESC")
+    @Query("SELECT * FROM ${BookEntity.TABLE_NAME} ORDER BY ${BookEntity.COL_LAST_READ_TIME} DESC")
     fun getAllBooks(): Flow<List<BookEntity>>
 
-    @Query("SELECT * FROM books WHERE id = :id LIMIT 1")
+    @Query("SELECT * FROM ${BookEntity.TABLE_NAME} WHERE ${BookEntity.COL_ID} = :id LIMIT 1")
     suspend fun getBookById(id: Long): BookEntity?
 
-    @Query("SELECT * FROM books WHERE id = :id LIMIT 1")
+    @Query("SELECT * FROM ${BookEntity.TABLE_NAME} WHERE ${BookEntity.COL_ID} = :id LIMIT 1")
     fun getBookFlowById(id: Long): Flow<BookEntity?>
 
     /**
@@ -33,10 +34,10 @@ interface BookDao {
     @Delete
     suspend fun deleteBook(bookEntity: BookEntity)
 
-    @Query("DELETE FROM books WHERE id=:id")
+    @Query("DELETE FROM ${BookEntity.TABLE_NAME} WHERE ${BookEntity.COL_ID}=:id")
     suspend fun deleteBookById(id: Long)
 
-    @Query("SELECT * FROM books WHERE uniqueId = :uniqueId LIMIT 1")
+    @Query("SELECT * FROM ${BookEntity.TABLE_NAME} WHERE  ${BookEntity.COL_UNIQUE_ID} = :uniqueId LIMIT 1")
     suspend fun getBookByUniqueId(uniqueId: String): BookEntity?
 
     /**
@@ -48,7 +49,7 @@ interface BookDao {
     /**
      * 删除某本书的所有分类关联，用于更新分类时，先清空再重新插入
      */
-    @Query("DELETE FROM book_category_cross_ref WHERE book_id = :bookId")
+    @Query("DELETE FROM ${BookCategoryCrossRef.TABLE_NAME} WHERE ${BookCategoryCrossRef.COL_BOOK_ID} = :bookId")
     suspend fun deleteCrossRefsByBookId(bookId: Long)
 
 
@@ -72,13 +73,13 @@ interface BookDao {
      * 查询书籍及其分类
      */
     @Transaction
-    @Query("SELECT * FROM books ORDER BY id DESC")
+    @Query("SELECT * FROM ${BookEntity.TABLE_NAME} ORDER BY ${BookEntity.COL_ID} DESC")
     fun getBooksWithCategories(): Flow<List<BookWithCategories>>
 
     /**
      * 查询分类及其书籍
      */
     @Transaction
-    @Query("SELECT * FROM categories ORDER BY id DESC")
+    @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} ORDER BY ${CategoryEntity.COL_ID} DESC")
     fun getCategoriesWithBooks(): Flow<List<CategoryWithBooks>>
 }

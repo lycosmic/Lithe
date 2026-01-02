@@ -23,14 +23,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
+import io.github.lycosmic.model.Category
 
 /**
  * 书库顶部的分类标签栏
  */
 @Composable
 fun CategoryTabRow(
-    categories: List<CategoryEntity>,
+    categories: List<Category>,
     bookCountsList: List<Int>,
     isBookCountVisible: Boolean,
     selectedIndex: Int,
@@ -110,9 +110,9 @@ fun CategoryTabRow(
 private fun CategoryTabRowPrev() {
     val categories = remember {
         listOf(
-            CategoryEntity(1, "默认"),
-            CategoryEntity(2, "轻小说"),
-            CategoryEntity(3, "收藏")
+            Category(1, "默认"),
+            Category(2, "轻小说"),
+            Category(3, "收藏")
         )
     }
 

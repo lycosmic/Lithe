@@ -34,9 +34,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
-import io.github.lycosmic.lithe.domain.model.Constants
-import io.github.lycosmic.lithe.domain.model.Constants.DOUBLE_CLICK_BACK_INTERVAL_MILLIS
-import io.github.lycosmic.lithe.domain.model.DisplayMode
 import io.github.lycosmic.lithe.presentation.library.components.BookItem
 import io.github.lycosmic.lithe.presentation.library.components.CategoryTabRow
 import io.github.lycosmic.lithe.presentation.library.components.EmptyLibraryState
@@ -46,8 +43,11 @@ import io.github.lycosmic.lithe.presentation.library.components.LibraryTopAppBar
 import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 import io.github.lycosmic.lithe.ui.components.MoveBookCategoryDialog
-import io.github.lycosmic.lithe.utils.ToastUtil
-import io.github.lycosmic.lithe.utils.toast
+import io.github.lycosmic.lithe.ui.theme.Dimens
+import io.github.lycosmic.lithe.util.ToastUtil
+import io.github.lycosmic.lithe.util.UiConfig
+import io.github.lycosmic.lithe.util.toast
+import io.github.lycosmic.model.DisplayMode
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,7 +73,7 @@ fun LibraryScreen(
     var isMoveBookCategoryDialogVisible by remember { mutableStateOf(false) }
 
     // 分类和书籍列表
-    val categoryWithBooksList by viewModel.categoryWithBooksList.collectAsStateWithLifecycle()
+    val categoryWithBookLists by viewModel.categoryWithBooksList.collectAsStateWithLifecycle()
 
     // 选中的书籍
     val selectedBooks by viewModel.selectedBooks.collectAsStateWithLifecycle()
@@ -127,12 +127,12 @@ fun LibraryScreen(
     var lastBackPressTime by remember { mutableLongStateOf(0L) }
 
     // 分页状态
-    val pagerState = rememberPagerState(pageCount = { categoryWithBooksList.size })
+    val pagerState = rememberPagerState(pageCount = { categoryWithBookLists.size })
 
     // 当前选中的标签名称
     val currentCategoryName by remember(pagerState.currentPage) {
         mutableStateOf(
-            categoryWithBooksList.getOrNull(pagerState.currentPage)?.category?.name ?: ""
+            categoryWithBookLists.getOrNull(pagerState.currentPage)?.category?.name ?: ""
         )
     }
 
@@ -153,7 +153,7 @@ fun LibraryScreen(
             isDoubleBackToExitEnabled -> {
                 // 处于双击返回键退出模式下
                 val currentTime = System.currentTimeMillis()
-                if (currentTime - lastBackPressTime < DOUBLE_CLICK_BACK_INTERVAL_MILLIS) {
+                if (currentTime - lastBackPressTime < UiConfig.DOUBLE_CLICK_BACK_INTERVAL) {
                     (context as? Activity)?.finish()
                 } else {
                     // 第一次按下
@@ -280,14 +280,14 @@ fun LibraryScreen(
                 )
 
                 AnimatedVisibility(
-                    visible = showCategoryTab && categoryWithBooksList.isNotEmpty()
+                    visible = showCategoryTab && categoryWithBookLists.isNotEmpty()
                 ) {
                     CategoryTabRow(
-                        categories = categoryWithBooksList.map {
+                        categories = categoryWithBookLists.map {
                             it.category
                         },
-                        bookCountsList = categoryWithBooksList.map { bookGroup ->
-                            bookGroup.bookEntities.size
+                        bookCountsList = categoryWithBookLists.map { bookGroup ->
+                            bookGroup.bookList.size
                         },
                         isBookCountVisible = isBookCountVisible,
                         selectedIndex = pagerState.currentPage,
@@ -306,7 +306,7 @@ fun LibraryScreen(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { pagerIndex ->
-            val books = categoryWithBooksList[pagerIndex].bookEntities
+            val books = categoryWithBookLists[pagerIndex].bookList
             if (books.isEmpty()) {
                 // 引导页
                 EmptyLibraryState(modifier = Modifier.padding(paddingValues = innerPadding)) {
@@ -323,7 +323,7 @@ fun LibraryScreen(
                         if (bookGridColumnCount > 0) {
                             bookGridColumnCount
                         } else {
-                            val calculated = (maxWidth / Constants.MIN_GRID_ITEM_WIDTH).toInt()
+                            val calculated = (maxWidth / Dimens.MinGridItemWidth).toInt()
                             maxOf(1, calculated)
                         }
                     }
@@ -417,7 +417,7 @@ fun LibraryScreen(
         if (isMoveBookCategoryDialogVisible) {
             MoveBookCategoryDialog(
                 selectedCategoryIds = listOf(),
-                categories = categoryWithBooksList.map {
+                categories = categoryWithBookLists.map {
                     it.category
                 }.filter {
                     it.id != CategoryEntity.DEFAULT_CATEGORY_ID

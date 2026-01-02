@@ -2,21 +2,21 @@ package io.github.lycosmic.lithe.data.parser.content.epub
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
+import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.github.lycosmic.lithe.data.parser.content.BookContentParser
-import io.github.lycosmic.lithe.domain.model.ReaderContent
-import io.github.lycosmic.lithe.extension.logD
-import io.github.lycosmic.lithe.extension.logE
-import io.github.lycosmic.lithe.extension.logI
-import io.github.lycosmic.lithe.extension.logV
-import io.github.lycosmic.lithe.utils.ZipUtils
-import io.github.lycosmic.lithe.utils.ZipUtils.extractCoverToCache
+import io.github.lycosmic.lithe.data.parser.content.ContentParserStrategy
+import io.github.lycosmic.lithe.log.logD
+import io.github.lycosmic.lithe.log.logE
+import io.github.lycosmic.lithe.log.logI
+import io.github.lycosmic.lithe.log.logV
+import io.github.lycosmic.lithe.util.ZipUtils
+import io.github.lycosmic.lithe.util.ZipUtils.extractCoverToCache
+import io.github.lycosmic.model.BookContentBlock
+import io.github.lycosmic.model.BookSpineItem
+import io.github.lycosmic.model.EpubSpineItem
+import io.github.lycosmic.model.StyleRange
+import io.github.lycosmic.model.StyleType
+import io.github.lycosmic.model.TxtSpineItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -31,35 +31,57 @@ import javax.inject.Singleton
 class EpubContentParser @Inject constructor(
     @param:ApplicationContext
     private val context: Context
-) : BookContentParser {
+) : ContentParserStrategy {
+    /**
+     * 使用 Jsoup 解析 Epub 书籍目录
+     * @param uri 书籍 URI
+     */
+    override suspend fun parseSpine(uri: String): List<BookSpineItem> {
+        return emptyList()
+    }
+
 
 
     /**
-     * 使用 Jsoup 解析书籍章节内容(HTML)
-     * @param chapterPathOrHref 章节ZIP路径，例如 OEBPS/Text/chap1.html
+     * 使用 Jsoup 解析书籍章节内容 (HTML)
+     * @param item 书籍章节
      */
-    override suspend fun parseChapterContent(
-        bookUri: Uri,
-        chapterPathOrHref: String
-    ): List<ReaderContent> = withContext(Dispatchers.IO) {
-        logI {
-            "Start parsing the chapters, chapter path is $chapterPathOrHref"
+    override suspend fun loadChapter(
+        uri: String,
+        item: BookSpineItem
+    ): List<BookContentBlock> = withContext(Dispatchers.IO) {
+
+        // 章节 ZIP 路径，例如 OEBPS/Text/chap1.html
+        val spineZipHref = when (item) {
+            is EpubSpineItem -> item.contentHref
+            is TxtSpineItem -> {
+                logE {
+                    "此处的书籍章节项为TXT格式，请使用TxtContentParser解析"
+                }
+                return@withContext emptyList()
+            }
         }
-        val readerContentList = mutableListOf<ReaderContent>()
+
+        logI {
+            "开始解析章节 $item"
+        }
+
+        val bookUri = uri.toUri()
+        val readerContentList = mutableListOf<BookContentBlock>()
 
         ZipUtils.findZipEntryAndAction(
             context,
             bookUri,
-            chapterPathOrHref
+            spineZipHref
         ) { inputStream ->
             // 使用 Jsoup 解析章节 HTML
-            val doc = Jsoup.parse(inputStream, Charsets.UTF_8.toString(), chapterPathOrHref)
+            val doc = Jsoup.parse(inputStream, Charsets.UTF_8.toString(), spineZipHref)
             val body = doc.body()
 
             // 递归遍历 HTML 节点
-            val readerContents = mutableListOf<ReaderContent>()
+            val readerContents = mutableListOf<BookContentBlock>()
             // 传入累加器
-            traverseHtmlElement(bookUri, body, readerContents, chapterPathOrHref)
+            traverseHtmlElement(bookUri, body, readerContents, spineZipHref)
             logD {
                 "The parsed reading content is $readerContents"
             }
@@ -81,7 +103,7 @@ class EpubContentParser @Inject constructor(
     private suspend fun traverseHtmlElement(
         bookUri: Uri,
         element: Element,
-        accumulator: MutableList<ReaderContent>,
+        accumulator: MutableList<BookContentBlock>,
         chapterRelativePath: String
     ): Unit = withContext(Dispatchers.Default) {
 
@@ -91,56 +113,41 @@ class EpubContentParser @Inject constructor(
                     // 纯文本节点
                     val text = node.text().trim()
                     if (text.isNotEmpty()) {
-                        logV {
-                            "Encountered a text node: $text"
-                        }
                         // 段落
-                        accumulator.add(ReaderContent.Paragraph(AnnotatedString(text)))
-                    } else {
-                        logV {
-                            "Encountered a blank text node"
-                        }
+                        accumulator.add(BookContentBlock.Paragraph(text, emptyList()))
                     }
                 }
 
                 is Comment -> {
                     // 忽略注释
-                    logV {
-                        "Encountered a comment node: $node"
-                    }
                 }
 
                 is Element -> {
                     when (node.tagName()) {
                         "h1", "h2", "h3", "h4", "h5", "h6" -> {
-                            logV {
-                                "Encountered a heading tag: ${node.tagName()}"
-                            }
 
                             val title = node.text().trim()
                             if (title.isNotEmpty()) {
                                 accumulator.add(
-                                    ReaderContent.Title(
+                                    BookContentBlock.Title(
                                         text = title,
                                         level = node.tagName().substring(1).toInt()
                                     )
                                 )
 
-                                accumulator.add(ReaderContent.Divider)
+                                accumulator.add(BookContentBlock.Divider)
                             } else {
                                 traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
                             }
                         }
 
                         "p" -> {
-                            logV {
-                                "Encountered a paragraph tag"
-                            }
-
                             // 解析段落
-                            val styledText = parseStyledText(node)
-                            if (styledText.text.trim().isNotEmpty()) {
-                                accumulator.add(ReaderContent.Paragraph(styledText))
+                            val paragraph = parseStyledText(node)
+                            if (paragraph.text.trim().isNotEmpty()) {
+                                accumulator.add(
+                                    paragraph
+                                )
                             } else {
                                 // 非文本节点
                                 traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
@@ -148,9 +155,6 @@ class EpubContentParser @Inject constructor(
                         }
 
                         "image" -> {
-                            logV {
-                                "Encountered an image tag"
-                            }
                             var src =
                                 node.attr("xlink:href")
                                     .trim()
@@ -182,17 +186,13 @@ class EpubContentParser @Inject constructor(
                             }
 
                             accumulator.add(
-                                ReaderContent.Image(
+                                BookContentBlock.Image(
                                     path = imagePath
                                 )
                             )
                         }
 
                         "img" -> {
-                            logV {
-                                "Encountered an img tag"
-                            }
-
                             var src =
                                 node.attr("src")
                                     .trim()
@@ -223,7 +223,7 @@ class EpubContentParser @Inject constructor(
                             }
 
                             accumulator.add(
-                                ReaderContent.Image(
+                                BookContentBlock.Image(
                                     path = imagePath
                                 )
                             )
@@ -231,21 +231,15 @@ class EpubContentParser @Inject constructor(
 
                         "figure", "div" -> {
                             // 遇到容器类标签, 继续递归
-                            logV {
-                                "Encountered a container tag: ${node.tagName()}"
-                            }
                             traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
                         }
 
                         "svg" -> {
-                            logV {
-                                "Encountered an svg tag"
-                            }
                             traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
                         }
 
                         else -> {
-                            logV {
+                            logD {
                                 "Encountered an unknown tag: ${node.tagName()}"
                             }
                             traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
@@ -259,39 +253,53 @@ class EpubContentParser @Inject constructor(
 
     /**
      * 解析带样式的文本 (Bold, Italic)
-     * 将 Jsoup Element 转为 Compose AnnotatedString
+     * 将 Jsoup Element 转为书籍段落 (data class)
      * @param element 元素节点
      */
-    private fun parseStyledText(element: Element): AnnotatedString {
-        return buildAnnotatedString {
-            // 递归遍历段落内部的子节点
-            fun appendNode(node: Node) {
-                if (node is TextNode) {
-                    append(node.text())
-                } else if (node is Element) {
-                    when (node.tagName()) {
-                        "b", "strong" -> {
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                node.childNodes().forEach { appendNode(it) }
-                            }
-                        }
+    private fun parseStyledText(element: Element): BookContentBlock.Paragraph {
+        val builder = StringBuilder()
+        val styles = mutableListOf<StyleRange>()
 
-                        "i", "em" -> {
-                            withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
-                                node.childNodes().forEach { appendNode(it) }
-                            }
-                        }
+        // 递归遍历段落内部的子节点
+        fun appendNode(node: Node, styleType: StyleType? = null) {
+            if (node is TextNode) {
+                val text = node.text()
+                if (text.isBlank()) {
+                    return
+                }
+                builder.append(text)
+                styleType?.let {
+                    styles.add(StyleRange(builder.length, text.length, styleType))
+                }
+            } else if (node is Element) {
+                when (node.tagName()) {
+                    // 粗体
+                    "b", "strong" -> {
+                        node.childNodes().forEach { appendNode(it, StyleType.BOLD) }
+                    }
 
-                        "br" -> append("\n")
-                        else -> {
-                            node.childNodes().forEach { appendNode(it) }
+                    // 斜体
+                    "i", "em" -> {
+                        node.childNodes().forEach { appendNode(it, StyleType.ITALIC) }
+
+                    }
+
+                    "br" -> builder.append("\n")
+                    else -> {
+                        node.childNodes().forEach {
+                            appendNode(it, null)
                         }
                     }
                 }
             }
-
-            element.childNodes().forEach { appendNode(it) }
         }
+
+        element.childNodes().forEach { appendNode(it, null) }
+
+        return BookContentBlock.Paragraph(
+            text = builder.toString(),
+            styles = styles
+        )
     }
 
 
@@ -310,11 +318,12 @@ class EpubContentParser @Inject constructor(
             val resolved = baseUri.resolve(relativeUrl)
 
             return resolved.path.removePrefix("/root/")
-        } catch (_: Exception) {
-            logE {
+        } catch (e: Exception) {
+            logE(e = e) {
                 "Failed to resolve the relative path: $relativeUrl from base file: $baseFile"
             }
             return relativeUrl // 失败降级
         }
     }
+
 }

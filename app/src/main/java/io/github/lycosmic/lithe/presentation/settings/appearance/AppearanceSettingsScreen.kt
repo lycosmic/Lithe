@@ -54,11 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.domain.model.AppThemeOption
-import io.github.lycosmic.lithe.domain.model.ColorPreset
-import io.github.lycosmic.lithe.domain.model.OptionItem
-import io.github.lycosmic.lithe.domain.model.ThemeMode
-import io.github.lycosmic.lithe.extension.logV
+import io.github.lycosmic.lithe.log.logV
 import io.github.lycosmic.lithe.presentation.settings.appearance.components.ColorPresetEditorCard
 import io.github.lycosmic.lithe.presentation.settings.appearance.components.ThemePreviewItem
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
@@ -67,6 +63,12 @@ import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGrou
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 import io.github.lycosmic.lithe.ui.components.StyledText
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
+import io.github.lycosmic.lithe.util.extensions.backgroundColor
+import io.github.lycosmic.lithe.util.extensions.textColor
+import io.github.lycosmic.model.AppThemeOption
+import io.github.lycosmic.model.ColorPreset
+import io.github.lycosmic.model.OptionItem
+import io.github.lycosmic.model.ThemeMode
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -307,19 +309,19 @@ fun AppearanceSettingsScreen(
                     onCreateNew = {
                         viewModel.onEvent(AppearanceSettingsEvent.OnAddColorPresetClick)
                     },
-                    onBgColorChange = { preset, newBgColor ->
+                    onBgColorChange = { preset, newBgColorArgb ->
                         viewModel.onEvent(
                             AppearanceSettingsEvent.OnColorPresetBgColorChange(
                                 preset,
-                                newBgColor
+                                newBgColorArgb
                             )
                         )
                     },
-                    onTextColorChange = { preset, newTextColor ->
+                    onTextColorChange = { preset, newTextColorArgb ->
                         viewModel.onEvent(
                             AppearanceSettingsEvent.OnColorPresetTextColorChange(
                                 preset,
-                                newTextColor
+                                newTextColorArgb
                             )
                         )
                     }

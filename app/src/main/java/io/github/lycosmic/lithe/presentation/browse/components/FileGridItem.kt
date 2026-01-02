@@ -28,8 +28,8 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.lycosmic.lithe.domain.model.FileItem
-import io.github.lycosmic.lithe.utils.FileUtils
+import io.github.lycosmic.lithe.util.FileUtils
+import io.github.lycosmic.model.FileItem
 
 
 /**

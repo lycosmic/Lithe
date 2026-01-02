@@ -2,8 +2,8 @@ package io.github.lycosmic.lithe.data.parser.content
 
 import io.github.lycosmic.lithe.data.parser.content.epub.EpubContentParser
 import io.github.lycosmic.lithe.data.parser.content.txt.TxtContentParser
-import io.github.lycosmic.lithe.domain.model.FileFormat
-import io.github.lycosmic.lithe.extension.logE
+import io.github.lycosmic.lithe.log.logE
+import io.github.lycosmic.model.FileFormat
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,11 +13,11 @@ class BookContentParserFactory @Inject constructor(
     private val txtContentParser: TxtContentParser
 ) {
 
-    fun getParser(fileFormat: String): BookContentParser? {
+    fun getParser(fileFormat: FileFormat): ContentParserStrategy? {
         return when (fileFormat) {
-            FileFormat.EPUB.value -> epubContentParser
-            FileFormat.TXT.value -> txtContentParser
-            FileFormat.PDF.value -> null
+            FileFormat.EPUB -> epubContentParser
+            FileFormat.TXT -> txtContentParser
+            FileFormat.PDF -> null
             else -> {
                 logE {
                     "不支持解析内容的文件格式: $fileFormat"

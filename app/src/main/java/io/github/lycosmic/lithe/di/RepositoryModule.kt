@@ -6,10 +6,12 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
 import io.github.lycosmic.lithe.data.repository.CategoryRepositoryImpl
+import io.github.lycosmic.lithe.data.repository.ChapterRepositoryImpl
 import io.github.lycosmic.lithe.data.repository.DirectoryRepositoryImpl
-import io.github.lycosmic.lithe.domain.repository.BookRepository
-import io.github.lycosmic.lithe.domain.repository.CategoryRepository
-import io.github.lycosmic.lithe.domain.repository.DirectoryRepository
+import io.github.lycosmic.repository.BookRepository
+import io.github.lycosmic.repository.CategoryRepository
+import io.github.lycosmic.repository.ChapterRepository
+import io.github.lycosmic.repository.DirectoryRepository
 import javax.inject.Singleton
 
 @Module
@@ -33,4 +35,10 @@ abstract class RepositoryModule {
     abstract fun bindDirectoryRepository(
         directoryRepositoryImpl: DirectoryRepositoryImpl
     ): DirectoryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindChapterRepository(
+        chapterRepositoryImpl: ChapterRepositoryImpl
+    ): ChapterRepository
 }

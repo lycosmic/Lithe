@@ -1,6 +1,6 @@
 package io.github.lycosmic.lithe.presentation.settings.library
 
-import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
+import io.github.lycosmic.model.Category
 
 sealed class LibrarySettingsEffect {
     /**
@@ -21,7 +21,7 @@ sealed class LibrarySettingsEffect {
     /**
      * 打开编辑分类名称对话框
      */
-    data class OpenEditCategoryDialog(val category: CategoryEntity) : LibrarySettingsEffect()
+    data class OpenEditCategoryDialog(val category: Category) : LibrarySettingsEffect()
 
     /**
      * 打开删除分类对话框

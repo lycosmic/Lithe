@@ -1,10 +1,10 @@
 package io.github.lycosmic.lithe.presentation.browse
 
-import io.github.lycosmic.lithe.domain.model.DisplayMode
-import io.github.lycosmic.lithe.domain.model.FileItem
-import io.github.lycosmic.lithe.domain.model.FilterOption
-import io.github.lycosmic.lithe.domain.model.SortType
-import io.github.lycosmic.lithe.presentation.browse.model.ParsedBook
+import io.github.lycosmic.model.DisplayMode
+import io.github.lycosmic.model.FileItem
+import io.github.lycosmic.model.FileSortType
+import io.github.lycosmic.model.FilterOption
+import io.github.lycosmic.model.ParsedBook
 
 sealed class BrowseEvent {
 
@@ -61,7 +61,8 @@ sealed class BrowseEvent {
     /**
      * 过滤器中的排序类型改变
      */
-    data class OnSortTypeChange(val sortType: SortType, val isAscending: Boolean) : BrowseEvent()
+    data class OnSortTypeChange(val sortType: FileSortType, val isAscending: Boolean) :
+        BrowseEvent()
 
     /**
      * 点击过滤器中的文件类型

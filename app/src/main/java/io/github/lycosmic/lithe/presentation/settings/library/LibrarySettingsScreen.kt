@@ -43,10 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
-import io.github.lycosmic.lithe.domain.model.BookTitlePosition
-import io.github.lycosmic.lithe.domain.model.DisplayMode
-import io.github.lycosmic.lithe.domain.model.OptionItem
 import io.github.lycosmic.lithe.presentation.settings.components.GridSizeSlider
 import io.github.lycosmic.lithe.presentation.settings.components.InfoTip
 import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
@@ -58,7 +54,12 @@ import io.github.lycosmic.lithe.presentation.settings.library.components.CreateC
 import io.github.lycosmic.lithe.presentation.settings.library.components.DeleteCategoryDialog
 import io.github.lycosmic.lithe.presentation.settings.library.components.UpdateCategoryDialog
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
-import io.github.lycosmic.lithe.utils.toast
+import io.github.lycosmic.lithe.util.extensions.labelResId
+import io.github.lycosmic.lithe.util.toast
+import io.github.lycosmic.model.BookTitlePosition
+import io.github.lycosmic.model.Category
+import io.github.lycosmic.model.DisplayMode
+import io.github.lycosmic.model.OptionItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,7 +99,7 @@ fun LibrarySettingsScreen(
     var createCategoryDialogVisible by remember { mutableStateOf(false) }
 
     // 编辑分类对话框可见性
-    var updateCategoryDialogVisible by remember { mutableStateOf<CategoryEntity?>(null) }
+    var updateCategoryDialogVisible by remember { mutableStateOf<Category?>(null) }
 
     // 删除分类对话框可见性
     var deleteCategoryDialogVisible by remember { mutableStateOf<Long?>(null) }
