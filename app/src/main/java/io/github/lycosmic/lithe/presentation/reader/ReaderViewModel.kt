@@ -3,12 +3,14 @@ package io.github.lycosmic.lithe.presentation.reader
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
+import io.github.lycosmic.lithe.log.logD
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logI
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderEffect
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderEvent
-import io.github.lycosmic.repository.BookContentParser
+import io.github.lycosmic.lithe.presentation.reader.mapper.ContentMapper
+import io.github.lycosmic.use_case.browse.GetBookUseCase
+import io.github.lycosmic.use_case.reader.GetChapterContentUseCase
 import io.github.lycosmic.use_case.reader.GetChapterListUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,9 +23,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
-    private val bookRepositoryImpl: BookRepositoryImpl,
-    private val bookContentParser: BookContentParser,
     private val getChapterListUseCase: GetChapterListUseCase,
+    private val getChapterContentUseCase: GetChapterContentUseCase,
+    private val getBookUseCase: GetBookUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ReaderUiState())
@@ -47,14 +49,12 @@ class ReaderViewModel @Inject constructor(
                 "开始加载书籍，书籍ID: $bookId"
             }
             try {
-                val book = bookRepositoryImpl.getBookById(bookId)
-                if (book == null) {
-                    logE {
-                        "书籍不存在，ID: $bookId"
+                val book = getBookUseCase(bookId).getOrElse {
+                    logE(e = it) {
+                        "加载书籍失败，ID: $bookId"
                     }
                     return@launch
                 }
-
                 _uiState.update {
                     it.copy(
                         book = book,
@@ -62,45 +62,51 @@ class ReaderViewModel @Inject constructor(
                 }
 
                 // 获取目录结构
-                val result = getChapterListUseCase(book)
-
-                result.fold(
-                    onSuccess = { chapters ->
-                        logI {
-                            "获取目录结构成功，目录结构: $chapters"
-                        }
-                        _uiState.update {
-                            it.copy(
-                                chapters = chapters,
-                            )
-                        }
-                    },
-                    onFailure = {
-                        logE(e = it) {
-                            "获取目录结构失败"
-                        }
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                            )
-                        }
+                val chapters = getChapterListUseCase(book).getOrElse { throwable ->
+                    logE(e = throwable) {
+                        "获取目录结构失败"
                     }
-                )
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                        )
+                    }
+                    return@launch
+                }
+
+                logD {
+                    "获取目录结构成功，目录结构: $chapters"
+                }
+                _uiState.update {
+                    it.copy(
+                        chapters = chapters,
+                    )
+                }
 
 
-//                // 获取解析器
-//                bookContentParser = bookContentParserFactory.getParser(book.format)
-//                val bookUri = book.fileUri.toUri()
-//
-//
-//                // 默认加载第一章
-//                val initialIndex = 0
-//
-//                logD {
-//                    "开始加载章节内容，章节名: ${spine[initialIndex].label}"
-//                }
-//                // 加载章节内容
-//                loadChapterContent(bookContentParser, bookUri, spine, initialIndex)
+                val contentBlockList = getChapterContentUseCase(
+                    book.fileUri,
+                    book.format,
+                    chapters[0] // TODO: 暂时默认加载第一章
+                ).getOrElse { throwable ->
+                    logE(e = throwable) {
+                        "获取章节内容失败"
+                    }
+                    return@launch
+                }
+
+                val readerContents = contentBlockList.map {
+                    ContentMapper.mapToUi(
+                        it
+                    )
+                }
+
+                _uiState.update {
+                    it.copy(
+                        currentContent = readerContents,
+                        isLoading = false,
+                    )
+                }
             } catch (e: Exception) {
                 logE(e = e) {
                     "书籍加载失败，ID: $bookId"

@@ -36,8 +36,13 @@ class BookRepositoryImpl @Inject constructor(
         return bookDao.getBookFlowById(id = bookId).map { it?.toDomain() }
     }
 
-    override suspend fun getBookById(bookId: Long): Book? {
-        return bookDao.getBookById(id = bookId)?.toDomain()
+    override suspend fun getBookById(bookId: Long): Result<Book> {
+        return runCatching {
+            val entity = bookDao.getBookById(id = bookId)
+                ?: throw Exception("找不到 ID 为 $bookId 的书籍")
+
+            entity.toDomain()
+        }
     }
 
     override suspend fun getBookByUniqueId(uniqueId: String): Book? {

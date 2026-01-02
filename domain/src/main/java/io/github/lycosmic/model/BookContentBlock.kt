@@ -40,7 +40,4 @@ enum class StyleType {
 
     // 斜体
     ITALIC,
-
-    // 引用
-    QUOTE
 }

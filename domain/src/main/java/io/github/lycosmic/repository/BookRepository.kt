@@ -29,7 +29,7 @@ interface BookRepository {
     /**
      * 根据ID获取书籍
      */
-    suspend fun getBookById(bookId: Long): Book?
+    suspend fun getBookById(bookId: Long): Result<Book>
 
     /**
      * 根据标识符获取书籍
