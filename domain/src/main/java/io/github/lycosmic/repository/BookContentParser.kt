@@ -1,21 +1,25 @@
 package io.github.lycosmic.repository
 
+import io.github.lycosmic.model.BookChapter
 import io.github.lycosmic.model.BookContentBlock
-import io.github.lycosmic.model.BookSpineItem
 import io.github.lycosmic.model.FileFormat
 
 interface BookContentParser {
     /**
      * 解析目录结构
      */
-    suspend fun parseSpine(uriString: String, format: FileFormat): Result<List<BookSpineItem>>
+    suspend fun parseChapter(
+        uriString: String,
+        bookId: Long,
+        format: FileFormat
+    ): Result<List<BookChapter>>
 
     /**
      * 加载具体章节的内容
      */
     suspend fun loadChapterContent(
-        bookUriString: String,
+        uriString: String,
         format: FileFormat,
-        spineItem: BookSpineItem,
+        chapter: BookChapter,
     ): Result<List<BookContentBlock>>
 }

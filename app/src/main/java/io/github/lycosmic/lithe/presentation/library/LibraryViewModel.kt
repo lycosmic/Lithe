@@ -3,7 +3,6 @@ package io.github.lycosmic.lithe.presentation.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
 import io.github.lycosmic.lithe.data.settings.SettingsManager
 import io.github.lycosmic.lithe.log.logE
@@ -25,6 +24,7 @@ import io.github.lycosmic.model.AppConstraints
 import io.github.lycosmic.model.Book
 import io.github.lycosmic.model.BookSortType
 import io.github.lycosmic.model.BookTitlePosition
+import io.github.lycosmic.model.Category
 import io.github.lycosmic.model.CategoryWithBookList
 import io.github.lycosmic.model.DisplayMode
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -53,7 +53,7 @@ class LibraryViewModel @Inject constructor(
     )
     val rawBooks = _rawBooks
 
-    // 书籍和分类关系查询结果
+    // 分类以及其书籍列表
     private val _categoryWithBooksList = bookRepositoryImpl.getCategoryWithBooksFlow()
 
     // 总书籍数
@@ -419,7 +419,7 @@ class LibraryViewModel @Inject constructor(
                         logW {
                             "未选择任何分类，将移至默认分类中"
                         }
-                        selectedIds.add(CategoryEntity.DEFAULT_CATEGORY_ID)
+                        selectedIds.add(Category.DEFAULT_CATEGORY_ID)
                     }
 
 

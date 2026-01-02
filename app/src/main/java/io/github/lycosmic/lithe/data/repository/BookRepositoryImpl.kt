@@ -24,7 +24,8 @@ class BookRepositoryImpl @Inject constructor(
     }
 
     override suspend fun importBook(book: Book): Long {
-        return bookDao.insertBook(bookEntity = book.toEntity())
+        val bookId = bookDao.insertBook(bookEntity = book.toEntity())
+        return bookId
     }
 
     override suspend fun deleteBook(bookId: Long) {
@@ -52,9 +53,11 @@ class BookRepositoryImpl @Inject constructor(
                         bookEntity.toDomain()
                     }
                 )
+
             }
         }
     }
+
     override suspend fun moveBooksToCategories(bookIds: List<Long>, categoryIds: List<Long>) {
         bookIds.forEach {
             bookDao.moveBookToCategories(bookId = it, categoryIds = categoryIds)

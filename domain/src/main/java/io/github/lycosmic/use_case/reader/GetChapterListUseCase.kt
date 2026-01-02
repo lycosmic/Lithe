@@ -1,7 +1,7 @@
 package io.github.lycosmic.use_case.reader
 
 import io.github.lycosmic.model.Book
-import io.github.lycosmic.model.BookSpineItem
+import io.github.lycosmic.model.BookChapter
 import io.github.lycosmic.repository.BookContentParser
 import io.github.lycosmic.repository.ChapterRepository
 import javax.inject.Inject
@@ -13,8 +13,7 @@ class GetChapterListUseCase @Inject constructor(
     private val chapterRepository: ChapterRepository,
     private val bookContentParser: BookContentParser
 ) {
-
-    suspend operator fun invoke(book: Book): Result<List<BookSpineItem>> {
+    suspend operator fun invoke(book: Book): Result<List<BookChapter>> {
         return try {
             // 先查数据库缓存
             val cachedChapters = chapterRepository.getChaptersByBookId(book.id)
@@ -24,12 +23,12 @@ class GetChapterListUseCase @Inject constructor(
             }
 
             // 解析
-            val parsedChapters = bookContentParser.parseSpine(book.fileUri, book.format)
+            val parsedChapters = bookContentParser.parseChapter(book.fileUri, book.id, book.format)
             parsedChapters.onSuccess { list ->
                 chapterRepository.saveChapters(book.id, list)
                 Result.success(list)
             }.onFailure { throwable ->
-                Result.failure<List<BookSpineItem>>(throwable)
+                Result.failure<List<BookChapter>>(throwable)
             }
         } catch (e: Exception) {
             Result.failure(e)

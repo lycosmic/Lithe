@@ -41,4 +41,8 @@ class CategoryRepositoryImpl @Inject constructor(
     override suspend fun getCategoryById(categoryId: Long): Category? {
         return categoryDao.getCategoryById(categoryId)?.toDomain()
     }
+
+    override suspend fun ensureDefaultCategoryExists() {
+        categoryDao.ensureDefaultCategory()
+    }
 }

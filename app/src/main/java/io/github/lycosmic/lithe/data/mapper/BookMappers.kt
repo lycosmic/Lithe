@@ -14,9 +14,6 @@ fun BookEntity.toDomain(categories: List<CategoryEntity> = emptyList()): Book {
         title = title,
         author = author.split(","),
         description = description,
-        language = language,
-        publisher = publisher,
-        subjects = subjects ?: emptyList(),
         fileSize = fileSize,
         fileUri = fileUri,
         format = FileFormat.fromValue(format),
@@ -36,9 +33,6 @@ fun Book.toEntity(): BookEntity {
         title = title,
         author = author.joinToString(","),
         description = description,
-        language = language,
-        publisher = publisher,
-        subjects = subjects,
         fileSize = fileSize,
         fileUri = fileUri,
         format = format.value,
@@ -46,7 +40,10 @@ fun Book.toEntity(): BookEntity {
         lastReadPosition = lastReadPosition,
         progress = progress,
         lastReadTime = lastReadTime,
-        importTime = importTime
+        importTime = importTime,
+        language = null,
+        publisher = null,
+        subjects = emptyList()
     )
 }
 

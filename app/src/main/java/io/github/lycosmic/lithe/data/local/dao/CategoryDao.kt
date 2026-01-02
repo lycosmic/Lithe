@@ -4,8 +4,10 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
+import io.github.lycosmic.model.Category
 import kotlinx.coroutines.flow.Flow
 
 
@@ -26,7 +28,7 @@ interface CategoryDao {
     /**
      * 获取所有分类，不包括默认分类 (返回 Flow)
      */
-    @Query("SELECT * FROM categories WHERE id != ${CategoryEntity.DEFAULT_CATEGORY_ID} ORDER BY createdAt DESC")
+    @Query("SELECT * FROM categories WHERE id != ${Category.DEFAULT_CATEGORY_ID} ORDER BY createdAt DESC")
     fun getAllCategoriesExcludeDefault(): Flow<List<CategoryEntity>>
 
     /**
@@ -59,4 +61,20 @@ interface CategoryDao {
     @Query("SELECT * FROM categories WHERE id = :id")
     suspend fun getCategoryById(id: Long): CategoryEntity?
 
+    /**
+     * 确保默认分类存在
+     */
+    @Transaction
+    suspend fun ensureDefaultCategory() {
+        val defaultCategory = getCategoryById(Category.DEFAULT_CATEGORY_ID)
+        if (defaultCategory == null) {
+            // 插入默认分类
+            val category = CategoryEntity(
+                id = Category.DEFAULT_CATEGORY_ID,
+                name = "",
+                createdAt = System.currentTimeMillis()
+            )
+            insertCategory(category)
+        }
+    }
 }

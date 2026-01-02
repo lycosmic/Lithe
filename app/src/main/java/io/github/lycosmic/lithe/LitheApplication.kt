@@ -4,18 +4,30 @@ import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 import io.github.lycosmic.lithe.log.logI
 import io.github.lycosmic.lithe.util.ToastUtil
+import io.github.lycosmic.repository.CategoryRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltAndroidApp
 class LitheApplication : Application() {
+
+    @Inject
+    lateinit var categoryRepository: CategoryRepository
+
     override fun onCreate() {
         super.onCreate()
-        initLogger()
-        initToast()
         logI {
             "Application 初始化成功"
         }
+        initLogger()
+        initToast()
+
+        initDefaultCategory()
     }
+
 
     private fun initLogger() {
         if (BuildConfig.DEBUG) {
@@ -30,6 +42,19 @@ class LitheApplication : Application() {
 
     private fun initToast() {
         ToastUtil.init(this@LitheApplication)
+    }
+
+    /**
+     * 初始化默认分类
+     */
+    private fun initDefaultCategory() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                categoryRepository.ensureDefaultCategoryExists()
+            } catch (e: Exception) {
+                logI { "初始化默认分类失败: ${e.message}" }
+            }
+        }
     }
 
     companion object {

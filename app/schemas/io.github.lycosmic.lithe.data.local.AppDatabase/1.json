@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "526c03984f7710e999c73e50a2082ab4",
+    "identityHash": "b0da72a1e516a1c73fa3be12d734488e",
     "entities": [
       {
         "tableName": "books",
@@ -206,7 +206,7 @@
       },
       {
         "tableName": "chapters",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`book_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `index` INTEGER NOT NULL, `title` TEXT NOT NULL, `start_offset` INTEGER NOT NULL, `end_offset` INTEGER NOT NULL, `href` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`book_id` INTEGER NOT NULL, `index` INTEGER NOT NULL, `title` TEXT NOT NULL, `start_offset` INTEGER, `end_offset` INTEGER, `href` TEXT, `type` INTEGER NOT NULL, PRIMARY KEY(`book_id`, `index`))",
         "fields": [
           {
             "fieldPath": "bookId",
@@ -229,25 +229,30 @@
           {
             "fieldPath": "startOffset",
             "columnName": "start_offset",
-            "affinity": "INTEGER",
-            "notNull": true
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "endOffset",
             "columnName": "end_offset",
-            "affinity": "INTEGER",
-            "notNull": true
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "href",
             "columnName": "href",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
-            "book_id"
+            "book_id",
+            "index"
           ]
         }
       },
@@ -337,7 +342,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '526c03984f7710e999c73e50a2082ab4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b0da72a1e516a1c73fa3be12d734488e')"
     ]
   }
 }

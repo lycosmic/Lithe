@@ -1,6 +1,7 @@
 package io.github.lycosmic.use_case.browse
 
 import io.github.lycosmic.model.Book
+import io.github.lycosmic.model.Category
 import io.github.lycosmic.model.ParsedBook
 import io.github.lycosmic.repository.BookRepository
 import io.github.lycosmic.util.DomainLogger
@@ -42,9 +43,6 @@ class ImportBookUseCase @Inject constructor(
                         title = metadata.title ?: "Unknown Title",
                         author = metadata.authors ?: emptyList(),
                         description = metadata.description,
-                        language = metadata.language,
-                        publisher = metadata.publisher,
-                        subjects = metadata.subjects ?: emptyList(),
                         fileSize = bookFile.size,
                         fileUri = bookFile.uriString,
                         format = bookFile.format,
@@ -54,8 +52,12 @@ class ImportBookUseCase @Inject constructor(
                         lastReadTime = null,
                         importTime = System.currentTimeMillis()
                     )
-                    bookRepository.importBook(book)
+                    val bookId = bookRepository.importBook(book)
                     // 添加到默认分类中
+                    bookRepository.moveBooksToCategories(
+                        listOf(bookId),
+                        listOf(Category.DEFAULT_CATEGORY_ID)
+                    )
                     successCount++
                 }
             } catch (e: Exception) {

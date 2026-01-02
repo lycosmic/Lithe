@@ -33,4 +33,9 @@ interface CategoryRepository {
      * 根据 ID 获取分类
      */
     suspend fun getCategoryById(categoryId: Long): Category?
+
+    /**
+     * 确保默认分类存在
+     */
+    suspend fun ensureDefaultCategoryExists()
 }

@@ -11,9 +11,9 @@ import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logV
 import io.github.lycosmic.lithe.log.logW
 import io.github.lycosmic.lithe.util.ZipUtils
+import io.github.lycosmic.model.BookChapter
 import io.github.lycosmic.model.BookMetadata
-import io.github.lycosmic.model.BookSpineItem
-import io.github.lycosmic.model.EpubSpineItem
+import io.github.lycosmic.model.EpubChapter
 import io.github.lycosmic.model.ManifestItem
 import io.github.lycosmic.model.OpfParseResult
 import io.github.lycosmic.model.OpfParseResult.Companion.COVER
@@ -94,7 +94,7 @@ class EpubMetadataParser @Inject constructor(
         }
 
         // 根据 OPF 解析结果, 获取目录顺序
-        val spineItems = mutableListOf<BookSpineItem>()
+        val spineItems = mutableListOf<BookChapter>()
         val manifest = parseResult?.manifest
         val spine = parseResult?.spine
         if (manifest != null && spine != null) {
@@ -123,11 +123,11 @@ class EpubMetadataParser @Inject constructor(
                 val title = map[chapterRelativePath] ?: "Unknown Title"
                 val id = spine[index]
                 spineItems.add(
-                    EpubSpineItem(
-                        id = id,
-                        order = index,
-                        contentHref = chapterRelativePath,
-                        label = title
+                    EpubChapter(
+                        bookId = 1000, // TODO: 获取书籍ID
+                        index = index,
+                        title = title,
+                        href = chapterRelativePath
                     )
                 )
             }

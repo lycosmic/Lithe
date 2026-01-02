@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.local.entity.CategoryEntity
 import io.github.lycosmic.lithe.presentation.library.components.BookItem
 import io.github.lycosmic.lithe.presentation.library.components.CategoryTabRow
 import io.github.lycosmic.lithe.presentation.library.components.EmptyLibraryState
@@ -47,6 +46,7 @@ import io.github.lycosmic.lithe.ui.theme.Dimens
 import io.github.lycosmic.lithe.util.ToastUtil
 import io.github.lycosmic.lithe.util.UiConfig
 import io.github.lycosmic.lithe.util.toast
+import io.github.lycosmic.model.Category
 import io.github.lycosmic.model.DisplayMode
 import kotlinx.coroutines.launch
 
@@ -420,7 +420,7 @@ fun LibraryScreen(
                 categories = categoryWithBookLists.map {
                     it.category
                 }.filter {
-                    it.id != CategoryEntity.DEFAULT_CATEGORY_ID
+                    it.id != Category.DEFAULT_CATEGORY_ID
                 },
                 onDismissRequest = {
                     viewModel.onEvent(LibraryEvent.OnMoveCategoryDialogDismissed)

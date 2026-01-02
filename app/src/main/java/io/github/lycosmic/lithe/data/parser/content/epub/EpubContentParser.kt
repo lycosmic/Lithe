@@ -11,12 +11,12 @@ import io.github.lycosmic.lithe.log.logI
 import io.github.lycosmic.lithe.log.logV
 import io.github.lycosmic.lithe.util.ZipUtils
 import io.github.lycosmic.lithe.util.ZipUtils.extractCoverToCache
+import io.github.lycosmic.model.BookChapter
 import io.github.lycosmic.model.BookContentBlock
-import io.github.lycosmic.model.BookSpineItem
-import io.github.lycosmic.model.EpubSpineItem
+import io.github.lycosmic.model.EpubChapter
 import io.github.lycosmic.model.StyleRange
 import io.github.lycosmic.model.StyleType
-import io.github.lycosmic.model.TxtSpineItem
+import io.github.lycosmic.model.TxtChapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -34,9 +34,9 @@ class EpubContentParser @Inject constructor(
 ) : ContentParserStrategy {
     /**
      * 使用 Jsoup 解析 Epub 书籍目录
-     * @param uri 书籍 URI
+     * @param uriString 书籍 URI
      */
-    override suspend fun parseSpine(uri: String): List<BookSpineItem> {
+    override suspend fun parseChapter(bookId: Long, uriString: String): List<BookChapter> {
         return emptyList()
     }
 
@@ -47,26 +47,23 @@ class EpubContentParser @Inject constructor(
      * @param item 书籍章节
      */
     override suspend fun loadChapter(
-        uri: String,
-        item: BookSpineItem
+        uriString: String,
+        chapter: BookChapter
     ): List<BookContentBlock> = withContext(Dispatchers.IO) {
 
         // 章节 ZIP 路径，例如 OEBPS/Text/chap1.html
-        val spineZipHref = when (item) {
-            is EpubSpineItem -> item.contentHref
-            is TxtSpineItem -> {
+        val spineZipHref = when (chapter) {
+            is EpubChapter -> chapter.href
+            is TxtChapter -> {
                 logE {
-                    "此处的书籍章节项为TXT格式，请使用TxtContentParser解析"
+                    ""
                 }
                 return@withContext emptyList()
             }
         }
 
-        logI {
-            "开始解析章节 $item"
-        }
 
-        val bookUri = uri.toUri()
+        val bookUri = uriString.toUri()
         val readerContentList = mutableListOf<BookContentBlock>()
 
         ZipUtils.findZipEntryAndAction(

@@ -4,13 +4,13 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import io.github.lycosmic.lithe.data.local.converter.BookTypeConverters
+import io.github.lycosmic.lithe.data.local.coverter.Converters
 import kotlinx.serialization.Serializable
 
 @Entity(
     tableName = BookEntity.TABLE_NAME,
 )
-@TypeConverters(BookTypeConverters::class)
+@TypeConverters(Converters::class)
 @Serializable
 data class BookEntity(
     @PrimaryKey(autoGenerate = true)

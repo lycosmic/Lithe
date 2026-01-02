@@ -21,8 +21,5 @@ data class CategoryEntity(
 
         // 列名
         const val COL_ID = "id"
-
-        // 默认分类 ID
-        const val DEFAULT_CATEGORY_ID = 0L
     }
 }
