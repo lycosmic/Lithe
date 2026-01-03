@@ -28,12 +28,13 @@ object FormatUtils {
      * 格式化文件大小
      */
     fun formatFileSize(size: Long, format: String = DEFAULT_FORMAT): String {
-        if (size <= 0) {
-            throw IllegalArgumentException("文件大小不能小于等于0")
+        if (size < 0) {
+            throw IllegalArgumentException("文件大小不能小于0")
         }
 
         // 获取文件大小单位
-        val digitGroups = (log10(size.toDouble()) / log10(1024.0)).toInt()
+        val digitGroups =
+            (log10(size.toDouble()) / log10(1024.0)).toInt().coerceIn(0, units.size - 1)
         val unit = units[digitGroups]
 
         return String.format(
