@@ -19,8 +19,11 @@ class BookContentParserImpl @Inject constructor(
             ?: return Result.failure(Exception("不支持解析章节的文件格式：$format"))
 
         return try {
-            val spineItems = parser.parseChapter(bookId, uriString)
-            return Result.success(spineItems)
+            val chapters = parser.parseChapter(bookId, uriString)
+            if (chapters.isEmpty()) {
+                return Result.failure(Exception("解析章节失败，未找到任何章节"))
+            }
+            return Result.success(chapters)
         } catch (e: Exception) {
             Result.failure(e)
         }
