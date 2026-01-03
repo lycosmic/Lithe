@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.presentation.library
+package io.github.lycosmic.lithe.presentation.library.model
 
 import io.github.lycosmic.domain.model.BookSortType
 

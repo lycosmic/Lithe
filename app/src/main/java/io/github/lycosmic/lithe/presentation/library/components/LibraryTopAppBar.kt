@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.presentation.library.LibraryTopBarState
+import io.github.lycosmic.lithe.presentation.library.model.LibraryTopBarState
 
 
 @Composable

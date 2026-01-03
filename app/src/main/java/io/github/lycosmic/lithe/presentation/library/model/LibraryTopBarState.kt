@@ -1,5 +1,4 @@
-package io.github.lycosmic.lithe.presentation.library
-
+package io.github.lycosmic.lithe.presentation.library.model
 
 /**
  * 书库顶部栏的状态
