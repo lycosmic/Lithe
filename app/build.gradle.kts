@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.documentfile)
     implementation(project(":domain"))
+    implementation(project(":data"))
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
