@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,7 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.domain.model.Category
 import io.github.lycosmic.domain.model.DisplayMode
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.presentation.library.components.BookItem
+import io.github.lycosmic.lithe.presentation.library.components.BookGridItem
 import io.github.lycosmic.lithe.presentation.library.components.CategoryTabRow
 import io.github.lycosmic.lithe.presentation.library.components.EmptyLibraryState
 import io.github.lycosmic.lithe.presentation.library.components.LibraryDeleteBookDialog
@@ -316,7 +317,12 @@ fun LibraryScreen(
                 BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues = innerPadding)
+                        .padding(
+                            paddingValues = PaddingValues(
+                                top = innerPadding.calculateTopPadding() + 8.dp,
+                                bottom = innerPadding.calculateBottomPadding()
+                            )
+                        )
                 ) {
                     // 实际列数
                     val actualColumns = remember(maxWidth, bookGridColumnCount) {
@@ -355,7 +361,7 @@ fun LibraryScreen(
                                     ) {
                                         for (book in rowBooks) {
                                             Box(modifier = Modifier.weight(1f)) {
-                                                BookItem(
+                                                BookGridItem(
                                                     title = book.title,
                                                     coverPath = book.coverPath,
                                                     readProgress = book.progress,

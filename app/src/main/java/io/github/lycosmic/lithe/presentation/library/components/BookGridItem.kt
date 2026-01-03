@@ -32,7 +32,7 @@ import io.github.lycosmic.lithe.ui.theme.LitheTheme
 
 
 @Composable
-fun BookItem(
+fun BookGridItem(
     title: String,
     modifier: Modifier = Modifier,
     coverPath: String? = null,
@@ -158,9 +158,9 @@ fun BookItem(
 
 @Preview(showBackground = true)
 @Composable
-private fun BookItemPreview() {
+private fun BookGridItemPreview() {
     LitheTheme {
-        BookItem(
+        BookGridItem(
             title = "《三体》",
             coverPath = null,
             readProgress = 0.5f,
