@@ -60,12 +60,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.lycosmic.data.util.FormatUtils
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.detail.components.DeleteBookDialog
 import io.github.lycosmic.lithe.presentation.detail.components.FileInfoBottomSheet
 import io.github.lycosmic.lithe.ui.components.AsyncCoverImage
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
+import io.github.lycosmic.lithe.util.FormatUtils
 import io.github.lycosmic.lithe.util.ToastUtil
 import my.nanihadesuka.compose.InternalLazyColumnScrollbar
 import my.nanihadesuka.compose.ScrollbarSelectionMode

@@ -37,6 +37,7 @@ import io.github.lycosmic.domain.model.Category
 import io.github.lycosmic.domain.model.DisplayMode
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.library.components.BookGridItem
+import io.github.lycosmic.lithe.presentation.library.components.BookListItem
 import io.github.lycosmic.lithe.presentation.library.components.CategoryTabRow
 import io.github.lycosmic.lithe.presentation.library.components.EmptyLibraryState
 import io.github.lycosmic.lithe.presentation.library.components.LibraryDeleteBookDialog
@@ -338,7 +339,22 @@ fun LibraryScreen(
                         when (bookDisplayMode) {
                             DisplayMode.List -> {
                                 items(items = books, key = { it.id }) {
-
+                                    BookListItem(
+                                        book = it,
+                                        isSelected = selectedBooks.contains(it.id),
+                                        onBookClick = {
+                                            viewModel.onEvent(LibraryEvent.OnBookClicked(it.id))
+                                        },
+                                        onBookLongClick = {
+                                            viewModel.onEvent(LibraryEvent.OnBookLongClicked(it.id))
+                                        },
+                                        onReadButtonClick = {
+                                            viewModel.onEvent(LibraryEvent.OnReadButtonClicked(it.id))
+                                        },
+                                        showProgress = showReadProgress,
+                                        showReadButton = showReadButton,
+                                        modifier = Modifier.padding(horizontal = 8.dp)
+                                    )
                                 }
                             }
 

@@ -1,5 +1,7 @@
-package io.github.lycosmic.data.util
+package io.github.lycosmic.lithe.util
 
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -44,5 +46,25 @@ object FormatUtils {
             unit
         )
     }
-}
 
+    /**
+     * 格式化进度
+     * @param progress 进度 0-1
+     * @param digits 小数位数
+     * @return 进度字符串，例如 "42.9%"、"0%"
+     */
+    fun formatProgress(progress: Float, digits: Int = 1): String {
+        // 处理边界
+        val safeProgress = progress.coerceIn(0f, 1f)
+
+        // 转为 BigDecimal
+        val value = BigDecimal(safeProgress.toString()) // 转String避免精度丢失
+            .movePointRight(2)
+
+        // 设置精度和四舍五入
+        val roundedValue = value.setScale(digits, RoundingMode.HALF_UP)
+        val text = roundedValue.toPlainString() // 防止科学计数法
+
+        return "$text%"
+    }
+}
