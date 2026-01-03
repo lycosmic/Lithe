@@ -1,7 +1,7 @@
 package io.github.lycosmic.lithe.util.extensions
 
+import io.github.lycosmic.domain.model.DisplayMode
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.model.DisplayMode
 
 /**
  * 显示模式对应的标签资源 ID

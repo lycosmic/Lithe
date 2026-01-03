@@ -32,7 +32,7 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.data.util.FormatUtils
-import io.github.lycosmic.model.FileItem
+import io.github.lycosmic.domain.model.FileItem
 
 // --- 文件行 ---
 @Composable

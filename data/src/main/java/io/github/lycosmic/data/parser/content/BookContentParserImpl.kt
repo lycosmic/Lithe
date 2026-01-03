@@ -1,9 +1,9 @@
 package io.github.lycosmic.data.parser.content
 
-import io.github.lycosmic.model.BookChapter
-import io.github.lycosmic.model.BookContentBlock
-import io.github.lycosmic.model.FileFormat
-import io.github.lycosmic.repository.BookContentParser
+import io.github.lycosmic.domain.model.BookChapter
+import io.github.lycosmic.domain.model.BookContentBlock
+import io.github.lycosmic.domain.model.FileFormat
+import io.github.lycosmic.domain.repository.BookContentParser
 import javax.inject.Inject
 
 class BookContentParserImpl @Inject constructor(

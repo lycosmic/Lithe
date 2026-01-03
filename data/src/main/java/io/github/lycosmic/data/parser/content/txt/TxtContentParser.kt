@@ -8,10 +8,10 @@ import io.github.lycosmic.data.parser.content.ContentParserStrategy
 import io.github.lycosmic.data.util.CharsetHelper
 import io.github.lycosmic.data.util.CountingInputStream
 import io.github.lycosmic.data.util.getFileSize
-import io.github.lycosmic.model.BookChapter
-import io.github.lycosmic.model.BookContentBlock
-import io.github.lycosmic.model.TxtChapter
-import io.github.lycosmic.util.DomainLogger
+import io.github.lycosmic.domain.model.BookChapter
+import io.github.lycosmic.domain.model.BookContentBlock
+import io.github.lycosmic.domain.model.TxtChapter
+import io.github.lycosmic.domain.util.DomainLogger
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.InputStreamReader

@@ -3,9 +3,9 @@ package io.github.lycosmic.data.repository
 import io.github.lycosmic.data.local.dao.BookDao
 import io.github.lycosmic.data.mapper.toDomain
 import io.github.lycosmic.data.mapper.toEntity
-import io.github.lycosmic.model.Book
-import io.github.lycosmic.model.CategoryWithBookList
-import io.github.lycosmic.repository.BookRepository
+import io.github.lycosmic.domain.model.Book
+import io.github.lycosmic.domain.model.CategoryWithBookList
+import io.github.lycosmic.domain.repository.BookRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

@@ -1,8 +1,8 @@
 package io.github.lycosmic.lithe.util.extensions
 
+import io.github.lycosmic.domain.model.BookSortType
+import io.github.lycosmic.domain.model.FileSortType
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.model.BookSortType
-import io.github.lycosmic.model.FileSortType
 
 
 /**

@@ -7,7 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import io.github.lycosmic.data.local.entity.CategoryEntity
-import io.github.lycosmic.model.Category
+import io.github.lycosmic.domain.model.Category
 import kotlinx.coroutines.flow.Flow
 
 

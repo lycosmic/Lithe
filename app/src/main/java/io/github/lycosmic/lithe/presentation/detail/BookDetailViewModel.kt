@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.data.util.parsePathInfo
+import io.github.lycosmic.domain.model.Book
+import io.github.lycosmic.domain.repository.BookRepository
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.util.AppConstants
-import io.github.lycosmic.model.Book
-import io.github.lycosmic.repository.BookRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed

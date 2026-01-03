@@ -5,11 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.data.settings.SettingsManager
+import io.github.lycosmic.domain.model.Directory
+import io.github.lycosmic.domain.model.DisplayMode
+import io.github.lycosmic.domain.repository.DirectoryRepository
 import io.github.lycosmic.lithe.log.logV
 import io.github.lycosmic.lithe.util.AppConstants
-import io.github.lycosmic.model.Directory
-import io.github.lycosmic.model.DisplayMode
-import io.github.lycosmic.repository.DirectoryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted

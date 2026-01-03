@@ -1,7 +1,7 @@
 package io.github.lycosmic.data.parser.content
 
-import io.github.lycosmic.model.BookChapter
-import io.github.lycosmic.model.BookContentBlock
+import io.github.lycosmic.domain.model.BookChapter
+import io.github.lycosmic.domain.model.BookContentBlock
 
 /**
  * 内容解析策略接口

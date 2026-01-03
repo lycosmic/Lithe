@@ -1,8 +1,8 @@
 package io.github.lycosmic.lithe.presentation.reader
 
+import io.github.lycosmic.domain.model.Book
+import io.github.lycosmic.domain.model.BookChapter
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderContent
-import io.github.lycosmic.model.Book
-import io.github.lycosmic.model.BookChapter
 
 data class ReaderUiState(
     val isLoading: Boolean = true,

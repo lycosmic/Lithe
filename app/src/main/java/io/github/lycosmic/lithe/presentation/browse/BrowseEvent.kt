@@ -1,10 +1,10 @@
 package io.github.lycosmic.lithe.presentation.browse
 
-import io.github.lycosmic.model.DisplayMode
-import io.github.lycosmic.model.FileItem
-import io.github.lycosmic.model.FileSortType
-import io.github.lycosmic.model.FilterOption
-import io.github.lycosmic.model.ParsedBook
+import io.github.lycosmic.domain.model.DisplayMode
+import io.github.lycosmic.domain.model.FileItem
+import io.github.lycosmic.domain.model.FileSortType
+import io.github.lycosmic.domain.model.FilterOption
+import io.github.lycosmic.domain.model.ParsedBook
 
 sealed class BrowseEvent {
 

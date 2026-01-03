@@ -8,7 +8,7 @@ import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.lycosmic.data.parser.metadata.MetadataParserStrategy
 import io.github.lycosmic.data.util.getFileName
-import io.github.lycosmic.model.BookMetadata
+import io.github.lycosmic.domain.model.BookMetadata
 import java.util.regex.Pattern
 import javax.inject.Inject
 import javax.inject.Singleton

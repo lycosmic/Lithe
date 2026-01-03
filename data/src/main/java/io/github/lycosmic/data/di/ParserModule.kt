@@ -6,8 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.lycosmic.data.parser.content.BookContentParserImpl
 import io.github.lycosmic.data.parser.metadata.BookMetadataParserImpl
-import io.github.lycosmic.repository.BookContentParser
-import io.github.lycosmic.repository.BookMetadataParser
+import io.github.lycosmic.domain.repository.BookContentParser
+import io.github.lycosmic.domain.repository.BookMetadataParser
 import jakarta.inject.Singleton
 
 @Module

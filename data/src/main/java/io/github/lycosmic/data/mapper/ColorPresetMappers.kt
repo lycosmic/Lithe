@@ -1,7 +1,7 @@
 package io.github.lycosmic.data.mapper
 
 import io.github.lycosmic.data.local.entity.ColorPresetEntity
-import io.github.lycosmic.model.ColorPreset
+import io.github.lycosmic.domain.model.ColorPreset
 
 /**
  * 将 Domain 对象转换为数据库实体

@@ -44,17 +44,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.github.lycosmic.domain.model.DisplayMode
+import io.github.lycosmic.domain.model.FileSortType
+import io.github.lycosmic.domain.model.FilterOption
+import io.github.lycosmic.domain.model.OptionItem
+import io.github.lycosmic.domain.model.TabType
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.settings.components.GridSizeSlider
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 import io.github.lycosmic.lithe.util.extensions.labelResId
 import io.github.lycosmic.lithe.util.extensions.titleResId
-import io.github.lycosmic.model.DisplayMode
-import io.github.lycosmic.model.FileSortType
-import io.github.lycosmic.model.FilterOption
-import io.github.lycosmic.model.OptionItem
-import io.github.lycosmic.model.TabType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

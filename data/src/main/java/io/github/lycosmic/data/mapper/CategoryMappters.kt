@@ -1,7 +1,7 @@
 package io.github.lycosmic.data.mapper
 
 import io.github.lycosmic.data.local.entity.CategoryEntity
-import io.github.lycosmic.model.Category
+import io.github.lycosmic.domain.model.Category
 
 
 fun CategoryEntity.toDomain(): Category {

@@ -1,8 +1,8 @@
 package io.github.lycosmic.data.parser.metadata
 
-import io.github.lycosmic.model.BookMetadata
-import io.github.lycosmic.model.FileFormat
-import io.github.lycosmic.repository.BookMetadataParser
+import io.github.lycosmic.domain.model.BookMetadata
+import io.github.lycosmic.domain.model.FileFormat
+import io.github.lycosmic.domain.repository.BookMetadataParser
 import javax.inject.Inject
 
 class BookMetadataParserImpl @Inject constructor(

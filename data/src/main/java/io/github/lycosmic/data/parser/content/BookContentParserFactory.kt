@@ -2,8 +2,8 @@ package io.github.lycosmic.data.parser.content
 
 import io.github.lycosmic.data.parser.content.epub.EpubContentParser
 import io.github.lycosmic.data.parser.content.txt.TxtContentParser
-import io.github.lycosmic.model.FileFormat
-import io.github.lycosmic.util.DomainLogger
+import io.github.lycosmic.domain.model.FileFormat
+import io.github.lycosmic.domain.util.DomainLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 

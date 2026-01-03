@@ -28,9 +28,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import io.github.lycosmic.domain.model.Category
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
-import io.github.lycosmic.model.Category
 
 
 /**

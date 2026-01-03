@@ -1,7 +1,7 @@
 package io.github.lycosmic.lithe.presentation.browse.model
 
-import io.github.lycosmic.model.FileSortType
-import io.github.lycosmic.model.FilterOption
+import io.github.lycosmic.domain.model.FileSortType
+import io.github.lycosmic.domain.model.FilterOption
 
 
 /**

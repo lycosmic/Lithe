@@ -21,8 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import io.github.lycosmic.domain.model.Directory
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.model.Directory
 
 @Composable
 fun LazyItemScope.DirectoryListItem(

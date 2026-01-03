@@ -32,6 +32,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.lycosmic.domain.model.Category
+import io.github.lycosmic.domain.model.DisplayMode
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.library.components.BookItem
 import io.github.lycosmic.lithe.presentation.library.components.CategoryTabRow
@@ -46,8 +48,6 @@ import io.github.lycosmic.lithe.ui.theme.Dimens
 import io.github.lycosmic.lithe.util.AppConstants
 import io.github.lycosmic.lithe.util.ToastUtil
 import io.github.lycosmic.lithe.util.toast
-import io.github.lycosmic.model.Category
-import io.github.lycosmic.model.DisplayMode
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -11,10 +11,10 @@ import io.github.lycosmic.data.local.entity.AuthorizedDirectory
 import io.github.lycosmic.data.mapper.toDomain
 import io.github.lycosmic.data.mapper.toEntity
 import io.github.lycosmic.data.util.parsePathInfo
-import io.github.lycosmic.model.Directory
-import io.github.lycosmic.model.FileFormat
-import io.github.lycosmic.model.FileItem
-import io.github.lycosmic.repository.DirectoryRepository
+import io.github.lycosmic.domain.model.Directory
+import io.github.lycosmic.domain.model.FileFormat
+import io.github.lycosmic.domain.model.FileItem
+import io.github.lycosmic.domain.repository.DirectoryRepository
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -1,7 +1,7 @@
 package io.github.lycosmic.data.mapper
 
 import io.github.lycosmic.data.local.entity.AuthorizedDirectory
-import io.github.lycosmic.model.Directory
+import io.github.lycosmic.domain.model.Directory
 
 
 fun AuthorizedDirectory.toDomain(): Directory {

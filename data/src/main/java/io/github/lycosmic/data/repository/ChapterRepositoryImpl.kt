@@ -1,7 +1,7 @@
 package io.github.lycosmic.data.repository
 
-import io.github.lycosmic.model.BookChapter
-import io.github.lycosmic.repository.ChapterRepository
+import io.github.lycosmic.domain.model.BookChapter
+import io.github.lycosmic.domain.repository.ChapterRepository
 import javax.inject.Inject
 
 class ChapterRepositoryImpl @Inject constructor() : ChapterRepository {

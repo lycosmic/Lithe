@@ -24,9 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import io.github.lycosmic.domain.model.ParsedBook
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
-import io.github.lycosmic.model.ParsedBook
 
 
 @Composable

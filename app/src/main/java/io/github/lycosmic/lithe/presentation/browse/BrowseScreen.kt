@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.lycosmic.domain.model.DisplayMode
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.browse.components.AddBookConfirmationDialog
 import io.github.lycosmic.lithe.presentation.browse.components.BrowseFilterSheet
@@ -43,7 +44,6 @@ import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 import io.github.lycosmic.lithe.ui.theme.Dimens
 import io.github.lycosmic.lithe.util.toast
-import io.github.lycosmic.model.DisplayMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

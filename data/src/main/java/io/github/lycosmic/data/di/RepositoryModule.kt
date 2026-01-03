@@ -8,10 +8,10 @@ import io.github.lycosmic.data.repository.BookRepositoryImpl
 import io.github.lycosmic.data.repository.CategoryRepositoryImpl
 import io.github.lycosmic.data.repository.ChapterRepositoryImpl
 import io.github.lycosmic.data.repository.DirectoryRepositoryImpl
-import io.github.lycosmic.repository.BookRepository
-import io.github.lycosmic.repository.CategoryRepository
-import io.github.lycosmic.repository.ChapterRepository
-import io.github.lycosmic.repository.DirectoryRepository
+import io.github.lycosmic.domain.repository.BookRepository
+import io.github.lycosmic.domain.repository.CategoryRepository
+import io.github.lycosmic.domain.repository.ChapterRepository
+import io.github.lycosmic.domain.repository.DirectoryRepository
 import javax.inject.Singleton
 
 @Module

@@ -1,6 +1,6 @@
 package io.github.lycosmic.data.parser.metadata
 
-import io.github.lycosmic.model.BookMetadata
+import io.github.lycosmic.domain.model.BookMetadata
 
 /**
  * 元数据解析策略接口

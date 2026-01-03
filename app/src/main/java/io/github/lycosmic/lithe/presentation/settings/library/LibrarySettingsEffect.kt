@@ -1,6 +1,6 @@
 package io.github.lycosmic.lithe.presentation.settings.library
 
-import io.github.lycosmic.model.Category
+import io.github.lycosmic.domain.model.Category
 
 sealed class LibrarySettingsEffect {
     /**

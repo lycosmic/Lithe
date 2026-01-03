@@ -1,6 +1,6 @@
 package io.github.lycosmic.lithe.log
 
-import io.github.lycosmic.util.DomainLogger
+import io.github.lycosmic.domain.util.DomainLogger
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 

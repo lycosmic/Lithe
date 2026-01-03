@@ -4,9 +4,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import io.github.lycosmic.domain.model.BookContentBlock
+import io.github.lycosmic.domain.model.StyleType
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderContent
-import io.github.lycosmic.model.BookContentBlock
-import io.github.lycosmic.model.StyleType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

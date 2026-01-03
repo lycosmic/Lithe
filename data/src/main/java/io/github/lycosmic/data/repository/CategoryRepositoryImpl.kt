@@ -3,8 +3,8 @@ package io.github.lycosmic.data.repository
 import io.github.lycosmic.data.local.dao.CategoryDao
 import io.github.lycosmic.data.mapper.toDomain
 import io.github.lycosmic.data.mapper.toEntity
-import io.github.lycosmic.model.Category
-import io.github.lycosmic.repository.CategoryRepository
+import io.github.lycosmic.domain.model.Category
+import io.github.lycosmic.domain.repository.CategoryRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map

@@ -1,7 +1,7 @@
 package io.github.lycosmic.lithe.util.extensions
 
 import androidx.compose.ui.graphics.Color
-import io.github.lycosmic.model.ColorPreset
+import io.github.lycosmic.domain.model.ColorPreset
 
 /**
  * 将颜色预设中的颜色值转换为 Compose 颜色

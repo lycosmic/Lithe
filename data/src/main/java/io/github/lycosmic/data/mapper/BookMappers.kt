@@ -3,8 +3,8 @@ package io.github.lycosmic.data.mapper
 import io.github.lycosmic.data.local.entity.BookEntity
 import io.github.lycosmic.data.local.entity.CategoryEntity
 import io.github.lycosmic.data.local.relation.BookWithCategories
-import io.github.lycosmic.model.Book
-import io.github.lycosmic.model.FileFormat
+import io.github.lycosmic.domain.model.Book
+import io.github.lycosmic.domain.model.FileFormat
 
 
 fun BookEntity.toDomain(categories: List<CategoryEntity> = emptyList()): Book {

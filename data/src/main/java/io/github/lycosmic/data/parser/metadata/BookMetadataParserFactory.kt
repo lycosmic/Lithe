@@ -3,8 +3,8 @@ package io.github.lycosmic.data.parser.metadata
 import io.github.lycosmic.data.parser.metadata.epub.EpubMetadataParser
 import io.github.lycosmic.data.parser.metadata.pdf.PdfMetadataParser
 import io.github.lycosmic.data.parser.metadata.txt.TxtMetadataParser
-import io.github.lycosmic.model.FileFormat
-import io.github.lycosmic.util.DomainLogger
+import io.github.lycosmic.domain.model.FileFormat
+import io.github.lycosmic.domain.util.DomainLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 

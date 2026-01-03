@@ -2,7 +2,7 @@ package io.github.lycosmic.data.parser.metadata.pdf
 
 import androidx.core.net.toUri
 import io.github.lycosmic.data.parser.metadata.MetadataParserStrategy
-import io.github.lycosmic.model.BookMetadata
+import io.github.lycosmic.domain.model.BookMetadata
 import javax.inject.Inject
 import javax.inject.Singleton
 

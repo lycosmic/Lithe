@@ -37,13 +37,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.lycosmic.domain.model.ColorPreset
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.StyledText
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
 import io.github.lycosmic.lithe.util.extensions.backgroundColor
 import io.github.lycosmic.lithe.util.extensions.textColor
-import io.github.lycosmic.model.ColorPreset
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce

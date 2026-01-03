@@ -2,9 +2,9 @@ package io.github.lycosmic.lithe
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
+import io.github.lycosmic.domain.repository.CategoryRepository
 import io.github.lycosmic.lithe.log.logI
 import io.github.lycosmic.lithe.util.ToastUtil
-import io.github.lycosmic.repository.CategoryRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
