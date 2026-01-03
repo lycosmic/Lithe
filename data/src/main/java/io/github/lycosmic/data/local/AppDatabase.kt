@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import io.github.lycosmic.data.local.dao.BookDao
 import io.github.lycosmic.data.local.dao.CategoryDao
+import io.github.lycosmic.data.local.dao.ChapterDao
 import io.github.lycosmic.data.local.dao.ColorPresetDao
 import io.github.lycosmic.data.local.dao.DirectoryDao
 import io.github.lycosmic.data.local.entity.AuthorizedDirectory
@@ -37,6 +38,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun colorPresetDao(): ColorPresetDao
 
     abstract fun categoryDao(): CategoryDao
+
+    abstract fun chapterDao(): ChapterDao
 
     companion object {
         const val DATABASE_NAME = "lithe_db"

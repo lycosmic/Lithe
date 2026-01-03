@@ -16,17 +16,19 @@ class GetChapterListUseCase @Inject constructor(
     suspend operator fun invoke(book: Book): Result<List<BookChapter>> {
         return try {
             // 先查数据库缓存
-            val cachedChapters = chapterRepository.getChaptersByBookId(book.id)
-            if (cachedChapters.isNotEmpty()) {
+            val cachedChaptersResult = chapterRepository.getChaptersByBookId(book.id)
+            if (cachedChaptersResult.isSuccess) {
+                val cachedChapters = cachedChaptersResult.getOrNull()
                 // 有缓存，直接返回
-                return Result.success(cachedChapters)
+                if (cachedChapters != null && cachedChapters.isNotEmpty()) {
+                    return Result.success(cachedChapters)
+                }
             }
 
             // 解析
             val parsedChapters = bookContentParser.parseChapter(book.fileUri, book.id, book.format)
             parsedChapters.onSuccess { list ->
-                chapterRepository.saveChapters(book.id, list)
-                Result.success(list)
+                chapterRepository.saveChapters(list)
             }.onFailure { throwable ->
                 Result.failure<List<BookChapter>>(throwable)
             }

@@ -10,10 +10,10 @@ interface ChapterRepository {
     /**
      * 通过书籍ID获取章节列表
      */
-    suspend fun getChaptersByBookId(bookId: Long): List<BookChapter>
+    suspend fun getChaptersByBookId(bookId: Long): Result<List<BookChapter>>
 
     /**
      * 保存章节列表
      */
-    suspend fun saveChapters(bookId: Long, spine: List<BookChapter>)
+    suspend fun saveChapters(spine: List<BookChapter>): Result<List<Long>>
 }

@@ -10,6 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import io.github.lycosmic.data.local.AppDatabase
 import io.github.lycosmic.data.local.dao.BookDao
 import io.github.lycosmic.data.local.dao.CategoryDao
+import io.github.lycosmic.data.local.dao.ChapterDao
 import io.github.lycosmic.data.local.dao.ColorPresetDao
 import io.github.lycosmic.data.local.dao.DirectoryDao
 import javax.inject.Singleton
@@ -67,5 +68,13 @@ object DatabaseModule {
         appDatabase: AppDatabase
     ): CategoryDao {
         return appDatabase.categoryDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideChapterDao(
+        appDatabase: AppDatabase
+    ): ChapterDao {
+        return appDatabase.chapterDao()
     }
 }

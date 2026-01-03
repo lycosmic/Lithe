@@ -74,6 +74,18 @@ class ReaderViewModel @Inject constructor(
                     return@launch
                 }
 
+                if (chapters.isEmpty()) {
+                    logE {
+                        "目录结构为空"
+                    }
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                        )
+                    }
+                    return@launch
+                }
+
                 logD {
                     "获取目录结构成功，目录结构: $chapters"
                 }
