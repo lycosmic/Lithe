@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.lycosmic.lithe.util.FileUtils
+import io.github.lycosmic.data.util.FormatUtils
 import io.github.lycosmic.model.FileItem
 
 
@@ -115,8 +115,8 @@ fun FileGridItem(
         Spacer(modifier = Modifier.height(4.dp))
         // --- 文件大小和时间 ---
         Text(
-            text = "${FileUtils.formatFileSize(fileItem.size)}, ${
-                FileUtils.formatDate(
+            text = "${FormatUtils.formatFileSize(fileItem.size)}, ${
+                FormatUtils.formatDate(
                     timeStamp = fileItem.lastModified, pattern = "dd MM月 yyyy"
                 )
             }",

@@ -43,8 +43,8 @@ import io.github.lycosmic.lithe.ui.components.ActionItem
 import io.github.lycosmic.lithe.ui.components.LitheActionSheet
 import io.github.lycosmic.lithe.ui.components.MoveBookCategoryDialog
 import io.github.lycosmic.lithe.ui.theme.Dimens
+import io.github.lycosmic.lithe.util.AppConstants
 import io.github.lycosmic.lithe.util.ToastUtil
-import io.github.lycosmic.lithe.util.UiConfig
 import io.github.lycosmic.lithe.util.toast
 import io.github.lycosmic.model.Category
 import io.github.lycosmic.model.DisplayMode
@@ -153,7 +153,7 @@ fun LibraryScreen(
             isDoubleBackToExitEnabled -> {
                 // 处于双击返回键退出模式下
                 val currentTime = System.currentTimeMillis()
-                if (currentTime - lastBackPressTime < UiConfig.DOUBLE_CLICK_BACK_INTERVAL) {
+                if (currentTime - lastBackPressTime < AppConstants.DOUBLE_CLICK_BACK_INTERVAL) {
                     (context as? Activity)?.finish()
                 } else {
                     // 第一次按下

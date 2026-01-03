@@ -3,8 +3,7 @@ package io.github.lycosmic.lithe.presentation.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
-import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.data.settings.SettingsManager
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logW
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.CloseDeleteBookConfirmDialog
@@ -19,7 +18,7 @@ import io.github.lycosmic.lithe.presentation.library.LibraryEffect.OpenMoreOptio
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.ShowDeleteBookConfirmDialog
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.ShowDeleteBookCountToast
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.ShowDeleteBookSuccessToast
-import io.github.lycosmic.lithe.util.UiConfig
+import io.github.lycosmic.lithe.util.AppConstants
 import io.github.lycosmic.model.AppConstraints
 import io.github.lycosmic.model.Book
 import io.github.lycosmic.model.BookSortType
@@ -27,6 +26,7 @@ import io.github.lycosmic.model.BookTitlePosition
 import io.github.lycosmic.model.Category
 import io.github.lycosmic.model.CategoryWithBookList
 import io.github.lycosmic.model.DisplayMode
+import io.github.lycosmic.repository.BookRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -41,14 +41,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
-    private val bookRepositoryImpl: BookRepositoryImpl,
+    private val bookRepositoryImpl: BookRepository,
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
     // 原始的书籍列表
     private val _rawBooks = bookRepositoryImpl.getAllBooks().stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = emptyList()
     )
     val rawBooks = _rawBooks
@@ -59,7 +59,7 @@ class LibraryViewModel @Inject constructor(
     // 总书籍数
     val totalBooksCount = _rawBooks.map { it.size }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = 0
     )
 
@@ -72,7 +72,7 @@ class LibraryViewModel @Inject constructor(
     // 当前是否为选中模式
     val isSelectionMode = _selectedBooks.map { it.isNotEmpty() }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = false
     )
 
@@ -88,7 +88,7 @@ class LibraryViewModel @Inject constructor(
     private val _sortType = settingsManager.bookSortType
     val sortType = _sortType.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = BookSortType.DEFAULT_BOOK_SORT_TYPE
     )
 
@@ -98,7 +98,7 @@ class LibraryViewModel @Inject constructor(
     private val _sortOrder = settingsManager.bookSortOrder
     val sortOrder = _sortOrder.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = false
     )
 
@@ -106,7 +106,7 @@ class LibraryViewModel @Inject constructor(
     // 是否开启双击返回
     val isDoubleBackToExitEnabled = settingsManager.isDoubleBackToExitEnabled.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = false
     )
 
@@ -160,7 +160,7 @@ class LibraryViewModel @Inject constructor(
         return@combine filteredCategoryWithBookList
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = emptyList()
     )
 
@@ -178,7 +178,7 @@ class LibraryViewModel @Inject constructor(
         return@combine LibraryTopBarState.DEFAULT
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         LibraryTopBarState.DEFAULT
     )
 
@@ -191,7 +191,7 @@ class LibraryViewModel @Inject constructor(
      */
     val bookDisplayMode = settingsManager.bookDisplayMode.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = DisplayMode.List
     )
 
@@ -200,7 +200,7 @@ class LibraryViewModel @Inject constructor(
      */
     val bookGridColumnCount = settingsManager.bookGridColumnCount.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = AppConstraints.GRID_SIZE_INT_RANGE.first
     )
 
@@ -209,7 +209,7 @@ class LibraryViewModel @Inject constructor(
      */
     val bookTitlePosition = settingsManager.bookTitlePosition.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = BookTitlePosition.Below
     )
 
@@ -218,7 +218,7 @@ class LibraryViewModel @Inject constructor(
      */
     val showReadButton = settingsManager.showReadButton.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -227,7 +227,7 @@ class LibraryViewModel @Inject constructor(
      */
     val showReadProgress = settingsManager.showReadProgress.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -236,7 +236,7 @@ class LibraryViewModel @Inject constructor(
      */
     val showCategoryTab = settingsManager.showCategoryTab.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -245,7 +245,7 @@ class LibraryViewModel @Inject constructor(
      */
     val alwaysShowDefaultCategoryTab = settingsManager.alwaysShowDefaultCategoryTab.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -254,7 +254,7 @@ class LibraryViewModel @Inject constructor(
      */
     val showBookCount = settingsManager.showBookCount.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 

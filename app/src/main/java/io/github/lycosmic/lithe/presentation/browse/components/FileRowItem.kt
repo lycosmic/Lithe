@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.lycosmic.lithe.util.FileUtils
+import io.github.lycosmic.data.util.FormatUtils
 import io.github.lycosmic.model.FileItem
 
 // --- 文件行 ---
@@ -99,7 +99,7 @@ fun FileRowItem(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "${FileUtils.formatFileSize(file.size)}, ${FileUtils.formatDate(file.lastModified)}",
+                text = "${FormatUtils.formatFileSize(file.size)}, ${FormatUtils.formatDate(file.lastModified)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

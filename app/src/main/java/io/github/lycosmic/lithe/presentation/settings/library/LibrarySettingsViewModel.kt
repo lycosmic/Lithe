@@ -3,18 +3,18 @@ package io.github.lycosmic.lithe.presentation.settings.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.repository.CategoryRepositoryImpl
-import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.data.settings.SettingsManager
 import io.github.lycosmic.lithe.log.logI
 import io.github.lycosmic.lithe.log.logW
 import io.github.lycosmic.lithe.presentation.settings.library.LibrarySettingsEffect.CategoryNameExists
 import io.github.lycosmic.lithe.presentation.settings.library.LibrarySettingsEffect.OpenDeleteCategoryDialog
 import io.github.lycosmic.lithe.presentation.settings.library.LibrarySettingsEffect.OpenEditCategoryDialog
-import io.github.lycosmic.lithe.util.UiConfig
+import io.github.lycosmic.lithe.util.AppConstants
 import io.github.lycosmic.model.AppConstraints
 import io.github.lycosmic.model.BookTitlePosition
 import io.github.lycosmic.model.Category
 import io.github.lycosmic.model.DisplayMode
+import io.github.lycosmic.repository.CategoryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LibrarySettingsViewModel @Inject constructor(
     private val settingsManager: SettingsManager,
-    private val categoryRepositoryImpl: CategoryRepositoryImpl
+    private val categoryRepositoryImpl: CategoryRepository
 ) : ViewModel() {
 
     /**
@@ -34,7 +34,7 @@ class LibrarySettingsViewModel @Inject constructor(
      */
     val bookDisplayMode = settingsManager.bookDisplayMode.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = DisplayMode.List
     )
 
@@ -43,7 +43,7 @@ class LibrarySettingsViewModel @Inject constructor(
      */
     val bookGridColumnCount = settingsManager.bookGridColumnCount.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = AppConstraints.GRID_SIZE_INT_RANGE.first
     )
 
@@ -52,7 +52,7 @@ class LibrarySettingsViewModel @Inject constructor(
      */
     val bookTitlePosition = settingsManager.bookTitlePosition.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = BookTitlePosition.Below
     )
 
@@ -61,7 +61,7 @@ class LibrarySettingsViewModel @Inject constructor(
      */
     val showReadButton = settingsManager.showReadButton.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -70,7 +70,7 @@ class LibrarySettingsViewModel @Inject constructor(
      */
     val showReadProgress = settingsManager.showReadProgress.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -79,7 +79,7 @@ class LibrarySettingsViewModel @Inject constructor(
      */
     val showCategoryTab = settingsManager.showCategoryTab.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -88,7 +88,7 @@ class LibrarySettingsViewModel @Inject constructor(
      */
     val alwaysShowDefaultCategoryTab = settingsManager.alwaysShowDefaultCategoryTab.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -97,7 +97,7 @@ class LibrarySettingsViewModel @Inject constructor(
      */
     val showBookCount = settingsManager.showBookCount.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -106,14 +106,14 @@ class LibrarySettingsViewModel @Inject constructor(
      */
     val eachCategoryHasDifferentSort = settingsManager.eachCategoryHasDifferentSort.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
     // 当前的分类列表
     val categoryList = categoryRepositoryImpl.getCategoriesFlow().stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = emptyList()
     )
 

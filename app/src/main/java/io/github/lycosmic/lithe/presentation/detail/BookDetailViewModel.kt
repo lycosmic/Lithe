@@ -4,11 +4,11 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.data.util.parsePathInfo
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
-import io.github.lycosmic.lithe.util.UiConfig
-import io.github.lycosmic.lithe.util.UriUtils
+import io.github.lycosmic.lithe.util.AppConstants
 import io.github.lycosmic.model.Book
+import io.github.lycosmic.repository.BookRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BookDetailViewModel @Inject constructor(
-    private val bookRepositoryImpl: BookRepositoryImpl,
+    private val bookRepositoryImpl: BookRepository,
 ) : ViewModel() {
 
     private val _book = MutableStateFlow(Book.Empty)
@@ -39,14 +39,17 @@ class BookDetailViewModel @Inject constructor(
         viewModelScope.launch {
             bookRepositoryImpl.getBookFlowById(bookId).stateIn(
                 scope = viewModelScope,
-                started = WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+                started = WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
                 initialValue = Book.Empty
             ).filterNotNull().collect { book ->
                 _book.value = book
 
                 book.let {
                     // 初始的文件路径
-                    val path = UriUtils.parseUriToPath(book.fileUri.toUri())
+                    val path = book.fileUri.toUri().parsePathInfo().getOrElse {
+                        // TODO: 文件损坏
+                        return@collect
+                    }
                     _filePath.value = "${path.first}/${path.second}"
                 }
 

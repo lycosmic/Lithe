@@ -2,7 +2,9 @@ package io.github.lycosmic.lithe.log
 
 import io.github.lycosmic.util.DomainLogger
 import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
+@Singleton
 class TimberDomainLogger @Inject constructor() : DomainLogger {
     override fun i(tag: String?, throwable: Throwable?, message: () -> String) {
         logI(t = tag, e = throwable, message = message)

@@ -50,11 +50,13 @@ android {
 }
 
 dependencies {
+    // Domain和Data模块的依赖
+    implementation(project(":domain"))
+    implementation(project(":data"))
+
     // Hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.documentfile)
-    implementation(project(":domain"))
-    implementation(project(":data"))
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
@@ -71,29 +73,15 @@ dependencies {
     // Navigation3 ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
-    // Preferences DataStore
-    implementation(libs.androidx.datastore.preferences)
-
     // Splash Screen
     implementation(libs.androidx.core.splashscreen)
 
     // Material Icons Extended
     implementation(libs.androidx.compose.material.icons.extended)
 
-    // Room
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
-
     // Coil
     implementation(libs.coil)
     implementation(libs.coil.compose)
-
-    // Jsoup: Body HTML for parsing Epub
-    implementation(libs.jsoup)
-
-    // GSON
-    implementation(libs.gson)
 
     // Timber
     implementation(libs.timber)

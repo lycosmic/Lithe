@@ -5,14 +5,14 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.local.dao.ColorPresetDao
-import io.github.lycosmic.lithe.data.mapper.toEntity
-import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.data.local.dao.ColorPresetDao
+import io.github.lycosmic.data.mapper.toEntity
+import io.github.lycosmic.data.settings.SettingsManager
 import io.github.lycosmic.lithe.log.logD
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logI
 import io.github.lycosmic.lithe.log.logW
-import io.github.lycosmic.lithe.util.UiConfig
+import io.github.lycosmic.lithe.util.AppConstants
 import io.github.lycosmic.model.AppConstraints
 import io.github.lycosmic.model.AppThemeOption
 import io.github.lycosmic.model.ColorPreset
@@ -39,7 +39,7 @@ class AppearanceSettingsViewModel @Inject constructor(
      */
     val themeMode: StateFlow<ThemeMode> = settingsManager.themeMode.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = ThemeMode.SYSTEM
     )
 
@@ -48,7 +48,7 @@ class AppearanceSettingsViewModel @Inject constructor(
      */
     val appThemeId: StateFlow<String> = settingsManager.appTheme.map { it.id }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = AppThemeOption.MERCURY.id
     )
 
@@ -57,7 +57,7 @@ class AppearanceSettingsViewModel @Inject constructor(
      */
     val isNavLabelVisible: StateFlow<Boolean> = settingsManager.showNavigationBarLabels.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true
     )
 
@@ -66,7 +66,7 @@ class AppearanceSettingsViewModel @Inject constructor(
      */
     val quickChangeColorPreset: StateFlow<Boolean> = settingsManager.quickChangeColorPreset.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = false
     )
 
@@ -97,7 +97,7 @@ class AppearanceSettingsViewModel @Inject constructor(
             }
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+            started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
             initialValue = emptyList()
         )
 
@@ -110,7 +110,7 @@ class AppearanceSettingsViewModel @Inject constructor(
         }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+            started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
             initialValue = null
         )
 

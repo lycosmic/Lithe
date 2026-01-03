@@ -3,17 +3,17 @@ package io.github.lycosmic.lithe.presentation.browse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.lithe.data.repository.BookRepositoryImpl
-import io.github.lycosmic.lithe.data.settings.SettingsManager
+import io.github.lycosmic.data.settings.SettingsManager
 import io.github.lycosmic.lithe.presentation.browse.model.BrowseTopBarState
 import io.github.lycosmic.lithe.presentation.browse.model.FileFilterState
-import io.github.lycosmic.lithe.util.UiConfig
+import io.github.lycosmic.lithe.util.AppConstants
 import io.github.lycosmic.model.DisplayMode
 import io.github.lycosmic.model.FileFormat
 import io.github.lycosmic.model.FileItem
 import io.github.lycosmic.model.FileSortType
 import io.github.lycosmic.model.FilterOption
 import io.github.lycosmic.model.ParsedBook
+import io.github.lycosmic.repository.BookRepository
 import io.github.lycosmic.use_case.FileProcessingUseCase
 import io.github.lycosmic.use_case.browse.ImportBookUseCase
 import io.github.lycosmic.use_case.browse.ParseFileMetadataUseCase
@@ -39,7 +39,7 @@ class BrowseViewModel @Inject constructor(
     private val fileProcessingUseCase: FileProcessingUseCase,
     private val importBook: ImportBookUseCase,
     private val parseFileMetadata: ParseFileMetadataUseCase,
-    bookRepositoryImpl: BookRepositoryImpl,
+    bookRepositoryImpl: BookRepository,
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
@@ -96,14 +96,14 @@ class BrowseViewModel @Inject constructor(
     // 文件显示模式
     val fileDisplayMode = settingsManager.fileDisplayMode.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         DisplayMode.List
     )
 
     // 网格列数
     val gridColumnCount = settingsManager.fileGridColumnCount.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         SettingsManager.GRID_COLUMN_COUNT_DEFAULT
     )
 
@@ -142,7 +142,7 @@ class BrowseViewModel @Inject constructor(
         )
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         emptyMap()
     )
 
@@ -161,7 +161,7 @@ class BrowseViewModel @Inject constructor(
         return@combine BrowseTopBarState.DEFAULT
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(UiConfig.STATE_FLOW_STOP_TIMEOUT),
+        SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         BrowseTopBarState.DEFAULT
     )
 
