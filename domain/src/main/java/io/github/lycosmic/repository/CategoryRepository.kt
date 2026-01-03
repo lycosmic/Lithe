@@ -7,7 +7,7 @@ interface CategoryRepository {
     /**
      * 获取所有分类
      */
-    fun getCategoriesFlow(): Flow<List<Category>>
+    fun getCategoriesFlow(): Flow<Result<List<Category>>>
 
     /**
      * 根据分类名获取分类数量

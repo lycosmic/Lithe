@@ -6,6 +6,7 @@ import io.github.lycosmic.data.mapper.toEntity
 import io.github.lycosmic.model.Category
 import io.github.lycosmic.repository.CategoryRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -14,11 +15,15 @@ class CategoryRepositoryImpl @Inject constructor(
     private val categoryDao: CategoryDao
 ) : CategoryRepository {
 
-    override fun getCategoriesFlow(): Flow<List<Category>> {
-        return categoryDao.getAllCategories().map {
-            it.map { categoryEntity ->
-                categoryEntity.toDomain()
+    override fun getCategoriesFlow(): Flow<Result<List<Category>>> {
+        return categoryDao.getAllCategories().map { entities ->
+            val books = entities.map {
+                it.toDomain()
             }
+            Result.success(books)
+        }.catch { e ->
+            // 捕获上游异常
+            emit(Result.failure(e))
         }
     }
 

@@ -15,10 +15,13 @@ import io.github.lycosmic.model.BookTitlePosition
 import io.github.lycosmic.model.Category
 import io.github.lycosmic.model.DisplayMode
 import io.github.lycosmic.repository.CategoryRepository
+import io.github.lycosmic.use_case.settings.library.GetCategoriesExcludingDefaultUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,7 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LibrarySettingsViewModel @Inject constructor(
     private val settingsManager: SettingsManager,
-    private val categoryRepositoryImpl: CategoryRepository
+    getCategoriesExcludingDefaultUseCase: GetCategoriesExcludingDefaultUseCase,
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
 
     /**
@@ -111,11 +115,22 @@ class LibrarySettingsViewModel @Inject constructor(
     )
 
     // 当前的分类列表
-    val categoryList = categoryRepositoryImpl.getCategoriesFlow().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = emptyList()
-    )
+    val categoryList: StateFlow<List<Category>> =
+        getCategoriesExcludingDefaultUseCase().map { result ->
+            result.fold(
+                onSuccess = { books ->
+                    return@map books
+                },
+                onFailure = { error ->
+                    logW(e = error) { "获取分类列表失败" }
+                    return@map emptyList()
+                }
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+            initialValue = emptyList()
+        )
 
 
     private val _effects = MutableSharedFlow<LibrarySettingsEffect>()
@@ -194,7 +209,7 @@ class LibrarySettingsViewModel @Inject constructor(
             is LibrarySettingsEvent.OnCreateCategory -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     val categoryName = event.name
-                    if (categoryRepositoryImpl.countCategoriesByName(categoryName) > 0) {
+                    if (categoryRepository.countCategoriesByName(categoryName) > 0) {
                         logW {
                             "分类名称[${categoryName}]已存在"
                         }
@@ -206,7 +221,7 @@ class LibrarySettingsViewModel @Inject constructor(
                         name = categoryName,
                     )
 
-                    categoryRepositoryImpl.insertCategory(category)
+                    categoryRepository.insertCategory(category)
                 }
             }
 
@@ -229,7 +244,7 @@ class LibrarySettingsViewModel @Inject constructor(
                 viewModelScope.launch(Dispatchers.IO) {
                     val category = event.category
                     val categoryName = category.name
-                    if (categoryRepositoryImpl.countCategoriesByName(categoryName) > 0) {
+                    if (categoryRepository.countCategoriesByName(categoryName) > 0) {
                         logW {
                             "分类名称[${categoryName}]已存在"
                         }
@@ -237,7 +252,7 @@ class LibrarySettingsViewModel @Inject constructor(
                         return@launch
                     }
 
-                    categoryRepositoryImpl.updateCategory(category)
+                    categoryRepository.updateCategory(category)
                 }
             }
 
@@ -248,14 +263,14 @@ class LibrarySettingsViewModel @Inject constructor(
                         "删除分类，分类ID：${id}"
                     }
 
-                    if (categoryRepositoryImpl.getCategoryById(id) == null) {
+                    if (categoryRepository.getCategoryById(id) == null) {
                         logW {
                             "要删除的分类不存在，分类ID：${id}"
                         }
                         return@launch
                     }
 
-                    categoryRepositoryImpl.deleteCategory(event.categoryId)
+                    categoryRepository.deleteCategory(event.categoryId)
                 }
             }
         }
