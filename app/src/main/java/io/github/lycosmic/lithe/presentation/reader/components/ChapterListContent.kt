@@ -1,6 +1,7 @@
 package io.github.lycosmic.lithe.presentation.reader.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
@@ -23,6 +26,9 @@ import androidx.compose.ui.unit.dp
 import io.github.lycosmic.domain.model.BookChapter
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.ui.components.StyledText
+import my.nanihadesuka.compose.InternalLazyColumnScrollbar
+import my.nanihadesuka.compose.ScrollbarSelectionMode
+import my.nanihadesuka.compose.ScrollbarSettings
 
 /**
  * 章节列表
@@ -33,7 +39,17 @@ fun ChapterListContent(
     currentChapterIndex: Int,
     currentChapterProgressText: String,
     onChapterClick: (Int) -> Unit,
+    state: LazyListState = rememberLazyListState(),
 ) {
+    val scrollbarSettings = ScrollbarSettings(
+        thumbUnselectedColor = MaterialTheme.colorScheme.secondary,
+        thumbSelectedColor = MaterialTheme.colorScheme.secondary.copy(0.8f),
+        hideDelayMillis = 2000,
+        durationAnimationMillis = 300,
+        selectionMode = ScrollbarSelectionMode.Thumb,
+        thumbThickness = 8.dp,
+        scrollbarPadding = 4.dp
+    )
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -50,37 +66,48 @@ fun ChapterListContent(
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
         // --- 章节列表 ---
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                state = state
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
-            items(
-                items = chapters,
-            ) { chapter ->
-                NavigationDrawerItem(
-                    label = {
-                        Row {
-                            StyledText(
-                                text = chapter.title,
-                                modifier = Modifier.weight(1f),
-                                maxLines = 1
-                            )
-                            if (chapter.index == currentChapterIndex) {
-                                Spacer(modifier = Modifier.width(18.dp))
-                                StyledText(text = currentChapterProgressText)
+                items(
+                    items = chapters,
+                ) { chapter ->
+                    NavigationDrawerItem(
+                        label = {
+                            Row {
+                                StyledText(
+                                    text = chapter.title,
+                                    modifier = Modifier.weight(1f),
+                                    maxLines = 1
+                                )
+                                if (chapter.index == currentChapterIndex) {
+                                    Spacer(modifier = Modifier.width(18.dp))
+                                    StyledText(text = currentChapterProgressText)
+                                }
                             }
-                        }
 
-                    },
-                    selected = chapter.index == currentChapterIndex, // 高亮当前章节
-                    onClick = { onChapterClick(chapter.index) },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
+                        },
+                        selected = chapter.index == currentChapterIndex, // 高亮当前章节
+                        onClick = { onChapterClick(chapter.index) },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                }
             }
+
+            InternalLazyColumnScrollbar(
+                state = state,
+                settings = scrollbarSettings
+            )
         }
     }
 }
