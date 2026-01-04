@@ -108,7 +108,8 @@ fun ReaderScreen(
                         // 执行跳转逻辑
                     },
                     chapters = uiState.chapters,
-                    currentChapterIndex = 0
+                    currentChapterIndex = 0,
+                    currentChapterProgressText = "0%",
                 )
             }
         },
