@@ -202,7 +202,11 @@ class ReaderViewModel @Inject constructor(
                 }
 
                 ReaderEvent.OnChapterMenuClick -> {
-                    _effects.emit(ReaderEffect.ShowOrHideChapterMenu)
+                    _effects.emit(ReaderEffect.ShowChapterListDrawer)
+                }
+
+                ReaderEvent.OnDrawerBackClick -> {
+                    _effects.emit(ReaderEffect.HideChapterListDrawer)
                 }
             }
         }

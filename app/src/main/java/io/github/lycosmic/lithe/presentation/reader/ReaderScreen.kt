@@ -1,5 +1,6 @@
 package io.github.lycosmic.lithe.presentation.reader
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -91,16 +92,25 @@ fun ReaderScreen(
                     navigateBack()
                 }
 
-                ReaderEffect.ShowOrHideChapterMenu -> {
+                ReaderEffect.HideChapterListDrawer -> {
+                    if (drawerState.isOpen) {
+                        drawerState.close()
+                    }
+                }
+
+                ReaderEffect.ShowChapterListDrawer -> {
                     if (drawerState.isClosed) {
                         drawerState.open()
-                    } else {
-                        drawerState.close()
                     }
                 }
             }
         }
     }
+
+    BackHandler(enabled = drawerState.isOpen) {
+        viewModel.onEvent(ReaderEvent.OnDrawerBackClick)
+    }
+
 
     // 侧滑章节菜单
     ModalNavigationDrawer(
@@ -122,7 +132,7 @@ fun ReaderScreen(
         },
         scrimColor = Color.Transparent, // 遮罩颜色
         drawerState = drawerState,
-        gesturesEnabled = true, // 禁用抽屉拖拽打开
+        gesturesEnabled = drawerState.isOpen, // 只有当抽屉打开时，才允许使用手势返回
     ) {
         // 屏幕主内容
         DrawContent(

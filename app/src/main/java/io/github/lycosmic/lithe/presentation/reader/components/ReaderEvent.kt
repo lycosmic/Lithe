@@ -19,4 +19,11 @@ sealed class ReaderEvent {
     object OnReadContentClick : ReaderEvent()
 
     // --- 底部区域 ---
+
+
+    // --- 章节列表区域 ---
+    /**
+     * 点击抽屉返回按钮
+     */
+    object OnDrawerBackClick : ReaderEvent()
 }
