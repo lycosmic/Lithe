@@ -9,9 +9,9 @@ import io.github.lycosmic.domain.use_case.reader.GetChapterListUseCase
 import io.github.lycosmic.lithe.log.logD
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logI
-import io.github.lycosmic.lithe.presentation.reader.components.ReaderEffect
-import io.github.lycosmic.lithe.presentation.reader.components.ReaderEvent
 import io.github.lycosmic.lithe.presentation.reader.mapper.ContentMapper
+import io.github.lycosmic.lithe.presentation.reader.model.ReaderEffect
+import io.github.lycosmic.lithe.presentation.reader.model.ReaderEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

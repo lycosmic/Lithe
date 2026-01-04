@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.presentation.reader.components
+package io.github.lycosmic.lithe.presentation.reader.model
 
 sealed class ReaderEffect {
     // --- 导航 ---
