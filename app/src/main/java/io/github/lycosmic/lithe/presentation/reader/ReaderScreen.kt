@@ -178,7 +178,7 @@ fun ReaderTopBar(
     Surface(
         modifier = modifier.fillMaxWidth(),
         tonalElevation = 4.dp,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f), // 半透明背景
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f), // 半透明背景
     ) {
         Row(
             modifier = Modifier
@@ -237,7 +237,7 @@ fun ReaderBottomControls(
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
     ) {
         Column(
             modifier = Modifier
