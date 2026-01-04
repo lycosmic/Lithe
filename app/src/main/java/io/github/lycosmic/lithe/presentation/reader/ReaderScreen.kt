@@ -238,6 +238,7 @@ fun ReaderBottomControls(
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+        tonalElevation = 4.dp
     ) {
         Column(
             modifier = Modifier
