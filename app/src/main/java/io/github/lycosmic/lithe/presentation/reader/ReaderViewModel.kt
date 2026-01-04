@@ -191,12 +191,17 @@ class ReaderViewModel @Inject constructor(
 //    }
 
     fun onEvent(event: ReaderEvent) {
-        when (event) {
-            ReaderEvent.OnContentClick -> {
-                viewModelScope.launch {
+        viewModelScope.launch {
+            when (event) {
+                ReaderEvent.OnContentClick -> {
                     _effects.emit(ReaderEffect.ShowOrHideTopBarAndBottomControl)
+                }
+
+                ReaderEvent.OnBackClick -> {
+                    _effects.emit(ReaderEffect.NavigateBack)
                 }
             }
         }
+
     }
 }

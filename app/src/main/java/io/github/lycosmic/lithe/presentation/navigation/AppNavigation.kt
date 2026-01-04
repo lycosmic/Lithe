@@ -106,6 +106,9 @@ fun AppNavigation(
 
                     is AppRoutes.Reader -> ReaderScreen(
                         bookId = navKey.bookId,
+                        navigateBack = {
+                            navViewModel.pop()
+                        }
                     )
 
                     is AppRoutes.SettingsAppearance -> {

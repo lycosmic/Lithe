@@ -51,6 +51,7 @@ import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
 @Composable
 fun ReaderScreen(
     bookId: Long,
+    navigateBack: () -> Unit,
     viewModel: ReaderViewModel = hiltViewModel(),
 ) {
     // 初始加载书籍
@@ -71,6 +72,10 @@ fun ReaderScreen(
             when (effect) {
                 ReaderEffect.ShowOrHideTopBarAndBottomControl -> {
                     isBarsVisible = !isBarsVisible
+                }
+
+                else -> {
+                    navigateBack()
                 }
             }
         }
@@ -114,7 +119,7 @@ fun ReaderScreen(
                 chapterName = "",
                 chapterProgress = 0f,
                 onBackClick = {
-
+                    viewModel.onEvent(ReaderEvent.OnBackClick)
                 },
                 onChapterMenuClick = {
 
