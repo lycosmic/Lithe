@@ -24,7 +24,7 @@ interface BookRepository {
     /**
      * 根据ID获取书籍
      */
-    fun getBookFlowById(bookId: Long): Flow<Book?>
+    fun getBookFlowById(bookId: Long): Flow<Result<Book>>
 
     /**
      * 根据ID获取书籍

@@ -8,10 +8,12 @@ import io.github.lycosmic.data.repository.BookRepositoryImpl
 import io.github.lycosmic.data.repository.CategoryRepositoryImpl
 import io.github.lycosmic.data.repository.ChapterRepositoryImpl
 import io.github.lycosmic.data.repository.DirectoryRepositoryImpl
+import io.github.lycosmic.data.repository.ProgressRepositoryImpl
 import io.github.lycosmic.domain.repository.BookRepository
 import io.github.lycosmic.domain.repository.CategoryRepository
 import io.github.lycosmic.domain.repository.ChapterRepository
 import io.github.lycosmic.domain.repository.DirectoryRepository
+import io.github.lycosmic.domain.repository.ProgressRepository
 import javax.inject.Singleton
 
 @Module
@@ -41,4 +43,10 @@ abstract class RepositoryModule {
     abstract fun bindChapterRepository(
         chapterRepositoryImpl: ChapterRepositoryImpl
     ): ChapterRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindProgressRepository(
+        progressRepositoryImpl: ProgressRepositoryImpl
+    ): ProgressRepository
 }

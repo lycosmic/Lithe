@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,10 +35,11 @@ class BookDetailViewModel @Inject constructor(
     private val _effects = MutableSharedFlow<BookDetailEffect>()
     val effects = _effects.asSharedFlow()
 
-
     fun loadBook(bookId: Long) {
         viewModelScope.launch {
-            bookRepositoryImpl.getBookFlowById(bookId).stateIn(
+            bookRepositoryImpl.getBookFlowById(bookId).map {
+                it.getOrNull()
+            }.stateIn(
                 scope = viewModelScope,
                 started = WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
                 initialValue = Book.Empty

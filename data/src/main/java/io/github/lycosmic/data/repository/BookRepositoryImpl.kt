@@ -7,6 +7,7 @@ import io.github.lycosmic.domain.model.Book
 import io.github.lycosmic.domain.model.CategoryWithBookList
 import io.github.lycosmic.domain.repository.BookRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -32,8 +33,15 @@ class BookRepositoryImpl @Inject constructor(
         bookDao.deleteBookById(id = bookId)
     }
 
-    override fun getBookFlowById(bookId: Long): Flow<Book?> {
-        return bookDao.getBookFlowById(id = bookId).map { it?.toDomain() }
+    override fun getBookFlowById(bookId: Long): Flow<Result<Book>> {
+        return bookDao.getBookFlowById(id = bookId).map {
+            if (it == null) {
+                return@map Result.failure(Exception("找不到 ID 为 $bookId 的书籍"))
+            }
+            Result.success(it.toDomain())
+        }.catch { e ->
+            emit(Result.failure(e))
+        }
     }
 
     override suspend fun getBookById(bookId: Long): Result<Book> {

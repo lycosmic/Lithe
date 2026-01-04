@@ -42,15 +42,9 @@ import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
 
 @Composable
 fun ReaderScreen(
-    bookId: Long,
     navigateBack: () -> Unit,
     viewModel: ReaderViewModel = hiltViewModel(),
 ) {
-    // 初始加载书籍
-    LaunchedEffect(bookId) {
-        viewModel.loadBook(bookId)
-    }
-
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // 上下栏是否可见
@@ -58,10 +52,8 @@ fun ReaderScreen(
 
     val listState = rememberLazyListState()
 
-
     // 抽屉状态
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->

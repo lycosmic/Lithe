@@ -6,18 +6,23 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.domain.use_case.browse.GetBookUseCase
 import io.github.lycosmic.domain.use_case.reader.GetChapterContentUseCase
 import io.github.lycosmic.domain.use_case.reader.GetChapterListUseCase
-import io.github.lycosmic.lithe.log.logD
-import io.github.lycosmic.lithe.log.logE
-import io.github.lycosmic.lithe.log.logI
+import io.github.lycosmic.domain.use_case.reader.GetReadingProgressUseCase
 import io.github.lycosmic.lithe.presentation.reader.mapper.ContentMapper
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderEffect
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderEvent
-import kotlinx.coroutines.Dispatchers
+import io.github.lycosmic.lithe.util.AppConstants
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,143 +30,86 @@ import javax.inject.Inject
 class ReaderViewModel @Inject constructor(
     private val getChapterListUseCase: GetChapterListUseCase,
     private val getChapterContentUseCase: GetChapterContentUseCase,
-    private val getBookUseCase: GetBookUseCase
+    private val getReadingProgressUseCase: GetReadingProgressUseCase,
+    private val getBookUseCase: GetBookUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ReaderUiState())
-    val uiState = _uiState.asStateFlow()
+    // 书籍 ID
+    private val _bookIdFlow = MutableStateFlow<Long?>(null)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiState: StateFlow<ReaderUiState> = _bookIdFlow
+        .filterNotNull()
+        .flatMapLatest { id ->
+            // 书籍信息，ID 变化时会自动重新获取
+            getBookUseCase(id).flatMapLatest { bookResult ->
+                val book = bookResult.getOrNull()
+                    ?: return@flatMapLatest flowOf(ReaderUiState(error = "书籍不存在，ID: $id"))
+
+                // 章节列表
+                val chapters = getChapterListUseCase(book).getOrDefault(emptyList())
+
+                // 监听阅读进度
+                getReadingProgressUseCase(book.id)
+                    .distinctUntilChanged { old, new ->
+                        old.getOrNull()?.chapterIndex == new.getOrNull()?.chapterIndex
+                    }
+                    .transform { progressResult ->
+                        val progress = progressResult.getOrNull()
+                        val chapterIndex = progress?.chapterIndex ?: 0
+
+                        // 防止进度越界
+                        val currentChapter = chapters.getOrNull(chapterIndex)
+                        if (currentChapter == null) {
+                            emit(
+                                ReaderUiState(
+                                    book = book,
+                                    chapters = chapters,
+                                    error = "找不到对应章节"
+                                )
+                            )
+                            return@transform
+                        }
+
+                        // 获取章节内容
+                        val contentResult = getChapterContentUseCase(
+                            book.fileUri,
+                            book.format,
+                            currentChapter
+                        )
+
+                        val rawContents = contentResult.getOrNull() ?: emptyList()
+
+                        emit(
+                            ReaderUiState(
+                                book = book,
+                                chapters = chapters,
+                                currentProgress = progress,
+                                currentContent = rawContents.map { ContentMapper.mapToUi(it) },
+                                isLoading = false,
+                                error = contentResult.exceptionOrNull()?.message
+                            )
+                        )
+                    }
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            initialValue = ReaderUiState(isLoading = true),
+            started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT)
+        )
+
 
     private val _effects = MutableSharedFlow<ReaderEffect>()
     val effects = _effects.asSharedFlow()
 
     /**
-     * 加载书籍
+     * 设置书籍 ID
      */
-    fun loadBook(bookId: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _uiState.update {
-                it.copy(
-                    isLoading = true,
-                )
-            }
-
-            logI {
-                "开始加载书籍，书籍ID: $bookId"
-            }
-            try {
-                val book = getBookUseCase(bookId).getOrElse {
-                    logE(e = it) {
-                        "加载书籍失败，ID: $bookId"
-                    }
-                    return@launch
-                }
-                _uiState.update {
-                    it.copy(
-                        book = book,
-                    )
-                }
-
-                // 获取目录结构
-                val chapters = getChapterListUseCase(book).getOrElse { throwable ->
-                    logE(e = throwable) {
-                        "获取目录结构失败"
-                    }
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                        )
-                    }
-                    return@launch
-                }
-
-                if (chapters.isEmpty()) {
-                    logE {
-                        "目录结构为空"
-                    }
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                        )
-                    }
-                    return@launch
-                }
-
-                logD {
-                    "获取目录结构成功，目录结构: $chapters"
-                }
-                _uiState.update {
-                    it.copy(
-                        chapters = chapters,
-                    )
-                }
-
-
-                val contentBlockList = getChapterContentUseCase(
-                    book.fileUri,
-                    book.format,
-                    chapters[0] // TODO: 暂时默认加载第一章
-                ).getOrElse { throwable ->
-                    logE(e = throwable) {
-                        "获取章节内容失败"
-                    }
-                    return@launch
-                }
-
-                val readerContents = contentBlockList.map {
-                    ContentMapper.mapToUi(
-                        it
-                    )
-                }
-
-                _uiState.update {
-                    it.copy(
-                        currentContent = readerContents,
-                        isLoading = false,
-                    )
-                }
-            } catch (e: Exception) {
-                logE(e = e) {
-                    "书籍加载失败，ID: $bookId"
-                }
-            }
+    fun setBookId(id: Long) {
+        viewModelScope.launch {
+            _bookIdFlow.value = id
         }
     }
-
-//    private suspend fun loadChapterContent(
-//        parser: BookContentParser,
-//        bookUri: Uri,
-//        spine: List<BookSpineItem>,
-//        index: Int
-//    ) {
-//        _uiState.update { it.copy(isLoading = true) }
-//
-//        if (spine.isEmpty()) {
-//            logE {
-//                "Spine is empty, book ID: ${_uiState.value.book?.id}, chapter index: $index"
-//            }
-//            return
-//        }
-//        val chapterItem = spine[index]
-//        // 调用解析器解析具体内容
-//        val content = when (chapterItem) {
-//            is EpubSpineItem -> parser.loadChapterContent(bookUri, chapterItem.contentHref)
-//            is TxtSpineItem -> parser.loadChapterContent(bookUri, chapterItem.href)
-//        }
-//        logD {
-//            "Chapter content is $content"
-//        }
-//
-//        logI {
-//            "Chapter content loaded successfully, book ID: ${_uiState.value.bookEntity?.id}, chapter index: $index"
-//        }
-//        _uiState.update {
-//            it.copy(
-//                isLoading = false,
-//                currentChapterIndex = index,
-//                currentContent = content
-//            )
-//        }
-//    }
 
 //    // --- 翻页逻辑 ---
 //    fun loadNextChapter() {
