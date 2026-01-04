@@ -156,4 +156,5 @@
     <string name="move_book_category_dialog_edit_button">Edit</string>
     <string name="move_book_category_dialog_cancel_button">Cancel</string>
     <string name="move_book_category_dialog_confirm_button">Confirm</string>
+    <string name="chapter_list">Chapters</string>
 </resources>

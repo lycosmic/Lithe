@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,18 +19,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,11 +44,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.lithe.presentation.reader.components.BookReaderContent
+import io.github.lycosmic.lithe.presentation.reader.components.ChapterListContent
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderEffect
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderEvent
 import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
@@ -67,6 +76,10 @@ fun ReaderScreen(
     val listState = rememberLazyListState()
 
 
+    // 抽屉状态
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
@@ -74,15 +87,74 @@ fun ReaderScreen(
                     isBarsVisible = !isBarsVisible
                 }
 
-                else -> {
+                ReaderEffect.NavigateBack -> {
                     navigateBack()
+                }
+
+                ReaderEffect.ShowOrHideChapterMenu -> {
+                    if (drawerState.isClosed) {
+                        drawerState.open()
+                    } else {
+                        drawerState.close()
+                    }
                 }
             }
         }
     }
 
+    // 侧滑章节菜单
+    ModalNavigationDrawer(
+        drawerContent = {
+            ModalDrawerSheet(
+                modifier = Modifier
+                    .fillMaxSize(),
+                drawerShape = RectangleShape,
+                windowInsets = WindowInsets(0, 0, 0, 0)
+            ) {
+                ChapterListContent(
+                    onChapterClick = {
+                        // 执行跳转逻辑
+                    },
+                    chapters = uiState.chapters,
+                    currentChapterIndex = 0
+                )
+            }
+        },
+        scrimColor = Color.Transparent, // 遮罩颜色
+        drawerState = drawerState,
+        gesturesEnabled = true, // 禁用抽屉拖拽打开
+    ) {
+        // 屏幕主内容
+        DrawContent(
+            uiState = uiState,
+            isBarsVisible = isBarsVisible,
+            listState = listState,
+            onBackClick = {
+                viewModel.onEvent(ReaderEvent.OnBackClick)
+            },
+            onReadContentClick = {
+                viewModel.onEvent(ReaderEvent.OnReadContentClick)
+            },
+            onChapterMenuClick = {
+                viewModel.onEvent(ReaderEvent.OnChapterMenuClick)
+            },
+        )
+    }
+
+}
+
+@Composable
+fun DrawContent(
+    modifier: Modifier = Modifier,
+    uiState: ReaderUiState,
+    isBarsVisible: Boolean,
+    onBackClick: () -> Unit,
+    onReadContentClick: () -> Unit,
+    onChapterMenuClick: () -> Unit,
+    listState: LazyListState
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface) // 模拟纸张颜色
     ) {
@@ -93,9 +165,7 @@ fun ReaderScreen(
             BookReaderContent(
                 contents = uiState.currentContent,
                 listState = listState,
-                onContentClick = {
-                    viewModel.onEvent(ReaderEvent.OnContentClick)
-                }
+                onContentClick = onReadContentClick
             )
         }
 
@@ -118,12 +188,8 @@ fun ReaderScreen(
                 bookName = "",
                 chapterName = "",
                 chapterProgress = 0f,
-                onBackClick = {
-                    viewModel.onEvent(ReaderEvent.OnBackClick)
-                },
-                onChapterMenuClick = {
-
-                },
+                onBackClick = onBackClick,
+                onChapterMenuClick = onChapterMenuClick,
                 onReaderSettingsClick = {
 
                 }

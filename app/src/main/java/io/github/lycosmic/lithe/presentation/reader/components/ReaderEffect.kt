@@ -12,4 +12,9 @@ sealed class ReaderEffect {
      * 显示或隐藏顶部工具栏和底部控制层
      */
     object ShowOrHideTopBarAndBottomControl : ReaderEffect()
+
+    /**
+     * 显示或隐藏章节菜单
+     */
+    object ShowOrHideChapterMenu : ReaderEffect()
 }

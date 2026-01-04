@@ -7,11 +7,16 @@ sealed class ReaderEvent {
      */
     object OnBackClick : ReaderEvent()
 
+    /**
+     * 点击章节菜单按钮
+     */
+    object OnChapterMenuClick : ReaderEvent()
+
     // --- 中间区域 ---
     /**
      * 点击阅读内容
      */
-    object OnContentClick : ReaderEvent()
+    object OnReadContentClick : ReaderEvent()
 
     // --- 底部区域 ---
 }
