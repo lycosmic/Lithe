@@ -8,7 +8,8 @@ import org.xmlpull.v1.XmlPullParser
  */
 fun XmlPullParser.safeNextText(): String {
     var result = ""
-    if (next() == XmlPullParser.TEXT) {
+    val nextType = next()
+    if (nextType == XmlPullParser.TEXT) {
         result = text
         nextTag() // 移至 END_TAG
     }

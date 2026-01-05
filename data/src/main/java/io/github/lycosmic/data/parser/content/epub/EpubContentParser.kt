@@ -73,7 +73,8 @@ class EpubContentParser @Inject constructor(
                 val map = parseChapterTitlesBatch(
                     context,
                     uri,
-                    chapterRelativePaths
+                    chapterRelativePaths,
+                    parentPath = opfParentPath
                 )
 
                 chapterRelativePaths.forEachIndexed { index, chapterRelativePath ->
@@ -105,11 +106,13 @@ class EpubContentParser @Inject constructor(
     suspend fun parseChapterTitlesBatch(
         context: Context,
         uri: Uri,
-        targetPaths: List<String>
+        targetPaths: List<String>,
+        parentPath: String // OPF 父目录
     ): Map<String, String> = withContext(Dispatchers.IO) {
         // 待处理的章节文件 ZIP 相对路径列表
         val remainingPaths = targetPaths.toMutableSet()
         val results = mutableMapOf<String, String>()
+        var chapterOrder = 0
 
         if (remainingPaths.isEmpty()) return@withContext results
 
@@ -127,9 +130,28 @@ class EpubContentParser @Inject constructor(
                     val entryName = zipEntry.name
 
                     if (remainingPaths.contains(entryName)) {
-                        val title = parseTitleFromStream(zipInputStream)
+                        var title = parseTitleFromStream(zipInputStream)
+
+                        if (title == null) {
+                            logger.d {
+                                "尝试从 toc.ncx 文件中获取标题"
+                            }
+
+                            title = zipProcessor.findZipEntryAndAction(
+                                uri,
+                                parentPath + TOC_NCX_FILE_NAME,
+                            ) {
+                                parseTitleFromTocNcx(it, entryName)
+                            } ?: ""
+
+                            // TODO: 从 opf 文件中获取标题
+                            if (title == null) {
+
+                            }
+                        }
 
                         results[entryName] = title
+                        chapterOrder++
                         remainingPaths.remove(entryName)
                     }
 
@@ -152,7 +174,7 @@ class EpubContentParser @Inject constructor(
      * @param inputStream 输入流
      * @return 章节标题
      */
-    private fun parseTitleFromStream(inputStream: InputStream): String {
+    private fun parseTitleFromStream(inputStream: InputStream): String? {
         try {
             val parser = Xml.newPullParser()
             parser.setInput(inputStream, UTF_8_INPUT_ENCODING)
@@ -161,27 +183,91 @@ class EpubContentParser @Inject constructor(
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
                     if (parser.name.equals(TITLE_TAG, ignoreCase = false)) {
-                        return parser.safeNextText()
+                        val titleValue = parser.safeNextText().ifBlank {
+                            continue
+                        }
+                        return titleValue
                     }
                 }
                 eventType = parser.next()
             }
+
+            logger.w {
+                "无法从 HTML 段落标签中获取章节标题，标题为空"
+            }
+
+            return null
         } catch (e: Exception) {
             logger.w(throwable = e) {
                 "在解析章节标题时出错"
             }
             throw e
         }
+    }
 
-        throw IllegalArgumentException("无法解析章节标题")
+    /**
+     * 从 toc.ncx 文件中解析章节标题
+     * @param inputStream toc.ncx 文件输入流
+     * @param opfRelativeZipPath OPF 文件 ZIP 相对路径
+     * @return 章节标题
+     */
+    fun parseTitleFromTocNcx(inputStream: InputStream, opfRelativeZipPath: String): String? {
+        try {
+            var label: String? = null
+            var src: String? = null
+
+            val parser = Xml.newPullParser()
+            parser.setInput(inputStream, UTF_8_INPUT_ENCODING)
+
+            var eventType = parser.eventType
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG) {
+                    if (parser.name.equals(TEXT_TAG, ignoreCase = false)) {
+                        label = parser.safeNextText()
+                    } else if (parser.name.equals(CONTENT_TAG, ignoreCase = false)) {
+                        src =
+                            parser.getAttributeValue(null, SRC_ATTRIBUTE_NAME)
+                    }
+
+                    if (label != null && src != null) {
+                        if (opfRelativeZipPath.contains(src)) {
+                            logger.d {
+                                "找到章节标题：$label"
+                            }
+                            return label
+                        }
+                    }
+                }
+                eventType = parser.next()
+            }
+
+            logger.w {
+                "无法从 toc.ncx 文件中获取章节标题，标题为空"
+            }
+
+            return null
+        } catch (e: Exception) {
+            throw e
+        }
     }
 
     companion object {
+        // --- 文件名称 ---
+        private const val TOC_NCX_FILE_NAME = "toc.ncx"
+
         // --- 编码 ---
         private const val UTF_8_INPUT_ENCODING = "UTF-8"
 
         // --- HTML 标签 ---
         private const val TITLE_TAG = "title"
+
+        private const val CONTENT_TAG = "content"
+
+        private const val TEXT_TAG = "text"
+
+        // --- 属性名 ---
+        private const val SRC_ATTRIBUTE_NAME = "src"
+
     }
 
     /**
@@ -418,8 +504,8 @@ class EpubContentParser @Inject constructor(
                         }
 
                         else -> {
-                            logger.d {
-                                "Encountered an unknown tag: ${node.tagName()}"
+                            logger.w {
+                                "遇到了不支持的标签: ${node.tagName()}"
                             }
                             traverseHtmlElement(
                                 bookUri,
