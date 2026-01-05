@@ -19,8 +19,10 @@ import io.github.lycosmic.lithe.presentation.reader.mapper.ContentMapper
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderContent
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderEffect
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderEvent
+import io.github.lycosmic.lithe.presentation.reader.model.ReaderUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,13 +30,16 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
     private val getChapterListUseCase: GetChapterListUseCase,
@@ -53,6 +58,18 @@ class ReaderViewModel @Inject constructor(
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
+
+    init {
+        // 启动防抖保存监听
+        viewModelScope.launch {
+            scrollEventFlow
+                .debounce(3000)
+                .collect { content ->
+                    val bookId = _bookIdFlow.value ?: return@collect
+                    saveToDb(bookId = bookId, content = content)
+                }
+        }
+    }
 
     // 手动状态源
     private val _transientState = MutableStateFlow(ReaderTransientState())
@@ -97,8 +114,19 @@ class ReaderViewModel @Inject constructor(
             )
         }
     }
+
+    private val _dataWithRestorationFlow = _persistentDataFlow.onEach { data ->
+        // 只有当内容不为空，且进度存在时，才尝试恢复进度
+        if (data.currentContent.isNotEmpty() && data.progress != null) {
+            val targetCharIndex = data.progress.chapterOffsetCharIndex
+
+            val itemIndex = findScrollPosition(data.currentContent, targetCharIndex)
+            _effects.emit(ReaderEffect.ScrollToItem(itemIndex))
+        }
+    }
+
     val uiState: StateFlow<ReaderUiState> = combine(
-        _persistentDataFlow,
+        _dataWithRestorationFlow,
         _transientState
     ) { data, transient ->
         ReaderUiState(
@@ -187,6 +215,9 @@ class ReaderViewModel @Inject constructor(
                 is ReaderEvent.OnChapterChanged -> TODO()
                 is ReaderEvent.OnScrollPositionChanged -> {
                     updateMemoryProgress(event.visibleContent)
+
+                    // 防抖保存进度
+                    scrollEventFlow.tryEmit(event.visibleContent)
                 }
 
                 is ReaderEvent.OnStopOrDispose -> {
@@ -223,6 +254,18 @@ class ReaderViewModel @Inject constructor(
                 "切换章节失败，书籍ID为-1"
             }
             return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val newProgress = ReadingProgress(
+                bookId = bookId,
+                chapterIndex = index,
+                chapterOffsetCharIndex = 0 // 下一章
+            )
+
+            saveReadingProgressUseCase(bookId, newProgress)
+                .onFailure { logE { "切换章节失败" } }
+
+            _effects.emit(ReaderEffect.HideChapterListDrawer)
         }
     }
 

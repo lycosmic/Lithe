@@ -1,8 +1,7 @@
-package io.github.lycosmic.lithe.presentation.reader
+package io.github.lycosmic.lithe.presentation.reader.model
 
 import io.github.lycosmic.domain.model.BookChapter
 import io.github.lycosmic.domain.model.ReadingProgress
-import io.github.lycosmic.lithe.presentation.reader.model.ReaderContent
 
 data class ReaderUiState(
     val bookId: Long = -1,

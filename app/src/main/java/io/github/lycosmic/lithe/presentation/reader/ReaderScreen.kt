@@ -39,6 +39,7 @@ import io.github.lycosmic.lithe.presentation.reader.components.ReaderBottomContr
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderTopBar
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderEffect
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderEvent
+import io.github.lycosmic.lithe.presentation.reader.model.ReaderUiState
 import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -105,7 +106,10 @@ fun ReaderScreen(
                 }
 
                 is ReaderEffect.RestoreFocus -> TODO()
-                is ReaderEffect.ScrollToItem -> TODO()
+                is ReaderEffect.ScrollToItem -> {
+                    val index = effect.index
+                    listState.scrollToItem(index)
+                }
             }
         }
     }
