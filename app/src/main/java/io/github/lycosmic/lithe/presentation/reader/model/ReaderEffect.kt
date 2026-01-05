@@ -22,4 +22,15 @@ sealed class ReaderEffect {
      * 隐藏章节列表抽屉
      */
     object HideChapterListDrawer : ReaderEffect()
+
+    // --- 阅读 ---
+    /**
+     * 刚打开书或拖动进度条时，滚动到指定位置
+     */
+    data class ScrollToItem(val index: Int) : ReaderEffect()
+
+    /**
+     * 改变字号后，恢复阅读的第一个字在屏幕顶部
+     */
+    data class RestoreFocus(val charIndex: Int) : ReaderEffect()
 }

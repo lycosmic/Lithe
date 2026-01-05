@@ -1,15 +1,30 @@
 package io.github.lycosmic.lithe.presentation.reader
 
-import io.github.lycosmic.domain.model.Book
 import io.github.lycosmic.domain.model.BookChapter
 import io.github.lycosmic.domain.model.ReadingProgress
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderContent
 
 data class ReaderUiState(
-    val isLoading: Boolean = true,
-    val book: Book? = null,
+    val bookId: Long = -1,
+    val bookName: String = "",
     val chapters: List<BookChapter> = emptyList(), // 目录结构
-    val currentContent: List<ReaderContent> = emptyList(), // 当前章的内容
-    val currentProgress: ReadingProgress? = null, // 阅读进度
+    val readerItems: List<ReaderContent> = emptyList(), // 阅读内容
+    val progress: ReadingProgress = ReadingProgress.default(-1L), // 阅读进度
+    val isInitialLoading: Boolean = true, // 全屏加载
+    val isAppendLoading: Boolean = false, // 追加加载
+    val readerSettings: ReaderSettings = ReaderSettings(), // 阅读设置
     val error: String? = null, // 错误信息
+    val currentContent: ReaderContent? = null
 )
+
+
+/**
+ * 阅读器设置
+ */
+data class ReaderSettings(
+    val textSizeSp: Float = 18f,
+    val lineHeightMultiplier: Float = 1.5f,
+    val backgroundColor: Int = 0xFFFFFFFF.toInt(),
+    val textColor: Int = 0xFF000000.toInt()
+)
+

@@ -3,6 +3,7 @@ package io.github.lycosmic.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import io.github.lycosmic.data.local.dao.BookDao
+import io.github.lycosmic.data.local.dao.BookProgressDao
 import io.github.lycosmic.data.local.dao.CategoryDao
 import io.github.lycosmic.data.local.dao.ChapterDao
 import io.github.lycosmic.data.local.dao.ColorPresetDao
@@ -10,6 +11,7 @@ import io.github.lycosmic.data.local.dao.DirectoryDao
 import io.github.lycosmic.data.local.entity.AuthorizedDirectory
 import io.github.lycosmic.data.local.entity.BookCategoryCrossRef
 import io.github.lycosmic.data.local.entity.BookEntity
+import io.github.lycosmic.data.local.entity.BookProgressEntity
 import io.github.lycosmic.data.local.entity.CategoryEntity
 import io.github.lycosmic.data.local.entity.ChapterEntity
 import io.github.lycosmic.data.local.entity.ColorPresetEntity
@@ -20,6 +22,8 @@ import io.github.lycosmic.data.local.entity.ColorPresetEntity
         BookEntity::class,
         CategoryEntity::class,
         BookCategoryCrossRef::class,
+        // 书籍进度
+        BookProgressEntity::class,
         // 书籍目录
         ChapterEntity::class,
         // 已授权的目录
@@ -40,6 +44,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
 
     abstract fun chapterDao(): ChapterDao
+
+    abstract fun bookProgressDao(): BookProgressDao
 
     companion object {
         const val DATABASE_NAME = "lithe_db"

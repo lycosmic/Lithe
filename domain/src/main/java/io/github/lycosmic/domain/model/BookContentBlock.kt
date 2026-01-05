@@ -4,25 +4,33 @@ package io.github.lycosmic.domain.model
  * 书籍内容块
  */
 sealed interface BookContentBlock {
+
+    val startIndex: Int
+
     /**
      * 标题
      */
-    data class Title(val text: String, val level: Int) : BookContentBlock
+    data class Title(val text: String, val level: Int, override val startIndex: Int) :
+        BookContentBlock
 
     /**
      * 段落
      */
-    data class Paragraph(val text: String, val styles: List<StyleRange>) : BookContentBlock
+    data class Paragraph(
+        val text: String,
+        val styles: List<StyleRange>,
+        override val startIndex: Int
+    ) : BookContentBlock
 
     /**
      * 分割线
      */
-    data object Divider : BookContentBlock
+    data class Divider(override val startIndex: Int) : BookContentBlock
 
     /**
      * 图片
      */
-    data class Image(val path: String) : BookContentBlock
+    data class Image(val path: String, override val startIndex: Int) : BookContentBlock
 }
 
 

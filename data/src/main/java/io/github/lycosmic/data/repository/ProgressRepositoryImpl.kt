@@ -1,11 +1,8 @@
 package io.github.lycosmic.data.repository
 
-import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.floatPreferencesKey
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import dagger.hilt.android.qualifiers.ApplicationContext
+import io.github.lycosmic.data.local.dao.BookProgressDao
+import io.github.lycosmic.data.mapper.toDomain
+import io.github.lycosmic.data.mapper.toEntity
 import io.github.lycosmic.domain.model.ReadingProgress
 import io.github.lycosmic.domain.repository.ProgressRepository
 import kotlinx.coroutines.flow.Flow
@@ -15,49 +12,28 @@ import javax.inject.Inject
 
 
 class ProgressRepositoryImpl @Inject constructor(
-    @param:ApplicationContext
-    private val context: Context
+    private val bookProgressDao: BookProgressDao
 ) : ProgressRepository {
-
-    companion object {
-        // 阅读进度数据存储文件名
-        const val DATASTORE_NAME = "progress"
-
-        const val BOOK_ID_PREFIX = "progress_"
-    }
-
-    private val Context.dataStore by preferencesDataStore(name = DATASTORE_NAME)
 
     override suspend fun saveProgress(
         bookId: Long,
         progress: ReadingProgress
     ): Result<Any> {
         return runCatching {
-            context.dataStore.edit { prefs ->
-                prefs[intPreferencesKey("${BOOK_ID_PREFIX}${bookId}_${ReadingProgress.KEY_CHAPTER_INDEX}")] =
-                    progress.chapterIndex
-                prefs[floatPreferencesKey("${BOOK_ID_PREFIX}${bookId}_${ReadingProgress.KEY_CHAPTER_OFFSET}")] =
-                    progress.chapterOffset
-                prefs[floatPreferencesKey("${BOOK_ID_PREFIX}${bookId}_${ReadingProgress.KEY_TOTAL_PROGRESS}")] =
-                    progress.totalProgress
-            }
+            val entity = progress.toEntity()
+            bookProgressDao.saveProgress(entity)
         }
     }
 
     override suspend fun getBookProgress(bookId: Long): Flow<Result<ReadingProgress>> {
-        return context.dataStore.data.map { prefs ->
-            Result.success(
-                ReadingProgress(
-                    chapterIndex = prefs[intPreferencesKey("${BOOK_ID_PREFIX}${bookId}_${ReadingProgress.KEY_CHAPTER_INDEX}")]
-                        ?: 0,
-                    chapterOffset = prefs[floatPreferencesKey("${BOOK_ID_PREFIX}${bookId}_${ReadingProgress.KEY_CHAPTER_OFFSET}")]
-                        ?: 0f,
-                    totalProgress = prefs[floatPreferencesKey("${BOOK_ID_PREFIX}${bookId}_${ReadingProgress.KEY_TOTAL_PROGRESS}")]
-                        ?: 0f,
-                )
-            )
+        return bookProgressDao.getProgressFlow(bookId).map { entity ->
+            if (entity == null) {
+                // 默认返回一个空的进度
+                return@map Result.success(ReadingProgress(bookId, 0, 0))
+            }
+            return@map Result.success(entity.toDomain())
         }.catch { e ->
-            emit(Result.failure(e))
+            emit(Result.failure(exception = e))
         }
     }
 

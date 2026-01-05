@@ -5,13 +5,13 @@ package io.github.lycosmic.domain.model
  * 书籍阅读进度
  */
 data class ReadingProgress(
-    val chapterIndex: Int, // 当前章节
-    val chapterOffset: Float, // 章节进度
-    val totalProgress: Float // 书籍总进度
+    val bookId: Long, // 书籍ID
+    val chapterIndex: Int, // 当前章节的索引
+    val chapterOffsetCharIndex: Int, // 字符索引
 ) {
     companion object {
-        const val KEY_CHAPTER_INDEX = "chapter_index"
-        const val KEY_CHAPTER_OFFSET = "chapter_offset"
-        const val KEY_TOTAL_PROGRESS = "total_progress"
+        fun default(bookId: Long): ReadingProgress {
+            return ReadingProgress(bookId = bookId, chapterIndex = 0, chapterOffsetCharIndex = 0)
+        }
     }
 }

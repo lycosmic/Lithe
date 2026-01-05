@@ -34,7 +34,7 @@ class EpubMetadataParser @Inject constructor(
 
         // 解析 OPF 文件
         val parseResult: EpubOpfHandler.OpfParseResult =
-            opfHandler.getOpfParseResult(uri, opfParentPath)
+            opfHandler.getOpfParseResult(uri, opfRelativePath)
                 ?: throw IllegalArgumentException("OPF 文件解析失败")
 
         logger.d {

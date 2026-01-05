@@ -217,8 +217,9 @@ class EpubContentParser @Inject constructor(
 
             // 递归遍历 HTML 节点
             val readerContents = mutableListOf<BookContentBlock>()
+
             // 传入累加器
-            traverseHtmlElement(bookUri, body, readerContents, spineZipHref)
+            traverseHtmlElement(bookUri, body, readerContents, 0, spineZipHref)
             logger.d {
                 "The parsed reading content is $readerContents"
             }
@@ -241,8 +242,11 @@ class EpubContentParser @Inject constructor(
         bookUri: Uri,
         element: Element,
         accumulator: MutableList<BookContentBlock>,
+        currentCharIndex: Int, // 当前字符位置
         chapterRelativePath: String
     ): Unit = withContext(Dispatchers.Default) {
+
+        var currentCharIndex = currentCharIndex
 
         for (node in element.childNodes()) {
             when (node) {
@@ -251,7 +255,14 @@ class EpubContentParser @Inject constructor(
                     val text = node.text().trim()
                     if (text.isNotEmpty()) {
                         // 段落
-                        accumulator.add(BookContentBlock.Paragraph(text, emptyList()))
+                        accumulator.add(
+                            BookContentBlock.Paragraph(
+                                text,
+                                emptyList(),
+                                currentCharIndex
+                            )
+                        )
+                        currentCharIndex += text.length
                     }
                 }
 
@@ -268,26 +279,43 @@ class EpubContentParser @Inject constructor(
                                 accumulator.add(
                                     BookContentBlock.Title(
                                         text = title,
-                                        level = node.tagName().substring(1).toInt()
+                                        level = node.tagName().substring(1).toInt(),
+                                        startIndex = currentCharIndex
                                     )
                                 )
 
-                                accumulator.add(BookContentBlock.Divider)
+                                currentCharIndex += title.length
+
+                                accumulator.add(BookContentBlock.Divider(currentCharIndex))
+                                currentCharIndex += 1
                             } else {
-                                traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
+                                traverseHtmlElement(
+                                    bookUri,
+                                    node,
+                                    accumulator,
+                                    currentCharIndex,
+                                    chapterRelativePath
+                                )
                             }
                         }
 
                         "p" -> {
                             // 解析段落
-                            val paragraph = parseStyledText(node)
+                            val paragraph = parseStyledText(node, currentCharIndex)
                             if (paragraph.text.trim().isNotEmpty()) {
                                 accumulator.add(
                                     paragraph
                                 )
+                                currentCharIndex += paragraph.text.length
                             } else {
                                 // 非文本节点
-                                traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
+                                traverseHtmlElement(
+                                    bookUri,
+                                    node,
+                                    accumulator,
+                                    currentCharIndex,
+                                    chapterRelativePath
+                                )
                             }
                         }
 
@@ -323,9 +351,11 @@ class EpubContentParser @Inject constructor(
 
                             accumulator.add(
                                 BookContentBlock.Image(
-                                    path = imagePath
+                                    path = imagePath,
+                                    startIndex = currentCharIndex
                                 )
                             )
+                            currentCharIndex += 1
                         }
 
                         "img" -> {
@@ -359,25 +389,45 @@ class EpubContentParser @Inject constructor(
 
                             accumulator.add(
                                 BookContentBlock.Image(
-                                    path = imagePath
+                                    path = imagePath,
+                                    startIndex = currentCharIndex
                                 )
                             )
+                            currentCharIndex += 1
                         }
 
                         "figure", "div" -> {
                             // 遇到容器类标签, 继续递归
-                            traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
+                            traverseHtmlElement(
+                                bookUri,
+                                node,
+                                accumulator,
+                                currentCharIndex,
+                                chapterRelativePath
+                            )
                         }
 
                         "svg" -> {
-                            traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
+                            traverseHtmlElement(
+                                bookUri,
+                                node,
+                                accumulator,
+                                currentCharIndex,
+                                chapterRelativePath
+                            )
                         }
 
                         else -> {
                             logger.d {
                                 "Encountered an unknown tag: ${node.tagName()}"
                             }
-                            traverseHtmlElement(bookUri, node, accumulator, chapterRelativePath)
+                            traverseHtmlElement(
+                                bookUri,
+                                node,
+                                accumulator,
+                                currentCharIndex,
+                                chapterRelativePath
+                            )
                         }
                     }
                 }
@@ -391,7 +441,10 @@ class EpubContentParser @Inject constructor(
      * 将 Jsoup Element 转为书籍段落 (data class)
      * @param element 元素节点
      */
-    private fun parseStyledText(element: Element): BookContentBlock.Paragraph {
+    private fun parseStyledText(
+        element: Element,
+        currentCharIndex: Int
+    ): BookContentBlock.Paragraph {
         val builder = StringBuilder()
         val styles = mutableListOf<StyleRange>()
 
@@ -433,7 +486,8 @@ class EpubContentParser @Inject constructor(
 
         return BookContentBlock.Paragraph(
             text = builder.toString(),
-            styles = styles
+            styles = styles,
+            startIndex = currentCharIndex
         )
     }
 

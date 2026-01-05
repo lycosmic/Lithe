@@ -18,6 +18,22 @@ sealed class ReaderEvent {
      */
     object OnReadContentClick : ReaderEvent()
 
+    /**
+     * 滚动位置改变
+     */
+    data class OnScrollPositionChanged(val visibleContent: ReaderContent) : ReaderEvent()
+
+    /**
+     * 章节改变，无限滚动滑到了下一章
+     */
+    data class OnChapterChanged(val newChapterIndex: Int) : ReaderEvent()
+
+    /**
+     * 用户离开页面，立即保存当前内存中的进度到数据库
+     */
+    data class OnStopOrDispose(val bookId: Long) : ReaderEvent()
+
+
     // --- 底部区域 ---
 
 
@@ -26,4 +42,9 @@ sealed class ReaderEvent {
      * 点击抽屉返回按钮
      */
     object OnDrawerBackClick : ReaderEvent()
+
+    /**
+     * 点击章节列表项
+     */
+    data class OnChapterItemClick(val bookId: Long, val index: Int) : ReaderEvent()
 }

@@ -5,7 +5,9 @@ import io.github.lycosmic.domain.repository.BookRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-
+/**
+ * 获取书籍信息
+ */
 class GetBookUseCase @Inject constructor(
     private val bookRepository: BookRepository
 ) {

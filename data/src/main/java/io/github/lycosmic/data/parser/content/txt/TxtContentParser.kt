@@ -171,6 +171,9 @@ class TxtContentParser @Inject constructor(
         val end = chapter.endOffset
         val lengthToRead = (end - start).toInt()
 
+        // 字符的位置
+        var cursor = 0
+
         val bookUri = uriString.toUri()
         val contentList = mutableListOf<BookContentBlock>()
 
@@ -204,7 +207,8 @@ class TxtContentParser @Inject constructor(
                         if (lines.isNotEmpty()) {
                             val title = lines[0].trim()
                             if (title.isNotEmpty()) {
-                                contentList.add(BookContentBlock.Title(title, 0))
+                                contentList.add(BookContentBlock.Title(title, 0, cursor))
+                                cursor += title.length
                             }
                         }
 
@@ -215,7 +219,14 @@ class TxtContentParser @Inject constructor(
                             if (paragraph.isNotEmpty()) {
                                 // 处理 TXT 常见的段首缩进 (全角空格)
                                 val cleanText = paragraph.replace("\u3000", "  ")
-                                contentList.add(BookContentBlock.Paragraph(cleanText, emptyList()))
+                                contentList.add(
+                                    BookContentBlock.Paragraph(
+                                        cleanText,
+                                        emptyList(),
+                                        cursor
+                                    )
+                                )
+                                cursor += cleanText.length
                             }
                         }
                     }

@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.lycosmic.data.local.AppDatabase
 import io.github.lycosmic.data.local.dao.BookDao
+import io.github.lycosmic.data.local.dao.BookProgressDao
 import io.github.lycosmic.data.local.dao.CategoryDao
 import io.github.lycosmic.data.local.dao.ChapterDao
 import io.github.lycosmic.data.local.dao.ColorPresetDao
@@ -76,5 +77,13 @@ object DatabaseModule {
         appDatabase: AppDatabase
     ): ChapterDao {
         return appDatabase.chapterDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideBookProgressDao(
+        appDatabase: AppDatabase
+    ): BookProgressDao {
+        return appDatabase.bookProgressDao()
     }
 }

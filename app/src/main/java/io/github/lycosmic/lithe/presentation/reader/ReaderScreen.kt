@@ -21,11 +21,13 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -38,8 +40,11 @@ import io.github.lycosmic.lithe.presentation.reader.components.ReaderTopBar
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderEffect
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderEvent
 import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
 
 
+@OptIn(FlowPreview::class)
 @Composable
 fun ReaderScreen(
     navigateBack: () -> Unit,
@@ -54,6 +59,27 @@ fun ReaderScreen(
 
     // 抽屉状态
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }
+            .debounce(50)
+            .collect { index ->
+                // 屏幕最上方的 Item
+                val currentItem = uiState.readerItems.getOrNull(index)
+                if (currentItem != null) {
+                    // 更新内存中的进度
+                    viewModel.onEvent(ReaderEvent.OnScrollPositionChanged(currentItem))
+                }
+            }
+    }
+
+    // 用户突然退出或锁屏时强制保存
+    DisposableEffect(Unit) {
+        onDispose {
+            // 强制立即保存内存中的进度
+            viewModel.onEvent(ReaderEvent.OnStopOrDispose(uiState.bookId))
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
@@ -77,6 +103,9 @@ fun ReaderScreen(
                         drawerState.open()
                     }
                 }
+
+                is ReaderEffect.RestoreFocus -> TODO()
+                is ReaderEffect.ScrollToItem -> TODO()
             }
         }
     }
@@ -96,8 +125,14 @@ fun ReaderScreen(
                 windowInsets = WindowInsets(0, 0, 0, 0)
             ) {
                 ChapterListContent(
-                    onChapterClick = {
-                        // 执行跳转逻辑
+                    onChapterClick = { index ->
+                        // 跳转章节
+                        viewModel.onEvent(
+                            ReaderEvent.OnChapterItemClick(
+                                uiState.bookId,
+                                index
+                            )
+                        )
                     },
                     chapters = uiState.chapters,
                     currentChapterIndex = 0,
@@ -144,11 +179,11 @@ fun DrawContent(
             .background(MaterialTheme.colorScheme.surface) // 模拟纸张颜色
     ) {
         // 阅读文本
-        if (uiState.isLoading) {
+        if (uiState.isInitialLoading) {
             CircularWavyProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
             BookReaderContent(
-                contents = uiState.currentContent,
+                contents = uiState.readerItems,
                 listState = listState,
                 onContentClick = onReadContentClick
             )

@@ -12,15 +12,23 @@ import kotlinx.coroutines.withContext
 
 
 object ContentMapper {
-    suspend fun mapToUi(bookContentBlock: BookContentBlock): ReaderContent =
+    suspend fun mapToUi(chapterIndex: Int, bookContentBlock: BookContentBlock): ReaderContent =
         withContext(Dispatchers.Default) {
             return@withContext when (bookContentBlock) {
-                BookContentBlock.Divider -> {
-                    ReaderContent.Divider
+                is BookContentBlock.Divider -> {
+                    ReaderContent.Divider(
+                        startIndex = bookContentBlock.startIndex,
+                        chapterIndex = chapterIndex
+                    )
                 }
 
                 is BookContentBlock.Image -> {
-                    ReaderContent.Image(bookContentBlock.path, bookContentBlock.path)
+                    ReaderContent.Image(
+                        startIndex = bookContentBlock.startIndex,
+                        chapterIndex = chapterIndex,
+                        path = bookContentBlock.path,
+                        caption = bookContentBlock.path
+                    )
                 }
 
                 is BookContentBlock.Paragraph -> {
@@ -45,11 +53,20 @@ object ContentMapper {
                         }
                     }
 
-                    ReaderContent.Paragraph(styledText)
+                    ReaderContent.Paragraph(
+                        startIndex = bookContentBlock.startIndex,
+                        chapterIndex = chapterIndex,
+                        text = styledText
+                    )
                 }
 
                 is BookContentBlock.Title -> {
-                    ReaderContent.Title(bookContentBlock.text, bookContentBlock.level)
+                    ReaderContent.Title(
+                        startIndex = bookContentBlock.startIndex,
+                        chapterIndex = chapterIndex,
+                        text = bookContentBlock.text,
+                        level = bookContentBlock.level
+                    )
                 }
             }
         }
