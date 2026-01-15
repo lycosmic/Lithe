@@ -67,3 +67,9 @@ dependencies {
     // GSON
     implementation(libs.gson)
 }
+
+
+// Room schema 导出配置 (KSP)
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}

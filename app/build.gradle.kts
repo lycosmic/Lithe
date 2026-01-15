@@ -112,8 +112,3 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
-
-// Room schema 导出配置 (KSP)
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-}
