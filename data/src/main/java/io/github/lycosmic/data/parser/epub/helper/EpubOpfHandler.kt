@@ -220,7 +220,7 @@ class EpubOpfHandler @Inject constructor(
 
         // 获取封面路径
         if (coverId != null && manifest.containsKey(coverId)) {
-            val coverHref = manifest[coverId]
+            coverHref = manifest[coverId]
             logger.d {
                 "从元数据中获取封面路径: $coverHref"
             }
