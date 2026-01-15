@@ -33,4 +33,15 @@ sealed class ReaderEffect {
      * 改变字号后，恢复阅读的第一个字在屏幕顶部
      */
     data class RestoreFocus(val charIndex: Int) : ReaderEffect()
+
+    // -- 提示 ---
+    /**
+     * 显示当前已为第一章的提示
+     */
+    data object ShowFirstChapterToast : ReaderEffect()
+
+    /**
+     * 显示当前已为最后一章的提示
+     */
+    data object ShowLastChapterToast : ReaderEffect()
 }

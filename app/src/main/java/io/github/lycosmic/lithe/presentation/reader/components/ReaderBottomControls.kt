@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -60,7 +61,12 @@ fun ReaderBottomControls(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 AnimatedVisibility(isPrevVisible) {
                     IconButton(onClick = onPrevClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
                     }
                 }
                 Slider(
@@ -70,7 +76,12 @@ fun ReaderBottomControls(
                 )
                 AnimatedVisibility(isNextVisible) {
                     IconButton(onClick = onNextClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowForward, null)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
                     }
                 }
             }

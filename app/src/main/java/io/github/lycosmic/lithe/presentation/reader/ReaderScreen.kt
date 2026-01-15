@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.reader.components.BookReaderContent
 import io.github.lycosmic.lithe.presentation.reader.components.ChapterListContent
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderBottomControls
@@ -41,6 +42,7 @@ import io.github.lycosmic.lithe.presentation.reader.model.ReaderEffect
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderEvent
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderUiState
 import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
+import io.github.lycosmic.lithe.util.toast
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 
@@ -110,6 +112,14 @@ fun ReaderScreen(
                     val index = effect.index
                     listState.scrollToItem(index)
                 }
+
+                ReaderEffect.ShowFirstChapterToast -> {
+                    R.string.first_chapter.toast()
+                }
+
+                ReaderEffect.ShowLastChapterToast -> {
+                    R.string.last_chapter.toast()
+                }
             }
         }
     }
@@ -149,7 +159,7 @@ fun ReaderScreen(
         gesturesEnabled = drawerState.isOpen, // 只有当抽屉打开时，才允许使用手势返回
     ) {
         // 屏幕主内容
-        DrawContent(
+        DrawerContent(
             uiState = uiState,
             isBarsVisible = isBarsVisible,
             listState = listState,
@@ -162,21 +172,40 @@ fun ReaderScreen(
             onChapterMenuClick = {
                 viewModel.onEvent(ReaderEvent.OnChapterMenuClick)
             },
+            onPrevClick = {
+                viewModel.onEvent(ReaderEvent.OnPrevChapterClick)
+            },
+            onNextClick = {
+                viewModel.onEvent(ReaderEvent.OnNextChapterClick)
+            },
         )
     }
 
 }
 
+/**
+ * 抽屉内容
+ */
 @Composable
-fun DrawContent(
+fun DrawerContent(
     modifier: Modifier = Modifier,
     uiState: ReaderUiState,
     isBarsVisible: Boolean,
     onBackClick: () -> Unit,
     onReadContentClick: () -> Unit,
     onChapterMenuClick: () -> Unit,
+    onPrevClick: () -> Unit,
+    onNextClick: () -> Unit,
     listState: LazyListState
 ) {
+
+    val isPrevVisible = remember(uiState.currentChapterIndex) {
+        uiState.currentChapterIndex > 0
+    }
+    val isNextVisible = remember(uiState.currentChapterIndex) {
+        uiState.currentChapterIndex < uiState.chapters.size - 1
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -241,14 +270,10 @@ fun DrawContent(
 
                 },
                 currentChapterIndex = 0,
-                isPrevVisible = false,
-                isNextVisible = false,
-                onPrevClick = {
-
-                },
-                onNextClick = {
-
-                },
+                isPrevVisible = isPrevVisible,
+                isNextVisible = isNextVisible,
+                onPrevClick = onPrevClick,
+                onNextClick = onNextClick,
             )
         }
     }

@@ -35,6 +35,15 @@ sealed class ReaderEvent {
 
 
     // --- 底部区域 ---
+    /**
+     * 点击上一章按钮
+     */
+    data object OnPrevChapterClick : ReaderEvent()
+
+    /**
+     * 点击下一章按钮
+     */
+    data object OnNextChapterClick : ReaderEvent()
 
 
     // --- 章节列表区域 ---

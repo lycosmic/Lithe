@@ -158,4 +158,6 @@
     <string name="move_book_category_dialog_cancel_button">取消</string>
     <string name="move_book_category_dialog_confirm_button">确定</string>
     <string name="chapter_list">章节</string>
+    <string name="first_chapter">当前已是第一章</string>
+    <string name="last_chapter">当前已是最后一章</string>
 </resources>

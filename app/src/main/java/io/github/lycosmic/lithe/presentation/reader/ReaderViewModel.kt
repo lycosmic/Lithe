@@ -224,6 +224,36 @@ class ReaderViewModel @Inject constructor(
                 is ReaderEvent.OnStopOrDispose -> {
                     saveToDbImmediate(bookId = event.bookId)
                 }
+
+                ReaderEvent.OnPrevChapterClick -> {
+                    val currentIndex = uiState.value.progress.chapterIndex
+                    val bookId = uiState.value.bookId
+                    if (currentIndex > 0) {
+                        switchToChapter(bookId = bookId, index = currentIndex - 1)
+                    } else {
+                        logW {
+                            "切换章节失败，当前章节为第一章节"
+                        }
+                        _effects.emit(ReaderEffect.ShowFirstChapterToast)
+                        return@launch
+                    }
+                }
+
+                ReaderEvent.OnNextChapterClick -> {
+                    val currentIndex = uiState.value.progress.chapterIndex
+                    val chapterSize = uiState.value.chapters.size
+                    val bookId = uiState.value.bookId
+                    if (currentIndex < chapterSize - 1) {
+                        switchToChapter(bookId = bookId, index = currentIndex + 1)
+                    } else {
+                        logW {
+                            "切换章节失败，当前章节为最后一章节"
+                        }
+                        _effects.emit(ReaderEffect.ShowLastChapterToast)
+                        return@launch
+                    }
+                }
+
             }
         }
 
