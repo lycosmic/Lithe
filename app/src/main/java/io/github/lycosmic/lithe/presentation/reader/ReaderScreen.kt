@@ -139,7 +139,7 @@ fun ReaderScreen(
                         )
                     },
                     chapters = uiState.chapters,
-                    currentChapterIndex = uiState.currentContent?.chapterIndex ?: 0,
+                    currentChapterIndex = uiState.currentChapterIndex,
                     currentChapterProgressText = "0%",
                 )
             }

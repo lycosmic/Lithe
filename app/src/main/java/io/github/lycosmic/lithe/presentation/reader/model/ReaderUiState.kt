@@ -6,6 +6,7 @@ import io.github.lycosmic.domain.model.ReadingProgress
 data class ReaderUiState(
     val bookId: Long = -1,
     val bookName: String = "",
+    val currentChapterIndex: Int = -1,
     val chapters: List<BookChapter> = emptyList(), // 目录结构
     val readerItems: List<ReaderContent> = emptyList(), // 阅读内容
     val progress: ReadingProgress = ReadingProgress.default(-1L), // 阅读进度

@@ -110,7 +110,7 @@ class ReaderViewModel @Inject constructor(
                 book = book,
                 chapters = chapters,
                 currentContent = currentContent,
-                progress = progress
+                progress = progress,
             )
         }
     }
@@ -134,6 +134,7 @@ class ReaderViewModel @Inject constructor(
             bookId = data.book?.id ?: -1L,
             bookName = data.book?.title ?: "",
             chapters = data.chapters,
+            currentChapterIndex = data.progress?.chapterIndex ?: 0,
             readerItems = data.currentContent,
             isInitialLoading = false,
             error = data.error ?: transient.transientError,
