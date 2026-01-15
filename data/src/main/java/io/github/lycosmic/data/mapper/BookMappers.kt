@@ -18,11 +18,9 @@ fun BookEntity.toDomain(categories: List<CategoryEntity> = emptyList()): Book {
         fileUri = fileUri,
         format = FileFormat.fromValue(format),
         coverPath = coverPath,
-        lastReadPosition = lastReadPosition,
-        progress = progress,
-        lastReadTime = lastReadTime,
         importTime = importTime,
-        categories = categories.map { it.toDomain() }
+        categories = categories.map { it.toDomain() },
+        progress = 0f,
     )
 }
 
@@ -37,9 +35,6 @@ fun Book.toEntity(): BookEntity {
         fileUri = fileUri,
         format = format.value,
         coverPath = coverPath,
-        lastReadPosition = lastReadPosition,
-        progress = progress,
-        lastReadTime = lastReadTime,
         importTime = importTime,
         language = null,
         publisher = null,

@@ -38,14 +38,8 @@ data class BookEntity(
     val format: String, // 文件格式, epub, pdf, txt
     @ColumnInfo(name = COL_COVER_PATH)
     val coverPath: String? = null, // 封面缓存路径
-    @ColumnInfo(name = COL_LAST_READ_POSITION)
-    val lastReadPosition: String? = null, // 最后阅读位置
-    @ColumnInfo(name = COL_PROGRESS)
-    val progress: Float = 0f, // 阅读进度百分比
     @ColumnInfo(name = COL_IMPORT_TIME)
     val importTime: Long = System.currentTimeMillis(), // 导入时间, 用于最近添加排序
-    @ColumnInfo(name = COL_LAST_READ_TIME)
-    val lastReadTime: Long?, // 最后阅读时间, 用于最近阅读排序
 ) {
     companion object {
         const val TABLE_NAME = "books"
@@ -61,10 +55,6 @@ data class BookEntity(
         const val COL_FILE_URI = "file_uri"
         const val COL_FORMAT = "format"
         const val COL_COVER_PATH = "cover_path"
-        const val COL_LAST_READ_POSITION = "last_read_position"
-        const val COL_PROGRESS = "progress"
         const val COL_IMPORT_TIME = "import_time"
-        const val COL_LAST_READ_TIME = "last_read_time"
-
     }
 }

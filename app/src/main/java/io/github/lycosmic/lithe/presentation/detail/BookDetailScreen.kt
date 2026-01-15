@@ -293,7 +293,8 @@ fun BookDetailScreen(
                             Row(modifier = Modifier.align(Alignment.Start)) {
                                 LinearProgressIndicator(
                                     progress = {
-                                        book.progress
+                                        // TODO: 书籍阅读进度
+                                        0f
                                     },
                                     modifier = Modifier
                                         .weight(1f)

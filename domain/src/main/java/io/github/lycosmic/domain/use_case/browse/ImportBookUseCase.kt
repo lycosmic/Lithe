@@ -47,10 +47,8 @@ class ImportBookUseCase @Inject constructor(
                         fileUri = bookFile.uriString,
                         format = bookFile.format,
                         coverPath = metadata.coverPath,
-                        lastReadPosition = "",
+                        importTime = System.currentTimeMillis(),
                         progress = 0f,
-                        lastReadTime = null,
-                        importTime = System.currentTimeMillis()
                     )
                     val bookId = bookRepository.importBook(book)
                     // 添加到默认分类中

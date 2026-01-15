@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface BookDao {
 
-    @Query("SELECT * FROM ${BookEntity.TABLE_NAME} ORDER BY ${BookEntity.COL_LAST_READ_TIME} DESC")
+    @Query("SELECT * FROM ${BookEntity.TABLE_NAME} ORDER BY ${BookEntity.COL_IMPORT_TIME} DESC")
     fun getAllBooks(): Flow<List<BookEntity>>
 
     @Query("SELECT * FROM ${BookEntity.TABLE_NAME} WHERE ${BookEntity.COL_ID} = :id LIMIT 1")

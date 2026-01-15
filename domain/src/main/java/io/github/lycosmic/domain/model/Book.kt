@@ -10,15 +10,14 @@ data class Book(
     val fileUri: String,
     val format: FileFormat,
     val coverPath: String?,
-    val lastReadPosition: String?,
-    val progress: Float = 0f,
-    val lastReadTime: Long?,
     val importTime: Long,
+    val progress: Float = 0f,
+    val lastReadTime: Long? = null,
     val categories: List<Category> = emptyList() // 书籍的分类，默认为空
 ) {
     companion object {
         val Empty = Book(
-            id = -1,
+            id = 0,
             uniqueId = "",
             title = "",
             author = emptyList(),
@@ -27,9 +26,9 @@ data class Book(
             fileUri = "",
             format = FileFormat.UNKNOWN,
             coverPath = null,
-            lastReadPosition = null,
-            lastReadTime = null,
-            importTime = 0
+            importTime = 0,
+            progress = 0f,
+            lastReadTime = null
         )
     }
 }
