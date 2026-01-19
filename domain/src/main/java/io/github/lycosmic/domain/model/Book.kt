@@ -16,8 +16,8 @@ data class Book(
     val categories: List<Category> = emptyList() // 书籍的分类，默认为空
 ) {
     companion object {
-        val Empty = Book(
-            id = 0,
+        val default = Book(
+            id = -1,
             uniqueId = "",
             title = "",
             author = emptyList(),

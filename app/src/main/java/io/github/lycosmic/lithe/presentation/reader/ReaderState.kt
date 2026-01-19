@@ -1,11 +1,11 @@
-package io.github.lycosmic.lithe.presentation.reader.model
+package io.github.lycosmic.lithe.presentation.reader
 
+import io.github.lycosmic.domain.model.Book
 import io.github.lycosmic.domain.model.BookChapter
 import io.github.lycosmic.domain.model.ReadingProgress
 
-data class ReaderUiState(
-    val bookId: Long = -1,
-    val bookName: String = "",
+data class ReaderState(
+    val book: Book = Book.default,
     val currentChapterIndex: Int = -1,
     val chapters: List<BookChapter> = emptyList(), // 目录结构
     val readerItems: List<ReaderContent> = emptyList(), // 阅读内容

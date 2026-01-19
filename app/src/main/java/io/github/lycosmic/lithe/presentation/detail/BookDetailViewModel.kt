@@ -25,7 +25,7 @@ class BookDetailViewModel @Inject constructor(
     private val bookRepositoryImpl: BookRepository,
 ) : ViewModel() {
 
-    private val _book = MutableStateFlow(Book.Empty)
+    private val _book = MutableStateFlow(Book.default)
     val book = _book.asStateFlow()
 
     // 自己维护的文件路径, 用来判断文件是否为空, 或有损坏
@@ -42,7 +42,7 @@ class BookDetailViewModel @Inject constructor(
             }.stateIn(
                 scope = viewModelScope,
                 started = WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-                initialValue = Book.Empty
+                initialValue = Book.default
             ).filterNotNull().collect { book ->
                 _book.value = book
 

@@ -20,4 +20,10 @@ interface BookProgressDao {
      */
     @Query("SELECT * FROM ${BookProgressEntity.TABLE_NAME} WHERE ${BookProgressEntity.COL_BOOK_ID} = :bookId")
     fun getProgressFlow(bookId: Long): Flow<BookProgressEntity?>
+
+    /**
+     * 获取阅读进度
+     */
+    @Query("SELECT * FROM ${BookProgressEntity.TABLE_NAME} WHERE ${BookProgressEntity.COL_BOOK_ID} = :bookId")
+    suspend fun getProgress(bookId: Long): BookProgressEntity?
 }

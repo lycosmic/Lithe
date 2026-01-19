@@ -3,8 +3,6 @@ package io.github.lycosmic.lithe.presentation.reader
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.domain.model.Book
-import io.github.lycosmic.domain.model.BookChapter
 import io.github.lycosmic.domain.model.ReadingProgress
 import io.github.lycosmic.domain.use_case.browse.GetBookUseCase
 import io.github.lycosmic.domain.use_case.reader.GetChapterContentUseCase
@@ -16,25 +14,12 @@ import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logI
 import io.github.lycosmic.lithe.log.logW
 import io.github.lycosmic.lithe.presentation.reader.mapper.ContentMapper
-import io.github.lycosmic.lithe.presentation.reader.model.ReaderContent
-import io.github.lycosmic.lithe.presentation.reader.model.ReaderEffect
-import io.github.lycosmic.lithe.presentation.reader.model.ReaderEvent
-import io.github.lycosmic.lithe.presentation.reader.model.ReaderUiState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,131 +34,111 @@ class ReaderViewModel @Inject constructor(
     private val getBookUseCase: GetBookUseCase,
 ) : ViewModel() {
 
-    // 书籍 ID
-    private val _bookIdFlow = MutableStateFlow<Long?>(null)
+    //    init {
+//        // 启动防抖保存监听
+//        viewModelScope.launch {
+//            scrollEventFlow
+//                .debounce(3000)
+//                .collect { content ->
+//                    val bookId = _bookIdFlow.value ?: return@collect
+//                    saveToDb(bookId = bookId, content = content)
+//                }
+//        }
+//    }
+    private val _uiState: MutableStateFlow<ReaderState> = MutableStateFlow(ReaderState())
+    val uiState = _uiState.asStateFlow()
 
-    // 滚动事件
-    private val scrollEventFlow = MutableSharedFlow<ReaderContent>(
-        replay = 0,
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-
-    init {
-        // 启动防抖保存监听
-        viewModelScope.launch {
-            scrollEventFlow
-                .debounce(3000)
-                .collect { content ->
-                    val bookId = _bookIdFlow.value ?: return@collect
-                    saveToDb(bookId = bookId, content = content)
-                }
-        }
-    }
-
-    // 手动状态源
-    private val _transientState = MutableStateFlow(ReaderTransientState())
-
-    // 自动数据流
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val _persistentDataFlow = _bookIdFlow.filterNotNull().flatMapLatest { bookId ->
-        combine(
-            getBookUseCase(bookId),
-            getReadingProgressUseCase(bookId)
-        ) { bookResult, progressResult ->
-            val book = bookResult.getOrNull()
-            val progress = progressResult.getOrNull() ?: ReadingProgress.default(bookId)
-
-            if (book == null) {
-                return@combine ReaderPersistentData(error = "书籍不存在")
-            }
-
-            // 加载章节列表
-            val chapters = getChapterListUseCase(book).getOrDefault(emptyList())
-            if (chapters.isEmpty()) {
-                return@combine ReaderPersistentData(error = "书籍没有章节")
-            }
-
-            // 加载当前章节内容
-            val currentContent = run {
-                val chapter = chapters.getOrNull(progress.chapterIndex)
-                if (chapter != null) {
-                    getChapterContentUseCase(book.fileUri, book.format, chapter)
-                        .getOrNull()?.map { ContentMapper.mapToUi(progress.chapterIndex, it) }
-                        ?: return@combine ReaderPersistentData(error = "章节内容不存在")
-                } else {
-                    return@combine ReaderPersistentData(error = "章节不存在")
-                }
-            }
-
-            ReaderPersistentData(
-                book = book,
-                chapters = chapters,
-                currentContent = currentContent,
-                progress = progress,
-            )
-        }
-    }
-
-    private val _dataWithRestorationFlow = _persistentDataFlow.onEach { data ->
-        // 只有当内容不为空，且进度存在时，才尝试恢复进度
-        if (data.currentContent.isNotEmpty() && data.progress != null) {
-            val targetCharIndex = data.progress.chapterOffsetCharIndex
-
-            val itemIndex = findScrollPosition(data.currentContent, targetCharIndex)
-            _effects.emit(ReaderEffect.ScrollToItem(itemIndex))
-        }
-    }
-
-    val uiState: StateFlow<ReaderUiState> = combine(
-        _dataWithRestorationFlow,
-        _transientState
-    ) { data, transient ->
-        ReaderUiState(
-            // 来自数据库的数据
-            bookId = data.book?.id ?: -1L,
-            bookName = data.book?.title ?: "",
-            chapters = data.chapters,
-            currentChapterIndex = data.progress?.chapterIndex ?: 0,
-            readerItems = data.currentContent,
-            isInitialLoading = false,
-            error = data.error ?: transient.transientError,
-            progress = data.progress ?: ReadingProgress.default(-1L),
-            currentContent = transient.visibleContent
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = ReaderUiState(isInitialLoading = true)
-    )
-
-
-    private data class ReaderPersistentData(
-        val book: Book? = null,
-        val chapters: List<BookChapter> = emptyList(),
-        val currentContent: List<ReaderContent> = emptyList(),
-        val progress: ReadingProgress? = null,
-        val error: String? = null
-    )
-
-    private data class ReaderTransientState(
-        val chapterProgressText: String? = null,
-        val bookProgressText: String? = null,
-        val transientError: String? = null,
-        val visibleContent: ReaderContent? = null,
-    )
 
     private val _effects = MutableSharedFlow<ReaderEffect>()
     val effects = _effects.asSharedFlow()
 
     /**
-     * 设置书籍 ID
+     * 初始化
      */
-    fun setBookId(id: Long) {
-        viewModelScope.launch {
-            _bookIdFlow.value = id
+    fun init(bookId: Long) {
+        viewModelScope.launch(Dispatchers.Default) {
+            // 获取书籍
+            val book = getBookUseCase(bookId).getOrElse { e ->
+                logE(e = e) {
+                    "初始化失败，ID为 $bookId 的书籍不存在"
+                }
+                _uiState.update { state ->
+                    state.copy(
+                        isInitialLoading = false
+                    )
+                }
+                _effects.emit(ReaderEffect.NavigateBack)
+                return@launch
+            }
+
+            _uiState.update {
+                it.copy(
+                    book = book,
+                )
+            }
+
+            // 加载进度
+            val progress = getReadingProgressUseCase(bookId).getOrElse {
+                logW {
+                    "获取进度失败，ID为 $bookId 的书籍不存在进度，将使用默认进度"
+                }
+                ReadingProgress.default(bookId)
+            }
+
+            _uiState.update {
+                it.copy(
+                    currentChapterIndex = progress.chapterIndex,
+                    progress = progress,
+                )
+            }
+
+            // 加载章节列表
+            val chapters = getChapterListUseCase(book).getOrElse {
+                logE {
+                    "获取章节列表失败，ID为 $bookId 的书籍不存在章节列表"
+                }
+                return@launch
+            }
+
+            _uiState.update {
+                it.copy(
+                    chapters = chapters,
+                )
+            }
+
+            // 加载当前章节内容
+            val chapterContents = chapters.getOrNull(progress.chapterIndex)?.let { chapter ->
+                getChapterContentUseCase(book.fileUri, book.format, chapter)
+                    .getOrNull()?.map {
+                        ContentMapper.mapToUi(progress.chapterIndex, it)
+                    }
+            } ?: run {
+                logE {
+                    "获取章节内容失败，ID为 $bookId 的书籍不存在章节内容，章节索引为 ${progress.chapterIndex}"
+                }
+                _uiState.update {
+                    it.copy(
+                        isInitialLoading = false,
+                        error = "章节不存在"
+                    )
+                }
+                return@launch
+            }
+
+            _uiState.update {
+                it.copy(
+                    readerItems = chapterContents,
+                    isInitialLoading = false,
+                )
+            }
+
+            // 滚动到上次阅读位置，恢复阅读进度
+            val targetCharIndex = progress.chapterOffsetCharIndex
+            val itemIndex = findScrollPosition(chapterContents, targetCharIndex)
+            _effects.emit(ReaderEffect.ScrollToItem(itemIndex))
         }
     }
+
 
     /**
      * 找到之前的滚动位置
@@ -213,12 +178,9 @@ class ReaderViewModel @Inject constructor(
                     switchToChapter(bookId = event.bookId, index = event.index)
                 }
 
-                is ReaderEvent.OnChapterChanged -> TODO()
                 is ReaderEvent.OnScrollPositionChanged -> {
+                    // 更新进度
                     updateMemoryProgress(event.visibleContent)
-
-                    // 防抖保存进度
-                    scrollEventFlow.tryEmit(event.visibleContent)
                 }
 
                 is ReaderEvent.OnStopOrDispose -> {
@@ -227,7 +189,7 @@ class ReaderViewModel @Inject constructor(
 
                 ReaderEvent.OnPrevChapterClick -> {
                     val currentIndex = uiState.value.progress.chapterIndex
-                    val bookId = uiState.value.bookId
+                    val bookId = _uiState.value.book.id
                     if (currentIndex > 0) {
                         switchToChapter(bookId = bookId, index = currentIndex - 1)
                     } else {
@@ -242,7 +204,7 @@ class ReaderViewModel @Inject constructor(
                 ReaderEvent.OnNextChapterClick -> {
                     val currentIndex = uiState.value.progress.chapterIndex
                     val chapterSize = uiState.value.chapters.size
-                    val bookId = uiState.value.bookId
+                    val bookId = uiState.value.book.id
                     if (currentIndex < chapterSize - 1) {
                         switchToChapter(bookId = bookId, index = currentIndex + 1)
                     } else {
@@ -264,14 +226,8 @@ class ReaderViewModel @Inject constructor(
      */
     private fun updateMemoryProgress(content: ReaderContent) {
         viewModelScope.launch {
-            _transientState.update {
-                // TODO：目前简单实现
-                it.copy(
-                    chapterProgressText = "${content.chapterIndex + 1}/${uiState.value.chapters.size}",
-                    bookProgressText = "${content.startIndex + 1}/${uiState.value.readerItems.size}",
-                    visibleContent = content
-                )
-            }
+            // TODO: 更新进度
+
         }
     }
 
@@ -290,7 +246,7 @@ class ReaderViewModel @Inject constructor(
             val newProgress = ReadingProgress(
                 bookId = bookId,
                 chapterIndex = index,
-                chapterOffsetCharIndex = 0 // 下一章
+                chapterOffsetCharIndex = 0 // 下一章开头
             )
 
             saveReadingProgressUseCase(bookId, newProgress)

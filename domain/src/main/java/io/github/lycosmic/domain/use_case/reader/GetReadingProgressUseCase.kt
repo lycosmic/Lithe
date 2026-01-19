@@ -2,7 +2,6 @@ package io.github.lycosmic.domain.use_case.reader
 
 import io.github.lycosmic.domain.model.ReadingProgress
 import io.github.lycosmic.domain.repository.ProgressRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
@@ -11,7 +10,7 @@ import javax.inject.Inject
 class GetReadingProgressUseCase @Inject constructor(
     private val progressRepository: ProgressRepository
 ) {
-    suspend operator fun invoke(bookId: Long): Flow<Result<ReadingProgress>> {
-        return progressRepository.getBookProgress(bookId)
+    suspend operator fun invoke(bookId: Long): Result<ReadingProgress> {
+        return progressRepository.getBookProgressSync(bookId)
     }
 }

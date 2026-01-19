@@ -1,4 +1,4 @@
-package io.github.lycosmic.lithe.presentation.reader.model
+package io.github.lycosmic.lithe.presentation.reader
 
 sealed class ReaderEvent {
     // --- 顶部区域 ---
@@ -23,10 +23,6 @@ sealed class ReaderEvent {
      */
     data class OnScrollPositionChanged(val visibleContent: ReaderContent) : ReaderEvent()
 
-    /**
-     * 章节改变，无限滚动滑到了下一章
-     */
-    data class OnChapterChanged(val newChapterIndex: Int) : ReaderEvent()
 
     /**
      * 用户离开页面，立即保存当前内存中的进度到数据库

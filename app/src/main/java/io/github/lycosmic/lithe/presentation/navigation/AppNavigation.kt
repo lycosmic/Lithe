@@ -1,10 +1,8 @@
 package io.github.lycosmic.lithe.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import io.github.lycosmic.lithe.presentation.browse.BrowseScreen
@@ -12,7 +10,6 @@ import io.github.lycosmic.lithe.presentation.detail.BookDetailScreen
 import io.github.lycosmic.lithe.presentation.history.HistoryScreen
 import io.github.lycosmic.lithe.presentation.library.LibraryScreen
 import io.github.lycosmic.lithe.presentation.reader.ReaderScreen
-import io.github.lycosmic.lithe.presentation.reader.ReaderViewModel
 import io.github.lycosmic.lithe.presentation.settings.SettingsScreen
 import io.github.lycosmic.lithe.presentation.settings.appearance.AppearanceSettingsScreen
 import io.github.lycosmic.lithe.presentation.settings.browse.BrowseSettingsScreen
@@ -109,17 +106,12 @@ fun AppNavigation(
 
                     is AppRoutes.Reader -> {
                         val bookId = navKey.bookId
-                        val viewModel: ReaderViewModel = hiltViewModel(key = bookId.toString())
-
-                        LaunchedEffect(bookId) {
-                            viewModel.setBookId(bookId)
-                        }
 
                         ReaderScreen(
+                            bookId = bookId,
                             navigateBack = {
                                 navViewModel.pop()
                             },
-                            viewModel = viewModel
                         )
                     }
 

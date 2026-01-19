@@ -38,9 +38,6 @@ import io.github.lycosmic.lithe.presentation.reader.components.BookReaderContent
 import io.github.lycosmic.lithe.presentation.reader.components.ChapterListContent
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderBottomControls
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderTopBar
-import io.github.lycosmic.lithe.presentation.reader.model.ReaderEffect
-import io.github.lycosmic.lithe.presentation.reader.model.ReaderEvent
-import io.github.lycosmic.lithe.presentation.reader.model.ReaderUiState
 import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
 import io.github.lycosmic.lithe.util.toast
 import kotlinx.coroutines.FlowPreview
@@ -50,6 +47,7 @@ import kotlinx.coroutines.flow.debounce
 @OptIn(FlowPreview::class)
 @Composable
 fun ReaderScreen(
+    bookId: Long,
     navigateBack: () -> Unit,
     viewModel: ReaderViewModel = hiltViewModel(),
 ) {
@@ -62,6 +60,11 @@ fun ReaderScreen(
 
     // 抽屉状态
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    // 初始化
+    LaunchedEffect(bookId) {
+        viewModel.init(bookId)
+    }
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }
@@ -80,7 +83,7 @@ fun ReaderScreen(
     DisposableEffect(Unit) {
         onDispose {
             // 强制立即保存内存中的进度
-            viewModel.onEvent(ReaderEvent.OnStopOrDispose(uiState.bookId))
+            viewModel.onEvent(ReaderEvent.OnStopOrDispose(uiState.book.id))
         }
     }
 
@@ -143,7 +146,7 @@ fun ReaderScreen(
                         // 跳转章节
                         viewModel.onEvent(
                             ReaderEvent.OnChapterItemClick(
-                                uiState.bookId,
+                                uiState.book.id,
                                 index
                             )
                         )
@@ -189,7 +192,7 @@ fun ReaderScreen(
 @Composable
 fun DrawerContent(
     modifier: Modifier = Modifier,
-    uiState: ReaderUiState,
+    uiState: ReaderState,
     isBarsVisible: Boolean,
     onBackClick: () -> Unit,
     onReadContentClick: () -> Unit,
