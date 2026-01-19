@@ -44,4 +44,9 @@ sealed class ReaderEffect {
      * 显示当前已为最后一章的提示
      */
     data object ShowLastChapterToast : ReaderEffect()
+
+    /**
+     * 显示加载章节内容失败的提示
+     */
+    data object ShowLoadChapterContentFailedToast : ReaderEffect()
 }

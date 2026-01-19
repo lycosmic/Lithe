@@ -51,5 +51,5 @@ sealed class ReaderEvent {
     /**
      * 点击章节列表项
      */
-    data class OnChapterItemClick(val bookId: Long, val index: Int) : ReaderEvent()
+    data class OnChapterItemClick(val index: Int) : ReaderEvent()
 }

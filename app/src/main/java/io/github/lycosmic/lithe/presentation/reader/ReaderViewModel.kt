@@ -3,6 +3,8 @@ package io.github.lycosmic.lithe.presentation.reader
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.domain.model.Book
+import io.github.lycosmic.domain.model.FileFormat
 import io.github.lycosmic.domain.model.ReadingProgress
 import io.github.lycosmic.domain.use_case.browse.GetBookUseCase
 import io.github.lycosmic.domain.use_case.reader.GetChapterContentUseCase
@@ -34,17 +36,6 @@ class ReaderViewModel @Inject constructor(
     private val getBookUseCase: GetBookUseCase,
 ) : ViewModel() {
 
-    //    init {
-//        // 启动防抖保存监听
-//        viewModelScope.launch {
-//            scrollEventFlow
-//                .debounce(3000)
-//                .collect { content ->
-//                    val bookId = _bookIdFlow.value ?: return@collect
-//                    saveToDb(bookId = bookId, content = content)
-//                }
-//        }
-//    }
     private val _uiState: MutableStateFlow<ReaderState> = MutableStateFlow(ReaderState())
     val uiState = _uiState.asStateFlow()
 
@@ -175,7 +166,7 @@ class ReaderViewModel @Inject constructor(
                 }
 
                 is ReaderEvent.OnChapterItemClick -> {
-                    switchToChapter(bookId = event.bookId, index = event.index)
+                    switchToChapter(index = event.index)
                 }
 
                 is ReaderEvent.OnScrollPositionChanged -> {
@@ -189,9 +180,8 @@ class ReaderViewModel @Inject constructor(
 
                 ReaderEvent.OnPrevChapterClick -> {
                     val currentIndex = uiState.value.progress.chapterIndex
-                    val bookId = _uiState.value.book.id
                     if (currentIndex > 0) {
-                        switchToChapter(bookId = bookId, index = currentIndex - 1)
+                        switchToChapter(index = currentIndex - 1)
                     } else {
                         logW {
                             "切换章节失败，当前章节为第一章节"
@@ -204,9 +194,8 @@ class ReaderViewModel @Inject constructor(
                 ReaderEvent.OnNextChapterClick -> {
                     val currentIndex = uiState.value.progress.chapterIndex
                     val chapterSize = uiState.value.chapters.size
-                    val bookId = uiState.value.book.id
                     if (currentIndex < chapterSize - 1) {
-                        switchToChapter(bookId = bookId, index = currentIndex + 1)
+                        switchToChapter(index = currentIndex + 1)
                     } else {
                         logW {
                             "切换章节失败，当前章节为最后一章节"
@@ -231,30 +220,88 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 加载指定章节的内容
+     */
+    private suspend fun loadChapterContent(
+        chapterIndex: Int,
+        bookFormat: FileFormat,
+        bookFileUri: String
+    ): List<ReaderContent>? {
+        // 获取章节列表
+        val chapters = _uiState.value.chapters
+        if (chapters.isEmpty()) return null
+
+        // 获取章节
+        val chapter = chapters.getOrNull(chapterIndex) ?: return null
+
+        // 解析内容
+        return getChapterContentUseCase(bookFileUri, bookFormat, chapter)
+            .getOrNull()
+            ?.map { block ->
+                ContentMapper.mapToUi(chapterIndex, block)
+            }
+    }
+
 
     /**
      * 切换章节
      */
-    fun switchToChapter(bookId: Long, index: Int) {
-        if (bookId == -1L) {
+    fun switchToChapter(index: Int) {
+        val currentState = _uiState.value
+        val book = currentState.book
+        val bookId = book.id
+
+        if (book == Book.default || bookId == -1L) {
             logE {
-                "切换章节失败，书籍ID为-1"
+                "切换章节失败，书籍信息缺失"
             }
             return
         }
+
+
         viewModelScope.launch(Dispatchers.IO) {
+            // 更新数据库进度
             val newProgress = ReadingProgress(
                 bookId = bookId,
                 chapterIndex = index,
-                chapterOffsetCharIndex = 0 // 下一章开头
+                chapterOffsetCharIndex = 0 // 切换章节默认回到开头
             )
 
             saveReadingProgressUseCase(bookId, newProgress)
-                .onFailure { logE { "切换章节失败" } }
+                .onFailure { logE { "进度保存失败" } }
 
-            _effects.emit(ReaderEffect.HideChapterListDrawer)
+            // 加载最新章节内容
+            val newContent = loadChapterContent(
+                chapterIndex = index,
+                bookFormat = book.format,
+                bookFileUri = book.fileUri
+            )
+            if (newContent != null) {
+                // 更新状态
+                _uiState.update { state ->
+                    state.copy(
+                        currentChapterIndex = index,
+                        readerItems = newContent, // 替换列表内容
+                        progress = newProgress,   // 更新内存中的进度对象
+                    )
+                }
+
+                // 滚动到顶部
+                _effects.emit(ReaderEffect.ScrollToItem(0))
+
+                // 隐藏章节列表
+                _effects.emit(ReaderEffect.HideChapterListDrawer)
+            } else {
+                logE {
+                    "加载章节内容失败，索引为 $index"
+                }
+                _effects.emit(ReaderEffect.ShowLoadChapterContentFailedToast)
+                _effects.emit(ReaderEffect.NavigateBack)
+            }
         }
     }
+
 
     /**
      * 用于退出时保存进度

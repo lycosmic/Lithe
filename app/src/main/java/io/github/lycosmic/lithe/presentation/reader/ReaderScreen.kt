@@ -123,6 +123,10 @@ fun ReaderScreen(
                 ReaderEffect.ShowLastChapterToast -> {
                     R.string.last_chapter.toast()
                 }
+
+                ReaderEffect.ShowLoadChapterContentFailedToast -> {
+                    R.string.load_chapter_content_failed.toast()
+                }
             }
         }
     }
@@ -146,7 +150,6 @@ fun ReaderScreen(
                         // 跳转章节
                         viewModel.onEvent(
                             ReaderEvent.OnChapterItemClick(
-                                uiState.book.id,
                                 index
                             )
                         )
