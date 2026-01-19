@@ -68,20 +68,6 @@ class ReaderViewModel @Inject constructor(
                 )
             }
 
-            // 加载进度
-            val progress = getReadingProgressUseCase(bookId).getOrElse {
-                logW {
-                    "获取进度失败，ID为 $bookId 的书籍不存在进度，将使用默认进度"
-                }
-                ReadingProgress.default(bookId)
-            }
-
-            _uiState.update {
-                it.copy(
-                    currentChapterIndex = progress.chapterIndex,
-                    progress = progress,
-                )
-            }
 
             // 加载章节列表
             val chapters = getChapterListUseCase(book).getOrElse {
@@ -94,6 +80,21 @@ class ReaderViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     chapters = chapters,
+                )
+            }
+
+            // 加载进度
+            val progress = getReadingProgressUseCase(bookId).getOrElse {
+                logW {
+                    "获取进度失败，ID为 $bookId 的书籍不存在进度，将使用默认进度"
+                }
+                ReadingProgress.default(bookId)
+            }
+
+            _uiState.update {
+                it.copy(
+                    currentChapterIndex = progress.chapterIndex,
+                    progress = progress,
                 )
             }
 

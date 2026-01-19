@@ -205,11 +205,19 @@ fun DrawerContent(
     listState: LazyListState
 ) {
 
-    val isPrevVisible = remember(uiState.currentChapterIndex) {
-        uiState.currentChapterIndex > 0
+    val isPrevVisible = remember(uiState.currentChapterIndex, uiState.chapters.size) {
+        if (uiState.currentChapterIndex < 0 || uiState.currentChapterIndex >= uiState.chapters.size) {
+            false
+        } else {
+            uiState.currentChapterIndex > 0
+        }
     }
-    val isNextVisible = remember(uiState.currentChapterIndex) {
-        uiState.currentChapterIndex < uiState.chapters.size - 1
+    val isNextVisible = remember(uiState.currentChapterIndex, uiState.chapters.size) {
+        if (uiState.currentChapterIndex < 0 || uiState.currentChapterIndex >= uiState.chapters.size) {
+            false
+        } else {
+            uiState.currentChapterIndex < uiState.chapters.size - 1
+        }
     }
 
     Box(
