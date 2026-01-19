@@ -1,6 +1,5 @@
 package io.github.lycosmic.lithe.presentation.reader.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import coil3.compose.AsyncImage
 import io.github.lycosmic.lithe.presentation.reader.ReaderContent
+import io.github.lycosmic.lithe.util.clickableNoRipple
 
 /**
  * 阅读内容
@@ -34,7 +34,7 @@ fun BookReaderContent(
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
         modifier = Modifier
             .fillMaxSize()
-            .clickable {
+            .clickableNoRipple {
                 onContentClick()
             }
     ) {
