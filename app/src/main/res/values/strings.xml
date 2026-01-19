@@ -157,7 +157,7 @@
     <string name="move_book_category_dialog_cancel_button">Cancel</string>
     <string name="move_book_category_dialog_confirm_button">Confirm</string>
     <string name="chapter_list">Chapters</string>
-    <string name="first_chapter">当前已是第一章</string>
-    <string name="last_chapter">当前已是最后一章</string>
-    <string name="load_chapter_content_failed">加载章节内容失败</string>
+    <string name="first_chapter">Already at the first chapter</string>
+    <string name="last_chapter">Already at the last chapter</string>
+    <string name="load_chapter_content_failed">Load chapter content failed</string>
 </resources>
