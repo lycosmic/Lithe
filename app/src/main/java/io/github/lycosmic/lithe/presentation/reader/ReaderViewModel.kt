@@ -98,12 +98,25 @@ class ReaderViewModel @Inject constructor(
             }
 
             // 加载当前章节内容
-            val chapterContents = chapters.getOrNull(progress.chapterIndex)?.let { chapter ->
-                getChapterContentUseCase(book.fileUri, book.format, chapter)
-                    .getOrNull()?.map {
-                        ContentMapper.mapToUi(progress.chapterIndex, it)
-                    }
-            } ?: run {
+            val chapterContents = loadChapterContent(
+                chapterIndex = progress.chapterIndex,
+                bookFormat = book.format,
+                bookFileUri = book.fileUri
+            )
+
+            if (chapterContents != null) {
+                _uiState.update {
+                    it.copy(
+                        readerItems = chapterContents,
+                        isInitialLoading = false,
+                    )
+                }
+
+                // 滚动到上次阅读位置，恢复阅读进度
+                val targetCharIndex = progress.chapterOffsetCharIndex
+                val itemIndex = findScrollPosition(chapterContents, targetCharIndex)
+                _effects.emit(ReaderEffect.ScrollToItem(itemIndex))
+            } else {
                 logE {
                     "获取章节内容失败，ID为 $bookId 的书籍不存在章节内容，章节索引为 ${progress.chapterIndex}"
                 }
@@ -116,17 +129,6 @@ class ReaderViewModel @Inject constructor(
                 return@launch
             }
 
-            _uiState.update {
-                it.copy(
-                    readerItems = chapterContents,
-                    isInitialLoading = false,
-                )
-            }
-
-            // 滚动到上次阅读位置，恢复阅读进度
-            val targetCharIndex = progress.chapterOffsetCharIndex
-            val itemIndex = findScrollPosition(chapterContents, targetCharIndex)
-            _effects.emit(ReaderEffect.ScrollToItem(itemIndex))
         }
     }
 
