@@ -1,10 +1,8 @@
 package io.github.lycosmic.data.parser.content.epub
 
-import android.content.Context
 import android.net.Uri
 import android.util.Xml
 import androidx.core.net.toUri
-import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.lycosmic.data.parser.content.ContentParserStrategy
 import io.github.lycosmic.data.parser.epub.helper.EpubOpfHandler
 import io.github.lycosmic.data.util.ZipProcessor
@@ -24,155 +22,176 @@ import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import org.xmlpull.v1.XmlPullParser
-import java.io.BufferedInputStream
 import java.io.InputStream
-import java.util.zip.ZipInputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class EpubContentParser @Inject constructor(
-    @param:ApplicationContext
-    private val context: Context,
     private val logger: DomainLogger,
     private val opfHandler: EpubOpfHandler,
     private val zipProcessor: ZipProcessor
 ) : ContentParserStrategy {
     /**
-     * 使用 Jsoup 解析 Epub 书籍目录
-     * @param uriString 书籍 URI
+     * 解析 Epub 书籍目录
+     * 策略：
+     * 1. 解析 OPF 获取章节文件列表
+     * 2. 解析 toc.ncx 获取目录映射
+     * 3. 遍历列表，如果在 ncx 中找不到，则解析 HTML 文件头部
+     * 4. 兜底使用 OPF Manifest ID 或文件名
      */
-    override suspend fun parseChapter(bookId: Long, uriString: String): List<BookChapter> {
-        val uri = uriString.toUri()
-        // OPF 文件相对路径
-        val opfRelativePath =
-            opfHandler.findOpfPath(uri) ?: throw IllegalArgumentException("OPF 文件不存在")
+    override suspend fun parseChapter(bookId: Long, uriString: String): List<BookChapter> =
+        withContext(Dispatchers.IO) {
+            val uri = uriString.toUri()
 
-        // OPF 文件目录
-        val opfParentPath = opfRelativePath.take(opfRelativePath.lastIndexOf("/") + 1)
-
-        // 解析 OPF 文件
-        val parseResult: EpubOpfHandler.OpfParseResult =
-            opfHandler.getOpfParseResult(uri, opfRelativePath)
+            // 找到并解析 OPF 文件
+            val opfRelativePath = opfHandler.findOpfPath(uri) // OPF 文件相对路径
+                ?: throw IllegalArgumentException("OPF 文件不存在")
+            val opfParentPath = opfRelativePath.substringBeforeLast("/", "") // OPF 文件父目录
+            val parseResult = opfHandler.getOpfParseResult(uri, opfRelativePath)
                 ?: throw IllegalArgumentException("OPF 文件解析失败")
 
-        // 根据 OPF 解析结果, 获取目录顺序
-        val chapters = mutableListOf<BookChapter>()
-        parseResult.manifestSpineInfo.let { (spine, manifest) ->
-            if (spine.isNotEmpty() && manifest.isNotEmpty()) {
-                // 获取章节文件的相对路径
-                val chapterRelativePaths = spine.map { id ->
-                    val href = manifest[id]
-                    if (href != null) {
-                        opfParentPath + href
-                    } else {
-                        throw IllegalArgumentException("书籍目录对应的章节文件不存在，目录ID: $id")
-                    }
+
+            val (spine, manifest) = parseResult.manifestSpineInfo
+            if (spine.isEmpty() || manifest.isEmpty()) {
+                throw IllegalArgumentException("无法解析书籍章节结构")
+            }
+
+            // 1. 解析 toc.ncx 文件，获得相对路径和标题的映射
+            val ncxPath = findNcxPath(manifest, opfParentPath)
+            val ncxTitleMap = parseTocNcxToMap(uri, ncxPath, opfParentPath)
+
+            val chapters = mutableListOf<BookChapter>()
+
+            // 2. 遍历 Spine 生成章节列表
+            spine.forEachIndexed { index, id ->
+                val href = manifest[id] ?: return@forEachIndexed
+
+                // 拼接完整相对路径
+                val fullPath = if (opfParentPath.isNotEmpty()) {
+                    "${opfParentPath}/${href}"
+                } else {
+                    href
                 }
-                // 解析章节文件获取章节标题
-                val map = parseChapterTitlesBatch(
-                    context,
-                    uri,
-                    chapterRelativePaths,
-                    parentPath = opfParentPath
-                )
 
-                chapterRelativePaths.forEachIndexed { index, chapterRelativePath ->
-                    val title = map[chapterRelativePath]
-                        ?: throw IllegalArgumentException("无法获取章节标题")
+                // 先从 toc.ncx Map 中获取
+                var title = ncxTitleMap[fullPath]
 
-                    chapters.add(
-                        EpubChapter(
-                            bookId = bookId,
-                            index = index,
-                            title = title,
-                            href = chapterRelativePath
-                        )
+                // 再从 HTML 文件头部中获取 <title> 标签
+                if (title == null) {
+                    title = parseTitleFromHtmlFile(uri, fullPath)
+                }
+
+                // 使用文件名兜底
+                if (title.isNullOrBlank()
+                    && href.isNotBlank()
+                    && href.contains("/")
+                ) {
+                    title = href.substringAfterLast("/") // 使用文件名
+                }
+
+                chapters.add(
+                    EpubChapter(
+                        bookId = bookId,
+                        index = index,
+                        title = title ?: "Chapter ${index + 1}",
+                        href = fullPath
                     )
-                }
-            } else {
-                throw IllegalArgumentException("无法解析书籍章节")
+                )
+            }
+
+            return@withContext chapters
+        }
+
+    /**
+     * 寻找 NCX 文件的路径
+     */
+    private fun findNcxPath(manifest: Map<String, String>, opfParentPath: String): String {
+        // 尝试寻找 key 为 ncx 的项
+        var href = manifest["ncx"]
+
+        if (href == null) {
+            // 尝试寻找 href 后缀为 .ncx 的项
+            href = manifest.values.find {
+                it.endsWith(".ncx")
             }
         }
 
-        return chapters
+        return if (href != null) {
+            if (opfParentPath.isNotEmpty()) {
+                "${opfParentPath}/${href}"
+            } else {
+                href
+            }
+        } else {
+            // 猜测默认路径
+            logger.w {
+                "找不到 NCX 文件，使用默认路径"
+            }
+            val defaultNcxPath = if (opfParentPath.isNotEmpty()) {
+                "$opfParentPath/$TOC_NCX_FILE_NAME"
+            } else {
+                TOC_NCX_FILE_NAME
+            }
+            defaultNcxPath
+        }
     }
 
     /**
-     * 解析章节标题
-     * @param targetPaths 章节文件的 ZIP 相对路径列表
-     * @return 章节路径与标题的映射
+     * 解析 toc.ncx 文件，返回 Map<Content Src, NavLabel Text>
      */
-    suspend fun parseChapterTitlesBatch(
-        context: Context,
+    private suspend fun parseTocNcxToMap(
         uri: Uri,
-        targetPaths: List<String>,
-        parentPath: String // OPF 父目录
-    ): Map<String, String> = withContext(Dispatchers.IO) {
-        // 待处理的章节文件 ZIP 相对路径列表
-        val remainingPaths = targetPaths.toMutableSet()
-        val results = mutableMapOf<String, String>()
-        var chapterOrder = 0
+        ncxPath: String,
+        opfParentPath: String
+    ): Map<String, String> {
+        val titleMap = mutableMapOf<String, String>()
 
-        if (remainingPaths.isEmpty()) return@withContext results
+        zipProcessor.findZipEntryAndAction(uri, ncxPath) { inputStream ->
+            try {
+                val parser = Xml.newPullParser()
+                parser.setInput(inputStream, UTF_8_INPUT_ENCODING)
 
-        try {
-            val contentResolver = context.contentResolver
-            val inputStream = contentResolver.openInputStream(uri)
+                var eventType = parser.eventType
+                var currentLabel: String? = null
 
-            inputStream?.use { stream ->
-                val bufferedStream = BufferedInputStream(stream)
-                val zipInputStream = ZipInputStream(bufferedStream)
-
-                var zipEntry = zipInputStream.nextEntry
-
-                while (zipEntry != null && remainingPaths.isNotEmpty()) {
-                    val entryName = zipEntry.name
-
-                    if (remainingPaths.contains(entryName)) {
-                        var title = parseTitleFromStream(zipInputStream)
-
-                        if (title == null) {
-                            logger.d {
-                                "尝试从 toc.ncx 文件中获取标题"
-                            }
-
-                            title = zipProcessor.findZipEntryAndAction(
-                                uri,
-                                parentPath + TOC_NCX_FILE_NAME,
-                            ) {
-                                parseTitleFromTocNcx(it, entryName)
-                            } ?: ""
-
-                            // TODO: 从 opf 文件中获取标题
-                            if (title == null) {
-
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    if (eventType == XmlPullParser.START_TAG) {
+                        if (parser.name.equals(TEXT_TAG, ignoreCase = true)) {
+                            currentLabel = parser.safeNextText()
+                        } else if (parser.name.equals(CONTENT_TAG, ignoreCase = true)) {
+                            val src = parser.getAttributeValue(null, SRC_ATTRIBUTE_NAME)
+                            if (src != null && currentLabel != null) {
+                                // 完整相对路径
+                                val fullSrc = "$opfParentPath/$src"
+                                titleMap[fullSrc] = currentLabel
+                                currentLabel = null // 重置，防止复用
                             }
                         }
-
-                        results[entryName] = title
-                        chapterOrder++
-                        remainingPaths.remove(entryName)
                     }
-
-                    zipInputStream.closeEntry()
-                    zipEntry = zipInputStream.nextEntry
+                    eventType = parser.next()
                 }
+            } catch (e: Exception) {
+                logger.w(throwable = e) { "解析 toc.ncx 失败: $ncxPath" }
             }
-        } catch (e: Exception) {
-            logger.e(throwable = e) {
-                "解析章节标题时出错，剩下待处理章节文件路径: $remainingPaths"
-            }
-            return@withContext results
         }
+        return titleMap
+    }
 
-        return@withContext results
+
+    /**
+     * 单独解析某个 HTML 文件的 Title 标签
+     */
+    private suspend fun parseTitleFromHtmlFile(uri: Uri, path: String): String? {
+        var title: String? = null
+        zipProcessor.findZipEntryAndAction(uri, path) { inputStream ->
+            title = parseTitleFromStream(inputStream)
+        }
+        return title
     }
 
     /**
-     * 从输入流中解析章节标题
-     * @param inputStream 输入流
-     * @return 章节标题
+     * 从输入流中解析 HTML <title>
      */
     private fun parseTitleFromStream(inputStream: InputStream): String? {
         try {
@@ -180,74 +199,27 @@ class EpubContentParser @Inject constructor(
             parser.setInput(inputStream, UTF_8_INPUT_ENCODING)
 
             var eventType = parser.eventType
-            while (eventType != XmlPullParser.END_DOCUMENT) {
+            // 只需要扫描头部，不需要扫描整个文件
+            // 设置一个简单的阈值防止无限读取
+            var tagsChecked = 0
+            val maxTagsToCheck = 50
+
+            while (eventType != XmlPullParser.END_DOCUMENT && tagsChecked < maxTagsToCheck) {
                 if (eventType == XmlPullParser.START_TAG) {
-                    if (parser.name.equals(TITLE_TAG, ignoreCase = false)) {
-                        val titleValue = parser.safeNextText().ifBlank {
-                            continue
-                        }
-                        return titleValue
+                    tagsChecked++
+                    if (parser.name.equals(TITLE_TAG, ignoreCase = true)) {
+                        return parser.safeNextText().takeIf { it.isNotBlank() }
+                    }
+                    // 如果已经到了 body，说明 title 没希望了，直接退出
+                    if (parser.name.equals(BODY_TAG, ignoreCase = true)) {
+                        break
                     }
                 }
                 eventType = parser.next()
             }
-
-            logger.w {
-                "无法从 HTML 段落标签中获取章节标题，标题为空"
-            }
-
             return null
-        } catch (e: Exception) {
-            logger.w(throwable = e) {
-                "在解析章节标题时出错"
-            }
-            throw e
-        }
-    }
-
-    /**
-     * 从 toc.ncx 文件中解析章节标题
-     * @param inputStream toc.ncx 文件输入流
-     * @param opfRelativeZipPath OPF 文件 ZIP 相对路径
-     * @return 章节标题
-     */
-    fun parseTitleFromTocNcx(inputStream: InputStream, opfRelativeZipPath: String): String? {
-        try {
-            var label: String? = null
-            var src: String? = null
-
-            val parser = Xml.newPullParser()
-            parser.setInput(inputStream, UTF_8_INPUT_ENCODING)
-
-            var eventType = parser.eventType
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG) {
-                    if (parser.name.equals(TEXT_TAG, ignoreCase = false)) {
-                        label = parser.safeNextText()
-                    } else if (parser.name.equals(CONTENT_TAG, ignoreCase = false)) {
-                        src =
-                            parser.getAttributeValue(null, SRC_ATTRIBUTE_NAME)
-                    }
-
-                    if (label != null && src != null) {
-                        if (opfRelativeZipPath.contains(src)) {
-                            logger.d {
-                                "找到章节标题：$label"
-                            }
-                            return label
-                        }
-                    }
-                }
-                eventType = parser.next()
-            }
-
-            logger.w {
-                "无法从 toc.ncx 文件中获取章节标题，标题为空"
-            }
-
+        } catch (_: Exception) {
             return null
-        } catch (e: Exception) {
-            throw e
         }
     }
 
@@ -264,6 +236,8 @@ class EpubContentParser @Inject constructor(
         private const val CONTENT_TAG = "content"
 
         private const val TEXT_TAG = "text"
+
+        private const val BODY_TAG = "body"
 
         // --- 属性名 ---
         private const val SRC_ATTRIBUTE_NAME = "src"

@@ -21,7 +21,7 @@ data class EpubChapter(
     override val bookId: Long,
     override val index: Int,
     override val title: String,
-    val href: String // 章节文件的Zip相对路径
+    val href: String // 章节文件完整ZIP相对路径
 ) : BookChapter()
 
 /**
