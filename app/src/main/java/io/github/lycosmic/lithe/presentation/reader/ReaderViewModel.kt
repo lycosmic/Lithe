@@ -214,12 +214,20 @@ class ReaderViewModel @Inject constructor(
     }
 
     /**
-     * 更新内存中的进度文本
+     * 更新内存中的进度
      */
     private fun updateMemoryProgress(content: ReaderContent) {
         viewModelScope.launch {
-            // TODO: 更新进度
-
+            // 更新进度
+            _uiState.update {
+                it.copy(
+                    progress = it.progress.copy(
+                        chapterIndex = content.chapterIndex,
+                        chapterOffsetCharIndex = content.startIndex
+                    ),
+                    currentContent = content
+                )
+            }
         }
     }
 
