@@ -10,7 +10,6 @@ import io.github.lycosmic.domain.model.FileFormat
 fun BookEntity.toDomain(categories: List<CategoryEntity> = emptyList()): Book {
     return Book(
         id = id,
-        uniqueId = uniqueId,
         title = title,
         author = author.split(","),
         description = description,
@@ -27,7 +26,6 @@ fun BookEntity.toDomain(categories: List<CategoryEntity> = emptyList()): Book {
 fun Book.toEntity(): BookEntity {
     return BookEntity(
         id = id,
-        uniqueId = uniqueId,
         title = title,
         author = author.joinToString(","),
         description = description,

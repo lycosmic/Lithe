@@ -18,8 +18,6 @@ data class BookEntity(
     val id: Long = 0,
     @ColumnInfo(name = COL_TITLE)
     val title: String, // 书名
-    @ColumnInfo(name = COL_UNIQUE_ID)
-    val uniqueId: String, // 书籍唯一标识符
     @ColumnInfo(name = COL_AUTHOR)
     val author: String = "未知", // 作者
     @ColumnInfo(name = COL_DESCRIPTION)
@@ -45,7 +43,6 @@ data class BookEntity(
         const val TABLE_NAME = "books"
         const val COL_ID = "id"
         const val COL_TITLE = "title"
-        const val COL_UNIQUE_ID = "unique_id"
         const val COL_AUTHOR = "author"
         const val COL_DESCRIPTION = "description"
         const val COL_LANGUAGE = "language"

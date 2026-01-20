@@ -34,7 +34,7 @@ interface BookRepository {
     /**
      * 根据标识符获取书籍
      */
-    suspend fun getBookByUniqueId(uniqueId: String): Book?
+    suspend fun getBookByUri(uri: String): Book?
 
     /**
      * 获取所有分类和书籍关系

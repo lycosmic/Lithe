@@ -26,12 +26,12 @@ class ImportBookUseCase @Inject constructor(
                 parsedBooks.forEach { parsedBook ->
                     val metadata = parsedBook.metadata
                     val bookFile = parsedBook.file
-                    val uniqueId = metadata.uniqueId ?: bookFile.uriString
+                    val uriString = bookFile.uriString
 
-                    if (bookRepository.getBookByUniqueId(uniqueId) != null) {
+                    if (bookRepository.getBookByUri(uriString) != null) {
                         // 已有该书籍
                         logger.w {
-                            "书库中已有该书籍: ${metadata.title}，唯一标符为 $uniqueId，忽略该文件: ${bookFile.name}"
+                            "书库中已有该书籍: ${metadata.title}，忽略该文件: ${bookFile.name}"
                         }
                         return@forEach
                     }
@@ -39,7 +39,6 @@ class ImportBookUseCase @Inject constructor(
                     // 导入数据库
                     val book = Book(
                         id = 0,
-                        uniqueId = uniqueId,
                         title = metadata.title ?: "Unknown Title",
                         author = metadata.authors ?: emptyList(),
                         description = metadata.description,

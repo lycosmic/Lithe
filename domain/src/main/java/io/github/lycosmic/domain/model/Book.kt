@@ -2,7 +2,6 @@ package io.github.lycosmic.domain.model
 
 data class Book(
     val id: Long = 0,
-    val uniqueId: String,
     val title: String,
     val author: List<String>,
     val description: String?,
@@ -18,7 +17,6 @@ data class Book(
     companion object {
         val default = Book(
             id = -1,
-            uniqueId = "",
             title = "",
             author = emptyList(),
             description = null,

@@ -53,8 +53,8 @@ class BookRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getBookByUniqueId(uniqueId: String): Book? {
-        return bookDao.getBookByUniqueId(uniqueId = uniqueId)?.toDomain()
+    override suspend fun getBookByUri(uri: String): Book? {
+        return bookDao.getBookByUri(uri)?.toDomain()
     }
 
     override fun getCategoryWithBooksFlow(): Flow<List<CategoryWithBookList>> {

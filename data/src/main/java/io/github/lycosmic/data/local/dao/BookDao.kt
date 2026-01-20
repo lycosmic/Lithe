@@ -37,8 +37,8 @@ interface BookDao {
     @Query("DELETE FROM ${BookEntity.TABLE_NAME} WHERE ${BookEntity.COL_ID}=:id")
     suspend fun deleteBookById(id: Long)
 
-    @Query("SELECT * FROM ${BookEntity.TABLE_NAME} WHERE  ${BookEntity.COL_UNIQUE_ID} = :uniqueId LIMIT 1")
-    suspend fun getBookByUniqueId(uniqueId: String): BookEntity?
+    @Query("SELECT * FROM ${BookEntity.TABLE_NAME} WHERE  ${BookEntity.COL_FILE_URI} = :uri LIMIT 1")
+    suspend fun getBookByUri(uri: String): BookEntity?
 
     /**
      * 插入书籍分类关联

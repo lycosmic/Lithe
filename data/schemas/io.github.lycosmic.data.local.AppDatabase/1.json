@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7cf83c822abecab323db2b149c0f70a9",
+    "identityHash": "a51105997ace4802a03ef05e9624664a",
     "entities": [
       {
         "tableName": "books",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `unique_id` TEXT NOT NULL, `author` TEXT NOT NULL, `description` TEXT, `language` TEXT, `publisher` TEXT, `subjects` TEXT, `file_size` INTEGER NOT NULL, `file_uri` TEXT NOT NULL, `format` TEXT NOT NULL, `cover_path` TEXT, `import_time` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `author` TEXT NOT NULL, `description` TEXT, `language` TEXT, `publisher` TEXT, `subjects` TEXT, `file_size` INTEGER NOT NULL, `file_uri` TEXT NOT NULL, `format` TEXT NOT NULL, `cover_path` TEXT, `import_time` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -17,12 +17,6 @@
           {
             "fieldPath": "title",
             "columnName": "title",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "uniqueId",
-            "columnName": "unique_id",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -362,7 +356,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7cf83c822abecab323db2b149c0f70a9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a51105997ace4802a03ef05e9624664a')"
     ]
   }
 }
