@@ -87,7 +87,7 @@ fun ReaderScreen(
     DisposableEffect(Unit) {
         onDispose {
             // 强制立即保存内存中的进度
-            viewModel.onEvent(ReaderEvent.OnStopOrDispose(uiState.book.id))
+            viewModel.onEvent(ReaderEvent.OnStopOrDispose)
         }
     }
 

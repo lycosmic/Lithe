@@ -27,7 +27,7 @@ sealed class ReaderEvent {
     /**
      * 用户离开页面，立即保存当前内存中的进度到数据库
      */
-    data class OnStopOrDispose(val bookId: Long) : ReaderEvent()
+    data object OnStopOrDispose : ReaderEvent()
 
 
     // --- 底部区域 ---

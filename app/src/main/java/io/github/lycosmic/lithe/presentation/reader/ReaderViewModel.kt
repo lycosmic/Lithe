@@ -181,7 +181,7 @@ class ReaderViewModel @Inject constructor(
                 }
 
                 is ReaderEvent.OnStopOrDispose -> {
-                    saveToDbImmediate(bookId = event.bookId)
+                    saveToDbImmediate()
                 }
 
                 ReaderEvent.OnPrevChapterClick -> {
@@ -344,12 +344,14 @@ class ReaderViewModel @Inject constructor(
     /**
      * 用于退出时保存进度
      */
-    private fun saveToDbImmediate(bookId: Long) {
+    private fun saveToDbImmediate() {
         logI {
             "退出时保存进度"
         }
 
         val currentContent = uiState.value.currentContent
+        val bookId = uiState.value.book.id
+
         if (currentContent != null) {
             saveToDb(bookId, content = currentContent)
         } else {
