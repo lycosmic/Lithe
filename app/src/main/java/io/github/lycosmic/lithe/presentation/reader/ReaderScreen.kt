@@ -58,6 +58,10 @@ fun ReaderScreen(
 
     val listState = rememberLazyListState()
 
+    val chapterName = remember(uiState.currentChapterIndex) {
+        uiState.chapters.getOrNull(uiState.currentChapterIndex)?.title ?: "未知章节"
+    }
+
     // 抽屉状态
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
@@ -169,6 +173,7 @@ fun ReaderScreen(
             uiState = uiState,
             isBarsVisible = isBarsVisible,
             listState = listState,
+            chapterName = chapterName,
             onBackClick = {
                 viewModel.onEvent(ReaderEvent.OnBackClick)
             },
@@ -196,6 +201,7 @@ fun ReaderScreen(
 fun DrawerContent(
     modifier: Modifier = Modifier,
     uiState: ReaderState,
+    chapterName: String,
     isBarsVisible: Boolean,
     onBackClick: () -> Unit,
     onReadContentClick: () -> Unit,
@@ -252,8 +258,8 @@ fun DrawerContent(
                 .wrapContentHeight(), // 高度仅随内容变化
         ) {
             ReaderTopBar(
-                bookName = "",
-                chapterName = "",
+                bookName = uiState.book.title,
+                chapterName = chapterName,
                 chapterProgress = 0f,
                 onBackClick = onBackClick,
                 onChapterMenuClick = onChapterMenuClick,
