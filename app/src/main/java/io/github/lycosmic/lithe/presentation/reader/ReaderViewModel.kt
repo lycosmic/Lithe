@@ -39,7 +39,6 @@ class ReaderViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<ReaderState> = MutableStateFlow(ReaderState())
     val uiState = _uiState.asStateFlow()
 
-
     private val _effects = MutableSharedFlow<ReaderEffect>()
     val effects = _effects.asSharedFlow()
 
@@ -106,10 +105,14 @@ class ReaderViewModel @Inject constructor(
             )
 
             if (chapterContents != null) {
+                // 计算总长度
+                val totalLength = calculateChapterLength(chapterContents)
+
                 _uiState.update {
                     it.copy(
                         readerItems = chapterContents,
                         isInitialLoading = false,
+                        currentChapterLength = totalLength
                     )
                 }
 
@@ -232,6 +235,27 @@ class ReaderViewModel @Inject constructor(
     }
 
     /**
+     * 计算章节内容的总长度
+     */
+    private fun calculateChapterLength(items: List<ReaderContent>): Int {
+        if (items.isEmpty()) return 1
+
+        // 拿到最后一个内容块
+        val lastItem = items.last()
+
+        // 计算它的结束位置
+        val lastItemLength = when (lastItem) {
+            is ReaderContent.Paragraph -> lastItem.text.length
+            is ReaderContent.Title -> lastItem.text.length
+            is ReaderContent.Image -> 1 // 图片占 1 个位置
+            is ReaderContent.Divider -> 0 // 分割线占 0 个位置
+        }
+
+        // 总长度 = 最后一个块的起始位置 + 最后一个块的长度
+        return lastItem.startIndex + lastItemLength
+    }
+
+    /**
      * 加载指定章节的内容
      */
     private suspend fun loadChapterContent(
@@ -289,12 +313,15 @@ class ReaderViewModel @Inject constructor(
                 bookFileUri = book.fileUri
             )
             if (newContent != null) {
+                val totalLength = calculateChapterLength(newContent)
+
                 // 更新状态
                 _uiState.update { state ->
                     state.copy(
                         currentChapterIndex = index,
                         readerItems = newContent, // 替换列表内容
                         progress = newProgress,   // 更新内存中的进度对象
+                        currentChapterLength = totalLength
                     )
                 }
 

@@ -72,7 +72,7 @@ fun ReaderScreen(
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }
-            .debounce(50)
+            .debounce(300)
             .collect { index ->
                 // 屏幕最上方的 Item
                 val currentItem = uiState.readerItems.getOrNull(index)
@@ -260,7 +260,7 @@ fun DrawerContent(
             ReaderTopBar(
                 bookName = uiState.book.title,
                 chapterName = chapterName,
-                chapterProgress = 0f,
+                chapterProgress = uiState.chapterProgressPercent,
                 onBackClick = onBackClick,
                 onChapterMenuClick = onChapterMenuClick,
                 onReaderSettingsClick = {
