@@ -1,5 +1,6 @@
 package io.github.lycosmic.lithe.presentation.reader.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -28,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
+import io.github.lycosmic.lithe.util.clickableNoRipple
 
 @Composable
 fun ReaderTopBar(
@@ -39,6 +45,9 @@ fun ReaderTopBar(
     onReaderSettingsClick: () -> Unit, // 阅读设置
     modifier: Modifier = Modifier
 ) {
+    // 书名是否展开
+    var isBookNameExpanded by remember { mutableStateOf(false) }
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         tonalElevation = 4.dp,
@@ -50,8 +59,7 @@ fun ReaderTopBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .statusBarsPadding() // 避开系统状态栏
-                    .padding(horizontal = 4.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(horizontal = 4.dp, vertical = 8.dp), verticalAlignment = Alignment.Top
             ) {
                 // 返回按钮
                 IconButton(onClick = onBackClick) {
@@ -61,15 +69,21 @@ fun ReaderTopBar(
                 Spacer(Modifier.width(8.dp))
 
                 // 文本区域
-                Column(Modifier.weight(1f)) {
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .clickableNoRipple {
+                            isBookNameExpanded = !isBookNameExpanded
+                        }) {
                     // 书名，不滚动，溢出显示省略号
                     Text(
                         text = bookName,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        maxLines = 1,
+                        maxLines = if (isBookNameExpanded) 10 else 1,
                         overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.animateContentSize()
                     )
 
                     Spacer(Modifier.height(2.dp))
