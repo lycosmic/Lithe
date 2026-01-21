@@ -18,10 +18,12 @@ import io.github.lycosmic.lithe.log.logW
 import io.github.lycosmic.lithe.presentation.reader.mapper.ContentMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,6 +43,13 @@ class ReaderViewModel @Inject constructor(
 
     private val _effects = MutableSharedFlow<ReaderEffect>()
     val effects = _effects.asSharedFlow()
+
+    // 数据库保存的流
+    private val _saveProgressFlow = MutableSharedFlow<ReaderContent>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
 
     /**
      * 初始化
@@ -133,6 +142,14 @@ class ReaderViewModel @Inject constructor(
                 return@launch
             }
 
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _saveProgressFlow
+                .debounce(3000)
+                .collect { content ->
+                    saveToDb(bookId, content)
+                }
         }
     }
 
