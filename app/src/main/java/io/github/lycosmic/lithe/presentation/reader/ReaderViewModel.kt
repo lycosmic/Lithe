@@ -129,6 +129,7 @@ class ReaderViewModel @Inject constructor(
                 val targetCharIndex = progress.chapterOffsetCharIndex
                 val itemIndex = findScrollPosition(chapterContents, targetCharIndex)
                 _effects.emit(ReaderEffect.ScrollToItem(itemIndex))
+                _effects.emit(ReaderEffect.ScrollToChapter(progress.chapterIndex))
             } else {
                 logE {
                     "获取章节内容失败，ID为 $bookId 的书籍不存在章节内容，章节索引为 ${progress.chapterIndex}"

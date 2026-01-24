@@ -34,6 +34,11 @@ sealed class ReaderEffect {
      */
     data class RestoreFocus(val charIndex: Int) : ReaderEffect()
 
+    /**
+     * 打开章节列表时，滚动到指定章节
+     */
+    data class ScrollToChapter(val index: Int) : ReaderEffect()
+
     // -- 提示 ---
     /**
      * 显示当前已为第一章的提示

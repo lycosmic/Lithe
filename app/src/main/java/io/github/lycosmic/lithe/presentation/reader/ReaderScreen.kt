@@ -56,7 +56,11 @@ fun ReaderScreen(
     // 上下栏是否可见
     var isBarsVisible by remember { mutableStateOf(false) }
 
-    val listState = rememberLazyListState()
+    // 书籍内容列表状态
+    val contentListState = rememberLazyListState()
+
+    // 章节列表状态
+    val chapterListState = rememberLazyListState()
 
     val chapterName = remember(uiState.currentChapterIndex) {
         uiState.chapters.getOrNull(uiState.currentChapterIndex)?.title ?: "未知章节"
@@ -70,8 +74,8 @@ fun ReaderScreen(
         viewModel.init(bookId)
     }
 
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.firstVisibleItemIndex }
+    LaunchedEffect(contentListState) {
+        snapshotFlow { contentListState.firstVisibleItemIndex }
             .debounce(300)
             .collect { index ->
                 // 屏幕最上方的 Item
@@ -86,7 +90,7 @@ fun ReaderScreen(
     // 用户突然退出或锁屏时强制保存
     DisposableEffect(Unit) {
         onDispose {
-            val currentItem = uiState.readerItems.getOrNull(listState.firstVisibleItemIndex)
+            val currentItem = uiState.readerItems.getOrNull(contentListState.firstVisibleItemIndex)
             // 强制立即保存内存中的进度
             viewModel.onEvent(ReaderEvent.OnStopOrDispose(currentItem))
         }
@@ -118,7 +122,7 @@ fun ReaderScreen(
                 is ReaderEffect.RestoreFocus -> TODO()
                 is ReaderEffect.ScrollToItem -> {
                     val index = effect.index
-                    listState.scrollToItem(index)
+                    contentListState.scrollToItem(index)
                 }
 
                 ReaderEffect.ShowFirstChapterToast -> {
@@ -131,6 +135,10 @@ fun ReaderScreen(
 
                 ReaderEffect.ShowLoadChapterContentFailedToast -> {
                     R.string.load_chapter_content_failed.toast()
+                }
+
+                is ReaderEffect.ScrollToChapter -> {
+                    chapterListState.scrollToItem(effect.index)
                 }
             }
         }
@@ -162,6 +170,7 @@ fun ReaderScreen(
                     chapters = uiState.chapters,
                     currentChapterIndex = uiState.currentChapterIndex,
                     currentChapterProgressText = "0%",
+                    state = chapterListState
                 )
             }
         },
@@ -173,7 +182,7 @@ fun ReaderScreen(
         DrawerContent(
             uiState = uiState,
             isBarsVisible = isBarsVisible,
-            listState = listState,
+            listState = contentListState,
             chapterName = chapterName,
             onBackClick = {
                 viewModel.onEvent(ReaderEvent.OnBackClick)
