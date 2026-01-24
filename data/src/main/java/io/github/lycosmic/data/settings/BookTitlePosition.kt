@@ -1,5 +1,4 @@
-package io.github.lycosmic.domain.model
-
+package io.github.lycosmic.data.settings
 
 /**
  * 书籍标题的位置

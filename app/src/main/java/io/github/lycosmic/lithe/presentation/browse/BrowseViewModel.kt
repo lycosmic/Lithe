@@ -3,8 +3,8 @@ package io.github.lycosmic.lithe.presentation.browse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.data.settings.DisplayMode
 import io.github.lycosmic.data.settings.SettingsManager
-import io.github.lycosmic.domain.model.DisplayMode
 import io.github.lycosmic.domain.model.FileFormat
 import io.github.lycosmic.domain.model.FileItem
 import io.github.lycosmic.domain.model.FileSortType

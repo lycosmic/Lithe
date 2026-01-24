@@ -1,5 +1,4 @@
-package io.github.lycosmic.domain.model
-
+package io.github.lycosmic.lithe.presentation.settings.general
 
 /**
  * 应用语言

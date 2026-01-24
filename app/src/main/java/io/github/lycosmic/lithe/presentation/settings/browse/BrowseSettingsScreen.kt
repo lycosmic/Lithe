@@ -37,9 +37,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.lycosmic.data.settings.DisplayMode
 import io.github.lycosmic.domain.model.Directory
-import io.github.lycosmic.domain.model.DisplayMode
-import io.github.lycosmic.domain.model.OptionItem
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.settings.browse.components.DirectoryListItem
 import io.github.lycosmic.lithe.presentation.settings.components.GridSizeSlider
@@ -47,6 +46,7 @@ import io.github.lycosmic.lithe.presentation.settings.components.InfoTip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
+import io.github.lycosmic.lithe.ui.components.OptionItem
 import io.github.lycosmic.lithe.util.extensions.labelResId
 
 @OptIn(ExperimentalMaterial3Api::class)

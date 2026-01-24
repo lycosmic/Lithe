@@ -43,11 +43,9 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.github.lycosmic.domain.model.BookSortType
-import io.github.lycosmic.domain.model.BookTitlePosition
-import io.github.lycosmic.domain.model.DisplayMode
-import io.github.lycosmic.domain.model.OptionItem
-import io.github.lycosmic.domain.model.TabType
+import io.github.lycosmic.data.settings.BookSortType
+import io.github.lycosmic.data.settings.BookTitlePosition
+import io.github.lycosmic.data.settings.DisplayMode
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.presentation.settings.components.GridSizeSlider
@@ -56,8 +54,11 @@ import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTi
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSwitch
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
+import io.github.lycosmic.lithe.ui.components.OptionItem
+import io.github.lycosmic.lithe.ui.model.TabType
 import io.github.lycosmic.lithe.util.extensions.labelResId
 import io.github.lycosmic.lithe.util.extensions.titleResId
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

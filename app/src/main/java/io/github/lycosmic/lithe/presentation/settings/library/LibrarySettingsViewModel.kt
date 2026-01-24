@@ -3,10 +3,10 @@ package io.github.lycosmic.lithe.presentation.settings.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.data.settings.BookTitlePosition
+import io.github.lycosmic.data.settings.DisplayMode
 import io.github.lycosmic.data.settings.SettingsManager
-import io.github.lycosmic.domain.model.BookTitlePosition
 import io.github.lycosmic.domain.model.Category
-import io.github.lycosmic.domain.model.DisplayMode
 import io.github.lycosmic.domain.repository.CategoryRepository
 import io.github.lycosmic.domain.use_case.settings.library.GetCategoriesExcludingDefaultUseCase
 import io.github.lycosmic.lithe.log.logI

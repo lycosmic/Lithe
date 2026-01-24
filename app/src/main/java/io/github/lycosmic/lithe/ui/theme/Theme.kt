@@ -3,7 +3,7 @@ package io.github.lycosmic.lithe.ui.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import io.github.lycosmic.domain.model.AppThemeOption
+import io.github.lycosmic.data.settings.AppThemeOption
 
 
 @Composable

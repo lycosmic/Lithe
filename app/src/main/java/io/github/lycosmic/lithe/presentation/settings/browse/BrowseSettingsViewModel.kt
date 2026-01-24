@@ -4,9 +4,9 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.data.settings.DisplayMode
 import io.github.lycosmic.data.settings.SettingsManager
 import io.github.lycosmic.domain.model.Directory
-import io.github.lycosmic.domain.model.DisplayMode
 import io.github.lycosmic.domain.repository.DirectoryRepository
 import io.github.lycosmic.lithe.log.logV
 import io.github.lycosmic.lithe.util.AppConstants

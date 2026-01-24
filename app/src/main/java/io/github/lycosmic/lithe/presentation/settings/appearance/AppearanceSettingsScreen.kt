@@ -53,10 +53,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.lycosmic.domain.model.AppThemeOption
+import io.github.lycosmic.data.settings.AppThemeOption
+import io.github.lycosmic.data.settings.ThemeMode
 import io.github.lycosmic.domain.model.ColorPreset
-import io.github.lycosmic.domain.model.OptionItem
-import io.github.lycosmic.domain.model.ThemeMode
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.log.logV
 import io.github.lycosmic.lithe.presentation.settings.appearance.components.ColorPresetEditorCard
@@ -65,6 +64,7 @@ import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTi
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSwitch
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
+import io.github.lycosmic.lithe.ui.components.OptionItem
 import io.github.lycosmic.lithe.ui.components.StyledText
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
 import io.github.lycosmic.lithe.util.extensions.backgroundColor

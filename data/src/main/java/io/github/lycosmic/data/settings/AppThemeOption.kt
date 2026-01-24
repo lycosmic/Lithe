@@ -1,5 +1,4 @@
-package io.github.lycosmic.domain.model
-
+package io.github.lycosmic.data.settings
 
 enum class AppThemeOption(
     val id: String,

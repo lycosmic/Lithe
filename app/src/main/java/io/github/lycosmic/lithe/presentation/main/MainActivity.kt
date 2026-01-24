@@ -26,9 +26,9 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.lycosmic.data.settings.AppThemeOption
 import io.github.lycosmic.data.settings.SettingsManager
-import io.github.lycosmic.domain.model.AppThemeOption
-import io.github.lycosmic.domain.model.ThemeMode
+import io.github.lycosmic.data.settings.ThemeMode
 import io.github.lycosmic.lithe.log.logI
 import io.github.lycosmic.lithe.presentation.navigation.AppNavigation
 import io.github.lycosmic.lithe.presentation.navigation.AppNavigationViewModel

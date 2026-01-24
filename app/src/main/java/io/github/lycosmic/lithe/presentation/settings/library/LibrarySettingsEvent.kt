@@ -1,8 +1,8 @@
 package io.github.lycosmic.lithe.presentation.settings.library
 
-import io.github.lycosmic.domain.model.BookTitlePosition
+import io.github.lycosmic.data.settings.BookTitlePosition
+import io.github.lycosmic.data.settings.DisplayMode
 import io.github.lycosmic.domain.model.Category
-import io.github.lycosmic.domain.model.DisplayMode
 
 sealed class LibrarySettingsEvent {
     /**

@@ -1,7 +1,6 @@
 package io.github.lycosmic.lithe.presentation.settings.general
 
 import androidx.compose.runtime.Immutable
-import io.github.lycosmic.domain.model.AppLanguage
 
 
 @Immutable

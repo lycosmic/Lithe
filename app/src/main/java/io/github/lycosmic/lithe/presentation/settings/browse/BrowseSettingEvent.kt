@@ -1,8 +1,8 @@
 package io.github.lycosmic.lithe.presentation.settings.browse
 
 import android.net.Uri
+import io.github.lycosmic.data.settings.DisplayMode
 import io.github.lycosmic.domain.model.Directory
-import io.github.lycosmic.domain.model.DisplayMode
 
 
 sealed class BrowseSettingEvent {

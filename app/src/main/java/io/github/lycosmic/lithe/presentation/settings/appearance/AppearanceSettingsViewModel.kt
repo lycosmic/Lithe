@@ -7,10 +7,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.data.local.dao.ColorPresetDao
 import io.github.lycosmic.data.mapper.toEntity
+import io.github.lycosmic.data.settings.AppThemeOption
 import io.github.lycosmic.data.settings.SettingsManager
-import io.github.lycosmic.domain.model.AppThemeOption
+import io.github.lycosmic.data.settings.ThemeMode
 import io.github.lycosmic.domain.model.ColorPreset
-import io.github.lycosmic.domain.model.ThemeMode
 import io.github.lycosmic.lithe.log.logD
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logI

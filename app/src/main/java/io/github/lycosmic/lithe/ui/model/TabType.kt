@@ -1,4 +1,4 @@
-package io.github.lycosmic.domain.model
+package io.github.lycosmic.lithe.ui.model
 
 /**
  * 标签页类型

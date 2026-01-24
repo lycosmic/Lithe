@@ -3,13 +3,13 @@ package io.github.lycosmic.lithe.presentation.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.data.settings.BookSortType
+import io.github.lycosmic.data.settings.BookTitlePosition
+import io.github.lycosmic.data.settings.DisplayMode
 import io.github.lycosmic.data.settings.SettingsManager
 import io.github.lycosmic.domain.model.Book
-import io.github.lycosmic.domain.model.BookSortType
-import io.github.lycosmic.domain.model.BookTitlePosition
 import io.github.lycosmic.domain.model.Category
 import io.github.lycosmic.domain.model.CategoryWithBookList
-import io.github.lycosmic.domain.model.DisplayMode
 import io.github.lycosmic.domain.repository.BookRepository
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logW

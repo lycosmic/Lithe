@@ -41,7 +41,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.github.lycosmic.domain.model.OptionItem
+
+/**
+ * 可选项
+ */
+data class OptionItem<T>(
+    val value: T,
+    val label: String,
+    val selected: Boolean = false
+)
 
 @Composable
 fun <T> LitheSegmentedButton(

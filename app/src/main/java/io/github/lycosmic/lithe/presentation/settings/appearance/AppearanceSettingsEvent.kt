@@ -1,7 +1,7 @@
 package io.github.lycosmic.lithe.presentation.settings.appearance
 
+import io.github.lycosmic.data.settings.ThemeMode
 import io.github.lycosmic.domain.model.ColorPreset
-import io.github.lycosmic.domain.model.ThemeMode
 
 
 sealed class AppearanceSettingsEvent {

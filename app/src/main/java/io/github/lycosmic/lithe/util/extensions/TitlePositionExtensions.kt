@@ -1,6 +1,6 @@
 package io.github.lycosmic.lithe.util.extensions
 
-import io.github.lycosmic.domain.model.BookTitlePosition
+import io.github.lycosmic.data.settings.BookTitlePosition
 import io.github.lycosmic.lithe.R
 
 /**

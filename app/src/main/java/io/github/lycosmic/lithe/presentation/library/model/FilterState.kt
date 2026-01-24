@@ -1,6 +1,6 @@
 package io.github.lycosmic.lithe.presentation.library.model
 
-import io.github.lycosmic.domain.model.BookSortType
+import io.github.lycosmic.data.settings.BookSortType
 
 /**
  * 书籍过滤后的状态

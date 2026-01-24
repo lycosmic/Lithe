@@ -1,5 +1,4 @@
-package io.github.lycosmic.domain.model
-
+package io.github.lycosmic.data.settings
 
 enum class BookSortType {
     // 字母顺序

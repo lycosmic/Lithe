@@ -1,4 +1,4 @@
-package io.github.lycosmic.domain.model
+package io.github.lycosmic.data.settings
 
 
 const val LIGHT_VALUE = "light"

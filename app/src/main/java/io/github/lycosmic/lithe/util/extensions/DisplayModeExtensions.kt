@@ -1,6 +1,6 @@
 package io.github.lycosmic.lithe.util.extensions
 
-import io.github.lycosmic.domain.model.DisplayMode
+import io.github.lycosmic.data.settings.DisplayMode
 import io.github.lycosmic.lithe.R
 
 /**

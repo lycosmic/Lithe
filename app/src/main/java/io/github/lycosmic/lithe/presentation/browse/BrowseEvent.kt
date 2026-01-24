@@ -1,6 +1,6 @@
 package io.github.lycosmic.lithe.presentation.browse
 
-import io.github.lycosmic.domain.model.DisplayMode
+import io.github.lycosmic.data.settings.DisplayMode
 import io.github.lycosmic.domain.model.FileItem
 import io.github.lycosmic.domain.model.FileSortType
 import io.github.lycosmic.domain.model.FilterOption
