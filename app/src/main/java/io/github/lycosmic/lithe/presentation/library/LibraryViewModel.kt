@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.data.settings.SettingsManager
-import io.github.lycosmic.domain.model.AppConstraints
 import io.github.lycosmic.domain.model.Book
 import io.github.lycosmic.domain.model.BookSortType
 import io.github.lycosmic.domain.model.BookTitlePosition
@@ -203,7 +202,7 @@ class LibraryViewModel @Inject constructor(
     val bookGridColumnCount = settingsManager.bookGridColumnCount.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = AppConstraints.GRID_SIZE_INT_RANGE.first
+        initialValue = AppConstants.GRID_SIZE_INT_RANGE.first
     )
 
     /**

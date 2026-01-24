@@ -8,7 +8,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.data.local.dao.ColorPresetDao
 import io.github.lycosmic.data.mapper.toEntity
 import io.github.lycosmic.data.settings.SettingsManager
-import io.github.lycosmic.domain.model.AppConstraints
 import io.github.lycosmic.domain.model.AppThemeOption
 import io.github.lycosmic.domain.model.ColorPreset
 import io.github.lycosmic.domain.model.ThemeMode
@@ -251,24 +250,24 @@ class AppearanceSettingsViewModel @Inject constructor(
                         preset.copy(
                             backgroundColorArgb = Color(
                                 Random.nextInt(
-                                    AppConstraints.MAX_COLOR_VALUE
+                                    AppConstants.MAX_COLOR_VALUE
                                 ),
                                 Random.nextInt(
-                                    AppConstraints.MAX_COLOR_VALUE
+                                    AppConstants.MAX_COLOR_VALUE
                                 ),
                                 Random.nextInt(
-                                    AppConstraints.MAX_COLOR_VALUE
+                                    AppConstants.MAX_COLOR_VALUE
                                 )
                             ).toArgb(),
                             textColorArgb = Color(
                                 Random.nextInt(
-                                    AppConstraints.MAX_COLOR_VALUE
+                                    AppConstants.MAX_COLOR_VALUE
                                 ),
                                 Random.nextInt(
-                                    AppConstraints.MAX_COLOR_VALUE
+                                    AppConstants.MAX_COLOR_VALUE
                                 ),
                                 Random.nextInt(
-                                    AppConstraints.MAX_COLOR_VALUE
+                                    AppConstants.MAX_COLOR_VALUE
                                 )
                             ).toArgb()
                         ).toEntity(
