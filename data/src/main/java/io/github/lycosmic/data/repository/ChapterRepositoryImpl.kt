@@ -33,4 +33,10 @@ class ChapterRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteChaptersByBookId(bookId: Long): Result<Unit> {
+        return runCatching {
+            chapterDao.deleteChaptersByBookId(bookId)
+        }
+    }
+
 }

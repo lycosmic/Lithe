@@ -16,4 +16,9 @@ interface ChapterRepository {
      * 保存章节列表
      */
     suspend fun saveChapters(spine: List<BookChapter>): Result<List<Long>>
+
+    /**
+     * 根据书籍ID删除章节列表
+     */
+    suspend fun deleteChaptersByBookId(bookId: Long): Result<Unit>
 }

@@ -32,10 +32,17 @@ class TxtContentParser @Inject constructor(
         return parseSpine(context, uriString.toUri(), bookId)
     }
 
-    // 章节正则
+    /**
+     * 匹配章节的正则
+     * 匹配规则：
+     * 1. \s* 匹配0个或多个空白字符
+     * 2. [...]+ 匹配1个或多个代表数字的字符
+     * 3. .* 匹配任意数量的任意字符
+     */
     private val chapterPattern = Pattern.compile(
-        "^\\s*(第|[Cc]hapter)\\s*[0-9零一二三四五六七八九十百千]+\\s*(章|节|卷|Section|Part).*",
+        "^.*\\s*.*(第|[Cc]hapter)\\s*[0-9零一二三四五六七八九十百千]+\\s*(章|节|卷|Section|Part).*",
     )
+
 
     /**
      * 解析 TXT 章节 (虚拟章节)
@@ -85,22 +92,22 @@ class TxtContentParser @Inject constructor(
 
                     // 行字符串
                     val lineStr = String(lineBytes, charset).trim()
+                    if (lineStr.isBlank()) continue
 
                     // 如果还没找到第一章，且当前行有内容，暂存为标题
                     // 防止前面的内容没有标题
-                    if (isFirstChapterFound && lineStr.isNotEmpty()) {
+                    if (isFirstChapterFound) {
                         if (!chapterPattern.matcher(lineStr).matches()) {
                             lastChapterTitle = lineStr
                             isFirstChapterFound = false
                         }
                     }
 
-
                     // 匹配正则
                     if (chapterPattern.matcher(lineStr).matches()) {
                         // 找到新章节，结算上一章
                         // 上一章的范围：[lastChapterStartOffset, currentLineStartOffset)
-                        if (currentLineStartOffset > lastChapterStartOffset) {
+                        if (currentLineStartOffset > lastChapterStartOffset && lastChapterTitle.isNotBlank()) {
                             chapters.add(
                                 TxtChapter(
                                     bookId = bookId,
@@ -116,6 +123,9 @@ class TxtContentParser @Inject constructor(
                         // 开启新的一章
                         lastChapterTitle = lineStr
                         lastChapterStartOffset = currentLineStartOffset
+                        if (isFirstChapterFound) {
+                            isFirstChapterFound = false
+                        }
                     }
 
                     baos.reset()

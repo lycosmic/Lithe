@@ -11,6 +11,7 @@ import io.github.lycosmic.domain.model.Book
 import io.github.lycosmic.domain.model.Category
 import io.github.lycosmic.domain.model.CategoryWithBookList
 import io.github.lycosmic.domain.repository.BookRepository
+import io.github.lycosmic.domain.use_case.library.DeleteBookUseCase
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logW
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.CloseDeleteBookConfirmDialog
@@ -43,6 +44,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val bookRepositoryImpl: BookRepository,
+    private val deleteBook: DeleteBookUseCase,
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
@@ -354,7 +356,7 @@ class LibraryViewModel @Inject constructor(
                     // 删除所选书籍
                     _selectedBooks.value.forEach { bookId ->
                         // 删除书籍
-                        bookRepositoryImpl.deleteBook(bookId)
+                        deleteBook(bookId)
                         successCount++
                     }
                     if (successCount == _selectedBooks.value.size) {

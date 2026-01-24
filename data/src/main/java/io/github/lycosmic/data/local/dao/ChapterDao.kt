@@ -21,4 +21,10 @@ interface ChapterDao {
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertChapters(chapters: List<ChapterEntity>): List<Long>
+
+    /**
+     * 根据书籍ID删除章节
+     */
+    @Query("DELETE FROM ${ChapterEntity.TABLE_NAME} WHERE ${ChapterEntity.COL_BOOK_ID} = :bookId")
+    suspend fun deleteChaptersByBookId(bookId: Long): Int
 }
