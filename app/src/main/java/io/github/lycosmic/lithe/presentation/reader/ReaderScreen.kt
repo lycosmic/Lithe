@@ -86,8 +86,9 @@ fun ReaderScreen(
     // 用户突然退出或锁屏时强制保存
     DisposableEffect(Unit) {
         onDispose {
+            val currentItem = uiState.readerItems.getOrNull(listState.firstVisibleItemIndex)
             // 强制立即保存内存中的进度
-            viewModel.onEvent(ReaderEvent.OnStopOrDispose)
+            viewModel.onEvent(ReaderEvent.OnStopOrDispose(currentItem))
         }
     }
 
