@@ -1,6 +1,9 @@
 package io.github.lycosmic.lithe.presentation.reader.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +23,8 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -50,6 +55,7 @@ fun ChapterListContent(
         thumbThickness = 8.dp,
         scrollbarPadding = 4.dp
     )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -82,15 +88,27 @@ fun ChapterListContent(
                 items(
                     items = chapters,
                 ) { chapter ->
+                    // 列表项指针事件
+                    val interactionSource = remember { MutableInteractionSource() }
+
+                    val isPressed by interactionSource.collectIsPressedAsState()
+
+                    val currentChapterSelected = chapter.index == currentChapterIndex
+
+                    // 章节名是否展开：如果正在被按下或者当前章节被选中，则展开
+                    val isChapterNameExpanded = isPressed || currentChapterSelected
+
                     NavigationDrawerItem(
                         label = {
                             Row {
                                 StyledText(
                                     text = chapter.title,
-                                    modifier = Modifier.weight(1f),
-                                    maxLines = 1
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .animateContentSize(),
+                                    maxLines = if (isChapterNameExpanded) 10 else 1,
                                 )
-                                if (chapter.index == currentChapterIndex) {
+                                if (currentChapterSelected) {
                                     Spacer(modifier = Modifier.width(18.dp))
                                     StyledText(text = currentChapterProgressText)
                                 }
@@ -99,7 +117,9 @@ fun ChapterListContent(
                         },
                         selected = chapter.index == currentChapterIndex, // 高亮当前章节
                         onClick = { onChapterClick(chapter.index) },
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        modifier = Modifier
+                            .padding(NavigationDrawerItemDefaults.ItemPadding),
+                        interactionSource = interactionSource,
                     )
                 }
             }
