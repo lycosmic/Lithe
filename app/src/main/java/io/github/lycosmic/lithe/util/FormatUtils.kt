@@ -51,9 +51,10 @@ object FormatUtils {
      * 格式化进度
      * @param progress 进度 0-1
      * @param digits 小数位数
+     * @param withPercent 是否加上百分号
      * @return 进度字符串，例如 "42.9%"、"0%"
      */
-    fun formatProgress(progress: Float, digits: Int = 1): String {
+    fun formatProgress(progress: Float, digits: Int = 1, withPercent: Boolean = true): String {
         // 处理边界
         val safeProgress = progress.coerceIn(0f, 1f)
 
@@ -65,6 +66,6 @@ object FormatUtils {
         val roundedValue = value.setScale(digits, RoundingMode.HALF_UP)
         val text = roundedValue.toPlainString() // 防止科学计数法
 
-        return "$text%"
+        return if (withPercent) "$text%" else text
     }
 }

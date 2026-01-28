@@ -57,7 +57,6 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.documentfile)
-    implementation(libs.androidx.material3)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
@@ -93,6 +92,9 @@ dependencies {
 
     // LazyColumnScrollbar, url: https://github.com/nanihadesuka/LazyColumnScrollbar
     implementation(libs.lazycolumnscrollbar)
+
+    // Material3
+    implementation(libs.androidx.compose.material3.v150alpha06)
 
     // ---------------- 初始依赖 ----------------
     implementation(libs.androidx.core.ktx)

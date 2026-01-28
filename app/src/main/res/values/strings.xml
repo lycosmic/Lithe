@@ -160,4 +160,5 @@
     <string name="first_chapter">Already at the first chapter</string>
     <string name="last_chapter">Already at the last chapter</string>
     <string name="load_chapter_content_failed">Load chapter content failed</string>
+    <string name="continue_reading">继续从%s开始</string>
 </resources>

@@ -30,9 +30,10 @@ import androidx.compose.material.icons.outlined.MoveUp
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -55,6 +56,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,7 +74,7 @@ import my.nanihadesuka.compose.ScrollbarSelectionMode
 import my.nanihadesuka.compose.ScrollbarSettings
 
 @SuppressLint("LocalContextGetResourceValueCall")
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun BookDetailScreen(
     bookId: Long,
@@ -101,6 +103,11 @@ fun BookDetailScreen(
 
     // 列表状态
     val scrollState = rememberLazyListState()
+
+    // 是否之前阅读过
+    val hasRead = book.lastReadTime != null
+
+    val bookProgressString = FormatUtils.formatProgress(progress)
 
     val scrollbarSettings = ScrollbarSettings(
         thumbUnselectedColor = MaterialTheme.colorScheme.secondary,
@@ -239,6 +246,7 @@ fun BookDetailScreen(
                         Modifier
                             .fillMaxWidth()
                     ) {
+                        // --- 封面 ---
                         Box(
                             Modifier
                                 .weight(1f)
@@ -265,17 +273,20 @@ fun BookDetailScreen(
                             }
                         }
 
+                        // --- 书籍信息 ---
                         Column(
                             modifier = Modifier
                                 .weight(1f)
                                 .align(Alignment.CenterVertically),
                             verticalArrangement = Arrangement.Center,
                         ) {
+                            // --- 标题 ---
                             Text(
                                 text = book.title,
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.align(Alignment.CenterHorizontally)
                             )
+                            // --- 作者 ---
                             Row(modifier = Modifier.align(Alignment.Start)) {
                                 Icon(
                                     imageVector = Icons.Outlined.Person, contentDescription = null,
@@ -291,25 +302,30 @@ fun BookDetailScreen(
                                 )
                             }
 
-
+                            // --- 进度 ---
                             Row(modifier = Modifier.align(Alignment.Start)) {
-                                LinearProgressIndicator(
-                                    progress = {
-                                        progress
-                                    },
+                                LinearWavyProgressIndicator(
+                                    progress = { progress.coerceIn(0f, 1f) },
+                                    trackColor = MaterialTheme.colorScheme.secondaryContainer.copy(
+                                        0.7f
+                                    ),
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(4.dp)
-                                        .clip(MaterialTheme.shapes.small)
                                         .align(Alignment.CenterVertically),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    amplitude = { 0.5f },
+                                    wavelength = 80.dp,
+                                    waveSpeed = 15.dp
                                 )
 
                                 Text(
-                                    text = FormatUtils.formatProgress(progress),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.padding(start = 4.dp)
+                                    text = bookProgressString,
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontWeight = FontWeight.Medium
+                                    ),
+                                    modifier = Modifier
+                                        .padding(start = 4.dp)
+                                        .align(Alignment.CenterVertically)
                                 )
                             }
                         }
@@ -419,7 +435,11 @@ fun BookDetailScreen(
                             .fillMaxWidth()
                             .padding(top = 16.dp)
                     ) {
-                        Text(text = stringResource(id = R.string.start_reading))
+                        val startReadText = if (hasRead) stringResource(
+                            id = R.string.continue_reading,
+                            bookProgressString
+                        ) else stringResource(id = R.string.start_reading)
+                        Text(text = startReadText)
                     }
                 }
 
@@ -436,10 +456,10 @@ fun BookDetailScreen(
         }
 
 
-        val lastOpenTime = if (book.lastReadTime == null) {
-            stringResource(id = R.string.never_opened)
-        } else {
+        val lastOpenTime = if (hasRead) {
             FormatUtils.formatDate(book.lastReadTime!!)
+        } else {
+            stringResource(id = R.string.never_opened)
         }
 
         val size = FormatUtils.formatFileSize(book.fileSize)
