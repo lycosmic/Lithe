@@ -12,7 +12,8 @@ fun ChapterEntity.toDomain(): BookChapter {
             bookId = bookId,
             index = index,
             title = title,
-            href = href ?: ""
+            href = href ?: "",
+            length = length
         )
 
         else -> TxtChapter(
@@ -20,7 +21,8 @@ fun ChapterEntity.toDomain(): BookChapter {
             index = index,
             title = title,
             startOffset = startOffset ?: 0L,
-            endOffset = endOffset ?: 0L
+            endOffset = endOffset ?: 0L,
+            length = length
         )
     }
 }
@@ -34,7 +36,8 @@ fun BookChapter.toEntity(): ChapterEntity {
             type = ChapterEntity.TYPE_EPUB,
             href = href,
             startOffset = null,
-            endOffset = null
+            endOffset = null,
+            length = length
         )
 
         is TxtChapter -> ChapterEntity(
@@ -44,7 +47,8 @@ fun BookChapter.toEntity(): ChapterEntity {
             type = ChapterEntity.TYPE_TXT,
             startOffset = startOffset,
             endOffset = endOffset,
-            href = null
+            href = null,
+            length = length
         )
     }
 }

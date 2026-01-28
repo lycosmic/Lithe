@@ -282,7 +282,7 @@ class ReaderViewModel @Inject constructor(
         bookFileUri: String
     ): List<ReaderContent>? {
         // 获取章节列表
-        val chapters = _uiState.value.chapters
+        val chapters = uiState.value.chapters
         if (chapters.isEmpty()) return null
 
         // 获取章节
@@ -301,7 +301,7 @@ class ReaderViewModel @Inject constructor(
      * 切换章节
      */
     fun switchToChapter(index: Int) {
-        val currentState = _uiState.value
+        val currentState = uiState.value
         val book = currentState.book
         val bookId = book.id
 
@@ -318,7 +318,8 @@ class ReaderViewModel @Inject constructor(
             val newProgress = ReadingProgress(
                 bookId = bookId,
                 chapterIndex = index,
-                chapterOffsetCharIndex = 0 // 切换章节默认回到开头
+                chapterOffsetCharIndex = 0, // 切换章节默认回到开头
+                progressPercent = 0f
             )
 
             saveReadingProgressUseCase(bookId, newProgress)
@@ -389,7 +390,8 @@ class ReaderViewModel @Inject constructor(
             val progress = ReadingProgress(
                 bookId = bookId,
                 chapterIndex = content.chapterIndex,
-                chapterOffsetCharIndex = content.startIndex
+                chapterOffsetCharIndex = content.startIndex,
+                progressPercent = content.startIndex.toFloat() / uiState.value.currentChapterLength
             )
             saveReadingProgressUseCase(
                 bookId = bookId,

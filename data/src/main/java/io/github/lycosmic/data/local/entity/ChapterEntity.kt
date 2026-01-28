@@ -21,7 +21,9 @@ data class ChapterEntity(
     @ColumnInfo(name = COL_HREF)
     val href: String?, // EPUB专用：HTML 文件路径
     @ColumnInfo(name = COL_TYPE)
-    val type: Int
+    val type: Int,
+    @ColumnInfo(name = COL_LENGTH)
+    val length: Long,
 ) {
     companion object {
         const val TABLE_NAME = "chapters"
@@ -32,6 +34,7 @@ data class ChapterEntity(
         const val COL_END_OFFSET = "end_offset"
         const val COL_HREF = "href"
         const val COL_TYPE = "type"
+        const val COL_LENGTH = "length"
         const val TYPE_TXT = 0
         const val TYPE_EPUB = 1
     }

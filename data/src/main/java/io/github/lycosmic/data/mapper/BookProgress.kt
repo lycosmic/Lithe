@@ -8,11 +8,13 @@ fun ReadingProgress.toEntity() = BookProgressEntity(
     bookId = bookId,
     chapterIndex = chapterIndex,
     charIndex = chapterOffsetCharIndex,
-    updatedAt = System.currentTimeMillis()
+    updatedAt = System.currentTimeMillis(),
+    progress = progressPercent
 )
 
 fun BookProgressEntity.toDomain() = ReadingProgress(
     bookId = bookId,
     chapterIndex = chapterIndex,
-    chapterOffsetCharIndex = charIndex
+    chapterOffsetCharIndex = charIndex,
+    progressPercent = progress
 )

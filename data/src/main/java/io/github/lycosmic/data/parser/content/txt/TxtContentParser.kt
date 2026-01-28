@@ -114,7 +114,8 @@ class TxtContentParser @Inject constructor(
                                     index = chapterOrder,
                                     title = lastChapterTitle,
                                     startOffset = lastChapterStartOffset,
-                                    endOffset = currentLineStartOffset
+                                    endOffset = currentLineStartOffset,
+                                    length = currentLineStartOffset - lastChapterStartOffset
                                 )
                             )
                             chapterOrder++
@@ -140,7 +141,8 @@ class TxtContentParser @Inject constructor(
                             index = chapterOrder,
                             title = lastChapterTitle,
                             startOffset = lastChapterStartOffset,
-                            endOffset = totalSize
+                            endOffset = totalSize,
+                            length = totalSize - lastChapterStartOffset
                         )
                     )
                 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a51105997ace4802a03ef05e9624664a",
+    "identityHash": "2f965e31823dd89c06b0dbedb8699e2a",
     "entities": [
       {
         "tableName": "books",
@@ -184,7 +184,7 @@
       },
       {
         "tableName": "book_progress",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`book_id` INTEGER NOT NULL, `chapter_index` INTEGER NOT NULL, `char_index` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`book_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`book_id` INTEGER NOT NULL, `chapter_index` INTEGER NOT NULL, `char_index` INTEGER NOT NULL, `progress` REAL NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`book_id`))",
         "fields": [
           {
             "fieldPath": "bookId",
@@ -205,6 +205,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "progress",
+            "columnName": "progress",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
             "fieldPath": "updatedAt",
             "columnName": "updated_at",
             "affinity": "INTEGER",
@@ -220,7 +226,7 @@
       },
       {
         "tableName": "chapters",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`book_id` INTEGER NOT NULL, `index` INTEGER NOT NULL, `title` TEXT NOT NULL, `start_offset` INTEGER, `end_offset` INTEGER, `href` TEXT, `type` INTEGER NOT NULL, PRIMARY KEY(`book_id`, `index`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`book_id` INTEGER NOT NULL, `index` INTEGER NOT NULL, `title` TEXT NOT NULL, `start_offset` INTEGER, `end_offset` INTEGER, `href` TEXT, `type` INTEGER NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`book_id`, `index`))",
         "fields": [
           {
             "fieldPath": "bookId",
@@ -258,6 +264,12 @@
           {
             "fieldPath": "type",
             "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "length",
+            "columnName": "length",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -356,7 +368,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a51105997ace4802a03ef05e9624664a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2f965e31823dd89c06b0dbedb8699e2a')"
     ]
   }
 }

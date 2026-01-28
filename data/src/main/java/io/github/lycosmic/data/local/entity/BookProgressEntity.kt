@@ -13,6 +13,8 @@ data class BookProgressEntity(
     val chapterIndex: Int,
     @ColumnInfo(name = COL_CHAR_INDEX)
     val charIndex: Int,
+    @ColumnInfo(name = COL_PROGRESS)
+    val progress: Float = 0f,
     @ColumnInfo(name = COL_UPDATED_AT)
     val updatedAt: Long = System.currentTimeMillis()
 ) {
@@ -22,6 +24,7 @@ data class BookProgressEntity(
         const val COL_BOOK_ID = "book_id"
         const val COL_CHAPTER_INDEX = "chapter_index"
         const val COL_CHAR_INDEX = "char_index"
+        const val COL_PROGRESS = "progress"
         const val COL_UPDATED_AT = "updated_at"
     }
 }

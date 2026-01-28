@@ -7,7 +7,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.data.util.parsePathInfo
 import io.github.lycosmic.domain.model.Book
 import io.github.lycosmic.domain.repository.BookRepository
+import io.github.lycosmic.domain.use_case.reader.GetProgressPercentUseCase
 import io.github.lycosmic.lithe.R
+import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.util.AppConstants
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,11 +24,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BookDetailViewModel @Inject constructor(
-    private val bookRepositoryImpl: BookRepository,
+    private val bookRepository: BookRepository,
+    private val getProgressPercent: GetProgressPercentUseCase,
 ) : ViewModel() {
 
     private val _book = MutableStateFlow(Book.default)
     val book = _book.asStateFlow()
+
+    private val _progress = MutableStateFlow(0f)
+    val progress = _progress.asStateFlow()
 
     // 自己维护的文件路径, 用来判断文件是否为空, 或有损坏
     private val _filePath = MutableStateFlow<String?>(null)
@@ -35,9 +41,13 @@ class BookDetailViewModel @Inject constructor(
     private val _effects = MutableSharedFlow<BookDetailEffect>()
     val effects = _effects.asSharedFlow()
 
+
+    /**
+     * 初始加载书籍
+     */
     fun loadBook(bookId: Long) {
         viewModelScope.launch {
-            bookRepositoryImpl.getBookFlowById(bookId).map {
+            bookRepository.getBookFlowById(bookId).map {
                 it.getOrNull()
             }.stateIn(
                 scope = viewModelScope,
@@ -46,6 +56,17 @@ class BookDetailViewModel @Inject constructor(
             ).filterNotNull().collect { book ->
                 _book.value = book
 
+                // 获取阅读进度
+                getProgressPercent(bookId).onSuccess {
+                    _progress.value = it
+                }.onFailure { throwable ->
+                    logE(e = throwable) {
+                        "获取阅读进度失败，书籍ID: $bookId"
+                    }
+                    return@collect
+                }
+
+                // 更新文件路径
                 book.let {
                     // 初始的文件路径
                     val path = book.fileUri.toUri().parsePathInfo().getOrElse {
@@ -58,6 +79,10 @@ class BookDetailViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     *
+     */
 
     fun onEvent(event: BookDetailEvent) {
         viewModelScope.launch {
@@ -101,7 +126,7 @@ class BookDetailViewModel @Inject constructor(
     fun deleteBook() {
         viewModelScope.launch {
             _effects.emit(BookDetailEffect.DismissDeleteBookDialog)
-            bookRepositoryImpl.deleteBook(book.value.id)
+            bookRepository.deleteBook(book.value.id)
             _effects.emit(BookDetailEffect.ShowBookDeletedToast(R.string.delete_book_success))
             _effects.emit(BookDetailEffect.NavigateBack)
         }

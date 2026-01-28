@@ -89,6 +89,8 @@ fun BookDetailScreen(
 
     val filePath by viewModel.filePath.collectAsStateWithLifecycle()
 
+    val progress by viewModel.progress.collectAsStateWithLifecycle()
+
     var bottomSheetVisible by remember { mutableStateOf(false) }
 
     // 控制移动书籍的对话框显隐
@@ -293,8 +295,7 @@ fun BookDetailScreen(
                             Row(modifier = Modifier.align(Alignment.Start)) {
                                 LinearProgressIndicator(
                                     progress = {
-                                        // TODO: 书籍阅读进度
-                                        0f
+                                        progress
                                     },
                                     modifier = Modifier
                                         .weight(1f)
@@ -306,7 +307,7 @@ fun BookDetailScreen(
                                 )
 
                                 Text(
-                                    text = "${book.progress * 100}%",
+                                    text = FormatUtils.formatProgress(progress),
                                     style = MaterialTheme.typography.bodySmall,
                                     modifier = Modifier.padding(start = 4.dp)
                                 )

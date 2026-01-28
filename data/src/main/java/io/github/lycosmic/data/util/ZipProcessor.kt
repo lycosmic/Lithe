@@ -3,6 +3,7 @@ package io.github.lycosmic.data.util
 import android.content.Context
 import android.net.Uri
 import dagger.hilt.android.qualifiers.ApplicationContext
+import io.github.lycosmic.domain.util.DomainLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -17,6 +18,7 @@ import javax.inject.Inject
 class ZipProcessor @Inject constructor(
     @param:ApplicationContext
     private val context: Context,
+    private val logger: DomainLogger
 ) {
     /**
      * 在 Zip 文件中查找指定路径的 Zip 条目并执行操作
@@ -148,6 +150,33 @@ class ZipProcessor @Inject constructor(
             (uriPart.hashCode() + pathPart.hashCode()).toString()
         }
     }
+
+    /**
+     * 快速扫描 ZIP，获取所有文件的大小 (Uncompressed Size)
+     * 返回 Map<zip相对路径, 字节大小>
+     */
+    suspend fun getFileSizes(uri: Uri): Map<String, Long> = withContext(Dispatchers.IO) {
+        val sizeMap = mutableMapOf<String, Long>()
+        try {
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                ZipInputStream(stream.buffered()).use { zip ->
+                    var entry = zip.nextEntry
+                    while (entry != null) {
+                        if (!entry.isDirectory) {
+                            // entry.size 是解压后的大小；如果未知可能返回 -1，兜底给 1024
+                            val size = if (entry.size != -1L) entry.size else 1024L
+                            sizeMap[entry.name] = size
+                        }
+                        entry = zip.nextEntry
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            logger.e(throwable = e) { "获取 EPUB 文件大小时出错" }
+        }
+        return@withContext sizeMap
+    }
+
 
     companion object {
         const val ALGORITHM_MD5 = "MD5"

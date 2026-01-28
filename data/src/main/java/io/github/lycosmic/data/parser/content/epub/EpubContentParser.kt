@@ -61,6 +61,9 @@ class EpubContentParser @Inject constructor(
             val ncxPath = findNcxPath(manifest, opfParentPath)
             val ncxTitleMap = parseTocNcxToMap(uri, ncxPath, opfParentPath)
 
+            // 预扫描获取所有文件的大小
+            val fileSizeMap = zipProcessor.getFileSizes(uri)
+
             val chapters = mutableListOf<BookChapter>()
 
             // 2. 遍历 Spine 生成章节列表
@@ -90,18 +93,24 @@ class EpubContentParser @Inject constructor(
                     title = href.substringAfterLast("/") // 使用文件名
                 }
 
+                // 获取文件长度
+                val cleanPath = fullPath.substringBefore("#")
+                val size = fileSizeMap[cleanPath] ?: 1024L
+
                 chapters.add(
                     EpubChapter(
                         bookId = bookId,
                         index = index,
                         title = title ?: "Chapter ${index + 1}",
-                        href = fullPath
+                        href = fullPath,
+                        length = size
                     )
                 )
             }
 
             return@withContext chapters
         }
+
 
     /**
      * 寻找 NCX 文件的路径
