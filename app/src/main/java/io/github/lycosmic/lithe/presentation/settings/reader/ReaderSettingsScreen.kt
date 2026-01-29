@@ -6,6 +6,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 
 
 /**
@@ -18,7 +19,7 @@ fun ReaderSettingsScreen(onNavigateBack: () -> Unit, modifier: Modifier = Modifi
     val topBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.nestedScroll(topBarScrollBehavior.nestedScrollConnection),
         topBar = {
             ReaderSettingsTopBar(
                 onBackClick = onNavigateBack,
