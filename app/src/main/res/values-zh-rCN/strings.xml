@@ -162,4 +162,5 @@
     <string name="last_chapter">当前已是最后一章</string>
     <string name="load_chapter_content_failed">加载章节内容失败</string>
     <string name="continue_reading">继续从%f%开始</string>
+    <string name="reader_settings_title">阅读器</string>
 </resources>
