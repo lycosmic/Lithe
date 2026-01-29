@@ -162,4 +162,10 @@
     <string name="load_chapter_content_failed">Load chapter content failed</string>
     <string name="continue_reading">Continue with %s</string>
     <string name="reader_settings_title">Reader</string>
+    <string name="reader_settings_font_group_title">Font</string>
+    <string name="reader_settings_font_family">Font Family</string>
+    <string name="reader_settings_font_weight">Font Weight</string>
+    <string name="reader_settings_font_size">Font Size</string>
+    <string name="reader_settings_font_letter_spacing">Font Letter Spacing</string>
+    <string name="reader_settings_font_style">Font Style</string>
 </resources>

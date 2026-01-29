@@ -13,6 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import io.github.lycosmic.lithe.R
 
+
+/**
+ * 阅读器设置页面的顶部栏
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderSettingsTopBar(

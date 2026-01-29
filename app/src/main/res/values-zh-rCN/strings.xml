@@ -163,4 +163,10 @@
     <string name="load_chapter_content_failed">加载章节内容失败</string>
     <string name="continue_reading">继续从%f%开始</string>
     <string name="reader_settings_title">阅读器</string>
+    <string name="reader_settings_font_group_title">字体</string>
+    <string name="reader_settings_font_family">字体系列</string>
+    <string name="reader_settings_font_weight">字体粗细</string>
+    <string name="reader_settings_font_size">字体大小</string>
+    <string name="reader_settings_font_letter_spacing">字间距</string>
+    <string name="reader_settings_font_style">字体样式</string>
 </resources>
