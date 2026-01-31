@@ -54,14 +54,30 @@ fun ReaderSettingsContent(
 ) {
     LazyColumn(modifier) {
         item {
+            Column {
+                SettingsGroupTitle(
+                    title = {
+                        stringResource(id = R.string.reader_settings_font_group_title)
+                    },
+                    modifier = Modifier.padding(
+                        top = 16.dp,
+                        bottom = 8.dp,
+                        start = 16.dp,
+                        end = 16.dp
+                    )
+                )
 
-            SettingsGroupTitle(
-                title = {
-                    stringResource(id = R.string.reader_settings_font_group_title)
-                },
-                modifier = Modifier.padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
-            )
+                FontPreviewCard(
+                    font = ReaderFontFamily.fromId(currentFontId),
+                    weight = ReaderFontWeight.fromValue(currentFontWeight),
+                    fontSize = currentFontSize,
+                    isItalic = isReaderItalic,
+                    letterSpacing = currentLetterSpacing,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
 
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+            }
         }
 
         // 字体系列

@@ -24,8 +24,8 @@ enum class ReaderFontFamily(val id: String, val displayName: String, val family:
         /**
          * 通过 id 获取字体系列
          */
-        fun fromId(id: String) {
-            entries.find {
+        fun fromId(id: String): ReaderFontFamily {
+            return entries.find {
                 it.id == id
             } ?: Default
         }

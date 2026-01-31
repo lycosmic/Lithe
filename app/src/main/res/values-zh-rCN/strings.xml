@@ -179,4 +179,7 @@
     <string name="reader_settings_font_style_italic">斜体</string>
     <string name="reader_settings_font_size_format">%dpt</string>
     <string name="reader_settings_font_letter_spacing_format">%dpt</string>
+    <string name="reader_preview_text">落霞与孤鹜齐飞，秋水共长天一色。舟遥遥以轻飏，风飘飘而吹衣。问征夫以前路，恨晨光之熹微。</string>
+    <string name="reader_preview_text_hint">实时预览 (点击文字可编辑)</string>
+    <string name="reader_preview_reset_text">重置预览文本</string>
 </resources>
