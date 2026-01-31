@@ -4,6 +4,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
@@ -81,12 +83,29 @@ class SettingsManager @Inject constructor(
 
         // 书籍排序顺序
         val BOOK_SORT_ORDER = booleanPreferencesKey("book_sort_order")
+
+        // 阅读字体ID
+        val READER_FONT_ID = stringPreferencesKey("reader_font_id")
+
+        // 阅读字体大小
+        val READER_FONT_SIZE = floatPreferencesKey("reader_font_size")
+
+        // 阅读字体样式
+        val READER_FONT_WEIGHT = intPreferencesKey("reader_font_weight")
+
+        // 阅读字体是否斜体
+        val READER_IS_ITALIC = booleanPreferencesKey("reader_is_italic")
+
+        // 阅读字间距
+        val READER_LETTER_SPACING = floatPreferencesKey("reader_letter_spacing")
     }
 
     companion object {
         const val GRID_COLUMN_COUNT_DEFAULT = 3 // 默认 3 列
         const val LANGUAGE_CODE_DEFAULT = "zh-CN"
         const val THEME_MODE_DEFAULT = "system"
+        const val DEFAULT_FONT_SIZE = 18f
+        const val DEFAULT_LETTER_SPACING = 0f
     }
 
     // --- 主题模式 ---
@@ -374,6 +393,60 @@ class SettingsManager @Inject constructor(
         dataStore.edit { preferences ->
             preferences[Keys.BOOK_SORT_ORDER] = isAscending
         }
+    }
+
+    // --- 阅读器字体ID ---
+    val readerFontId: Flow<String> =
+        dataStore.data.map { it[Keys.READER_FONT_ID] ?: ReaderFontFamily.Default.id }
+
+    /**
+     * 设置阅读器字体ID
+     */
+    suspend fun setReaderFontId(id: String) {
+        dataStore.edit { it[Keys.READER_FONT_ID] = id }
+    }
+
+    // --- 阅读器字体大小 ---
+    val readerFontSize: Flow<Float> =
+        dataStore.data.map { it[Keys.READER_FONT_SIZE] ?: DEFAULT_FONT_SIZE }
+
+    /**
+     * 设置阅读器字体大小
+     */
+    suspend fun setReaderFontSize(size: Float) {
+        dataStore.edit { it[Keys.READER_FONT_SIZE] = size }
+    }
+
+    // --- 阅读器字体粗细 ---
+    val readerFontWeight: Flow<Int> =
+        dataStore.data.map { it[Keys.READER_FONT_WEIGHT] ?: ReaderFontWeight.Normal.value }
+
+    /**
+     * 设置阅读器字体粗细
+     */
+    suspend fun setReaderFontWeight(weight: Int) {
+        dataStore.edit { it[Keys.READER_FONT_WEIGHT] = weight }
+    }
+
+    // --- 字体是否是斜体 ---
+    val isReaderItalic: Flow<Boolean> = dataStore.data.map { it[Keys.READER_IS_ITALIC] ?: false }
+
+    /**
+     * 设置字体是否是斜体
+     */
+    suspend fun setReaderItalic(isItalic: Boolean) {
+        dataStore.edit { it[Keys.READER_IS_ITALIC] = isItalic }
+    }
+
+    // --- 阅读器字间距 ---
+    val readerLetterSpacing: Flow<Float> =
+        dataStore.data.map { it[Keys.READER_LETTER_SPACING] ?: DEFAULT_LETTER_SPACING }
+
+    /**
+     * 设置阅读器字间距
+     */
+    suspend fun setReaderLetterSpacing(spacing: Float) {
+        dataStore.edit { it[Keys.READER_LETTER_SPACING] = spacing }
     }
 
 }

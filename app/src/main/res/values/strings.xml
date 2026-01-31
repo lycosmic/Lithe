@@ -168,4 +168,14 @@
     <string name="reader_settings_font_size">Font Size</string>
     <string name="reader_settings_font_letter_spacing">Font Letter Spacing</string>
     <string name="reader_settings_font_style">Font Style</string>
+    <string name="font_weight_thin">Thin</string>
+    <string name="font_weight_light">Light</string>
+    <string name="font_weight_normal">Normal</string>
+    <string name="font_weight_medium">Medium</string>
+    <string name="font_weight_bold">Bold</string>
+    <string name="reader_settings_font_family_default">Default</string>
+    <string name="reader_settings_font_style_normal">Normal</string>
+    <string name="reader_settings_font_style_italic">Italic</string>
+    <string name="reader_settings_font_size_format">%dpt</string>
+    <string name="reader_settings_font_letter_spacing_format">%dpt</string>
 </resources>

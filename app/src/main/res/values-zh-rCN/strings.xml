@@ -169,4 +169,14 @@
     <string name="reader_settings_font_size">字体大小</string>
     <string name="reader_settings_font_letter_spacing">字间距</string>
     <string name="reader_settings_font_style">字体样式</string>
+    <string name="font_weight_thin">极细</string>
+    <string name="font_weight_light">纤细</string>
+    <string name="font_weight_normal">常规</string>
+    <string name="font_weight_medium">中等</string>
+    <string name="font_weight_bold">粗体</string>
+    <string name="reader_settings_font_family_default">默认</string>
+    <string name="reader_settings_font_style_normal">正常</string>
+    <string name="reader_settings_font_style_italic">斜体</string>
+    <string name="reader_settings_font_size_format">%dpt</string>
+    <string name="reader_settings_font_letter_spacing_format">%dpt</string>
 </resources>

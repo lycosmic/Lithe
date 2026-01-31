@@ -150,7 +150,7 @@ fun AppNavigation(
                         ReaderSettingsScreen(
                             onNavigateBack = {
                                 navViewModel.pop()
-                            }
+                            },
                         )
                     }
 

@@ -22,4 +22,14 @@ object AppConstants {
      * 0 表示自动
      */
     val GRID_SIZE_INT_RANGE = 0..10
+
+    /**
+     * 字体大小的范围
+     */
+    val FONT_SIZE_INT_RANGE = 10..35
+
+    /**
+     * 字间距的范围
+     */
+    val LETTER_SPACING_INT_RANGE = -8..16
 }

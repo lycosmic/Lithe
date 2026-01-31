@@ -25,7 +25,7 @@ import io.github.lycosmic.lithe.ui.theme.LitheTheme
 
 
 /**
- * 选择标签 (Chip)
+ * 选择标签 (Chip)，用于应用语言选择、字体选择、字体粗细选择等地方
  */
 @Composable
 fun SelectionChip(
@@ -70,7 +70,7 @@ private fun LanguageChipPreview() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            SelectionChip(text = "简体中文", isSelected = isSelected) {
+            SelectionChip(text = "English", isSelected = isSelected) {
                 isSelected = !isSelected
             }
         }
