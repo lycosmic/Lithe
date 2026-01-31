@@ -19,6 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
@@ -31,6 +33,8 @@ import io.github.lycosmic.lithe.ui.theme.LitheTheme
 fun SelectionChip(
     text: String,
     isSelected: Boolean,
+    fontFamily: FontFamily? = null,
+    fontWeight: FontWeight? = null,
     onClick: () -> Unit
 ) {
     Surface(
@@ -52,6 +56,8 @@ fun SelectionChip(
         ) {
             Text(
                 text = text,
+                fontFamily = fontFamily,
+                fontWeight = fontWeight,
                 style = MaterialTheme.typography.bodyMedium,
                 // 选中时文字颜色深一点，未选中时普通色
                 color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface

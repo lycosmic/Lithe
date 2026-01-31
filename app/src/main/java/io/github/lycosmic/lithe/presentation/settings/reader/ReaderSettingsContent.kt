@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.data.settings.ReaderFontFamily
@@ -89,7 +90,8 @@ fun ReaderSettingsContent(
                             isSelected = fontFamily.id == currentFontId,
                             onClick = {
                                 onFontIdChange(fontFamily.id)
-                            }
+                            },
+                            fontFamily = fontFamily.family
                         )
                     }
                 }
@@ -118,7 +120,8 @@ fun ReaderSettingsContent(
                             isSelected = fontWeight.value == currentFontWeight,
                             onClick = {
                                 onFontWeightChange(fontWeight.value)
-                            }
+                            },
+                            fontWeight = fontWeight.weight
                         )
                     }
                 }
@@ -143,7 +146,8 @@ fun ReaderSettingsContent(
                         OptionItem(
                             label = stringResource(R.string.reader_settings_font_style_italic),
                             value = true,
-                            selected = isReaderItalic
+                            selected = isReaderItalic,
+                            fontStyle = FontStyle.Italic
                         ),
                     ),
                     onClick = { isItalic ->

@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -48,7 +49,8 @@ import androidx.compose.ui.unit.dp
 data class OptionItem<T>(
     val value: T,
     val label: String,
-    val selected: Boolean = false
+    val selected: Boolean = false,
+    val fontStyle: FontStyle? = null,
 )
 
 @Composable
@@ -133,7 +135,8 @@ private fun <T> SingleSegmentedButton(
             style = MaterialTheme.typography.labelLarge.copy(
                 color = if (item.selected) colors.activeContentColor
                 else colors.inactiveContentColor
-            )
+            ),
+            fontStyle = item.fontStyle
         )
     }
 }
