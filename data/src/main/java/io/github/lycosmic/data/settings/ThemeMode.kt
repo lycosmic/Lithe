@@ -1,17 +1,13 @@
 package io.github.lycosmic.data.settings
 
 
-const val LIGHT_VALUE = "light"
-const val DARK_VALUE = "dark"
-const val SYSTEM_VALUE = "system"
-
 /**
  * 主题模式
  */
 enum class ThemeMode(val value: String) {
-    LIGHT(LIGHT_VALUE),
-    DARK(DARK_VALUE),
-    SYSTEM(SYSTEM_VALUE);
+    LIGHT("light"),
+    DARK("dark"),
+    SYSTEM("system");
 
     companion object {
         /**

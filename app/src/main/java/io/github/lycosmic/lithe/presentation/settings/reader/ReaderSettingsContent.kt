@@ -1,38 +1,39 @@
 package io.github.lycosmic.lithe.presentation.settings.reader
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.github.lycosmic.data.settings.AppImageAlign
+import io.github.lycosmic.data.settings.AppTextAlign
+import io.github.lycosmic.data.settings.ImageColorEffect
 import io.github.lycosmic.data.settings.ReaderFontWeight
 import io.github.lycosmic.domain.model.MyFontFamily
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSlider
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSwitch
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 import io.github.lycosmic.lithe.ui.components.OptionItem
 import io.github.lycosmic.lithe.util.AppConstants
 import io.github.lycosmic.lithe.util.extensions.displayNameResId
+import io.github.lycosmic.lithe.util.extensions.labelResId
 import io.github.lycosmic.lithe.util.length
 
 
@@ -42,16 +43,36 @@ import io.github.lycosmic.lithe.util.length
 @Composable
 fun ReaderSettingsContent(
     modifier: Modifier = Modifier,
-    currentFontId: String,
-    currentFontSize: Float,
-    currentFontWeight: Int,
+    fontId: String,
+    fontSize: Float,
+    fontWeight: Int,
     isReaderItalic: Boolean,
-    currentLetterSpacing: Float,
+    letterSpacing: Float,
+    appTextAlign: AppTextAlign,
+    lineHeight: Float,
+    paragraphSpacing: Float,
+    paragraphIndent: Float,
+    imageVisible: Boolean,
+    imageCaptionVisible: Boolean,
+    imageColorEffect: ImageColorEffect,
+    imageCornerRadius: Float,
+    imageAlign: AppImageAlign,
+    imageSizePercent: Float,
     onFontIdChange: (String) -> Unit,
     onFontSizeChange: (Float) -> Unit,
     onFontWeightChange: (Int) -> Unit,
     onItalicChange: (Boolean) -> Unit,
     onLetterSpacingChange: (Float) -> Unit,
+    onTextAlignChange: (AppTextAlign) -> Unit,
+    onLineHeightChange: (Float) -> Unit,
+    onParagraphSpacingChange: (Float) -> Unit,
+    onParagraphIndentChange: (Float) -> Unit,
+    onImageVisibleChange: (Boolean) -> Unit,
+    onImageCaptionVisibleChange: (Boolean) -> Unit,
+    onImageColorEffectChange: (ImageColorEffect) -> Unit,
+    onImageCornerRadiusChange: (Float) -> Unit,
+    onImageAlignChange: (AppImageAlign) -> Unit,
+    onImageSizePercentChange: (Float) -> Unit,
     fonts: List<MyFontFamily> = emptyList(),
     currentFontFamily: FontFamily,
 ) {
@@ -60,10 +81,10 @@ fun ReaderSettingsContent(
             Column {
                 FontPreviewCard(
                     font = currentFontFamily,
-                    weight = ReaderFontWeight.fromValue(currentFontWeight),
-                    fontSize = currentFontSize,
+                    weight = ReaderFontWeight.fromValue(fontWeight),
+                    fontSize = fontSize,
                     isItalic = isReaderItalic,
-                    letterSpacing = currentLetterSpacing,
+                    letterSpacing = letterSpacing,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
 
@@ -111,7 +132,7 @@ fun ReaderSettingsContent(
 
                         SelectionChip(
                             text = text,
-                            isSelected = fontFamily.id == currentFontId,
+                            isSelected = fontFamily.id == fontId,
                             onClick = {
                                 onFontIdChange(fontFamily.id)
                             },
@@ -138,14 +159,14 @@ fun ReaderSettingsContent(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    ReaderFontWeight.entries.forEach { fontWeight ->
+                    ReaderFontWeight.entries.forEach { weight ->
                         SelectionChip(
-                            text = stringResource(id = fontWeight.displayNameResId),
-                            isSelected = fontWeight.value == currentFontWeight,
+                            text = stringResource(id = weight.displayNameResId),
+                            isSelected = weight.value == fontWeight,
                             onClick = {
-                                onFontWeightChange(fontWeight.value)
+                                onFontWeightChange(weight.value)
                             },
-                            fontWeight = fontWeight.weight
+                            fontWeight = weight.weight
                         )
                     }
                 }
@@ -190,73 +211,252 @@ fun ReaderSettingsContent(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 // 字体大小
-                Row {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(text = stringResource(R.string.reader_settings_font_size))
-                        Text(
-                            text = stringResource(
-                                R.string.reader_settings_font_size_format,
-                                currentFontSize.toInt()
-                            ), textAlign = TextAlign.Center
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Slider(
-                        value = currentFontSize,
-                        onValueChange = {
-                            onFontSizeChange(it)
-                        },
-                        steps = AppConstants.FONT_SIZE_INT_RANGE.length - 1,
-                        valueRange = AppConstants.FONT_SIZE_INT_RANGE.first.toFloat()
-                            .rangeTo(AppConstants.FONT_SIZE_INT_RANGE.last.toFloat()),
-                        colors = SliderDefaults.colors(
-                            activeTrackColor = MaterialTheme.colorScheme.secondary,
-                            thumbColor = MaterialTheme.colorScheme.primary,
-                            inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                            activeTickColor = MaterialTheme.colorScheme.onSecondary,
-                            inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    )
-                }
+                SettingsItemWithSlider(
+                    title = stringResource(id = R.string.reader_settings_font_size),
+                    subtitleResId = R.string.reader_settings_font_size_format,
+                    initialValue = fontSize,
+                    onSave = onFontSizeChange,
+                    steps = AppConstants.FONT_SIZE_INT_RANGE.length - 1,
+                    floatRange = AppConstants.FONT_SIZE_INT_RANGE.first.toFloat()
+                        .rangeTo(AppConstants.FONT_SIZE_INT_RANGE.last.toFloat()),
+                )
 
                 // 字间距
-                Row {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(text = stringResource(R.string.reader_settings_font_letter_spacing))
-                        Text(
-                            text = stringResource(
-                                R.string.reader_settings_font_letter_spacing_format,
-                                currentLetterSpacing.toInt()
-                            ), textAlign = TextAlign.Center
+                SettingsItemWithSlider(
+                    title = stringResource(id = R.string.reader_settings_font_letter_spacing),
+                    subtitleResId =
+                        R.string.reader_settings_font_letter_spacing_format,
+                    initialValue = letterSpacing,
+                    onSave = onLetterSpacingChange,
+                    steps = AppConstants.LETTER_SPACING_INT_RANGE.length - 1,
+                    floatRange = AppConstants.LETTER_SPACING_INT_RANGE.first.toFloat()
+                        .rangeTo(AppConstants.LETTER_SPACING_INT_RANGE.last.toFloat()),
+                )
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        // --- 文本 ---
+        item {
+            SettingsGroupTitle(
+                title = {
+                    stringResource(id = R.string.reader_settings_text_group_title)
+                },
+                modifier = Modifier.padding(
+                    top = 16.dp,
+                    bottom = 8.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                )
+            )
+        }
+
+        // 文本对齐
+        item {
+            Column {
+                SettingsSubGroupTitle(
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                    title = stringResource(id = R.string.reader_settings_text_align_title)
+                )
+
+                LitheSegmentedButton(
+                    items = AppTextAlign.entries.map { textAlign ->
+                        OptionItem(
+                            label = stringResource(textAlign.labelResId),
+                            value = textAlign,
+                            selected = textAlign == appTextAlign
+                        )
+                    },
+                    onClick = { textAlign ->
+                        onTextAlignChange(textAlign)
+                    },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+        }
+
+
+        // 行高和段落间距
+        item {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                // 行高
+                SettingsItemWithSlider(
+                    title = stringResource(id = R.string.reader_settings_line_height),
+                    subtitleResId =
+                        R.string.reader_settings_line_height_format,
+                    initialValue = lineHeight,
+                    onSave = onLineHeightChange,
+                    steps = AppConstants.LINE_HEIGHT_INT_RANGE.length - 1,
+                    floatRange = AppConstants.LINE_HEIGHT_INT_RANGE.first.toFloat()
+                        .rangeTo(AppConstants.LINE_HEIGHT_INT_RANGE.last.toFloat()),
+                )
+
+                // 段落间距
+                SettingsItemWithSlider(
+                    title = stringResource(id = R.string.reader_settings_paragraph_spacing),
+                    subtitleResId =
+                        R.string.reader_settings_paragraph_spacing_format,
+                    initialValue = paragraphSpacing,
+                    onSave = onParagraphSpacingChange,
+                    steps = AppConstants.PARAGRAPH_SPACING_INT_RANGE.length - 1,
+                    floatRange = AppConstants.PARAGRAPH_SPACING_INT_RANGE.first.toFloat()
+                        .rangeTo(AppConstants.PARAGRAPH_SPACING_INT_RANGE.last.toFloat()),
+                )
+
+                // 段落缩进
+                AnimatedVisibility(
+                    visible = appTextAlign == AppTextAlign.START || appTextAlign == AppTextAlign.JUSTIFY,
+                    enter = slideInVertically(),
+                    exit = slideOutVertically()
+                ) {
+
+                    SettingsItemWithSlider(
+                        title = stringResource(id = R.string.reader_settings_paragraph_indent),
+                        subtitleResId =
+                            R.string.reader_settings_paragraph_indent_format,
+                        initialValue = paragraphIndent,
+                        onSave = onParagraphIndentChange,
+                        steps = AppConstants.PARAGRAPH_INDENT_INT_RANGE.length - 1,
+                        floatRange = AppConstants.PARAGRAPH_INDENT_INT_RANGE.first.toFloat()
+                            .rangeTo(AppConstants.PARAGRAPH_INDENT_INT_RANGE.last.toFloat()),
+                    )
+                }
+            }
+        }
+
+
+
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        // --- 图片 ---
+        item {
+            SettingsGroupTitle(
+                title = {
+                    stringResource(id = R.string.reader_settings_image_group_title)
+                },
+                modifier = Modifier.padding(
+                    top = 16.dp,
+                    bottom = 8.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                )
+            )
+        }
+
+
+        item {
+            // 图片显示
+            SettingsItemWithSwitch(
+                title = stringResource(R.string.reader_settings_image_show_title),
+                subtitle = stringResource(R.string.reader_settings_image_show_subtitle),
+                checked = imageVisible,
+                onCheckedChange = onImageVisibleChange
+            )
+        }
+
+        item {
+            AnimatedVisibility(
+                visible = imageVisible,
+                enter = slideInVertically(),
+                exit = slideOutVertically()
+            ) {
+                Column {
+                    // 图片说明文字
+                    SettingsItemWithSwitch(
+                        title = stringResource(R.string.reader_settings_image_caption_show_title),
+                        subtitle = stringResource(R.string.reader_settings_image_caption_show_subtitle),
+                        checked = imageCaptionVisible,
+                        onCheckedChange = onImageCaptionVisibleChange
+                    )
+
+                    // 图片颜色效果
+                    Column {
+                        SettingsSubGroupTitle(
+                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                            title = stringResource(id = R.string.reader_settings_image_color_effect_title)
+                        )
+
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            ImageColorEffect.entries.forEach { effect ->
+                                SelectionChip(
+                                    text = stringResource(effect.labelResId),
+                                    isSelected = effect == imageColorEffect,
+                                    onClick = {
+                                        onImageColorEffectChange(effect)
+                                    },
+                                )
+                            }
+                        }
+                    }
+
+                    // 边角圆度
+                    SettingsItemWithSlider(
+                        title = stringResource(R.string.reader_settings_image_corner_radius),
+                        subtitleResId =
+                            R.string.reader_settings_image_corner_radius_format,
+                        initialValue = imageCornerRadius,
+                        onSave = onImageCornerRadiusChange,
+                        steps = AppConstants.CORNER_RADIUS_INT_RANGE.length - 1,
+                        floatRange = AppConstants.CORNER_RADIUS_INT_RANGE.first.toFloat()
+                            .rangeTo(AppConstants.CORNER_RADIUS_INT_RANGE.last.toFloat()),
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+
+                    // 图片对齐
+                    Column {
+                        SettingsSubGroupTitle(
+                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                            title = stringResource(id = R.string.reader_settings_image_align_title)
+                        )
+
+                        LitheSegmentedButton(
+                            items = AppImageAlign.entries.map { align ->
+                                OptionItem(
+                                    label = stringResource(align.labelResId),
+                                    value = align,
+                                    selected = align == imageAlign
+                                )
+                            },
+                            onClick = onImageAlignChange,
+                            modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Slider(
-                        value = currentLetterSpacing,
-                        onValueChange = {
-                            onLetterSpacingChange(it)
+                    // 图片尺寸比例
+                    SettingsItemWithSlider(
+                        title = stringResource(id = R.string.reader_settings_image_size_percent),
+                        subtitleResId =
+                            R.string.reader_settings_image_size_percent_format,
+                        formatSubtitle = {
+                            it.toInt()
                         },
-                        steps = AppConstants.LETTER_SPACING_INT_RANGE.length - 1,
-                        valueRange = AppConstants.LETTER_SPACING_INT_RANGE.first.toFloat()
-                            .rangeTo(AppConstants.LETTER_SPACING_INT_RANGE.last.toFloat()),
-                        colors = SliderDefaults.colors(
-                            activeTrackColor = MaterialTheme.colorScheme.secondary,
-                            thumbColor = MaterialTheme.colorScheme.primary,
-                            inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-                            activeTickColor = MaterialTheme.colorScheme.onSecondary,
-                            inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        initialValue = imageSizePercent,
+                        onSave = onImageSizePercentChange,
+                        steps = 0,
+                        floatRange = AppConstants.IMAGE_SIZE_RATIO_INT_RANGE.first.toFloat()
+                            .rangeTo(AppConstants.IMAGE_SIZE_RATIO_INT_RANGE.last.toFloat()),
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
+
                 }
             }
         }
@@ -266,6 +466,8 @@ fun ReaderSettingsContent(
             HorizontalDivider()
             Spacer(modifier = Modifier.height(8.dp))
         }
+
+        // --- 章节 ---
 
 
         item {

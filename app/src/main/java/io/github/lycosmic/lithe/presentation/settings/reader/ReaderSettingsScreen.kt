@@ -40,6 +40,27 @@ fun ReaderSettingsScreen(
 
     val currentFontFamily by viewModel.fontFamily.collectAsStateWithLifecycle()
 
+    val currentAppTextAlign by viewModel.appTextAlign.collectAsStateWithLifecycle()
+
+    val currentLineHeight by viewModel.lineHeight.collectAsStateWithLifecycle()
+
+    val currentParagraphSpacing by viewModel.paragraphSpacing.collectAsStateWithLifecycle()
+
+    val currentParagraphIndent by viewModel.paragraphIndent.collectAsStateWithLifecycle()
+
+    val currentImageVisible by viewModel.imageVisible.collectAsStateWithLifecycle()
+
+    val currentImageCaptionVisible by viewModel.imageCaptionVisible.collectAsStateWithLifecycle()
+
+    val currentImageColorEffect by viewModel.imageColorEffect.collectAsStateWithLifecycle()
+
+    val currentImageCornerRadius by viewModel.imageCornerRadius.collectAsStateWithLifecycle()
+
+    val currentImageAlign by viewModel.imageAlign.collectAsStateWithLifecycle()
+
+    val currentImageSizePercent by viewModel.imageSizeRatio.collectAsStateWithLifecycle()
+
+
     Scaffold(
         modifier = modifier.nestedScroll(topBarScrollBehavior.nestedScrollConnection),
         topBar = {
@@ -51,12 +72,12 @@ fun ReaderSettingsScreen(
     ) { innerPaddings ->
         ReaderSettingsContent(
             fonts = fonts,
-            currentFontId = currentFontId,
+            fontId = currentFontId,
             currentFontFamily = currentFontFamily,
-            currentFontSize = currentFontSize,
-            currentFontWeight = currentFontWeight,
+            fontSize = currentFontSize,
+            fontWeight = currentFontWeight,
             isReaderItalic = isReaderItalic,
-            currentLetterSpacing = currentLetterSpacing,
+            letterSpacing = currentLetterSpacing,
             onFontIdChange = {
                 viewModel.onEvent(ReaderSettingsEvent.OnFontIdChange(it))
             },
@@ -77,7 +98,47 @@ fun ReaderSettingsScreen(
                 .padding(
                     top = innerPaddings.calculateTopPadding(),
                     bottom = innerPaddings.calculateBottomPadding()
-                )
+                ),
+            appTextAlign = currentAppTextAlign,
+            lineHeight = currentLineHeight,
+            paragraphSpacing = currentParagraphSpacing,
+            paragraphIndent = currentParagraphIndent,
+            imageVisible = currentImageVisible,
+            imageCaptionVisible = currentImageCaptionVisible,
+            imageColorEffect = currentImageColorEffect,
+            imageCornerRadius = currentImageCornerRadius,
+            imageAlign = currentImageAlign,
+            imageSizePercent = currentImageSizePercent,
+            onTextAlignChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnTextAlignChange(it))
+            },
+            onLineHeightChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnLineHeightChange(it))
+            },
+            onParagraphSpacingChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnParagraphSpacingChange(it))
+            },
+            onParagraphIndentChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnParagraphIndentChange(it))
+            },
+            onImageColorEffectChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnImageColorEffectChange(it))
+            },
+            onImageCornerRadiusChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnImageCornerRadiusChange(it))
+            },
+            onImageAlignChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnImageAlignChange(it))
+            },
+            onImageSizePercentChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnImageSizePercentChange(it))
+            },
+            onImageVisibleChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnImageVisibleChange(it))
+            },
+            onImageCaptionVisibleChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnImageCaptionVisibleChange(it))
+            }
         )
     }
 }

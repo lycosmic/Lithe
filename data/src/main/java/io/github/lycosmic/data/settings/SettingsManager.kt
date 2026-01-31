@@ -99,6 +99,36 @@ class SettingsManager @Inject constructor(
 
         // 阅读字间距
         val READER_LETTER_SPACING = floatPreferencesKey("reader_letter_spacing")
+
+        // 文本对齐方式
+        val READER_TEXT_ALIGN = stringPreferencesKey("reader_text_align")
+
+        // 行高
+        val READER_LINE_HEIGHT = floatPreferencesKey("reader_line_height")
+
+        // 段落间距
+        val READER_PARAGRAPH_SPACING = floatPreferencesKey("reader_para_spacing")
+
+        // 段落缩进
+        val READER_PARAGRAPH_INDENT = floatPreferencesKey("reader_paragraph_indent")
+
+        // 图片显示总开关
+        val READER_IMAGE_ENABLED = booleanPreferencesKey("reader_image_enabled")
+
+        // 是否显示图片说明文字
+        val READER_IMAGE_CAPTION_ENABLED = booleanPreferencesKey("reader_image_caption_enabled")
+
+        // 颜色效果
+        val READER_IMAGE_COLOR_EFFECT = stringPreferencesKey("reader_image_color_effect")
+
+        // 图片边角圆度
+        val READER_IMAGE_CORNER_RADIUS = floatPreferencesKey("reader_image_corner_radius")
+
+        // 图片对齐方式
+        val READER_IMAGE_ALIGN = stringPreferencesKey("reader_image_align")
+
+        // 图片尺寸百分比
+        val READER_IMAGE_SIZE_PERCENT = floatPreferencesKey("reader_image_size_percent")
     }
 
     companion object {
@@ -107,6 +137,21 @@ class SettingsManager @Inject constructor(
         const val THEME_MODE_DEFAULT = "system"
         const val DEFAULT_FONT_SIZE = 18f
         const val DEFAULT_LETTER_SPACING = 0f
+
+        // 默认的行高
+        const val DEFAULT_LINE_HEIGHT = 4f
+
+        // 默认的段落间距
+        const val DEFAULT_PARAGRAPH_SPACING = 1f
+
+        // 默认的段落缩进
+        const val DEFAULT_PARAGRAPH_INDENT = 0f
+
+        // 默认的图片边角圆度
+        const val DEFAULT_IMAGE_CORNER_RADIUS = 0f
+
+        // 默认的图片尺寸百分比
+        const val DEFAULT_IMAGE_SIZE_PERCENT = 100f
     }
 
     // --- 主题模式 ---
@@ -124,9 +169,11 @@ class SettingsManager @Inject constructor(
 
     // --- 文件显示模式 ---
     val fileDisplayMode: Flow<DisplayMode> = dataStore.data.map { preferences ->
-        DisplayMode.valueOf(
-            preferences[Keys.FILE_DISPLAY_MODE] ?: DisplayMode.List.name
-        )
+        runCatching {
+            DisplayMode.valueOf(
+                preferences[Keys.FILE_DISPLAY_MODE] ?: DisplayMode.List.name
+            )
+        }.getOrDefault(DisplayMode.List)
     }
 
     suspend fun setFileDisplayMode(mode: DisplayMode) {
@@ -238,9 +285,11 @@ class SettingsManager @Inject constructor(
 
     // --- 书籍显示模式 ---
     val bookDisplayMode: Flow<DisplayMode> = dataStore.data.map { preferences ->
-        DisplayMode.valueOf(
-            preferences[Keys.BOOK_DISPLAY_MODE] ?: DisplayMode.List.name
-        )
+        runCatching {
+            DisplayMode.valueOf(
+                preferences[Keys.BOOK_DISPLAY_MODE] ?: DisplayMode.List.name
+            )
+        }.getOrDefault(DisplayMode.List)
     }
 
     /**
@@ -268,9 +317,11 @@ class SettingsManager @Inject constructor(
 
     // --- 书籍标题位置 ---
     val bookTitlePosition: Flow<BookTitlePosition> = dataStore.data.map { preferences ->
-        BookTitlePosition.valueOf(
-            preferences[Keys.BOOK_TITLE_POSITION] ?: BookTitlePosition.Below.name
-        )
+        runCatching {
+            BookTitlePosition.valueOf(
+                preferences[Keys.BOOK_TITLE_POSITION] ?: BookTitlePosition.Below.name
+            )
+        }.getOrDefault(BookTitlePosition.Below)
     }
 
     /**
@@ -368,9 +419,11 @@ class SettingsManager @Inject constructor(
 
     // --- 书籍排序方式 ---
     val bookSortType: Flow<BookSortType> = dataStore.data.map { preferences ->
-        BookSortType.valueOf(
-            preferences[Keys.BOOK_SORT_TYPE] ?: BookSortType.DEFAULT_BOOK_SORT_TYPE.name
-        )
+        runCatching {
+            BookSortType.valueOf(
+                preferences[Keys.BOOK_SORT_TYPE] ?: BookSortType.DEFAULT_BOOK_SORT_TYPE.name
+            )
+        }.getOrDefault(BookSortType.DEFAULT_BOOK_SORT_TYPE)
     }
 
     // --- 书籍排序是否升序 ---
@@ -450,4 +503,139 @@ class SettingsManager @Inject constructor(
         dataStore.edit { it[Keys.READER_LETTER_SPACING] = spacing }
     }
 
+
+    // --- 文本对齐方式 ---
+    val readerTextAlign: Flow<AppTextAlign> = dataStore.data.map { pref ->
+        runCatching {
+            AppTextAlign.valueOf(pref[Keys.READER_TEXT_ALIGN] ?: AppTextAlign.JUSTIFY.name)
+        }.getOrDefault(AppTextAlign.JUSTIFY)
+    }
+
+    /**
+     * 设置文本对齐方式
+     */
+    suspend fun setReaderTextAlign(align: AppTextAlign) {
+        dataStore.edit { it[Keys.READER_TEXT_ALIGN] = align.name }
+    }
+
+    // --- 行高 ---
+    val readerLineHeight: Flow<Float> = dataStore.data.map {
+        it[Keys.READER_LINE_HEIGHT] ?: DEFAULT_LINE_HEIGHT
+    }
+
+    /**
+     * 设置行高
+     */
+    suspend fun setReaderLineHeight(height: Float) {
+        dataStore.edit { it[Keys.READER_LINE_HEIGHT] = height }
+    }
+
+    // --- 段落间距 ---
+    val readerParagraphSpacing: Flow<Float> = dataStore.data.map {
+        it[Keys.READER_PARAGRAPH_SPACING] ?: DEFAULT_PARAGRAPH_SPACING
+    }
+
+    /**
+     * 设置段落间距
+     */
+    suspend fun setReaderParagraphSpacing(spacing: Float) {
+        dataStore.edit { it[Keys.READER_PARAGRAPH_SPACING] = spacing }
+    }
+
+    // --- 段落缩进 ---
+    val readerParagraphIndent: Flow<Float> = dataStore.data.map {
+        it[Keys.READER_PARAGRAPH_INDENT] ?: DEFAULT_PARAGRAPH_INDENT
+    }
+
+    /**
+     * 设置段落缩进
+     */
+    suspend fun setReaderParagraphIndent(indent: Float) {
+        dataStore.edit { it[Keys.READER_PARAGRAPH_INDENT] = indent }
+    }
+
+
+    // --- 图片是否显示 ---
+    val readerImageEnabled: Flow<Boolean> = dataStore.data.map {
+        it[Keys.READER_IMAGE_ENABLED] ?: true
+    }
+
+    /**
+     * 设置图片是否显示
+     */
+    suspend fun setReaderImageEnabled(isEnabled: Boolean) {
+        dataStore.edit { it[Keys.READER_IMAGE_ENABLED] = isEnabled }
+    }
+
+    // --- 是否显示图片说明 ---
+    val readerImageCaptionEnabled: Flow<Boolean> = dataStore.data.map {
+        it[Keys.READER_IMAGE_CAPTION_ENABLED] ?: true
+    }
+
+    /**
+     * 设置是否显示图片说明
+     */
+    suspend fun setReaderImageCaptionEnabled(isEnabled: Boolean) {
+        dataStore.edit { it[Keys.READER_IMAGE_CAPTION_ENABLED] = isEnabled }
+    }
+
+    // --- 图片颜色效果 ---
+    val readerImageColorEffect: Flow<ImageColorEffect> = dataStore.data.map { pref ->
+        runCatching {
+            ImageColorEffect.valueOf(
+                pref[Keys.READER_IMAGE_COLOR_EFFECT] ?: ImageColorEffect.NONE.name
+            )
+        }.getOrDefault(ImageColorEffect.NONE)
+    }
+
+    /**
+     * 设置图片颜色效果
+     */
+    suspend fun setReaderImageColorEffect(effect: ImageColorEffect) {
+        dataStore.edit { pref ->
+            pref[Keys.READER_IMAGE_COLOR_EFFECT] = effect.name
+        }
+    }
+
+    // --- 图片边角圆度 ---
+    val readerImageCornerRadius: Flow<Float> = dataStore.data.map {
+        it[Keys.READER_IMAGE_CORNER_RADIUS] ?: 8f
+    }
+
+    /**
+     * 设置图片边角圆度
+     */
+    suspend fun setReaderImageCornerRadius(radius: Float) {
+        dataStore.edit { it[Keys.READER_IMAGE_CORNER_RADIUS] = radius }
+    }
+
+    // --- 图片对齐方式 ---
+    val readerImageAlign: Flow<AppImageAlign> = dataStore.data.map { pref ->
+        runCatching {
+            AppImageAlign.valueOf(pref[Keys.READER_IMAGE_ALIGN] ?: AppImageAlign.CENTER.name)
+        }.getOrDefault(AppImageAlign.CENTER)
+    }
+
+    /**
+     * 设置图片对齐方式
+     */
+    suspend fun setReaderImageAlign(align: AppImageAlign) {
+        dataStore.edit { pref ->
+            pref[Keys.READER_IMAGE_ALIGN] = align.name
+        }
+    }
+
+    // --- 图片大小百分比 ---
+    val readerImageSizePercent: Flow<Float> = dataStore.data.map {
+        it[Keys.READER_IMAGE_SIZE_PERCENT] ?: 100f
+    }
+
+    /**
+     * 设置图片大小百分比
+     */
+    suspend fun setReaderImageSizePercent(percent: Float) {
+        dataStore.edit { pref ->
+            pref[Keys.READER_IMAGE_SIZE_PERCENT] = percent
+        }
+    }
 }

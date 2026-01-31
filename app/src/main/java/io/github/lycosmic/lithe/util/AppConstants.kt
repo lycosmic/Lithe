@@ -32,4 +32,29 @@ object AppConstants {
      * 字间距的范围
      */
     val LETTER_SPACING_INT_RANGE = -8..16
+
+    /**
+     * 行高
+     */
+    val LINE_HEIGHT_INT_RANGE = 1..24
+
+    /**
+     * 段落间距
+     */
+    val PARAGRAPH_SPACING_INT_RANGE = 0..36
+
+    /**
+     * 段落缩进
+     */
+    val PARAGRAPH_INDENT_INT_RANGE = 0..12
+
+    /**
+     * 边角圆度
+     */
+    val CORNER_RADIUS_INT_RANGE = 0..24
+
+    /**
+     * 图片尺寸占屏比例
+     */
+    val IMAGE_SIZE_RATIO_INT_RANGE = 0..100
 }
