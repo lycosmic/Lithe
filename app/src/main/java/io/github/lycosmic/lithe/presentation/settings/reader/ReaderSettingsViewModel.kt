@@ -1,26 +1,30 @@
 package io.github.lycosmic.lithe.presentation.settings.reader
 
+import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.lycosmic.data.settings.ReaderFontFamily
 import io.github.lycosmic.data.settings.ReaderFontWeight
 import io.github.lycosmic.data.settings.SettingsManager
+import io.github.lycosmic.domain.model.MyFontFamily
+import io.github.lycosmic.domain.repository.FontFamilyRepository
 import io.github.lycosmic.lithe.util.AppConstants
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ReaderSettingsViewModel @Inject constructor(
-    private val settings: SettingsManager
+    private val settings: SettingsManager,
+    private val fontFamilyRepository: FontFamilyRepository
 ) : ViewModel() {
 
     val fontId = settings.readerFontId.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = ReaderFontFamily.Default.id
+        initialValue = MyFontFamily.Default.id
     )
 
     val fontSize = settings.readerFontSize.stateIn(
@@ -45,6 +49,24 @@ class ReaderSettingsViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = SettingsManager.DEFAULT_LETTER_SPACING
+    )
+
+    /**
+     * 可使用的字体列表
+     */
+    val availableFonts = fontFamilyRepository.getAvailableFonts()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+            emptyList()
+        )
+
+    val fontFamily = fontId.map {
+        fontFamilyRepository.getFontFamily(it) as FontFamily
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        FontFamily.Default
     )
 
     fun onEvent(event: ReaderSettingsEvent) {

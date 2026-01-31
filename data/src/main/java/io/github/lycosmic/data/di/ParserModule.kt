@@ -6,8 +6,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.lycosmic.data.parser.content.BookContentParserImpl
 import io.github.lycosmic.data.parser.metadata.BookMetadataParserImpl
+import io.github.lycosmic.data.repository.GsonJsonParserImpl
 import io.github.lycosmic.domain.repository.BookContentParser
 import io.github.lycosmic.domain.repository.BookMetadataParser
+import io.github.lycosmic.domain.repository.JsonParser
 import jakarta.inject.Singleton
 
 @Module
@@ -26,4 +28,11 @@ abstract class ParserModule {
     @Binds
     @Singleton
     abstract fun bindContentParser(impl: BookContentParserImpl): BookContentParser
+
+    /**
+     * 绑定JSON解析器
+     */
+    @Binds
+    @Singleton
+    abstract fun bindJsonParser(impl: GsonJsonParserImpl): JsonParser
 }

@@ -19,11 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.github.lycosmic.data.settings.ReaderFontFamily
 import io.github.lycosmic.data.settings.ReaderFontWeight
+import io.github.lycosmic.domain.model.MyFontFamily
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
@@ -50,7 +51,9 @@ fun ReaderSettingsContent(
     onFontSizeChange: (Float) -> Unit,
     onFontWeightChange: (Int) -> Unit,
     onItalicChange: (Boolean) -> Unit,
-    onLetterSpacingChange: (Float) -> Unit
+    onLetterSpacingChange: (Float) -> Unit,
+    fonts: List<MyFontFamily> = emptyList(),
+    currentFontFamily: FontFamily,
 ) {
     LazyColumn(modifier) {
         item {
@@ -68,7 +71,7 @@ fun ReaderSettingsContent(
                 )
 
                 FontPreviewCard(
-                    font = ReaderFontFamily.fromId(currentFontId),
+                    font = currentFontFamily,
                     weight = ReaderFontWeight.fromValue(currentFontWeight),
                     fontSize = currentFontSize,
                     isItalic = isReaderItalic,
@@ -95,9 +98,12 @@ fun ReaderSettingsContent(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    ReaderFontFamily.entries.forEach { fontFamily ->
-                        val text = when (fontFamily) {
-                            ReaderFontFamily.Default -> stringResource(id = R.string.reader_settings_font_family_default)
+                    fonts.forEach { fontFamily ->
+                        val text = when {
+                            (MyFontFamily.Default.id == fontFamily.id) -> {
+                                stringResource(id = R.string.reader_settings_font_family_default)
+                            }
+
                             else -> fontFamily.displayName
                         }
 
@@ -107,7 +113,7 @@ fun ReaderSettingsContent(
                             onClick = {
                                 onFontIdChange(fontFamily.id)
                             },
-                            fontFamily = fontFamily.family
+                            fontFamily = fontFamily.family as? FontFamily ?: FontFamily.Default
                         )
                     }
                 }

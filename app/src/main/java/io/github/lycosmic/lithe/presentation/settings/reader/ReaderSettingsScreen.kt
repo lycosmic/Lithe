@@ -36,6 +36,9 @@ fun ReaderSettingsScreen(
 
     val currentLetterSpacing by viewModel.letterSpacing.collectAsStateWithLifecycle()
 
+    val fonts by viewModel.availableFonts.collectAsStateWithLifecycle()
+
+    val currentFontFamily by viewModel.fontFamily.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier.nestedScroll(topBarScrollBehavior.nestedScrollConnection),
@@ -47,7 +50,9 @@ fun ReaderSettingsScreen(
         },
     ) { innerPaddings ->
         ReaderSettingsContent(
+            fonts = fonts,
             currentFontId = currentFontId,
+            currentFontFamily = currentFontFamily,
             currentFontSize = currentFontSize,
             currentFontWeight = currentFontWeight,
             isReaderItalic = isReaderItalic,

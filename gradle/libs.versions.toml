@@ -36,6 +36,7 @@ javaxInject = "1"
 coroutine = "1.10.2"
 material = "1.13.0"
 lifecycleViewmodelKtx = "2.10.0"
+uiTextGoogleFonts = "1.10.1"
 
 [libraries]
 androidx-compose-adaptive-navigation3 = { module = "androidx.compose.material3.adaptive:adaptive-navigation3", version.ref = "adaptiveNavigation3" }
@@ -81,6 +82,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

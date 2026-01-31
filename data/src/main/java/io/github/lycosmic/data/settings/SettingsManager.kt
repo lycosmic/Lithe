@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import io.github.lycosmic.domain.model.MyFontFamily
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -397,7 +398,7 @@ class SettingsManager @Inject constructor(
 
     // --- 阅读器字体ID ---
     val readerFontId: Flow<String> =
-        dataStore.data.map { it[Keys.READER_FONT_ID] ?: ReaderFontFamily.Default.id }
+        dataStore.data.map { it[Keys.READER_FONT_ID] ?: MyFontFamily.Default.id }
 
     /**
      * 设置阅读器字体ID

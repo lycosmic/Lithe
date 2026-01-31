@@ -2,6 +2,9 @@ package io.github.lycosmic.data.di
 
 import android.content.Context
 import androidx.room.Room
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.Strictness
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,6 +25,17 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
+
+    /**
+     * 提供 Gson 实例
+     */
+    @Singleton
+    @Provides
+    fun provideGson(): Gson {
+        return GsonBuilder()
+            .setStrictness(Strictness.LENIENT) // 允许JSON格式更宽松
+            .create()
+    }
 
     /**
      * 提供 AppDatabase 的单例实例

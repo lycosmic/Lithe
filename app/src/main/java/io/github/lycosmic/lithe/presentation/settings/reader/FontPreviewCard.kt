@@ -30,11 +30,11 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.lycosmic.data.settings.ReaderFontFamily
 import io.github.lycosmic.data.settings.ReaderFontWeight
 import io.github.lycosmic.lithe.R
 
@@ -50,7 +50,7 @@ import io.github.lycosmic.lithe.R
  */
 @Composable
 fun FontPreviewCard(
-    font: ReaderFontFamily,
+    font: FontFamily,
     weight: ReaderFontWeight,
     fontSize: Float,
     isItalic: Boolean,
@@ -108,7 +108,7 @@ fun FontPreviewCard(
                     previewText = it
                 },
                 textStyle = TextStyle(
-                    fontFamily = font.family,
+                    fontFamily = font,
                     fontWeight = weight.weight,
                     fontSize = fontSize.sp,
                     fontStyle = if (isItalic) FontStyle.Italic else FontStyle.Normal,
