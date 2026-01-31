@@ -5,18 +5,53 @@
     "family": ""
   },
   {
+    "id": "Inter",
+    "displayName": "Inter",
+    "family": ""
+  },
+  {
+    "id": "Lora",
+    "displayName": "Lora",
+    "family": ""
+  },
+  {
+    "id": "Merriweather",
+    "displayName": "Merriweather",
+    "family": ""
+  },
+  {
+    "id": "Montserrat",
+    "displayName": "Montserrat",
+    "family": ""
+  },
+  {
+    "id": "Lexend",
+    "displayName": "Lexend",
+    "family": ""
+  },
+  {
     "id": "Noto Sans SC",
     "displayName": "思源黑体",
     "family": ""
   },
   {
-    "id": "Zhi Mang Xing",
-    "displayName": "织茫星",
+    "id": "Noto Serif SC",
+    "displayName": "思源宋体",
     "family": ""
   },
   {
-    "id": "Roboto",
-    "displayName": "Roboto",
+    "id": "Zen Old Mincho",
+    "displayName": "禅意旧明朝",
+    "family": ""
+  },
+  {
+    "id": "Zen Maru Gothic",
+    "displayName": "禅意圆体",
+    "family": ""
+  },
+  {
+    "id": "Noto Sans TC",
+    "displayName": "思源黑体 (繁)",
     "family": ""
   }
 ]
