@@ -14,7 +14,8 @@ enum class BookSortType {
     AUTHOR;
 
     companion object {
-        // 默认按上次阅读时间排序
-        val DEFAULT_BOOK_SORT_TYPE = LAST_READ_TIME
+        fun fromName(name: String?, default: BookSortType = LAST_READ_TIME): BookSortType {
+            return entries.find { it.name == name } ?: default
+        }
     }
 }

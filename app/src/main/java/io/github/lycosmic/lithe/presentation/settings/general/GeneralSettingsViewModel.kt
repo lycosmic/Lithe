@@ -5,6 +5,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.data.settings.AppLanguage
 import io.github.lycosmic.data.settings.SettingsManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,9 +37,9 @@ class GeneralSettingsViewModel @Inject constructor(
             combine(
                 settingsManager.languageCode,
                 settingsManager.isDoubleBackToExitEnabled
-            ) { languageCode, isDoubleBackToExitEnabled ->
+            ) { language, isDoubleBackToExitEnabled ->
                 GeneralSettingsState(
-                    languageCode = languageCode,
+                    appLanguage = language,
                     isDoubleBackToExitEnabled = isDoubleBackToExitEnabled
                 )
             }.collectLatest {
@@ -76,12 +77,12 @@ class GeneralSettingsViewModel @Inject constructor(
                 viewModelScope.launch {
                     _uiState.update {
                         it.copy(
-                            languageCode = event.languageCode
+                            appLanguage = event.appLanguage
                         )
                     }
-                    settingsManager.setLanguageCode(event.languageCode)
+                    settingsManager.setLanguageCode(event.appLanguage)
 
-                    setAppLocale(event.languageCode)
+                    setAppLocale(event.appLanguage)
                 }
             }
         }
@@ -90,8 +91,8 @@ class GeneralSettingsViewModel @Inject constructor(
     /**
      * 调用系统 API 设置语言
      */
-    fun setAppLocale(languageCode: String) {
-        val localeList = LocaleListCompat.forLanguageTags(languageCode)
+    fun setAppLocale(appLanguage: AppLanguage) {
+        val localeList = LocaleListCompat.forLanguageTags(appLanguage.code)
         AppCompatDelegate.setApplicationLocales(localeList)
     }
 

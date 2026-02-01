@@ -26,15 +26,16 @@ import io.github.lycosmic.domain.model.MyFontFamily
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
-import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSlider
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithFloatSlider
+import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithIntSlider
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSwitch
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsSubGroupTitle
 import io.github.lycosmic.lithe.ui.components.LitheSegmentedButton
 import io.github.lycosmic.lithe.ui.components.OptionItem
 import io.github.lycosmic.lithe.util.AppConstants
+import io.github.lycosmic.lithe.util.AppConstants.CORNER_RADIUS_INT_RANGE
 import io.github.lycosmic.lithe.util.extensions.displayNameResId
 import io.github.lycosmic.lithe.util.extensions.labelResId
-import io.github.lycosmic.lithe.util.length
 
 
 /**
@@ -44,33 +45,33 @@ import io.github.lycosmic.lithe.util.length
 fun ReaderSettingsContent(
     modifier: Modifier = Modifier,
     fontId: String,
-    fontSize: Float,
+    fontSize: Int,
     fontWeight: Int,
     isReaderItalic: Boolean,
-    letterSpacing: Float,
+    letterSpacing: Int,
     appTextAlign: AppTextAlign,
-    lineHeight: Float,
-    paragraphSpacing: Float,
-    paragraphIndent: Float,
+    lineHeight: Int,
+    paragraphSpacing: Int,
+    paragraphIndent: Int,
     imageVisible: Boolean,
     imageCaptionVisible: Boolean,
     imageColorEffect: ImageColorEffect,
-    imageCornerRadius: Float,
+    imageCornerRadius: Int,
     imageAlign: AppImageAlign,
     imageSizePercent: Float,
     onFontIdChange: (String) -> Unit,
-    onFontSizeChange: (Float) -> Unit,
+    onFontSizeChange: (Int) -> Unit,
     onFontWeightChange: (Int) -> Unit,
     onItalicChange: (Boolean) -> Unit,
-    onLetterSpacingChange: (Float) -> Unit,
+    onLetterSpacingChange: (Int) -> Unit,
     onTextAlignChange: (AppTextAlign) -> Unit,
-    onLineHeightChange: (Float) -> Unit,
-    onParagraphSpacingChange: (Float) -> Unit,
-    onParagraphIndentChange: (Float) -> Unit,
+    onLineHeightChange: (Int) -> Unit,
+    onParagraphSpacingChange: (Int) -> Unit,
+    onParagraphIndentChange: (Int) -> Unit,
     onImageVisibleChange: (Boolean) -> Unit,
     onImageCaptionVisibleChange: (Boolean) -> Unit,
     onImageColorEffectChange: (ImageColorEffect) -> Unit,
-    onImageCornerRadiusChange: (Float) -> Unit,
+    onImageCornerRadiusChange: (Int) -> Unit,
     onImageAlignChange: (AppImageAlign) -> Unit,
     onImageSizePercentChange: (Float) -> Unit,
     fonts: List<MyFontFamily> = emptyList(),
@@ -85,7 +86,10 @@ fun ReaderSettingsContent(
                     fontSize = fontSize,
                     isItalic = isReaderItalic,
                     letterSpacing = letterSpacing,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    appTextAlign = appTextAlign,
+                    lineHeight = lineHeight,
+                    paragraphIndent = paragraphIndent,
                 )
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
@@ -211,26 +215,22 @@ fun ReaderSettingsContent(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 // 字体大小
-                SettingsItemWithSlider(
+                SettingsItemWithIntSlider(
                     title = stringResource(id = R.string.reader_settings_font_size),
                     subtitleResId = R.string.reader_settings_font_size_format,
                     initialValue = fontSize,
                     onSave = onFontSizeChange,
-                    steps = AppConstants.FONT_SIZE_INT_RANGE.length - 1,
-                    floatRange = AppConstants.FONT_SIZE_INT_RANGE.first.toFloat()
-                        .rangeTo(AppConstants.FONT_SIZE_INT_RANGE.last.toFloat()),
+                    valueRange = AppConstants.FONT_SIZE_INT_RANGE,
                 )
 
                 // 字间距
-                SettingsItemWithSlider(
+                SettingsItemWithIntSlider(
                     title = stringResource(id = R.string.reader_settings_font_letter_spacing),
                     subtitleResId =
                         R.string.reader_settings_font_letter_spacing_format,
                     initialValue = letterSpacing,
                     onSave = onLetterSpacingChange,
-                    steps = AppConstants.LETTER_SPACING_INT_RANGE.length - 1,
-                    floatRange = AppConstants.LETTER_SPACING_INT_RANGE.first.toFloat()
-                        .rangeTo(AppConstants.LETTER_SPACING_INT_RANGE.last.toFloat()),
+                    valueRange = AppConstants.LETTER_SPACING_INT_RANGE,
                 )
             }
         }
@@ -289,27 +289,23 @@ fun ReaderSettingsContent(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 // 行高
-                SettingsItemWithSlider(
+                SettingsItemWithIntSlider(
                     title = stringResource(id = R.string.reader_settings_line_height),
                     subtitleResId =
                         R.string.reader_settings_line_height_format,
                     initialValue = lineHeight,
                     onSave = onLineHeightChange,
-                    steps = AppConstants.LINE_HEIGHT_INT_RANGE.length - 1,
-                    floatRange = AppConstants.LINE_HEIGHT_INT_RANGE.first.toFloat()
-                        .rangeTo(AppConstants.LINE_HEIGHT_INT_RANGE.last.toFloat()),
+                    valueRange = AppConstants.LINE_HEIGHT_INT_RANGE,
                 )
 
                 // 段落间距
-                SettingsItemWithSlider(
+                SettingsItemWithIntSlider(
                     title = stringResource(id = R.string.reader_settings_paragraph_spacing),
                     subtitleResId =
                         R.string.reader_settings_paragraph_spacing_format,
                     initialValue = paragraphSpacing,
                     onSave = onParagraphSpacingChange,
-                    steps = AppConstants.PARAGRAPH_SPACING_INT_RANGE.length - 1,
-                    floatRange = AppConstants.PARAGRAPH_SPACING_INT_RANGE.first.toFloat()
-                        .rangeTo(AppConstants.PARAGRAPH_SPACING_INT_RANGE.last.toFloat()),
+                    valueRange = AppConstants.PARAGRAPH_SPACING_INT_RANGE,
                 )
 
                 // 段落缩进
@@ -319,15 +315,13 @@ fun ReaderSettingsContent(
                     exit = slideOutVertically()
                 ) {
 
-                    SettingsItemWithSlider(
+                    SettingsItemWithIntSlider(
                         title = stringResource(id = R.string.reader_settings_paragraph_indent),
                         subtitleResId =
                             R.string.reader_settings_paragraph_indent_format,
                         initialValue = paragraphIndent,
                         onSave = onParagraphIndentChange,
-                        steps = AppConstants.PARAGRAPH_INDENT_INT_RANGE.length - 1,
-                        floatRange = AppConstants.PARAGRAPH_INDENT_INT_RANGE.first.toFloat()
-                            .rangeTo(AppConstants.PARAGRAPH_INDENT_INT_RANGE.last.toFloat()),
+                        valueRange = AppConstants.PARAGRAPH_INDENT_INT_RANGE,
                     )
                 }
             }
@@ -409,15 +403,13 @@ fun ReaderSettingsContent(
                     }
 
                     // 边角圆度
-                    SettingsItemWithSlider(
+                    SettingsItemWithIntSlider(
                         title = stringResource(R.string.reader_settings_image_corner_radius),
                         subtitleResId =
                             R.string.reader_settings_image_corner_radius_format,
                         initialValue = imageCornerRadius,
                         onSave = onImageCornerRadiusChange,
-                        steps = AppConstants.CORNER_RADIUS_INT_RANGE.length - 1,
-                        floatRange = AppConstants.CORNER_RADIUS_INT_RANGE.first.toFloat()
-                            .rangeTo(AppConstants.CORNER_RADIUS_INT_RANGE.last.toFloat()),
+                        valueRange = CORNER_RADIUS_INT_RANGE,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
 
@@ -442,16 +434,12 @@ fun ReaderSettingsContent(
                     }
 
                     // 图片尺寸比例
-                    SettingsItemWithSlider(
+                    SettingsItemWithFloatSlider(
                         title = stringResource(id = R.string.reader_settings_image_size_percent),
                         subtitleResId =
                             R.string.reader_settings_image_size_percent_format,
-                        formatSubtitle = {
-                            it.toInt()
-                        },
                         initialValue = imageSizePercent,
                         onSave = onImageSizePercentChange,
-                        steps = 0,
                         floatRange = AppConstants.IMAGE_SIZE_RATIO_INT_RANGE.first.toFloat()
                             .rangeTo(AppConstants.IMAGE_SIZE_RATIO_INT_RANGE.last.toFloat()),
                         modifier = Modifier.padding(horizontal = 16.dp)

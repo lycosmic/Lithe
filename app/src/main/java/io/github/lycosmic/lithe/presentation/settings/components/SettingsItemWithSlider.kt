@@ -12,43 +12,115 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.lycosmic.lithe.ui.theme.LitheTheme
+import kotlin.math.roundToInt
 
 @Composable
-fun SettingsItemWithSlider(
+fun SettingsItemWithIntSlider(
     title: String,
-    subtitle: String? = null,
-    subtitleResId: Int? = null,
-    formatSubtitle: ((Float) -> Any)? = null,
-    initialValue: Float,
-    onSave: (Float) -> Unit,
-    steps: Int,
-    floatRange: ClosedFloatingPointRange<Float>,
     modifier: Modifier = Modifier,
+    subtitleResId: Int? = null,
+    initialValue: Int,
+    onSave: (Int) -> Unit,
+    valueRange: IntRange,
+    steps: Int? = null
 ) {
     // 节流处理
     var sliderValue by remember(initialValue) {
-        mutableStateOf(initialValue)
+        mutableIntStateOf(initialValue)
     }
 
-    val subtitle = subtitle
-        ?: if (subtitleResId != null) {
-            if (formatSubtitle != null) {
-                stringResource(subtitleResId, formatSubtitle(sliderValue))
-            } else {
-                // 默认情况下转换为整数
-                stringResource(subtitleResId, sliderValue.toInt())
-            }
-        } else {
-            ""
+    val computedSteps = steps ?: (valueRange.last - valueRange.first - 1).coerceAtLeast(0)
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            val displaySubtitle = subtitleResId?.let {
+                stringResource(it, sliderValue)
+            } ?: sliderValue.toString()
+
+            Text(
+                text = displaySubtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
         }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Slider(
+            value = sliderValue.toFloat(),
+            onValueChange = {
+                sliderValue = it.roundToInt()
+            },
+            onValueChangeFinished = {
+                onSave(sliderValue)
+            },
+            steps = computedSteps,
+            valueRange = valueRange.first.toFloat()..valueRange.last.toFloat(),
+            colors = SliderDefaults.colors(
+                activeTrackColor = MaterialTheme.colorScheme.secondary,
+                thumbColor = MaterialTheme.colorScheme.primary,
+                inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                activeTickColor = MaterialTheme.colorScheme.onSecondary,
+                inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        )
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+private fun SettingsItemWithIntSliderPreview() {
+    LitheTheme {
+        SettingsItemWithIntSlider(
+            title = "Slider",
+            initialValue = 0,
+            onSave = {
+            },
+            valueRange = 0..5,
+        )
+    }
+}
+
+
+@Composable
+fun SettingsItemWithFloatSlider(
+    title: String,
+    modifier: Modifier = Modifier,
+    subtitleResId: Int? = null,
+    initialValue: Float,
+    onSave: (Float) -> Unit,
+    floatRange: ClosedFloatingPointRange<Float>,
+) {
+    var sliderValue by remember(initialValue) {
+        mutableFloatStateOf(initialValue)
+    }
+
+    val displaySubtitle = subtitleResId?.let {
+        stringResource(it, sliderValue)
+    } ?: sliderValue.toString()
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -59,7 +131,7 @@ fun SettingsItemWithSlider(
         ) {
             Text(text = title)
             Text(
-                text = subtitle, textAlign = TextAlign.Center
+                text = displaySubtitle, textAlign = TextAlign.Center
             )
         }
 
@@ -73,7 +145,7 @@ fun SettingsItemWithSlider(
             onValueChangeFinished = {
                 onSave(sliderValue)
             },
-            steps = steps,
+            steps = 0,
             valueRange = floatRange,
             colors = SliderDefaults.colors(
                 activeTrackColor = MaterialTheme.colorScheme.secondary,

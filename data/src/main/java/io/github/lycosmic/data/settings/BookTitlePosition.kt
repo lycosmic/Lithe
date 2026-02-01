@@ -6,5 +6,11 @@ package io.github.lycosmic.data.settings
 enum class BookTitlePosition() {
     Hidden,  // 隐藏
     Below,   // 下方
-    Inside   // 内部
+    Inside;   // 内部
+
+    companion object {
+        fun fromName(name: String?, default: BookTitlePosition = Below): BookTitlePosition {
+            return entries.find { it.name == name } ?: default
+        }
+    }
 }

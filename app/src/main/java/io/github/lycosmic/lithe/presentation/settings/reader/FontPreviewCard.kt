@@ -32,9 +32,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ReaderFontWeight
 import io.github.lycosmic.lithe.R
 
@@ -46,21 +49,46 @@ import io.github.lycosmic.lithe.R
  * @param weight 字体粗细
  * @param fontSize 字体大小
  * @param isItalic 是否斜体
+ * @param letterSpacing 字间距
+ * @param appTextAlign 文本对齐方式
+ * @param lineHeight 行高
+ * @param paragraphIndent 段落缩进
  * @param defaultPreviewText 预览文本
  */
 @Composable
 fun FontPreviewCard(
     font: FontFamily,
     weight: ReaderFontWeight,
-    fontSize: Float,
+    fontSize: Int, // pt
     isItalic: Boolean,
-    letterSpacing: Float,
+    letterSpacing: Int, // pt
+    appTextAlign: AppTextAlign,
+    lineHeight: Int, // pt TODO: 传入倍数或增加基础行高逻辑
+    paragraphIndent: Int, // pt
     modifier: Modifier = Modifier,
     defaultPreviewText: String = stringResource(R.string.reader_preview_text)
 ) {
     // 预览文本
     var previewText by remember(defaultPreviewText) {
         mutableStateOf(defaultPreviewText)
+    }
+
+    // 行高
+    val calculatedLineHeight = (fontSize + lineHeight).sp
+
+    // 字间距
+    val calculatedLetterSpacing = (letterSpacing / 100f).em
+
+    // 文字对齐方式
+    val composeTextAlign = AppTextAlign.getTextAlign(appTextAlign)
+
+    // 只有 START 和 JUSTIFY 时应用首行缩进
+    val textIndent = remember(paragraphIndent, appTextAlign, fontSize) {
+        if (appTextAlign == AppTextAlign.CENTER || appTextAlign == AppTextAlign.END) {
+            TextIndent.None
+        } else {
+            TextIndent(firstLine = (paragraphIndent * 6).sp)
+        }
     }
 
     Card(
@@ -112,10 +140,15 @@ fun FontPreviewCard(
                     fontWeight = weight.weight,
                     fontSize = fontSize.sp,
                     fontStyle = if (isItalic) FontStyle.Italic else FontStyle.Normal,
-                    lineHeight = (fontSize * 1.6).sp,
-                    letterSpacing = letterSpacing.sp,
-                    textAlign = TextAlign.Start,
-                    color = colorResource(R.color.reader_preview_text_color)
+                    lineHeight = calculatedLineHeight,
+                    letterSpacing = calculatedLetterSpacing,
+                    textAlign = composeTextAlign,
+                    textIndent = textIndent,
+                    color = colorResource(R.color.reader_preview_text_color),
+                    lineHeightStyle = LineHeightStyle(
+                        alignment = LineHeightStyle.Alignment.Center,
+                        trim = LineHeightStyle.Trim.None
+                    )
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 cursorBrush = SolidColor(colorResource(R.color.reader_preview_text_color))

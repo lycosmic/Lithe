@@ -1,16 +1,17 @@
 package io.github.lycosmic.lithe.presentation.settings.general
 
 import androidx.compose.runtime.Immutable
+import io.github.lycosmic.data.settings.AppLanguage
 
 
 @Immutable
 data class GeneralSettingsState(
-    val languageCode: String,
+    val appLanguage: AppLanguage,
     val isDoubleBackToExitEnabled: Boolean
 ) {
     companion object {
         val DEFAULT = GeneralSettingsState(
-            languageCode = AppLanguage.DEFAULT_LANGUAGE_CODE,
+            appLanguage = AppLanguage.CHINESE,
             isDoubleBackToExitEnabled = false
         )
     }

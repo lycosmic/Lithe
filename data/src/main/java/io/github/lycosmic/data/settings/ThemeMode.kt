@@ -18,7 +18,7 @@ enum class ThemeMode(val value: String) {
         /**
          * 从字符串值获取主题模式
          */
-        fun fromValue(value: String): ThemeMode {
+        fun fromValue(value: String?): ThemeMode {
             return entries.find { it.value == value } ?: DEFAULT_THEME_MODE
         }
     }

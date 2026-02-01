@@ -5,5 +5,11 @@ package io.github.lycosmic.data.settings
  */
 enum class DisplayMode {
     List,
-    Grid
+    Grid;
+
+    companion object {
+        fun fromName(name: String?, default: DisplayMode = List): DisplayMode {
+            return entries.find { it.name == name } ?: default
+        }
+    }
 }

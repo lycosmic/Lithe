@@ -14,7 +14,7 @@ sealed class ReaderSettingsEvent {
     /**
      * 字体大小改变
      */
-    data class OnFontSizeChange(val fontSize: Float) : ReaderSettingsEvent()
+    data class OnFontSizeChange(val fontSize: Int) : ReaderSettingsEvent()
 
     /**
      * 字体粗细改变
@@ -29,7 +29,7 @@ sealed class ReaderSettingsEvent {
     /**
      * 字体间距改变
      */
-    data class OnLetterSpacingChange(val letterSpacing: Float) : ReaderSettingsEvent()
+    data class OnLetterSpacingChange(val letterSpacing: Int) : ReaderSettingsEvent()
 
     /**
      * 文本对齐方式改变
@@ -39,17 +39,17 @@ sealed class ReaderSettingsEvent {
     /**
      * 行高改变
      */
-    data class OnLineHeightChange(val lineHeight: Float) : ReaderSettingsEvent()
+    data class OnLineHeightChange(val lineHeight: Int) : ReaderSettingsEvent()
 
     /**
      * 段间距改变
      */
-    data class OnParagraphSpacingChange(val paragraphSpacing: Float) : ReaderSettingsEvent()
+    data class OnParagraphSpacingChange(val paragraphSpacing: Int) : ReaderSettingsEvent()
 
     /**
      * 段首缩进改变
      */
-    data class OnParagraphIndentChange(val paragraphIndent: Float) : ReaderSettingsEvent()
+    data class OnParagraphIndentChange(val paragraphIndent: Int) : ReaderSettingsEvent()
 
     /**
      * 图片可见性改变
@@ -69,7 +69,7 @@ sealed class ReaderSettingsEvent {
     /**
      * 图片圆角半径改变
      */
-    data class OnImageCornerRadiusChange(val radius: Float) : ReaderSettingsEvent()
+    data class OnImageCornerRadiusChange(val radius: Int) : ReaderSettingsEvent()
 
     /**
      * 图片对齐方式改变

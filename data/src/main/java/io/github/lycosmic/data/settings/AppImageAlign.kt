@@ -9,8 +9,8 @@ enum class AppImageAlign {
     END;         // 右对齐/末尾
 
     companion object {
-        fun fromName(name: String?): AppImageAlign {
-            return entries.find { it.name == name } ?: CENTER
+        fun fromName(name: String?, default: AppImageAlign = CENTER): AppImageAlign {
+            return entries.find { it.name == name } ?: default
         }
     }
 }

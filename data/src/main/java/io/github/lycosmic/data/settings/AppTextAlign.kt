@@ -1,5 +1,7 @@
 package io.github.lycosmic.data.settings
 
+import androidx.compose.ui.text.style.TextAlign
+
 /**
  * 阅读器文本对齐方式
  */
@@ -10,8 +12,17 @@ enum class AppTextAlign {
     END;        // 末尾 (右对齐/结束对齐)
 
     companion object {
-        fun fromName(name: String): AppTextAlign {
-            return entries.find { it.name == name } ?: JUSTIFY
+        fun fromName(name: String?, default: AppTextAlign = JUSTIFY): AppTextAlign {
+            return entries.find { it.name == name } ?: default
+        }
+
+        fun getTextAlign(textAlign: AppTextAlign): TextAlign {
+            return when (textAlign) {
+                START -> TextAlign.Start
+                JUSTIFY -> TextAlign.Justify
+                CENTER -> TextAlign.Center
+                END -> TextAlign.End
+            }
         }
     }
 }

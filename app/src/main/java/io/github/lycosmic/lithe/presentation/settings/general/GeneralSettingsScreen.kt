@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.lycosmic.data.settings.AppLanguage
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsItemWithSwitch
@@ -91,12 +92,12 @@ fun GeneralSettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                AppLanguage.SUPPORTED_LANGUAGES.forEach { language ->
+                AppLanguage.entries.forEach { language ->
                     SelectionChip(
-                        text = language.name,
-                        isSelected = language.code == uiState.languageCode,
+                        text = language.label,
+                        isSelected = language == uiState.appLanguage,
                         onClick = {
-                            viewModel.onEvent(GeneralSettingsEvent.OnLanguageClick(language.code))
+                            viewModel.onEvent(GeneralSettingsEvent.OnLanguageClick(language))
                         }
                     )
                 }

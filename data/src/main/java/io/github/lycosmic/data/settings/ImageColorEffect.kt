@@ -11,8 +11,8 @@ enum class ImageColorEffect {
     BACKGROUND_COLOR; // 背景颜色
 
     companion object {
-        fun fromName(name: String): ImageColorEffect {
-            return entries.find { it.name == name } ?: NONE
+        fun fromName(name: String?, default: ImageColorEffect = NONE): ImageColorEffect {
+            return entries.find { it.name == name } ?: default
         }
     }
 }

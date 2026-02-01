@@ -92,7 +92,7 @@ class LibraryViewModel @Inject constructor(
     val sortType = _sortType.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = BookSortType.DEFAULT_BOOK_SORT_TYPE
+        initialValue = BookSortType.ALPHABETICAL
     )
 
     /**
