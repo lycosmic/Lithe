@@ -125,17 +125,27 @@ fun SettingsItemWithFloatSlider(
     Row(
         modifier = modifier.fillMaxWidth(),
     ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = title)
-            Text(
-                text = displaySubtitle, textAlign = TextAlign.Center
-            )
+        Row {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = displaySubtitle, textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+
+            Spacer(modifier = Modifier.width(24.dp))
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+
 
         Slider(
             value = sliderValue,
