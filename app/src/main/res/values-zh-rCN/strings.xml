@@ -212,4 +212,6 @@
     <string name="reader_settings_image_corner_radius_format">%dpt</string>
     <string name="reader_settings_image_size_percent">尺寸</string>
     <string name="reader_settings_image_size_percent_format">%d%%</string>
+    <string name="browse_set_up_scans">设置扫描</string>
+    <string name="browse_empty_directory">通过下载扩展图书馆的藏书</string>
 </resources>

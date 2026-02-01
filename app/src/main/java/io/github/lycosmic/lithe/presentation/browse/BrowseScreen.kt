@@ -178,15 +178,21 @@ fun BrowseScreen(
         },
     ) { paddings ->
         if (isLoading) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                Modifier
+                    .padding(paddings)
+                    .fillMaxSize(), contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator()
             }
         } else if (directoryWithFiles.isEmpty()) {
             // 引导添加文件夹
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                Modifier
+                    .padding(paddings)
+                    .fillMaxSize(), contentAlignment = Alignment.Center
+            ) {
                 EmptyBrowseScreen(
-                    modifier = Modifier
-                        .fillMaxWidth(),
                     onNavigateToBrowseSettings = onNavigateToBrowseSettings
                 )
             }
