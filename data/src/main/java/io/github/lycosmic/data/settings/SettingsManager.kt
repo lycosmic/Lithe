@@ -3,14 +3,16 @@ package io.github.lycosmic.data.settings
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import io.github.lycosmic.data.util.getEnum
+import io.github.lycosmic.data.util.getValue
+import io.github.lycosmic.data.util.setEnum
+import io.github.lycosmic.data.util.setValue
 import io.github.lycosmic.domain.model.MyFontFamily
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
@@ -31,10 +33,10 @@ class SettingsManager @Inject constructor(
         val FILE_DISPLAY_MODE = stringPreferencesKey("file_display_mode")
 
         // 文件网格列数
-        val FILE_GRID_COLUMN_COUNT = stringPreferencesKey("file_grid_column_count")
+        val FILE_GRID_COLUMN_COUNT = intPreferencesKey("file_grid_column_count")
 
-        // 应用语言代码
-        val LANGUAGE_CODE = stringPreferencesKey("language_code")
+        // 应用语言
+        val APP_LANGUAGE = stringPreferencesKey("app_language")
 
         // 是否启用双击返回退出
         val IS_DOUBLE_BACK_TO_EXIT_ENABLED =
@@ -55,7 +57,7 @@ class SettingsManager @Inject constructor(
         val BOOK_DISPLAY_MODE = stringPreferencesKey("book_display_mode")
 
         // 书籍网格列数
-        val BOOK_GRID_COLUMN_COUNT = stringPreferencesKey("book_grid_column_count")
+        val BOOK_GRID_COLUMN_COUNT = intPreferencesKey("book_grid_column_count")
 
         // 书籍标题位置
         val BOOK_TITLE_POSITION = stringPreferencesKey("book_title_position")
@@ -92,7 +94,7 @@ class SettingsManager @Inject constructor(
         val READER_FONT_SIZE = intPreferencesKey("reader_font_size")
 
         // 阅读字体样式
-        val READER_FONT_WEIGHT = intPreferencesKey("reader_font_weight")
+        val READER_FONT_WEIGHT = stringPreferencesKey("reader_font_weight")
 
         // 阅读字体是否斜体
         val READER_IS_ITALIC = booleanPreferencesKey("reader_is_italic")
@@ -129,6 +131,50 @@ class SettingsManager @Inject constructor(
 
         // 图片尺寸百分比
         val READER_IMAGE_SIZE_PERCENT = floatPreferencesKey("reader_image_size_percent")
+
+        // 章节标题对齐
+        val READER_CHAPTER_TITLE_ALIGN = stringPreferencesKey("reader_chapter_title_align")
+
+        // 阅读模式
+        val READER_MODE = stringPreferencesKey("reader_mode")
+
+        // 侧边填充
+        val READER_SIDE_PADDING = intPreferencesKey("reader_side_padding")
+
+        // 垂直填充
+        val READER_VERTICAL_PADDING = intPreferencesKey("reader_vertical_padding")
+
+        // 刘海边距
+        val READER_CUTOUT_PADDING = intPreferencesKey("reader_cutout_padding")
+
+        // 底部边距
+        val READER_BOTTOM_MARGIN = intPreferencesKey("reader_bottom_margin")
+
+        // 是否开启自定义亮度
+        val READER_CUSTOM_BRIGHTNESS_ENABLED =
+            booleanPreferencesKey("reader_custom_brightness_enabled")
+
+        // 自定义亮度
+        val READER_CUSTOM_BRIGHTNESS = floatPreferencesKey("reader_custom_brightness")
+
+        // 屏幕方向
+        val SCREEN_ORIENTATION = stringPreferencesKey("screen_orientation")
+
+        // 进度记录方式
+        val PROGRESS_RECORD_MODE = stringPreferencesKey("progress_record_mode")
+
+        // 是否显示底部的进度条
+        val SHOW_PROGRESS_BAR = booleanPreferencesKey("show_progress_bar")
+
+        // 是否开启全屏
+        val IS_FULL_SCREEN_ENABLED = booleanPreferencesKey("is_full_screen_enabled")
+
+        // 是否保持屏幕常亮
+        val KEEP_SCREEN_ON = booleanPreferencesKey("keep_screen_on")
+
+        // 快速滚动时，是否隐藏上下栏
+        val HIDE_BOTTOM_BAR_WHEN_QUICK_SCROLL =
+            booleanPreferencesKey("hide_bottom_bar_when_quick_scroll")
     }
 
     companion object {
@@ -152,462 +198,222 @@ class SettingsManager @Inject constructor(
         const val DEFAULT_IMAGE_SIZE_PERCENT = 100f
     }
 
-    // --- 主题模式 ---
-    val themeMode: Flow<ThemeMode> = dataStore.data.map { preferences ->
-        ThemeMode.fromValue(preferences[Keys.THEME_MODE])
-    }
 
-    suspend fun setThemeMode(mode: ThemeMode) {
-        dataStore.edit { preferences ->
-            preferences[Keys.THEME_MODE] = mode.value
-        }
-    }
+    // --- 主题模式 ---
+    val themeMode = dataStore.getEnum(Keys.THEME_MODE, ThemeMode.DEFAULT_THEME_MODE)
+    suspend fun setThemeMode(mode: ThemeMode) = dataStore.setEnum(Keys.THEME_MODE, mode)
 
     // --- 文件显示模式 ---
-    val fileDisplayMode: Flow<DisplayMode> = dataStore.data.map { preferences ->
-        DisplayMode.fromName(preferences[Keys.FILE_DISPLAY_MODE])
-    }
+    val fileDisplayMode: Flow<DisplayMode> =
+        dataStore.getEnum(Keys.FILE_DISPLAY_MODE, DisplayMode.List)
 
-    suspend fun setFileDisplayMode(mode: DisplayMode) {
-        dataStore.edit { preferences ->
-            preferences[Keys.FILE_DISPLAY_MODE] = mode.name
-        }
-    }
+    suspend fun setFileDisplayMode(mode: DisplayMode) =
+        dataStore.setEnum(Keys.FILE_DISPLAY_MODE, mode)
 
     // --- 网格列数 (大小) ---
-    val fileGridColumnCount: Flow<Int> = dataStore.data.map { preferences ->
-        preferences[Keys.FILE_GRID_COLUMN_COUNT]?.toInt() ?: GRID_COLUMN_COUNT_DEFAULT
-    }
+    val fileGridColumnCount: Flow<Int> =
+        dataStore.getValue(Keys.FILE_GRID_COLUMN_COUNT, GRID_COLUMN_COUNT_DEFAULT)
 
-    /**
-     * 设置网格列数 (大小)
-     * @param count 列数
-     */
-    suspend fun setFileGridColumnCount(count: Int) {
-        dataStore.edit { preferences ->
-            preferences[Keys.FILE_GRID_COLUMN_COUNT] = count.toString()
-        }
-    }
+    suspend fun setFileGridColumnCount(count: Int) =
+        dataStore.setValue(Keys.FILE_GRID_COLUMN_COUNT, count)
 
     // --- 应用语言 ---
-    val languageCode: Flow<AppLanguage> = dataStore.data.map { preferences ->
-        AppLanguage.fromCode(preferences[Keys.LANGUAGE_CODE])
-    }
-
-    /**
-     * 设置应用语言代码
-     */
-    suspend fun setLanguageCode(language: AppLanguage) {
-        dataStore.edit { preferences ->
-            preferences[Keys.LANGUAGE_CODE] = language.code
-        }
-    }
+    val appLanguage: Flow<AppLanguage> = dataStore.getEnum(Keys.APP_LANGUAGE, AppLanguage.CHINESE)
+    suspend fun setAppLanguage(language: AppLanguage) =
+        dataStore.setEnum(Keys.APP_LANGUAGE, language)
 
     // --- 双击返回退出 ---
-    val isDoubleBackToExitEnabled: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.IS_DOUBLE_BACK_TO_EXIT_ENABLED] ?: false
-    }
+    val isDoubleBackToExitEnabled: Flow<Boolean> =
+        dataStore.getValue(Keys.IS_DOUBLE_BACK_TO_EXIT_ENABLED, false)
 
-    /**
-     * 设置双击返回退出
-     */
-    suspend fun setDoubleBackToExitEnabled(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.IS_DOUBLE_BACK_TO_EXIT_ENABLED] = isEnabled
-        }
-    }
+    suspend fun setDoubleBackToExitEnabled(isEnabled: Boolean) =
+        dataStore.setValue(Keys.IS_DOUBLE_BACK_TO_EXIT_ENABLED, isEnabled)
 
     // --- 应用主题 ---
-    val appTheme: Flow<AppThemeOption> = dataStore.data.map { preferences ->
-        AppThemeOption.fromId(
-            preferences[Keys.APP_THEME] ?: AppThemeOption.MERCURY.id
-        )
-    }
-
-    /**
-     * 设置应用主题
-     */
-    suspend fun setAppTheme(theme: AppThemeOption) {
-        dataStore.edit { preferences ->
-            preferences[Keys.APP_THEME] = theme.id
-        }
-    }
+    val appTheme: Flow<AppThemeOption> = dataStore.getEnum(Keys.APP_THEME, AppThemeOption.MERCURY)
+    suspend fun setAppTheme(theme: AppThemeOption) = dataStore.setEnum(Keys.APP_THEME, theme)
 
     // -- 导航栏标签 ---
-    val showNavigationBarLabels: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.SHOW_NAVIGATION_BAR_LABELS] ?: true
-    }
+    val showNavigationBarLabels: Flow<Boolean> =
+        dataStore.getValue(Keys.SHOW_NAVIGATION_BAR_LABELS, true)
 
-    /**
-     * 设置导航栏标签是否可见
-     */
-    suspend fun setShowNavigationBarLabels(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.SHOW_NAVIGATION_BAR_LABELS] = isEnabled
-        }
-    }
+    suspend fun setShowNavigationBarLabels(isEnabled: Boolean) =
+        dataStore.setValue(Keys.SHOW_NAVIGATION_BAR_LABELS, isEnabled)
 
-    // --- 当前选中的颜色预设 ---
-    val currentColorPresetId: Flow<Long> = dataStore.data.map { preferences ->
-        preferences[Keys.CURRENT_COLOR_PRESET_ID] ?: -1L
-    }
+    // --- 颜色预设 ---
+    val currentColorPresetId: Flow<Long> = dataStore.getValue(Keys.CURRENT_COLOR_PRESET_ID, -1L)
+    suspend fun setCurrentColorPresetId(id: Long?) =
+        dataStore.setValue(Keys.CURRENT_COLOR_PRESET_ID, -1L)
 
-    /**
-     * 设置当前选中的颜色预设
-     */
-    suspend fun setCurrentColorPresetId(id: Long?) {
-        dataStore.edit { preferences ->
-            preferences[Keys.CURRENT_COLOR_PRESET_ID] = id ?: -1L
-        }
-    }
+    // --- 是否快速更改颜色预设 ---
+    val quickChangeColorPreset: Flow<Boolean> =
+        dataStore.getValue(Keys.QUICK_CHANGE_COLOR_PRESET, false)
 
-    // --- 快速更改颜色预设 ---
-    val quickChangeColorPreset: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.QUICK_CHANGE_COLOR_PRESET] ?: false
-    }
-
-    /**
-     * 设置快速更改颜色预设
-     */
-    suspend fun setQuickChangeColorPresetEnabled(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.QUICK_CHANGE_COLOR_PRESET] = isEnabled
-        }
-    }
+    suspend fun setQuickChangeColorPresetEnabled(isEnabled: Boolean) =
+        dataStore.setValue(Keys.QUICK_CHANGE_COLOR_PRESET, isEnabled)
 
     // --- 书籍显示模式 ---
-    val bookDisplayMode: Flow<DisplayMode> = dataStore.data.map { preferences ->
-        DisplayMode.fromName(preferences[Keys.BOOK_DISPLAY_MODE])
-    }
+    val bookDisplayMode: Flow<DisplayMode> =
+        dataStore.getEnum(Keys.BOOK_DISPLAY_MODE, DisplayMode.List)
 
-    /**
-     * 设置书籍显示模式
-     */
-    suspend fun setBookDisplayMode(mode: DisplayMode) {
-        dataStore.edit { preferences ->
-            preferences[Keys.BOOK_DISPLAY_MODE] = mode.name
-        }
-    }
+    suspend fun setBookDisplayMode(mode: DisplayMode) =
+        dataStore.setEnum(Keys.BOOK_DISPLAY_MODE, mode)
 
     // --- 书籍网格列数 (大小) ---
-    val bookGridColumnCount: Flow<Int> = dataStore.data.map { preferences ->
-        preferences[Keys.BOOK_GRID_COLUMN_COUNT]?.toInt() ?: GRID_COLUMN_COUNT_DEFAULT
-    }
+    val bookGridColumnCount: Flow<Int> =
+        dataStore.getValue(Keys.BOOK_GRID_COLUMN_COUNT, GRID_COLUMN_COUNT_DEFAULT)
 
-    /**
-     * 设置书籍网格列数 (大小)
-     */
-    suspend fun setBookGridColumnCount(count: Int) {
-        dataStore.edit { preferences ->
-            preferences[Keys.BOOK_GRID_COLUMN_COUNT] = count.toString()
-        }
-    }
+    suspend fun setBookGridColumnCount(count: Int) =
+        dataStore.setValue(Keys.BOOK_GRID_COLUMN_COUNT, count)
 
     // --- 书籍标题位置 ---
-    val bookTitlePosition: Flow<BookTitlePosition> = dataStore.data.map { preferences ->
-        BookTitlePosition.fromName(preferences[Keys.BOOK_TITLE_POSITION])
-    }
+    val bookTitlePosition: Flow<BookTitlePosition> =
+        dataStore.getEnum(Keys.BOOK_TITLE_POSITION, BookTitlePosition.Below)
 
-    /**
-     * 设置书籍标题位置
-     */
-    suspend fun setBookTitlePosition(position: BookTitlePosition) {
-        dataStore.edit { preferences ->
-            preferences[Keys.BOOK_TITLE_POSITION] = position.name
-        }
-    }
+    suspend fun setBookTitlePosition(position: BookTitlePosition) =
+        dataStore.setEnum(Keys.BOOK_TITLE_POSITION, position)
 
     // --- 显示“阅读”按钮 ---
-    val showReadButton: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.SHOW_READ_BUTTON] ?: true
-    }
-
-    /**
-     * 设置显示“阅读”按钮
-     */
-    suspend fun setShowReadButton(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.SHOW_READ_BUTTON] = isEnabled
-        }
-    }
+    val showReadButton: Flow<Boolean> = dataStore.getValue(Keys.SHOW_READ_BUTTON, true)
+    suspend fun setShowReadButton(isEnabled: Boolean) =
+        dataStore.setValue(Keys.SHOW_READ_BUTTON, isEnabled)
 
     // --- 显示阅读进度 ---
-    val showReadProgress: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.SHOW_READ_PROGRESS] ?: true
-    }
-
-    /**
-     * 设置是否显示阅读进度
-     */
-    suspend fun setShowReadProgress(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.SHOW_READ_PROGRESS] = isEnabled
-        }
-    }
+    val showReadProgress: Flow<Boolean> = dataStore.getValue(Keys.SHOW_READ_PROGRESS, true)
+    suspend fun setShowReadProgress(isEnabled: Boolean) =
+        dataStore.setValue(Keys.SHOW_READ_PROGRESS, isEnabled)
 
     // --- 显示分类标签页 ---
-    val showCategoryTab: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.SHOW_CATEGORY_TAB] ?: true
-    }
-
-    /**
-     * 显示分类标签页
-     */
-    suspend fun setShowCategoryTab(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.SHOW_CATEGORY_TAB] = isEnabled
-        }
-    }
+    val showCategoryTab: Flow<Boolean> = dataStore.getValue(Keys.SHOW_CATEGORY_TAB, true)
+    suspend fun setShowCategoryTab(isEnabled: Boolean) =
+        dataStore.setValue(Keys.SHOW_CATEGORY_TAB, isEnabled)
 
     // --- 是否始终显示默认标签页 ---
-    val alwaysShowDefaultCategoryTab: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.ALWAYS_SHOW_DEFAULT_CATEGORY_TAB] ?: true
-    }
+    val alwaysShowDefaultCategoryTab: Flow<Boolean> =
+        dataStore.getValue(Keys.ALWAYS_SHOW_DEFAULT_CATEGORY_TAB, true)
 
-    /**
-     * 设置是否始终显示默认标签页
-     */
-    suspend fun setAlwaysShowDefaultCategoryTab(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.ALWAYS_SHOW_DEFAULT_CATEGORY_TAB] = isEnabled
-        }
-    }
+    suspend fun setAlwaysShowDefaultCategoryTab(isEnabled: Boolean) =
+        dataStore.setValue(Keys.ALWAYS_SHOW_DEFAULT_CATEGORY_TAB, isEnabled)
 
     // --- 是否显示书籍数 ---
-    val showBookCount: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.SHOW_BOOK_COUNT] ?: true
-    }
-
-    /**
-     * 设置是否显示书籍数
-     */
-    suspend fun setShowBookCount(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.SHOW_BOOK_COUNT] = isEnabled
-        }
-    }
+    val showBookCount: Flow<Boolean> = dataStore.getValue(Keys.SHOW_BOOK_COUNT, true)
+    suspend fun setShowBookCount(isEnabled: Boolean) =
+        dataStore.setValue(Keys.SHOW_BOOK_COUNT, isEnabled)
 
     // --- 是否每个分类都有不同的排序依据 ---
-    val eachCategoryHasDifferentSort: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.DIFFERENT_SORT_ORDER_PER_CATEGORY] ?: true
-    }
+    val eachCategoryHasDifferentSort: Flow<Boolean> =
+        dataStore.getValue(Keys.DIFFERENT_SORT_ORDER_PER_CATEGORY, true)
 
-    /**
-     * 设置是否每个分类都有不同的排序依据
-     */
-    suspend fun setEachCategoryHasDifferentSort(isEnabled: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.DIFFERENT_SORT_ORDER_PER_CATEGORY] = isEnabled
-        }
-    }
+    suspend fun setEachCategoryHasDifferentSort(isEnabled: Boolean) =
+        dataStore.setValue(Keys.DIFFERENT_SORT_ORDER_PER_CATEGORY, isEnabled)
 
     // --- 书籍排序方式 ---
-    val bookSortType: Flow<BookSortType> = dataStore.data.map { preferences ->
-        BookSortType.fromName(preferences[Keys.BOOK_SORT_TYPE])
-    }
+    val bookSortType: Flow<BookSortType> =
+        dataStore.getEnum(Keys.BOOK_SORT_TYPE, BookSortType.ALPHABETICAL)
+
+    suspend fun setBookSortType(type: BookSortType) = dataStore.setEnum(Keys.BOOK_SORT_TYPE, type)
 
     // --- 书籍排序是否升序 ---
-    val bookSortOrder: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[Keys.BOOK_SORT_ORDER] ?: false
-    }
-
-    /**
-     * 设置书籍排序方式
-     */
-    suspend fun setBookSortType(type: BookSortType) {
-        dataStore.edit { preferences ->
-            preferences[Keys.BOOK_SORT_TYPE] = type.name
-        }
-    }
-
-    /**
-     * 设置书籍排序是否升序
-     */
-    suspend fun setBookSortOrder(isAscending: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[Keys.BOOK_SORT_ORDER] = isAscending
-        }
-    }
+    val bookSortOrder: Flow<Boolean> = dataStore.getValue(Keys.BOOK_SORT_ORDER, false)
+    suspend fun setBookSortOrder(isAscending: Boolean) =
+        dataStore.setValue(Keys.BOOK_SORT_ORDER, isAscending)
 
     // --- 阅读器字体ID ---
     val readerFontId: Flow<String> =
-        dataStore.data.map { it[Keys.READER_FONT_ID] ?: MyFontFamily.Default.id }
+        dataStore.getValue(Keys.READER_FONT_ID, MyFontFamily.Default.id)
 
-    /**
-     * 设置阅读器字体ID
-     */
-    suspend fun setReaderFontId(id: String) {
-        dataStore.edit { it[Keys.READER_FONT_ID] = id }
-    }
+    suspend fun setReaderFontId(id: String) = dataStore.setValue(Keys.READER_FONT_ID, id)
 
     // --- 阅读器字体大小 ---
     val readerFontSize: Flow<Int> =
-        dataStore.data.map { it[Keys.READER_FONT_SIZE] ?: DEFAULT_FONT_SIZE }
+        dataStore.getValue(Keys.READER_FONT_SIZE, DEFAULT_FONT_SIZE)
 
-    /**
-     * 设置阅读器字体大小
-     */
-    suspend fun setReaderFontSize(size: Int) {
-        dataStore.edit { it[Keys.READER_FONT_SIZE] = size }
-    }
+    suspend fun setReaderFontSize(size: Int) = dataStore.setValue(Keys.READER_FONT_SIZE, size)
 
     // --- 阅读器字体粗细 ---
-    val readerFontWeight: Flow<Int> =
-        dataStore.data.map { it[Keys.READER_FONT_WEIGHT] ?: ReaderFontWeight.Normal.value }
+    val readerFontWeight: Flow<ReaderFontWeight> =
+        dataStore.getEnum(Keys.READER_FONT_WEIGHT, ReaderFontWeight.Normal)
 
-    /**
-     * 设置阅读器字体粗细
-     */
-    suspend fun setReaderFontWeight(weight: Int) {
-        dataStore.edit { it[Keys.READER_FONT_WEIGHT] = weight }
-    }
+    suspend fun setReaderFontWeight(weight: ReaderFontWeight) =
+        dataStore.setEnum(Keys.READER_FONT_WEIGHT, weight)
 
     // --- 字体是否是斜体 ---
-    val isReaderItalic: Flow<Boolean> = dataStore.data.map { it[Keys.READER_IS_ITALIC] ?: false }
-
-    /**
-     * 设置字体是否是斜体
-     */
-    suspend fun setReaderItalic(isItalic: Boolean) {
-        dataStore.edit { it[Keys.READER_IS_ITALIC] = isItalic }
-    }
+    val isReaderItalic: Flow<Boolean> = dataStore.getValue(Keys.READER_IS_ITALIC, false)
+    suspend fun setReaderItalic(isItalic: Boolean) =
+        dataStore.setValue(Keys.READER_IS_ITALIC, isItalic)
 
     // --- 阅读器字间距 ---
     val readerLetterSpacing: Flow<Int> =
-        dataStore.data.map { it[Keys.READER_LETTER_SPACING] ?: DEFAULT_LETTER_SPACING }
+        dataStore.getValue(Keys.READER_LETTER_SPACING, DEFAULT_LETTER_SPACING)
 
-    /**
-     * 设置阅读器字间距
-     */
-    suspend fun setReaderLetterSpacing(spacing: Int) {
-        dataStore.edit { it[Keys.READER_LETTER_SPACING] = spacing }
-    }
+    suspend fun setReaderLetterSpacing(spacing: Int) =
+        dataStore.setValue(Keys.READER_LETTER_SPACING, spacing)
 
 
     // --- 文本对齐方式 ---
-    val readerTextAlign: Flow<AppTextAlign> = dataStore.data.map { pref ->
-        AppTextAlign.fromName(pref[Keys.READER_TEXT_ALIGN])
-    }
+    val readerTextAlign: Flow<AppTextAlign> =
+        dataStore.getEnum(Keys.READER_TEXT_ALIGN, AppTextAlign.JUSTIFY)
 
-    /**
-     * 设置文本对齐方式
-     */
-    suspend fun setReaderTextAlign(align: AppTextAlign) {
-        dataStore.edit { it[Keys.READER_TEXT_ALIGN] = align.name }
-    }
+    suspend fun setReaderTextAlign(align: AppTextAlign) =
+        dataStore.setEnum(Keys.READER_TEXT_ALIGN, align)
 
     // --- 行高 ---
-    val readerLineHeight: Flow<Int> = dataStore.data.map {
-        it[Keys.READER_LINE_HEIGHT] ?: DEFAULT_LINE_HEIGHT
-    }
+    val readerLineHeight: Flow<Int> =
+        dataStore.getValue(Keys.READER_LINE_HEIGHT, DEFAULT_LINE_HEIGHT)
 
-    /**
-     * 设置行高
-     */
-    suspend fun setReaderLineHeight(height: Int) {
-        dataStore.edit { it[Keys.READER_LINE_HEIGHT] = height }
-    }
+    suspend fun setReaderLineHeight(height: Int) =
+        dataStore.setValue(Keys.READER_LINE_HEIGHT, height)
 
     // --- 段落间距 ---
-    val readerParagraphSpacing: Flow<Int> = dataStore.data.map {
-        it[Keys.READER_PARAGRAPH_SPACING] ?: DEFAULT_PARAGRAPH_SPACING
-    }
+    val readerParagraphSpacing: Flow<Int> =
+        dataStore.getValue(Keys.READER_PARAGRAPH_SPACING, DEFAULT_PARAGRAPH_SPACING)
 
-    /**
-     * 设置段落间距
-     */
-    suspend fun setReaderParagraphSpacing(spacing: Int) {
-        dataStore.edit { it[Keys.READER_PARAGRAPH_SPACING] = spacing }
-    }
+    suspend fun setReaderParagraphSpacing(spacing: Int) =
+        dataStore.setValue(Keys.READER_PARAGRAPH_SPACING, spacing)
 
     // --- 段落缩进 ---
-    val readerParagraphIndent: Flow<Int> = dataStore.data.map {
-        it[Keys.READER_PARAGRAPH_INDENT] ?: DEFAULT_PARAGRAPH_INDENT
-    }
+    val readerParagraphIndent: Flow<Int> =
+        dataStore.getValue(Keys.READER_PARAGRAPH_INDENT, DEFAULT_PARAGRAPH_INDENT)
 
-    /**
-     * 设置段落缩进
-     */
-    suspend fun setReaderParagraphIndent(indent: Int) {
-        dataStore.edit { it[Keys.READER_PARAGRAPH_INDENT] = indent }
-    }
+    suspend fun setReaderParagraphIndent(indent: Int) =
+        dataStore.setValue(Keys.READER_PARAGRAPH_INDENT, indent)
 
 
     // --- 图片是否显示 ---
-    val readerImageEnabled: Flow<Boolean> = dataStore.data.map {
-        it[Keys.READER_IMAGE_ENABLED] ?: true
-    }
-
-    /**
-     * 设置图片是否显示
-     */
-    suspend fun setReaderImageEnabled(isEnabled: Boolean) {
-        dataStore.edit { it[Keys.READER_IMAGE_ENABLED] = isEnabled }
-    }
+    val readerImageEnabled: Flow<Boolean> = dataStore.getValue(Keys.READER_IMAGE_ENABLED, true)
+    suspend fun setReaderImageEnabled(isEnabled: Boolean) =
+        dataStore.setValue(Keys.READER_IMAGE_ENABLED, isEnabled)
 
     // --- 是否显示图片说明 ---
-    val readerImageCaptionEnabled: Flow<Boolean> = dataStore.data.map {
-        it[Keys.READER_IMAGE_CAPTION_ENABLED] ?: true
-    }
+    val readerImageCaptionEnabled: Flow<Boolean> =
+        dataStore.getValue(Keys.READER_IMAGE_CAPTION_ENABLED, true)
 
-    /**
-     * 设置是否显示图片说明
-     */
-    suspend fun setReaderImageCaptionEnabled(isEnabled: Boolean) {
-        dataStore.edit { it[Keys.READER_IMAGE_CAPTION_ENABLED] = isEnabled }
-    }
+    suspend fun setReaderImageCaptionEnabled(isEnabled: Boolean) =
+        dataStore.setValue(Keys.READER_IMAGE_CAPTION_ENABLED, isEnabled)
 
     // --- 图片颜色效果 ---
-    val readerImageColorEffect: Flow<ImageColorEffect> = dataStore.data.map { pref ->
-        ImageColorEffect.fromName(pref[Keys.READER_IMAGE_COLOR_EFFECT])
-    }
+    val readerImageColorEffect: Flow<ImageColorEffect> =
+        dataStore.getEnum(Keys.READER_IMAGE_COLOR_EFFECT, ImageColorEffect.NONE)
 
-    /**
-     * 设置图片颜色效果
-     */
-    suspend fun setReaderImageColorEffect(effect: ImageColorEffect) {
-        dataStore.edit { pref ->
-            pref[Keys.READER_IMAGE_COLOR_EFFECT] = effect.name
-        }
-    }
+    suspend fun setReaderImageColorEffect(effect: ImageColorEffect) =
+        dataStore.setEnum(Keys.READER_IMAGE_COLOR_EFFECT, effect)
 
     // --- 图片边角圆度 ---
-    val readerImageCornerRadius: Flow<Int> = dataStore.data.map {
-        it[Keys.READER_IMAGE_CORNER_RADIUS] ?: 8
-    }
-
-    /**
-     * 设置图片边角圆度
-     */
-    suspend fun setReaderImageCornerRadius(radius: Int) {
-        dataStore.edit { it[Keys.READER_IMAGE_CORNER_RADIUS] = radius }
-    }
+    val readerImageCornerRadius: Flow<Int> = dataStore.getValue(Keys.READER_IMAGE_CORNER_RADIUS, 8)
+    suspend fun setReaderImageCornerRadius(radius: Int) =
+        dataStore.setValue(Keys.READER_IMAGE_CORNER_RADIUS, radius)
 
     // --- 图片对齐方式 ---
-    val readerImageAlign: Flow<AppImageAlign> = dataStore.data.map { pref ->
-        AppImageAlign.fromName(pref[Keys.READER_IMAGE_ALIGN] ?: AppImageAlign.CENTER.name)
-    }
+    val readerImageAlign: Flow<AppImageAlign> =
+        dataStore.getEnum(Keys.READER_IMAGE_ALIGN, AppImageAlign.CENTER)
 
-    /**
-     * 设置图片对齐方式
-     */
-    suspend fun setReaderImageAlign(align: AppImageAlign) {
-        dataStore.edit { pref ->
-            pref[Keys.READER_IMAGE_ALIGN] = align.name
-        }
-    }
+    suspend fun setReaderImageAlign(align: AppImageAlign) =
+        dataStore.setEnum(Keys.READER_IMAGE_ALIGN, align)
 
     // --- 图片大小百分比 ---
-    val readerImageSizePercent: Flow<Float> = dataStore.data.map {
-        it[Keys.READER_IMAGE_SIZE_PERCENT] ?: 100f
-    }
+    val readerImageSizePercent: Flow<Float> =
+        dataStore.getValue(Keys.READER_IMAGE_SIZE_PERCENT, 100f)
 
-    /**
-     * 设置图片大小百分比
-     */
-    suspend fun setReaderImageSizePercent(percent: Float) {
-        dataStore.edit { pref ->
-            pref[Keys.READER_IMAGE_SIZE_PERCENT] = percent
-        }
-    }
+    suspend fun setReaderImageSizePercent(percent: Float) =
+        dataStore.setValue(Keys.READER_IMAGE_SIZE_PERCENT, percent)
 }

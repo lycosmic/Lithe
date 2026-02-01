@@ -3,6 +3,7 @@ package io.github.lycosmic.lithe.presentation.settings.reader
 import io.github.lycosmic.data.settings.AppImageAlign
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
+import io.github.lycosmic.data.settings.ReaderFontWeight
 
 
 sealed class ReaderSettingsEvent {
@@ -19,7 +20,7 @@ sealed class ReaderSettingsEvent {
     /**
      * 字体粗细改变
      */
-    data class OnFontWeightChange(val fontWeight: Int) : ReaderSettingsEvent()
+    data class OnFontWeightChange(val fontWeight: ReaderFontWeight) : ReaderSettingsEvent()
 
     /**
      * 字体斜体改变

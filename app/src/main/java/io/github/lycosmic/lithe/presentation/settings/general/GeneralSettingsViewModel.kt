@@ -35,7 +35,7 @@ class GeneralSettingsViewModel @Inject constructor(
     private fun observeSettings() {
         viewModelScope.launch {
             combine(
-                settingsManager.languageCode,
+                settingsManager.appLanguage,
                 settingsManager.isDoubleBackToExitEnabled
             ) { language, isDoubleBackToExitEnabled ->
                 GeneralSettingsState(
@@ -80,7 +80,7 @@ class GeneralSettingsViewModel @Inject constructor(
                             appLanguage = event.appLanguage
                         )
                     }
-                    settingsManager.setLanguageCode(event.appLanguage)
+                    settingsManager.setAppLanguage(event.appLanguage)
 
                     setAppLocale(event.appLanguage)
                 }

@@ -46,7 +46,7 @@ fun ReaderSettingsContent(
     modifier: Modifier = Modifier,
     fontId: String,
     fontSize: Int,
-    fontWeight: Int,
+    fontWeight: ReaderFontWeight,
     isReaderItalic: Boolean,
     letterSpacing: Int,
     appTextAlign: AppTextAlign,
@@ -61,7 +61,7 @@ fun ReaderSettingsContent(
     imageSizePercent: Float,
     onFontIdChange: (String) -> Unit,
     onFontSizeChange: (Int) -> Unit,
-    onFontWeightChange: (Int) -> Unit,
+    onFontWeightChange: (ReaderFontWeight) -> Unit,
     onItalicChange: (Boolean) -> Unit,
     onLetterSpacingChange: (Int) -> Unit,
     onTextAlignChange: (AppTextAlign) -> Unit,
@@ -82,7 +82,7 @@ fun ReaderSettingsContent(
             Column {
                 FontPreviewCard(
                     font = currentFontFamily,
-                    weight = ReaderFontWeight.fromValue(fontWeight),
+                    weight = fontWeight,
                     fontSize = fontSize,
                     isItalic = isReaderItalic,
                     letterSpacing = letterSpacing,
@@ -166,9 +166,9 @@ fun ReaderSettingsContent(
                     ReaderFontWeight.entries.forEach { weight ->
                         SelectionChip(
                             text = stringResource(id = weight.displayNameResId),
-                            isSelected = weight.value == fontWeight,
+                            isSelected = weight == fontWeight,
                             onClick = {
-                                onFontWeightChange(weight.value)
+                                onFontWeightChange(weight)
                             },
                             fontWeight = weight.weight
                         )

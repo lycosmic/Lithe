@@ -39,7 +39,7 @@ class ReaderSettingsViewModel @Inject constructor(
     val fontWeight = settings.readerFontWeight.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = ReaderFontWeight.Normal.value
+        initialValue = ReaderFontWeight.Normal
     )
 
     val isItalic = settings.isReaderItalic.stateIn(
