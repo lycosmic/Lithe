@@ -145,7 +145,7 @@ class SettingsManager @Inject constructor(
         val READER_VERTICAL_PADDING = intPreferencesKey("reader_vertical_padding")
 
         // 刘海边距
-        val READER_CUTOUT_PADDING = intPreferencesKey("reader_cutout_padding")
+        val READER_CUTOUT_PADDING = booleanPreferencesKey("reader_cutout_padding")
 
         // 底部边距
         val READER_BOTTOM_MARGIN = intPreferencesKey("reader_bottom_margin")
@@ -166,6 +166,15 @@ class SettingsManager @Inject constructor(
         // 是否显示底部的进度条
         val SHOW_PROGRESS_BAR = booleanPreferencesKey("show_progress_bar")
 
+        // 进度条文本字体大小
+        val PROGRESS_RECORD_FONT_SIZE = intPreferencesKey("progress_record_font_size")
+
+        // 进度条边距
+        val PROGRESS_RECORD_MARGIN = intPreferencesKey("progress_record_margin")
+
+        // 进度条文本对齐方式
+        val PROGRESS_RECORD_TEXT_ALIGN = stringPreferencesKey("progress_record_text_align")
+
         // 是否开启全屏
         val IS_FULL_SCREEN_ENABLED = booleanPreferencesKey("is_full_screen_enabled")
 
@@ -173,8 +182,8 @@ class SettingsManager @Inject constructor(
         val KEEP_SCREEN_ON = booleanPreferencesKey("keep_screen_on")
 
         // 快速滚动时，是否隐藏上下栏
-        val HIDE_BOTTOM_BAR_WHEN_QUICK_SCROLL =
-            booleanPreferencesKey("hide_bottom_bar_when_quick_scroll")
+        val HIDE_BAR_WHEN_QUICK_SCROLL =
+            booleanPreferencesKey("hide_bar_when_quick_scroll")
     }
 
     companion object {
@@ -242,8 +251,8 @@ class SettingsManager @Inject constructor(
 
     // --- 颜色预设 ---
     val currentColorPresetId: Flow<Long> = dataStore.getValue(Keys.CURRENT_COLOR_PRESET_ID, -1L)
-    suspend fun setCurrentColorPresetId(id: Long?) =
-        dataStore.setValue(Keys.CURRENT_COLOR_PRESET_ID, -1L)
+    suspend fun setCurrentColorPresetId(id: Long) =
+        dataStore.setValue(Keys.CURRENT_COLOR_PRESET_ID, id)
 
     // --- 是否快速更改颜色预设 ---
     val quickChangeColorPreset: Flow<Boolean> =
@@ -416,4 +425,108 @@ class SettingsManager @Inject constructor(
 
     suspend fun setReaderImageSizePercent(percent: Float) =
         dataStore.setValue(Keys.READER_IMAGE_SIZE_PERCENT, percent)
+
+    // --- 章节标题对齐方式 ---
+    val readerChapterTitleAlign: Flow<AppChapterTitleAlign> = dataStore.getEnum(
+        Keys.READER_CHAPTER_TITLE_ALIGN, AppChapterTitleAlign.START
+    )
+
+    suspend fun setReaderChapterTitleAlign(align: AppChapterTitleAlign) =
+        dataStore.setEnum(Keys.READER_CHAPTER_TITLE_ALIGN, align)
+
+    // --- 阅读模式 ---
+    val readerMode: Flow<AppPageAnim> = dataStore.getEnum(Keys.READER_MODE, AppPageAnim.SIMULATION)
+    suspend fun setReaderMode(mode: AppPageAnim) = dataStore.setEnum(Keys.READER_MODE, mode)
+
+    // --- 侧边距 ---
+    val readerSidePadding: Flow<Int> = dataStore.getValue(Keys.READER_SIDE_PADDING, 1)
+    suspend fun setReaderSidePadding(padding: Int) =
+        dataStore.setValue(Keys.READER_SIDE_PADDING, padding)
+
+    // --- 垂直边距 ---
+    val readerVerticalPadding: Flow<Int> = dataStore.getValue(Keys.READER_VERTICAL_PADDING, 0)
+    suspend fun setReaderVerticalPadding(padding: Int) =
+        dataStore.setValue(Keys.READER_VERTICAL_PADDING, padding)
+
+    // --- 是否应用刘海边距 ---
+    val readerCutoutPaddingApply: Flow<Boolean> =
+        dataStore.getValue(Keys.READER_CUTOUT_PADDING, false)
+
+    suspend fun setReaderCutoutPaddingApply(isApply: Boolean) =
+        dataStore.setValue(Keys.READER_CUTOUT_PADDING, isApply)
+
+    // --- 底部边距 ---
+    val readerBottomMargin: Flow<Int> = dataStore.getValue(Keys.READER_BOTTOM_MARGIN, 0)
+    suspend fun setReaderBottomMargin(margin: Int) =
+        dataStore.setValue(Keys.READER_BOTTOM_MARGIN, margin)
+
+    // --- 是否自定义亮度 ---
+    val readerCustomBrightnessEnabled: Flow<Boolean> =
+        dataStore.getValue(Keys.READER_CUSTOM_BRIGHTNESS_ENABLED, false)
+
+    suspend fun setReaderCustomBrightnessEnabled(isEnabled: Boolean) =
+        dataStore.setValue(Keys.READER_CUSTOM_BRIGHTNESS_ENABLED, isEnabled)
+
+    // --- 自定义亮度 ---
+    val readerCustomBrightness: Flow<Float> =
+        dataStore.getValue(Keys.READER_CUSTOM_BRIGHTNESS, 0.5f)
+
+    suspend fun setReaderCustomBrightness(brightness: Float) =
+        dataStore.setValue(Keys.READER_CUSTOM_BRIGHTNESS, brightness)
+
+    // --- 屏幕方向 ---
+    val screenOrientation: Flow<ScreenOrientation> =
+        dataStore.getEnum(Keys.SCREEN_ORIENTATION, ScreenOrientation.DEFAULT)
+
+    suspend fun setScreenOrientation(orientation: ScreenOrientation) =
+        dataStore.setEnum(Keys.SCREEN_ORIENTATION, orientation)
+
+    // --- 进度记录方式 ---
+    val progressRecordMode: Flow<ProgressRecord> =
+        dataStore.getEnum(Keys.PROGRESS_RECORD_MODE, ProgressRecord.Percentage)
+
+    suspend fun setProgressRecordMode(mode: ProgressRecord) =
+        dataStore.setEnum(Keys.PROGRESS_RECORD_MODE, mode)
+
+    // --- 是否显示底部的进度条 ---
+    val showProgressBar: Flow<Boolean> = dataStore.getValue(Keys.SHOW_PROGRESS_BAR, true)
+    suspend fun setShowProgressBar(isShow: Boolean) =
+        dataStore.setValue(Keys.SHOW_PROGRESS_BAR, isShow)
+
+    // --- 进度条字体大小 ---
+    val progressBarFontSize: Flow<Int> = dataStore.getValue(Keys.PROGRESS_RECORD_FONT_SIZE, 16)
+
+    suspend fun setProgressBarFontSize(size: Int) =
+        dataStore.setValue(Keys.PROGRESS_RECORD_FONT_SIZE, size)
+
+    // --- 进度条字体边距 ---
+    val progressBarMargin: Flow<Int> =
+        dataStore.getValue(Keys.PROGRESS_RECORD_MARGIN, 0)
+
+    suspend fun setProgressBarMargin(margin: Int) =
+        dataStore.setValue(Keys.PROGRESS_RECORD_MARGIN, margin)
+
+    // --- 进度条文本对齐方式 ---
+    val progressBarTextAlign: Flow<ProgressTextAlign> = dataStore.getEnum(
+        Keys.PROGRESS_RECORD_TEXT_ALIGN, ProgressTextAlign.START
+    )
+
+    suspend fun setProgressBarTextAlign(align: ProgressTextAlign) =
+        dataStore.setEnum(Keys.PROGRESS_RECORD_TEXT_ALIGN, align)
+
+    // --- 是否全屏 ---
+    val isFullScreenEnabled: Flow<Boolean> = dataStore.getValue(Keys.IS_FULL_SCREEN_ENABLED, true)
+    suspend fun setIsFullScreenEnabled(isEnabled: Boolean) =
+        dataStore.setValue(Keys.IS_FULL_SCREEN_ENABLED, isEnabled)
+
+    // --- 是否保持屏幕常亮 ---
+    val keepScreenOn: Flow<Boolean> = dataStore.getValue(Keys.KEEP_SCREEN_ON, true)
+    suspend fun setKeepScreenOn(isKeep: Boolean) = dataStore.setValue(Keys.KEEP_SCREEN_ON, isKeep)
+
+    // --- 是否隐藏上下栏当快速滑动 ---
+    val hideBarWhenQuickScroll: Flow<Boolean> =
+        dataStore.getValue(Keys.HIDE_BAR_WHEN_QUICK_SCROLL, true)
+
+    suspend fun setHideBarWhenQuickScroll(isHide: Boolean) =
+        dataStore.setValue(Keys.HIDE_BAR_WHEN_QUICK_SCROLL, isHide)
 }

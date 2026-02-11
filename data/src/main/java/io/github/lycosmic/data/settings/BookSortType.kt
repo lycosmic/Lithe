@@ -12,10 +12,4 @@ enum class BookSortType {
 
     // 作者
     AUTHOR;
-
-    companion object {
-        fun fromName(name: String?, default: BookSortType = LAST_READ_TIME): BookSortType {
-            return entries.find { it.name == name } ?: default
-        }
-    }
 }

@@ -60,6 +60,39 @@ fun ReaderSettingsScreen(
 
     val currentImageSizePercent by viewModel.imageSizeRatio.collectAsStateWithLifecycle()
 
+    val chapterTitleAlign by viewModel.chapterTitleAlign.collectAsStateWithLifecycle()
+
+    val pageTurnMode by viewModel.readerMode.collectAsStateWithLifecycle()
+
+    val sidePadding by viewModel.sidePadding.collectAsStateWithLifecycle()
+
+    val verticalPadding by viewModel.verticalPadding.collectAsStateWithLifecycle()
+
+    val cutoutPaddingApply by viewModel.cutoutPaddingApply.collectAsStateWithLifecycle()
+
+    val bottomMargin by viewModel.bottomMargin.collectAsStateWithLifecycle()
+
+    val brightnessEnabled by viewModel.isCustomBrightness.collectAsStateWithLifecycle()
+
+    val customBrightnessValue by viewModel.customBrightness.collectAsStateWithLifecycle()
+
+    val screenOrientation by viewModel.screenOrientation.collectAsStateWithLifecycle()
+
+    val progressRecordMode by viewModel.progressRecord.collectAsStateWithLifecycle()
+
+    val bottomProgressBarVisible by viewModel.isBottomProgressVisible.collectAsStateWithLifecycle()
+
+    val progressBarFontSize by viewModel.progressTextSize.collectAsStateWithLifecycle()
+
+    val progressBarMargin by viewModel.bottomProgressPadding.collectAsStateWithLifecycle()
+
+    val progressBarTextAlign by viewModel.bottomProgressTextAlign.collectAsStateWithLifecycle()
+
+    val fullScreen by viewModel.isFullScreen.collectAsStateWithLifecycle()
+
+    val isKeepScreenOn by viewModel.screenAlive.collectAsStateWithLifecycle()
+
+    val isHideBarWhenQuickScroll by viewModel.isHideBarOnQuickScroll.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier.nestedScroll(topBarScrollBehavior.nestedScrollConnection),
@@ -109,6 +142,23 @@ fun ReaderSettingsScreen(
             imageCornerRadius = currentImageCornerRadius,
             imageAlign = currentImageAlign,
             imageSizePercent = currentImageSizePercent,
+            chapterTitleAlign = chapterTitleAlign,
+            pageTurnMode = pageTurnMode,
+            sidePadding = sidePadding,
+            verticalPadding = verticalPadding,
+            cutoutPaddingApply = cutoutPaddingApply,
+            bottomMargin = bottomMargin,
+            customBrightnessEnabled = brightnessEnabled,
+            customBrightnessValue = customBrightnessValue,
+            screenOrientation = screenOrientation,
+            progressRecordMode = progressRecordMode,
+            progressBarVisible = bottomProgressBarVisible,
+            progressBarFontSize = progressBarFontSize,
+            progressBarMargin = progressBarMargin,
+            progressBarTextAlign = progressBarTextAlign,
+            isFullScreen = fullScreen,
+            isKeepScreenOn = isKeepScreenOn,
+            isHideBarWhenQuickScroll = isHideBarWhenQuickScroll,
             onTextAlignChange = {
                 viewModel.onEvent(ReaderSettingsEvent.OnTextAlignChange(it))
             },
@@ -138,6 +188,57 @@ fun ReaderSettingsScreen(
             },
             onImageCaptionVisibleChange = {
                 viewModel.onEvent(ReaderSettingsEvent.OnImageCaptionVisibleChange(it))
+            },
+            onChapterTitleAlignChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnChapterTitleAlignChange(it))
+            },
+            onPageTurnModeChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnPageTurnModeChange(it))
+            },
+            onSidePaddingChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnSidePaddingChange(it))
+            },
+            onVerticalPaddingChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnVerticalPaddingChange(it))
+            },
+            onCutoutPaddingApplyChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnCutoutPaddingApplyChange(it))
+            },
+            onBottomMarginChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnBottomMarginChange(it))
+            },
+            onCustomBrightnessEnabledChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnCustomBrightnessEnabledChange(it))
+            },
+            onCustomBrightnessValueChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnCustomBrightnessValueChange(it))
+            },
+            onScreenOrientationChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnScreenOrientationChange(it))
+            },
+            onProgressRecordModeChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnProgressRecordModeChange(it))
+            },
+            onProgressBarVisibleChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnProgressBarVisibleChange(it))
+            },
+            onIsFullScreenChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnIsFullScreenChange(it))
+            },
+            onIsKeepScreenOnChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnIsKeepScreenOnChange(it))
+            },
+            onIsHideBarWhenQuickScrollChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnIsHideBarWhenQuickScrollChange(it))
+            },
+            onProgressBarFontSizeChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnProgressBarFontSizeChange(it))
+            },
+            onProgressBarMarginChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnProgressBarMarginChange(it))
+            },
+            onProgressBarTextAlignChange = {
+                viewModel.onEvent(ReaderSettingsEvent.OnProgressBarTextAlignChange(it))
             }
         )
     }

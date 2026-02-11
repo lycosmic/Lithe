@@ -1,9 +1,14 @@
 package io.github.lycosmic.lithe.presentation.settings.reader
 
+import io.github.lycosmic.data.settings.AppChapterTitleAlign
 import io.github.lycosmic.data.settings.AppImageAlign
+import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
+import io.github.lycosmic.data.settings.ProgressRecord
+import io.github.lycosmic.data.settings.ProgressTextAlign
 import io.github.lycosmic.data.settings.ReaderFontWeight
+import io.github.lycosmic.data.settings.ScreenOrientation
 
 
 sealed class ReaderSettingsEvent {
@@ -81,4 +86,89 @@ sealed class ReaderSettingsEvent {
      * 图片大小比例改变
      */
     data class OnImageSizePercentChange(val percent: Float) : ReaderSettingsEvent()
+
+    /**
+     * 章节标题对齐方式改变
+     */
+    data class OnChapterTitleAlignChange(val align: AppChapterTitleAlign) : ReaderSettingsEvent()
+
+    /**
+     * 翻页模式改变
+     */
+    data class OnPageTurnModeChange(val mode: AppPageAnim) : ReaderSettingsEvent()
+
+    /**
+     * 侧边填充改变
+     */
+    data class OnSidePaddingChange(val padding: Int) : ReaderSettingsEvent()
+
+    /**
+     * 垂直填充改变
+     */
+    data class OnVerticalPaddingChange(val padding: Int) : ReaderSettingsEvent()
+
+    /**
+     * 刘海边距应用改变
+     */
+    data class OnCutoutPaddingApplyChange(val isApply: Boolean) : ReaderSettingsEvent()
+
+    /**
+     * 底部边距改变
+     */
+    data class OnBottomMarginChange(val margin: Int) : ReaderSettingsEvent()
+
+    /**
+     * 自定义亮度启用改变
+     */
+    data class OnCustomBrightnessEnabledChange(val isEnabled: Boolean) : ReaderSettingsEvent()
+
+    /**
+     * 自定义亮度值改变
+     */
+    data class OnCustomBrightnessValueChange(val value: Float) : ReaderSettingsEvent()
+
+    /**
+     * 屏幕方向改变
+     */
+    data class OnScreenOrientationChange(val orientation: ScreenOrientation) : ReaderSettingsEvent()
+
+    /**
+     * 进度记录模式改变
+     */
+    data class OnProgressRecordModeChange(val mode: ProgressRecord) : ReaderSettingsEvent()
+
+    /**
+     * 进度条可见性改变
+     */
+    data class OnProgressBarVisibleChange(val isVisible: Boolean) : ReaderSettingsEvent()
+
+    /**
+     * 全屏模式改变
+     */
+    data class OnIsFullScreenChange(val isFullScreen: Boolean) : ReaderSettingsEvent()
+
+    /**
+     * 屏幕常亮改变
+     */
+    data class OnIsKeepScreenOnChange(val isKeep: Boolean) : ReaderSettingsEvent()
+
+    /**
+     * 快速滚动时隐藏栏改变
+     */
+    data class OnIsHideBarWhenQuickScrollChange(val isHide: Boolean) : ReaderSettingsEvent()
+
+    /**
+     * 进度条字体大小改变
+     */
+    data class OnProgressBarFontSizeChange(val size: Int) : ReaderSettingsEvent()
+
+    /**
+     * 进度条边距改变
+     */
+    data class OnProgressBarMarginChange(val margin: Int) : ReaderSettingsEvent()
+
+    /**
+     * 进度条文本对齐改变
+     */
+    data class OnProgressBarTextAlignChange(val align: ProgressTextAlign) : ReaderSettingsEvent()
 }

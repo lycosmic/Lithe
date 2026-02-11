@@ -18,10 +18,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
+import io.github.lycosmic.data.settings.AppChapterTitleAlign
 import io.github.lycosmic.data.settings.AppImageAlign
+import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
+import io.github.lycosmic.data.settings.ProgressRecord
+import io.github.lycosmic.data.settings.ProgressTextAlign
 import io.github.lycosmic.data.settings.ReaderFontWeight
+import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.domain.model.MyFontFamily
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
@@ -59,6 +64,23 @@ fun ReaderSettingsContent(
     imageCornerRadius: Int,
     imageAlign: AppImageAlign,
     imageSizePercent: Float,
+    chapterTitleAlign: AppChapterTitleAlign,
+    pageTurnMode: AppPageAnim,
+    sidePadding: Int,
+    verticalPadding: Int,
+    cutoutPaddingApply: Boolean,
+    bottomMargin: Int,
+    customBrightnessEnabled: Boolean,
+    customBrightnessValue: Float,
+    screenOrientation: ScreenOrientation,
+    progressRecordMode: ProgressRecord,
+    progressBarVisible: Boolean,
+    progressBarFontSize: Int,
+    progressBarMargin: Int,
+    progressBarTextAlign: ProgressTextAlign,
+    isFullScreen: Boolean,
+    isKeepScreenOn: Boolean,
+    isHideBarWhenQuickScroll: Boolean,
     onFontIdChange: (String) -> Unit,
     onFontSizeChange: (Int) -> Unit,
     onFontWeightChange: (ReaderFontWeight) -> Unit,
@@ -74,6 +96,23 @@ fun ReaderSettingsContent(
     onImageCornerRadiusChange: (Int) -> Unit,
     onImageAlignChange: (AppImageAlign) -> Unit,
     onImageSizePercentChange: (Float) -> Unit,
+    onChapterTitleAlignChange: (AppChapterTitleAlign) -> Unit,
+    onPageTurnModeChange: (AppPageAnim) -> Unit,
+    onSidePaddingChange: (Int) -> Unit,
+    onVerticalPaddingChange: (Int) -> Unit,
+    onCutoutPaddingApplyChange: (Boolean) -> Unit,
+    onBottomMarginChange: (Int) -> Unit,
+    onCustomBrightnessEnabledChange: (Boolean) -> Unit,
+    onCustomBrightnessValueChange: (Float) -> Unit,
+    onScreenOrientationChange: (ScreenOrientation) -> Unit,
+    onProgressRecordModeChange: (ProgressRecord) -> Unit,
+    onProgressBarVisibleChange: (Boolean) -> Unit,
+    onIsFullScreenChange: (Boolean) -> Unit,
+    onIsKeepScreenOnChange: (Boolean) -> Unit,
+    onIsHideBarWhenQuickScrollChange: (Boolean) -> Unit,
+    onProgressBarFontSizeChange: (Int) -> Unit,
+    onProgressBarMarginChange: (Int) -> Unit,
+    onProgressBarTextAlignChange: (ProgressTextAlign) -> Unit,
     fonts: List<MyFontFamily> = emptyList(),
     currentFontFamily: FontFamily,
 ) {
@@ -456,7 +495,317 @@ fun ReaderSettingsContent(
         }
 
         // --- 章节 ---
+        item {
+            Column {
+                SettingsGroupTitle(
+                    title = {
+                        stringResource(id = R.string.reader_settings_chapter_title)
+                    },
+                    modifier = Modifier.padding(
+                        top = 16.dp,
+                        bottom = 8.dp,
+                        start = 16.dp,
+                        end = 16.dp
+                    )
+                )
 
+                // 章节标题对齐
+                SettingsSubGroupTitle(
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                    title = stringResource(id = R.string.reader_settings_chapter_title_align)
+                )
+
+                LitheSegmentedButton(
+                    items = AppChapterTitleAlign.entries.map { align ->
+                        OptionItem(
+                            label = stringResource(align.labelResId),
+                            value = align,
+                            selected = align == chapterTitleAlign
+                        )
+                    },
+                    onClick = onChapterTitleAlignChange,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+        }
+
+
+        // 阅读模式
+        item {
+            Column {
+                SettingsGroupTitle(
+                    title = {
+                        stringResource(id = R.string.reader_settings_reader_mode)
+                    },
+                    modifier = Modifier.padding(
+                        top = 16.dp,
+                        bottom = 8.dp,
+                        start = 16.dp,
+                        end = 16.dp
+                    )
+                )
+
+                // 翻页模式
+                SettingsSubGroupTitle(
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                    title = stringResource(id = R.string.reader_settings_page_turn_mode)
+                )
+
+
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    AppPageAnim.entries.forEach { pageAnim ->
+                        SelectionChip(
+                            text = stringResource(pageAnim.labelResId),
+                            isSelected = pageAnim == pageTurnMode,
+                            onClick = {
+                                onPageTurnModeChange(pageAnim)
+                            },
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            // 边距
+            SettingsGroupTitle(
+                title = {
+                    stringResource(id = R.string.reader_settings_margin_title)
+                },
+                modifier = Modifier.padding(
+                    top = 16.dp,
+                    bottom = 8.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                )
+            )
+
+            // 侧边填充
+            SettingsItemWithIntSlider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                title = stringResource(id = R.string.reader_settings_side_padding_title),
+                subtitleResId =
+                    R.string.reader_settings_side_padding_format,
+                initialValue = sidePadding,
+                onSave = onSidePaddingChange,
+                valueRange = AppConstants.SIDE_PADDING_INT_RANGE,
+            )
+
+            // 垂直填充
+            SettingsItemWithIntSlider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                title = stringResource(id = R.string.reader_settings_vertical_padding),
+                subtitleResId =
+                    R.string.reader_settings_vertical_padding_format,
+                initialValue = verticalPadding,
+                onSave = onVerticalPaddingChange,
+                valueRange = AppConstants.VERTICAL_PADDING_INT_RANGE,
+            )
+
+            // 刘海边距
+            SettingsItemWithSwitch(
+                title = stringResource(R.string.reader_settings_cutout_padding_title),
+                subtitle = stringResource(R.string.reader_settings_cutout_padding_subtitle),
+                checked = cutoutPaddingApply,
+                onCheckedChange = onCutoutPaddingApplyChange
+            )
+
+            // 底部边距
+            SettingsItemWithIntSlider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                title = stringResource(id = R.string.reader_settings_bottom_margin_title),
+                subtitleResId =
+                    R.string.reader_settings_bottom_margin_format,
+                initialValue = bottomMargin,
+                onSave = onBottomMarginChange,
+                valueRange = AppConstants.BOTTOM_MARGIN_INT_RANGE,
+            )
+        }
+
+        item {
+            // 系统
+            SettingsGroupTitle(
+                title = {
+                    stringResource(id = R.string.reader_settings_system)
+                },
+                modifier = Modifier.padding(
+                    top = 16.dp,
+                    bottom = 8.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                )
+            )
+
+            // 自定义亮度
+            SettingsItemWithSwitch(
+                title = stringResource(R.string.reader_settings_custom_brightness_title),
+                checked = customBrightnessEnabled,
+                onCheckedChange = onCustomBrightnessEnabledChange
+            )
+
+            // 亮度
+            AnimatedVisibility(customBrightnessEnabled) {
+                SettingsItemWithFloatSlider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    title = stringResource(id = R.string.reader_settings_brightness_title),
+                    subtitleResId =
+                        R.string.reader_settings_brightness_format,
+                    initialValue = customBrightnessValue,
+                    onSave = onCustomBrightnessValueChange,
+                    floatRange = AppConstants.CUSTOM_BRIGHTNESS_FLOAT_RANGE
+                )
+            }
+
+            // 屏幕方向
+            SettingsSubGroupTitle(
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                title = stringResource(id = R.string.reader_settings_screen_orientation_title)
+            )
+
+
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                ScreenOrientation.entries.forEach { orientation ->
+                    SelectionChip(
+                        text = stringResource(orientation.labelResId),
+                        isSelected = orientation == screenOrientation,
+                        onClick = {
+                            onScreenOrientationChange(orientation)
+                        },
+                    )
+                }
+            }
+        }
+
+        // --- 进度 ---
+        item {
+            // 进度
+            SettingsGroupTitle(
+                title = {
+                    stringResource(id = R.string.reader_settings_progress_title)
+                },
+                modifier = Modifier.padding(
+                    top = 16.dp,
+                    bottom = 8.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                )
+            )
+
+            // 进度记录
+            SettingsSubGroupTitle(
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                title = stringResource(id = R.string.reader_settings_progress_record_title)
+            )
+
+            LitheSegmentedButton(
+                items = ProgressRecord.entries.map { record ->
+                    OptionItem(
+                        label = stringResource(record.labelResId),
+                        value = record,
+                        selected = record == progressRecordMode
+                    )
+                },
+                onClick = onProgressRecordModeChange,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+
+            // 进度条
+            SettingsItemWithSwitch(
+                title = stringResource(R.string.reader_settings_progress_bar_title),
+                subtitle = stringResource(R.string.reader_settings_progress_bar_subtitle),
+                checked = progressBarVisible,
+                onCheckedChange = onProgressBarVisibleChange
+            )
+
+            AnimatedVisibility(progressBarVisible) {
+                Column {
+                    // 进度字体大小
+                    SettingsItemWithIntSlider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        title = stringResource(id = R.string.reader_settings_progress_text_size_title),
+                        subtitleResId = R.string.reader_settings_progress_text_size_format,
+                        initialValue = progressBarFontSize,
+                        onSave = onProgressBarFontSizeChange,
+                        valueRange = AppConstants.PROGRESS_TEXT_SIZE_INT_RANGE
+                    )
+
+                    // 进度条边距
+                    SettingsItemWithIntSlider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        title = stringResource(id = R.string.reader_settings_progress_bar_margin_title),
+                        subtitleResId = R.string.reader_settings_progress_bar_margin_format,
+                        initialValue = progressBarMargin,
+                        onSave = onProgressBarMarginChange,
+                        valueRange = AppConstants.PROGRESS_PADDING_INT_RANGE
+                    )
+
+
+                    // 进度条文本对齐
+                    LitheSegmentedButton(
+                        items = ProgressTextAlign.entries.map { align ->
+                            OptionItem(
+                                label = stringResource(align.labelResId),
+                                value = align,
+                                selected = align == progressBarTextAlign
+                            )
+                        },
+                        onClick = onProgressBarTextAlignChange,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+            }
+        }
+
+
+        item {
+            // 杂项
+            SettingsGroupTitle(
+                title = {
+                    stringResource(id = R.string.reader_settings_miscellaneous)
+                },
+                modifier = Modifier.padding(
+                    top = 16.dp,
+                    bottom = 8.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                )
+            )
+
+            // 全屏
+            SettingsItemWithSwitch(
+                title = stringResource(R.string.reader_settings_full_screen_title),
+                subtitle = stringResource(R.string.reader_settings_full_screen_subtitle),
+                checked = isFullScreen,
+                onCheckedChange = onIsFullScreenChange
+            )
+
+            // 保持屏幕常亮
+            SettingsItemWithSwitch(
+                title = stringResource(R.string.reader_settings_keep_screen_on_title),
+                checked = isKeepScreenOn,
+                onCheckedChange = onIsKeepScreenOnChange
+            )
+
+            // 快速滚动时隐藏上下栏
+            SettingsItemWithSwitch(
+                title = stringResource(R.string.reader_settings_hide_bar_when_quick_scroll_title),
+                checked = isHideBarWhenQuickScroll,
+                onCheckedChange = onIsHideBarWhenQuickScrollChange
+            )
+        }
 
         item {
             Spacer(modifier = Modifier.height(80.dp))

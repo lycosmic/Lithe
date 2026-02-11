@@ -57,4 +57,35 @@ object AppConstants {
      * 图片尺寸占屏比例
      */
     val IMAGE_SIZE_RATIO_INT_RANGE = 0..100
+
+
+    /**
+     * 侧边填充
+     */
+    val SIDE_PADDING_INT_RANGE = 1..20
+
+    /**
+     * 垂直填充
+     */
+    val VERTICAL_PADDING_INT_RANGE = 0..24
+
+    /**
+     * 底部边距
+     */
+    val BOTTOM_MARGIN_INT_RANGE = 0..24
+
+    /**
+     * 自定义亮度
+     */
+    val CUSTOM_BRIGHTNESS_FLOAT_RANGE = 0f..100f
+
+    /**
+     * 进度条字体大小
+     */
+    val PROGRESS_TEXT_SIZE_INT_RANGE = 4..16
+
+    /**
+     * 进度条边距
+     */
+    val PROGRESS_PADDING_INT_RANGE = 1..12
 }

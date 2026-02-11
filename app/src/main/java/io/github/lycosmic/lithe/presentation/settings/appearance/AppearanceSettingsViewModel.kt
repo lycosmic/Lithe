@@ -133,7 +133,7 @@ class AppearanceSettingsViewModel @Inject constructor(
             presetsSync = colorPresetDao.getAllPresetsSync()
 
             // 更新选中的颜色预设
-            settingsManager.setCurrentColorPresetId(presetsSync.first().id)
+            settingsManager.setCurrentColorPresetId(presetsSync.first().id!!)
         }
     }
 

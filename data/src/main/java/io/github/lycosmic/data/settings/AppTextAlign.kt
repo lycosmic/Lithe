@@ -12,10 +12,6 @@ enum class AppTextAlign {
     END;        // 末尾 (右对齐/结束对齐)
 
     companion object {
-        fun fromName(name: String?, default: AppTextAlign = JUSTIFY): AppTextAlign {
-            return entries.find { it.name == name } ?: default
-        }
-
         fun getTextAlign(textAlign: AppTextAlign): TextAlign {
             return when (textAlign) {
                 START -> TextAlign.Start

@@ -4,10 +4,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.lycosmic.data.settings.AppChapterTitleAlign
 import io.github.lycosmic.data.settings.AppImageAlign
+import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
+import io.github.lycosmic.data.settings.ProgressRecord
+import io.github.lycosmic.data.settings.ProgressTextAlign
 import io.github.lycosmic.data.settings.ReaderFontWeight
+import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.data.settings.SettingsManager
 import io.github.lycosmic.domain.model.MyFontFamily
 import io.github.lycosmic.domain.repository.FontFamilyRepository
@@ -135,6 +140,123 @@ class ReaderSettingsViewModel @Inject constructor(
         initialValue = SettingsManager.DEFAULT_IMAGE_SIZE_PERCENT
     )
 
+    // --- 章节 ---
+    val chapterTitleAlign = settings.readerChapterTitleAlign.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = AppChapterTitleAlign.CENTER
+    )
+
+    // --- 阅读模式 ---
+    val readerMode = settings.readerMode.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = AppPageAnim.SCROLL
+    )
+
+    // --- 边距 ---
+    val sidePadding = settings.readerSidePadding.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = 1
+    )
+
+    val verticalPadding = settings.readerVerticalPadding.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = 0
+    )
+
+    val cutoutPaddingApply = settings.readerCutoutPaddingApply.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = true
+    )
+
+    val bottomMargin = settings.readerBottomMargin.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = 0
+    )
+
+    // --- 系统 ---
+    val isCustomBrightness = settings.readerCustomBrightnessEnabled.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = false
+    )
+
+    val customBrightness = settings.readerCustomBrightness.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = 0.5f
+    )
+
+    val screenOrientation = settings.screenOrientation.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = ScreenOrientation.DEFAULT
+    )
+
+    // --- 进度 ---
+    // 进度记录
+    val progressRecord = settings.progressRecordMode.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = ProgressRecord.Percentage
+    )
+
+    // 底部是否显示进度条
+    val isBottomProgressVisible = settings.showProgressBar.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = true
+    )
+
+    // 进度条文字字体大小
+    val progressTextSize = settings.progressBarFontSize.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = 16
+    )
+
+    // 进度条文字边距
+    val bottomProgressPadding = settings.progressBarMargin.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = 0
+    )
+
+    // 进度条文字对齐方式
+    val bottomProgressTextAlign = settings.progressBarTextAlign.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = ProgressTextAlign.CENTER
+    )
+
+
+    // --- 杂项 ---
+    // 是否全屏
+    val isFullScreen = settings.isFullScreenEnabled.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = true
+    )
+
+    // 保持屏幕常亮
+    val screenAlive = settings.keepScreenOn.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = true
+    )
+
+    // 快速滚动时隐藏上下栏
+    val isHideBarOnQuickScroll = settings.hideBarWhenQuickScroll.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = true
+    )
+
 
     fun onEvent(event: ReaderSettingsEvent) {
         viewModelScope.launch {
@@ -189,6 +311,58 @@ class ReaderSettingsViewModel @Inject constructor(
                 )
 
                 is ReaderSettingsEvent.OnTextAlignChange -> settings.setReaderTextAlign(event.textAlign)
+                is ReaderSettingsEvent.OnBottomMarginChange -> settings.setReaderBottomMargin(event.margin)
+                is ReaderSettingsEvent.OnChapterTitleAlignChange -> settings.setReaderChapterTitleAlign(
+                    event.align
+                )
+
+                is ReaderSettingsEvent.OnCustomBrightnessEnabledChange -> settings.setReaderCustomBrightnessEnabled(
+                    event.isEnabled
+                )
+
+                is ReaderSettingsEvent.OnCustomBrightnessValueChange -> settings.setReaderCustomBrightness(
+                    event.value
+                )
+
+                is ReaderSettingsEvent.OnCutoutPaddingApplyChange -> settings.setReaderCutoutPaddingApply(
+                    event.isApply
+                )
+
+                is ReaderSettingsEvent.OnIsFullScreenChange -> settings.setIsFullScreenEnabled(event.isFullScreen)
+                is ReaderSettingsEvent.OnIsHideBarWhenQuickScrollChange -> settings.setHideBarWhenQuickScroll(
+                    event.isHide
+                )
+
+                is ReaderSettingsEvent.OnIsKeepScreenOnChange -> settings.setKeepScreenOn(event.isKeep)
+                is ReaderSettingsEvent.OnPageTurnModeChange -> settings.setReaderMode(event.mode)
+                is ReaderSettingsEvent.OnProgressBarFontSizeChange -> settings.setProgressBarFontSize(
+                    event.size
+                )
+
+                is ReaderSettingsEvent.OnProgressBarMarginChange -> settings.setProgressBarMargin(
+                    event.margin
+                )
+
+                is ReaderSettingsEvent.OnProgressBarTextAlignChange -> settings.setProgressBarTextAlign(
+                    event.align
+                )
+
+                is ReaderSettingsEvent.OnProgressBarVisibleChange -> settings.setShowProgressBar(
+                    event.isVisible
+                )
+
+                is ReaderSettingsEvent.OnProgressRecordModeChange -> settings.setProgressRecordMode(
+                    event.mode
+                )
+
+                is ReaderSettingsEvent.OnScreenOrientationChange -> settings.setScreenOrientation(
+                    event.orientation
+                )
+
+                is ReaderSettingsEvent.OnSidePaddingChange -> settings.setReaderSidePadding(event.padding)
+                is ReaderSettingsEvent.OnVerticalPaddingChange -> settings.setReaderVerticalPadding(
+                    event.padding
+                )
             }
         }
     }
