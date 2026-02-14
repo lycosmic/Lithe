@@ -161,9 +161,6 @@ class SettingsManager @Inject constructor(
         // 屏幕方向
         val SCREEN_ORIENTATION = stringPreferencesKey("screen_orientation")
 
-        // 进度记录方式
-        val PROGRESS_RECORD_MODE = stringPreferencesKey("progress_record_mode")
-
         // 是否显示底部的进度文字
         val SHOW_PROGRESS_TEXT = booleanPreferencesKey("show_bottom_progress_text")
 
@@ -481,13 +478,6 @@ class SettingsManager @Inject constructor(
 
     suspend fun setScreenOrientation(orientation: ScreenOrientation) =
         dataStore.setEnum(Keys.SCREEN_ORIENTATION, orientation)
-
-    // --- 进度记录方式 ---
-    val progressRecordMode: Flow<ProgressRecord> =
-        dataStore.getEnum(Keys.PROGRESS_RECORD_MODE, ProgressRecord.Percentage)
-
-    suspend fun setProgressRecordMode(mode: ProgressRecord) =
-        dataStore.setEnum(Keys.PROGRESS_RECORD_MODE, mode)
 
     // --- 是否显示底部的进度文字 ---
     val showProgressText: Flow<Boolean> = dataStore.getValue(Keys.SHOW_PROGRESS_TEXT, true)

@@ -5,7 +5,6 @@ import io.github.lycosmic.data.settings.AppImageAlign
 import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
-import io.github.lycosmic.data.settings.ProgressRecord
 import io.github.lycosmic.data.settings.ProgressTextAlign
 import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.domain.model.AppFontWeight
@@ -131,11 +130,6 @@ sealed class ReaderSettingsEvent {
      * 屏幕方向改变
      */
     data class OnScreenOrientationChange(val orientation: ScreenOrientation) : ReaderSettingsEvent()
-
-    /**
-     * 进度记录模式改变
-     */
-    data class OnProgressRecordModeChange(val mode: ProgressRecord) : ReaderSettingsEvent()
 
     /**
      * 进度条可见性改变

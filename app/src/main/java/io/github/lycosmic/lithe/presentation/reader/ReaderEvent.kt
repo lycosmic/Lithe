@@ -6,7 +6,6 @@ import io.github.lycosmic.data.settings.AppImageAlign
 import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
-import io.github.lycosmic.data.settings.ProgressRecord
 import io.github.lycosmic.data.settings.ProgressTextAlign
 import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.domain.model.AppFontWeight
@@ -110,7 +109,6 @@ sealed class ReaderEvent {
     data class OnBottomMarginChange(val margin: Int) : ReaderEvent()
 
     // 进度设置
-    data class OnProgressRecordModeChange(val mode: ProgressRecord) : ReaderEvent()
     data class OnProgressBarVisibleChange(val isVisible: Boolean) : ReaderEvent()
     data class OnProgressBarFontSizeChange(val size: Int) : ReaderEvent()
     data class OnProgressBarMarginChange(val margin: Int) : ReaderEvent()

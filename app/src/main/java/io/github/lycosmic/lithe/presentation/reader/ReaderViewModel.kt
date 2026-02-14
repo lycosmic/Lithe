@@ -12,7 +12,6 @@ import io.github.lycosmic.data.settings.AppChapterTitleAlign
 import io.github.lycosmic.data.settings.AppImageAlign
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
-import io.github.lycosmic.data.settings.ProgressRecord
 import io.github.lycosmic.data.settings.ProgressTextAlign
 import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.data.settings.SettingsManager
@@ -215,12 +214,6 @@ class ReaderViewModel @Inject constructor(
     )
 
     // --- 进度设置 ---
-    val progressRecord = settings.progressRecordMode.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = ProgressRecord.Percentage
-    )
-
     val isBottomProgressTextVisible = settings.showProgressText.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
@@ -600,10 +593,6 @@ class ReaderViewModel @Inject constructor(
                 }
 
                 // 进度设置
-                is ReaderEvent.OnProgressRecordModeChange -> {
-                    settings.setProgressRecordMode(event.mode)
-                }
-
                 is ReaderEvent.OnProgressBarVisibleChange -> {
                     settings.setShowProgressBar(event.isVisible)
                 }

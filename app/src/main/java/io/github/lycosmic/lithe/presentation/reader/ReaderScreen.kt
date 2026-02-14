@@ -45,7 +45,6 @@ import io.github.lycosmic.data.settings.AppImageAlign
 import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
-import io.github.lycosmic.data.settings.ProgressRecord
 import io.github.lycosmic.data.settings.ProgressTextAlign
 import io.github.lycosmic.domain.model.AppFontWeight
 import io.github.lycosmic.domain.model.ColorPreset
@@ -118,7 +117,6 @@ fun ReaderScreen(
     val screenOrientation by viewModel.screenOrientation.collectAsStateWithLifecycle()
 
     // 进度设置
-    val progressRecord by viewModel.progressRecord.collectAsStateWithLifecycle()
     val isBottomProgressTextVisible by viewModel.isBottomProgressTextVisible.collectAsStateWithLifecycle()
     val progressTextSize by viewModel.progressTextSize.collectAsStateWithLifecycle()
     val bottomProgressPadding by viewModel.bottomProgressPadding.collectAsStateWithLifecycle()
@@ -310,42 +308,31 @@ fun ReaderScreen(
         progressText
     }
 
-    // 章节进度文本
-    val chapterProgressText = remember(uiState.currentChapterIndex, uiState.chapterProgress) {
-        when (progressRecord) {
-            ProgressRecord.Percentage -> {
-                " (${
-                    formatProgress(
-                        progress = uiState.chapterProgress,
-                        digits = 2,
-                        withPercent = false
-                    )
-                }%)"
-            }
-
-            ProgressRecord.Count -> ""
-        }
-    }
-
     // 全书进度文本
     val bookProgressText = remember(uiState.currentChapterIndex, uiState.progress.progressPercent) {
-        when (progressRecord) {
-            ProgressRecord.Percentage -> {
-                " (${
-                    formatProgress(
-                        progress = uiState.progress.progressPercent,
-                        digits = 2,
-                        withPercent = false
-                    )
-                }%)"
-            }
-
-            ProgressRecord.Count -> ""
-        }
+        "(${
+            formatProgress(
+                progress = uiState.progress.progressPercent,
+                digits = 2,
+                withPercent = false
+            )
+        }%)"
     }
 
+    // 章节进度文本
+    val chapterProgressText = remember(uiState.currentChapterIndex, uiState.chapterProgress) {
+        "(${
+            formatProgress(
+                progress = uiState.chapterProgress,
+                digits = 2,
+                withPercent = false
+            )
+        }%)"
+    }
+
+
     val progressText = remember(chapterProgressText, bookProgressText) {
-        "${bookProgressText}${chapterProgressText}"
+        "$bookProgressText $chapterProgressText"
     }
 
     BackHandler(enabled = chapterDrawerState.isOpen) {
@@ -606,11 +593,6 @@ fun ReaderScreen(
             onChapterTitleAlignChange = { align ->
                 // 实现章节标题对齐变更
                 viewModel.onEvent(ReaderEvent.OnChapterTitleAlignChange(align))
-            },
-            progressRecordMode = progressRecord,
-            onProgressRecordModeChange = { mode ->
-                // 实现进度记录模式变更
-                viewModel.onEvent(ReaderEvent.OnProgressRecordModeChange(mode))
             },
             bottomProgressTextVisible = isBottomProgressTextVisible,
             onProgressBarVisibleChange = { isVisible ->

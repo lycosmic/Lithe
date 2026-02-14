@@ -23,7 +23,6 @@ import io.github.lycosmic.data.settings.AppImageAlign
 import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
-import io.github.lycosmic.data.settings.ProgressRecord
 import io.github.lycosmic.data.settings.ProgressTextAlign
 import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.data.util.extensions.weight
@@ -74,7 +73,6 @@ fun ReaderSettingsContent(
     customBrightnessEnabled: Boolean,
     customBrightnessValue: Float,
     screenOrientation: ScreenOrientation,
-    progressRecordMode: ProgressRecord,
     progressBarVisible: Boolean,
     progressBarFontSize: Int,
     progressBarMargin: Int,
@@ -106,7 +104,6 @@ fun ReaderSettingsContent(
     onCustomBrightnessEnabledChange: (Boolean) -> Unit,
     onCustomBrightnessValueChange: (Float) -> Unit,
     onScreenOrientationChange: (ScreenOrientation) -> Unit,
-    onProgressRecordModeChange: (ProgressRecord) -> Unit,
     onProgressBarVisibleChange: (Boolean) -> Unit,
     onIsFullScreenChange: (Boolean) -> Unit,
     onIsKeepScreenOnChange: (Boolean) -> Unit,
@@ -702,24 +699,6 @@ fun ReaderSettingsContent(
                     start = 16.dp,
                     end = 16.dp
                 )
-            )
-
-            // 进度记录
-            SettingsSubGroupTitle(
-                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-                title = stringResource(id = R.string.reader_settings_progress_record_title)
-            )
-
-            LitheSegmentedButton(
-                items = ProgressRecord.entries.map { record ->
-                    OptionItem(
-                        label = stringResource(record.labelResId),
-                        value = record,
-                        selected = record == progressRecordMode
-                    )
-                },
-                onClick = onProgressRecordModeChange,
-                modifier = Modifier.padding(horizontal = 16.dp)
             )
 
 

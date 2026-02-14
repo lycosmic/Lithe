@@ -78,8 +78,6 @@ fun ReaderSettingsScreen(
 
     val screenOrientation by viewModel.screenOrientation.collectAsStateWithLifecycle()
 
-    val progressRecordMode by viewModel.progressRecord.collectAsStateWithLifecycle()
-
     val bottomProgressBarVisible by viewModel.isBottomProgressVisible.collectAsStateWithLifecycle()
 
     val progressBarFontSize by viewModel.progressTextSize.collectAsStateWithLifecycle()
@@ -151,7 +149,6 @@ fun ReaderSettingsScreen(
             customBrightnessEnabled = brightnessEnabled,
             customBrightnessValue = customBrightnessValue,
             screenOrientation = screenOrientation,
-            progressRecordMode = progressRecordMode,
             progressBarVisible = bottomProgressBarVisible,
             progressBarFontSize = progressBarFontSize,
             progressBarMargin = progressBarMargin,
@@ -215,9 +212,6 @@ fun ReaderSettingsScreen(
             },
             onScreenOrientationChange = {
                 viewModel.onEvent(ReaderSettingsEvent.OnScreenOrientationChange(it))
-            },
-            onProgressRecordModeChange = {
-                viewModel.onEvent(ReaderSettingsEvent.OnProgressRecordModeChange(it))
             },
             onProgressBarVisibleChange = {
                 viewModel.onEvent(ReaderSettingsEvent.OnProgressBarVisibleChange(it))

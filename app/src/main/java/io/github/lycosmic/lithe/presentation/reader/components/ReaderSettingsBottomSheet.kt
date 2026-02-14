@@ -44,7 +44,6 @@ import io.github.lycosmic.data.settings.AppImageAlign
 import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
-import io.github.lycosmic.data.settings.ProgressRecord
 import io.github.lycosmic.data.settings.ProgressTextAlign
 import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.data.util.extensions.weight
@@ -164,8 +163,6 @@ fun ReaderSettingsBottomSheet(
     onImageSizePercentChange: (Float) -> Unit,
     chapterTitleAlign: AppChapterTitleAlign,
     onChapterTitleAlignChange: (AppChapterTitleAlign) -> Unit,
-    progressRecordMode: ProgressRecord,
-    onProgressRecordModeChange: (ProgressRecord) -> Unit,
     bottomProgressTextVisible: Boolean,
     onProgressBarVisibleChange: (Boolean) -> Unit,
     progressBarFontSize: Int,
@@ -289,8 +286,6 @@ fun ReaderSettingsBottomSheet(
                                 onImageSizePercentChange = onImageSizePercentChange,
                                 chapterTitleAlign = chapterTitleAlign,
                                 onChapterTitleAlignChange = onChapterTitleAlignChange,
-                                progressRecordMode = progressRecordMode,
-                                onProgressRecordModeChange = onProgressRecordModeChange,
                                 bottomProgressTextVisible = bottomProgressTextVisible,
                                 onProgressBarVisibleChange = onProgressBarVisibleChange,
                                 progressBarFontSize = progressBarFontSize,
@@ -585,8 +580,6 @@ private fun ReaderContent(
     onChapterTitleAlignChange: (AppChapterTitleAlign) -> Unit,
 
     // 进度相关参数
-    progressRecordMode: ProgressRecord,
-    onProgressRecordModeChange: (ProgressRecord) -> Unit,
     bottomProgressTextVisible: Boolean,
     onProgressBarVisibleChange: (Boolean) -> Unit,
     progressBarFontSize: Int,
@@ -958,23 +951,6 @@ private fun ReaderContent(
                     start = 16.dp,
                     end = 16.dp
                 )
-            )
-
-            SettingsSubGroupTitle(
-                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-                title = stringResource(id = R.string.reader_settings_progress_record_title)
-            )
-
-            LitheSegmentedButton(
-                items = ProgressRecord.entries.map { record ->
-                    OptionItem(
-                        label = stringResource(record.labelResId),
-                        value = record,
-                        selected = record == progressRecordMode
-                    )
-                },
-                onClick = onProgressRecordModeChange,
-                modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             SettingsItemWithSwitch(
