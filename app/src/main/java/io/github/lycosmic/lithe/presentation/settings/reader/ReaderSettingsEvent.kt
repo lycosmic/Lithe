@@ -7,8 +7,8 @@ import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
 import io.github.lycosmic.data.settings.ProgressRecord
 import io.github.lycosmic.data.settings.ProgressTextAlign
-import io.github.lycosmic.data.settings.ReaderFontWeight
 import io.github.lycosmic.data.settings.ScreenOrientation
+import io.github.lycosmic.domain.model.AppFontWeight
 
 
 sealed class ReaderSettingsEvent {
@@ -25,7 +25,7 @@ sealed class ReaderSettingsEvent {
     /**
      * 字体粗细改变
      */
-    data class OnFontWeightChange(val fontWeight: ReaderFontWeight) : ReaderSettingsEvent()
+    data class OnFontWeightChange(val fontWeight: AppFontWeight) : ReaderSettingsEvent()
 
     /**
      * 字体斜体改变

@@ -7,6 +7,11 @@ import androidx.compose.ui.text.font.FontWeight
 import io.github.lycosmic.domain.model.BookContentBlock
 import io.github.lycosmic.domain.model.StyleType
 import io.github.lycosmic.lithe.presentation.reader.ReaderContent
+import io.github.lycosmic.lithe.presentation.reader.ReaderContent.Divider
+import io.github.lycosmic.lithe.presentation.reader.ReaderContent.Image
+import io.github.lycosmic.lithe.presentation.reader.ReaderContent.ImageDescription
+import io.github.lycosmic.lithe.presentation.reader.ReaderContent.Paragraph
+import io.github.lycosmic.lithe.presentation.reader.ReaderContent.Title
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -16,18 +21,17 @@ object ContentMapper {
         withContext(Dispatchers.Default) {
             return@withContext when (bookContentBlock) {
                 is BookContentBlock.Divider -> {
-                    ReaderContent.Divider(
+                    Divider(
                         startIndex = bookContentBlock.startIndex,
                         chapterIndex = chapterIndex
                     )
                 }
 
                 is BookContentBlock.Image -> {
-                    ReaderContent.Image(
+                    Image(
                         startIndex = bookContentBlock.startIndex,
                         chapterIndex = chapterIndex,
                         path = bookContentBlock.path,
-                        caption = bookContentBlock.path
                     )
                 }
 
@@ -53,7 +57,7 @@ object ContentMapper {
                         }
                     }
 
-                    ReaderContent.Paragraph(
+                    Paragraph(
                         startIndex = bookContentBlock.startIndex,
                         chapterIndex = chapterIndex,
                         text = styledText
@@ -61,11 +65,19 @@ object ContentMapper {
                 }
 
                 is BookContentBlock.Title -> {
-                    ReaderContent.Title(
+                    Title(
                         startIndex = bookContentBlock.startIndex,
                         chapterIndex = chapterIndex,
                         text = bookContentBlock.text,
                         level = bookContentBlock.level
+                    )
+                }
+
+                is BookContentBlock.ImageAlt -> {
+                    ImageDescription(
+                        startIndex = bookContentBlock.startIndex,
+                        chapterIndex = chapterIndex,
+                        caption = bookContentBlock.caption
                     )
                 }
             }

@@ -292,7 +292,7 @@ fun AppearanceSettingsScreen(
 
                 // --- 颜色预设编辑器 ---
                 ColorPresetEditorCard(
-                    colorPreset = selectedPreset ?: ColorPreset.defaultColorPreset,
+                    colorPreset = selectedPreset ?: ColorPreset.default,
                     onColorPresetNameChange = { colorPreset, newName ->
                         viewModel.onEvent(
                             AppearanceSettingsEvent.OnColorPresetNameChange(colorPreset, newName)

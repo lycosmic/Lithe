@@ -264,4 +264,8 @@
     <string name="reader_settings_progress_text_size_format">%dpt</string>
     <string name="reader_settings_progress_bar_margin_title">边距</string>
     <string name="reader_settings_progress_bar_margin_format">%dpt</string>
+    <string name="reader_settings_tab_general">常规</string>
+    <string name="reader_settings_tab_reader">阅读器</string>
+    <string name="reader_settings_tab_color">颜色</string>
+    <string name="color_preset_changed">已选择 《%s》</string>
 </resources>

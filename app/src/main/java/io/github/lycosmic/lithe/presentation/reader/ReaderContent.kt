@@ -32,7 +32,13 @@ sealed interface ReaderContent {
         override val startIndex: Int, // 图片通常占用一个位置
         override val chapterIndex: Int,
         val path: String, // 图片路径
-        val caption: String? = null // 图片标题
+    ) : ReaderContent
+
+    // 图片描述
+    data class ImageDescription(
+        override val startIndex: Int,
+        override val chapterIndex: Int,
+        val caption: String
     ) : ReaderContent
 
     // 分割线

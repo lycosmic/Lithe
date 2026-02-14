@@ -5,6 +5,7 @@ package io.github.lycosmic.domain.model
  */
 sealed interface BookContentBlock {
 
+    // 起始字符索引
     val startIndex: Int
 
     /**
@@ -31,6 +32,11 @@ sealed interface BookContentBlock {
      * 图片
      */
     data class Image(val path: String, override val startIndex: Int) : BookContentBlock
+
+    /**
+     * 图片描述
+     */
+    data class ImageAlt(val caption: String, override val startIndex: Int) : BookContentBlock
 }
 
 

@@ -6,13 +6,13 @@ package io.github.lycosmic.domain.model
  * @param displayName 显示名称
  * @param family 具体的 FontFamily 对象 (若已缓存则为本地字体，否则为系统)
  */
-data class MyFontFamily(
+data class AppFontFamily(
     val id: String,
     val displayName: String,
     val family: Any? = null
 ) {
     companion object {
-        val Default = MyFontFamily(
+        val Default = AppFontFamily(
             id = "system",
             displayName = "",
             family = null

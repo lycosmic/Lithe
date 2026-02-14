@@ -121,7 +121,7 @@ class AppearanceSettingsViewModel @Inject constructor(
             if (presetsSync.isEmpty()) {
                 val maxSortOrder = colorPresetDao.getMaxSortOrder()
                 colorPresetDao.insertPreset(
-                    ColorPreset.defaultColorPreset.copy(
+                    ColorPreset.default.copy(
                         isSelected = true
                     ).toEntity(
                         maxSortOrder ?: 0
@@ -185,7 +185,7 @@ class AppearanceSettingsViewModel @Inject constructor(
                         "新增颜色预设，最大排序为：$maxSortOrder"
                     }
                     colorPresetDao.insertPreset(
-                        ColorPreset.defaultColorPreset.copy(
+                        ColorPreset.default.copy(
                             isSelected = true
                         ).toEntity(
                             maxSortOrder?.plus(1) ?: 0

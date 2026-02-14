@@ -6,11 +6,15 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
@@ -34,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.util.clickableNoRipple
+import io.github.lycosmic.lithe.util.swipeTrigger
 
 @Composable
 fun ReaderTopBar(
@@ -41,25 +46,43 @@ fun ReaderTopBar(
     chapterName: String, // 章节名称
     chapterProgress: Float, // 章节进度，范围0.0-1.0
     onBackClick: () -> Unit,
-    onChapterMenuClick: () -> Unit, // 章节菜单
-    onReaderSettingsClick: () -> Unit, // 阅读设置
-    modifier: Modifier = Modifier
+    onChapterMenuClick: () -> Unit, // 点击章节菜单
+    onReaderSettingsClick: () -> Unit, // 点击阅读设置
+    onSwipeLeft: () -> Unit,
+    onSwipeRight: () -> Unit,
+    modifier: Modifier = Modifier,
+    swipeEnabled: Boolean
 ) {
     // 书名是否展开
     var isBookNameExpanded by remember { mutableStateOf(false) }
 
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .swipeTrigger(
+                enabled = swipeEnabled,
+                onSwipeLeft = onSwipeLeft,
+                onSwipeRight = onSwipeRight
+            ),
         tonalElevation = 4.dp,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f), // 半透明背景
+        color = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.9f), // 半透明背景
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
+            // 占位符：状态栏高度 OR 物理刘海高度 OR 保底标准状态栏高度
+            Spacer(
+                modifier = Modifier.windowInsetsTopHeight(
+                    WindowInsets.statusBars
+                        .union(WindowInsets.displayCutout)
+                        .union(WindowInsets(top = 24.dp))
+                )
+            )
+
             // 1. 顶部内容
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding() // 避开系统状态栏
-                    .padding(horizontal = 4.dp, vertical = 8.dp), verticalAlignment = Alignment.Top
+                    .padding(horizontal = 4.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.Top,
             ) {
                 // 返回按钮
                 IconButton(onClick = onBackClick) {

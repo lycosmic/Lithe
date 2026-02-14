@@ -11,14 +11,14 @@ import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
 import io.github.lycosmic.data.settings.ProgressRecord
 import io.github.lycosmic.data.settings.ProgressTextAlign
-import io.github.lycosmic.data.settings.ReaderFontWeight
 import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.data.settings.SettingsManager
-import io.github.lycosmic.domain.model.MyFontFamily
+import io.github.lycosmic.domain.model.AppFontFamily
+import io.github.lycosmic.domain.model.AppFontWeight
 import io.github.lycosmic.domain.repository.FontFamilyRepository
 import io.github.lycosmic.lithe.util.AppConstants
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,7 +32,7 @@ class ReaderSettingsViewModel @Inject constructor(
     val fontId = settings.readerFontId.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = MyFontFamily.Default.id
+        initialValue = AppFontFamily.Default.id
     )
 
     val fontSize = settings.readerFontSize.stateIn(
@@ -41,10 +41,10 @@ class ReaderSettingsViewModel @Inject constructor(
         initialValue = SettingsManager.DEFAULT_FONT_SIZE
     )
 
-    val fontWeight = settings.readerFontWeight.stateIn(
+    val fontWeight = settings.appFontWeight.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = ReaderFontWeight.Normal
+        initialValue = AppFontWeight.Normal
     )
 
     val isItalic = settings.isReaderItalic.stateIn(
@@ -69,8 +69,8 @@ class ReaderSettingsViewModel @Inject constructor(
             emptyList()
         )
 
-    val fontFamily = fontId.map {
-        fontFamilyRepository.getFontFamily(it) as FontFamily
+    val fontFamily = combine(fontId, fontWeight, isItalic) { fontId, fontWeight, isItalic ->
+        fontFamilyRepository.getFontFamily(fontId, fontWeight, isItalic) as FontFamily
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
@@ -173,7 +173,7 @@ class ReaderSettingsViewModel @Inject constructor(
         initialValue = true
     )
 
-    val bottomMargin = settings.readerBottomMargin.stateIn(
+    val bottomMargin = settings.readerBottomBarPadding.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = 0
@@ -207,7 +207,7 @@ class ReaderSettingsViewModel @Inject constructor(
     )
 
     // 底部是否显示进度条
-    val isBottomProgressVisible = settings.showProgressBar.stateIn(
+    val isBottomProgressVisible = settings.showProgressText.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = true

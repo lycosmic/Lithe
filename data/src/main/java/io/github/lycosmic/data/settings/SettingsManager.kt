@@ -11,7 +11,8 @@ import io.github.lycosmic.data.util.getEnum
 import io.github.lycosmic.data.util.getValue
 import io.github.lycosmic.data.util.setEnum
 import io.github.lycosmic.data.util.setValue
-import io.github.lycosmic.domain.model.MyFontFamily
+import io.github.lycosmic.domain.model.AppFontFamily
+import io.github.lycosmic.domain.model.AppFontWeight
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -94,7 +95,7 @@ class SettingsManager @Inject constructor(
         val READER_FONT_SIZE = intPreferencesKey("reader_font_size")
 
         // 阅读字体样式
-        val READER_FONT_WEIGHT = stringPreferencesKey("reader_font_weight")
+        val READER_FONT_WEIGHT = stringPreferencesKey("app_font_weight")
 
         // 阅读字体是否斜体
         val READER_IS_ITALIC = booleanPreferencesKey("reader_is_italic")
@@ -148,7 +149,7 @@ class SettingsManager @Inject constructor(
         val READER_CUTOUT_PADDING = booleanPreferencesKey("reader_cutout_padding")
 
         // 底部边距
-        val READER_BOTTOM_MARGIN = intPreferencesKey("reader_bottom_margin")
+        val READER_BOTTOM_BAR_PADDING = intPreferencesKey("reader_bottom_bar_padding")
 
         // 是否开启自定义亮度
         val READER_CUSTOM_BRIGHTNESS_ENABLED =
@@ -163,8 +164,8 @@ class SettingsManager @Inject constructor(
         // 进度记录方式
         val PROGRESS_RECORD_MODE = stringPreferencesKey("progress_record_mode")
 
-        // 是否显示底部的进度条
-        val SHOW_PROGRESS_BAR = booleanPreferencesKey("show_progress_bar")
+        // 是否显示底部的进度文字
+        val SHOW_PROGRESS_TEXT = booleanPreferencesKey("show_bottom_progress_text")
 
         // 进度条文本字体大小
         val PROGRESS_RECORD_FONT_SIZE = intPreferencesKey("progress_record_font_size")
@@ -329,7 +330,7 @@ class SettingsManager @Inject constructor(
 
     // --- 阅读器字体ID ---
     val readerFontId: Flow<String> =
-        dataStore.getValue(Keys.READER_FONT_ID, MyFontFamily.Default.id)
+        dataStore.getValue(Keys.READER_FONT_ID, AppFontFamily.Default.id)
 
     suspend fun setReaderFontId(id: String) = dataStore.setValue(Keys.READER_FONT_ID, id)
 
@@ -340,10 +341,10 @@ class SettingsManager @Inject constructor(
     suspend fun setReaderFontSize(size: Int) = dataStore.setValue(Keys.READER_FONT_SIZE, size)
 
     // --- 阅读器字体粗细 ---
-    val readerFontWeight: Flow<ReaderFontWeight> =
-        dataStore.getEnum(Keys.READER_FONT_WEIGHT, ReaderFontWeight.Normal)
+    val appFontWeight: Flow<AppFontWeight> =
+        dataStore.getEnum(Keys.READER_FONT_WEIGHT, AppFontWeight.Normal)
 
-    suspend fun setReaderFontWeight(weight: ReaderFontWeight) =
+    suspend fun setReaderFontWeight(weight: AppFontWeight) =
         dataStore.setEnum(Keys.READER_FONT_WEIGHT, weight)
 
     // --- 字体是否是斜体 ---
@@ -455,10 +456,10 @@ class SettingsManager @Inject constructor(
     suspend fun setReaderCutoutPaddingApply(isApply: Boolean) =
         dataStore.setValue(Keys.READER_CUTOUT_PADDING, isApply)
 
-    // --- 底部边距 ---
-    val readerBottomMargin: Flow<Int> = dataStore.getValue(Keys.READER_BOTTOM_MARGIN, 0)
+    // --- 底部栏边距 ---
+    val readerBottomBarPadding: Flow<Int> = dataStore.getValue(Keys.READER_BOTTOM_BAR_PADDING, 0)
     suspend fun setReaderBottomMargin(margin: Int) =
-        dataStore.setValue(Keys.READER_BOTTOM_MARGIN, margin)
+        dataStore.setValue(Keys.READER_BOTTOM_BAR_PADDING, margin)
 
     // --- 是否自定义亮度 ---
     val readerCustomBrightnessEnabled: Flow<Boolean> =
@@ -488,10 +489,10 @@ class SettingsManager @Inject constructor(
     suspend fun setProgressRecordMode(mode: ProgressRecord) =
         dataStore.setEnum(Keys.PROGRESS_RECORD_MODE, mode)
 
-    // --- 是否显示底部的进度条 ---
-    val showProgressBar: Flow<Boolean> = dataStore.getValue(Keys.SHOW_PROGRESS_BAR, true)
+    // --- 是否显示底部的进度文字 ---
+    val showProgressText: Flow<Boolean> = dataStore.getValue(Keys.SHOW_PROGRESS_TEXT, true)
     suspend fun setShowProgressBar(isShow: Boolean) =
-        dataStore.setValue(Keys.SHOW_PROGRESS_BAR, isShow)
+        dataStore.setValue(Keys.SHOW_PROGRESS_TEXT, isShow)
 
     // --- 进度条字体大小 ---
     val progressBarFontSize: Flow<Int> = dataStore.getValue(Keys.PROGRESS_RECORD_FONT_SIZE, 16)

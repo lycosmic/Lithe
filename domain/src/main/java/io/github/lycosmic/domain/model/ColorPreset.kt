@@ -24,7 +24,7 @@ data class ColorPreset(
         // 默认文字颜色
         const val DEFAULT_TEXT_COLOR_ARGB = 0xFF44464F.toInt()
 
-        val defaultColorPreset = ColorPreset(
+        val default = ColorPreset(
             id = DEFAULT_ID,
             name = DEFAULT_NAME,
             backgroundColorArgb = DEFAULT_BACKGROUND_COLOR_ARGB,

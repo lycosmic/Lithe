@@ -38,7 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import io.github.lycosmic.data.settings.AppTextAlign
-import io.github.lycosmic.data.settings.ReaderFontWeight
+import io.github.lycosmic.data.util.extensions.weight
+import io.github.lycosmic.domain.model.AppFontWeight
 import io.github.lycosmic.lithe.R
 
 
@@ -58,7 +59,7 @@ import io.github.lycosmic.lithe.R
 @Composable
 fun FontPreviewCard(
     font: FontFamily,
-    weight: ReaderFontWeight,
+    weight: AppFontWeight,
     fontSize: Int, // pt
     isItalic: Boolean,
     letterSpacing: Int, // pt

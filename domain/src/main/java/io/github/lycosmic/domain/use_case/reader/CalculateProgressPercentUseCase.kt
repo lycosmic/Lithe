@@ -8,7 +8,7 @@ import javax.inject.Inject
 /**
  * 获取阅读进度（0~1f）
  */
-class GetProgressPercentUseCase @Inject constructor(
+class CalculateProgressPercentUseCase @Inject constructor(
     private val progressRepository: ProgressRepository,
     private val chapterRepository: ChapterRepository
 ) {

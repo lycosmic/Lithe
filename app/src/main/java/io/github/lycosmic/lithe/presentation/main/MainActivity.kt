@@ -1,5 +1,6 @@
 package io.github.lycosmic.lithe.presentation.main
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -27,6 +28,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.lycosmic.data.settings.AppThemeOption
+import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.data.settings.SettingsManager
 import io.github.lycosmic.data.settings.ThemeMode
 import io.github.lycosmic.lithe.log.logI
@@ -75,12 +77,30 @@ class MainActivity : AppCompatActivity() {
                 initialValue = true
             )
 
+            // 监听屏幕方向设置
+            val screenOrientation by settingsManager.screenOrientation.collectAsStateWithLifecycle(
+                initialValue = ScreenOrientation.DEFAULT
+            )
+
             val navViewModel = hiltViewModel<AppNavigationViewModel>()
 
             LaunchedEffect(Unit) {
                 // TODO 模拟延迟，等待设置中心初始化完成
-                delay(500)
+                delay(130)
                 isSettingsReady = true
+            }
+
+            // 应用屏幕方向
+            LaunchedEffect(screenOrientation) {
+                val activityOrientation = when (screenOrientation) {
+                    ScreenOrientation.DEFAULT -> ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                    ScreenOrientation.FREE -> ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+                    ScreenOrientation.PORTRAIT -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    ScreenOrientation.LANDSCAPE -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    ScreenOrientation.PORTRAIT_LOCKED -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    ScreenOrientation.LANDSCAPE_LOCKED -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                }
+                requestedOrientation = activityOrientation
             }
 
             // 监听当前路由,决定了高亮标签和底部栏是否显示

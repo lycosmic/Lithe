@@ -25,9 +25,10 @@ import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
 import io.github.lycosmic.data.settings.ProgressRecord
 import io.github.lycosmic.data.settings.ProgressTextAlign
-import io.github.lycosmic.data.settings.ReaderFontWeight
 import io.github.lycosmic.data.settings.ScreenOrientation
-import io.github.lycosmic.domain.model.MyFontFamily
+import io.github.lycosmic.data.util.extensions.weight
+import io.github.lycosmic.domain.model.AppFontFamily
+import io.github.lycosmic.domain.model.AppFontWeight
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.settings.components.SelectionChip
 import io.github.lycosmic.lithe.presentation.settings.components.SettingsGroupTitle
@@ -51,7 +52,7 @@ fun ReaderSettingsContent(
     modifier: Modifier = Modifier,
     fontId: String,
     fontSize: Int,
-    fontWeight: ReaderFontWeight,
+    fontWeight: AppFontWeight,
     isReaderItalic: Boolean,
     letterSpacing: Int,
     appTextAlign: AppTextAlign,
@@ -83,7 +84,7 @@ fun ReaderSettingsContent(
     isHideBarWhenQuickScroll: Boolean,
     onFontIdChange: (String) -> Unit,
     onFontSizeChange: (Int) -> Unit,
-    onFontWeightChange: (ReaderFontWeight) -> Unit,
+    onFontWeightChange: (AppFontWeight) -> Unit,
     onItalicChange: (Boolean) -> Unit,
     onLetterSpacingChange: (Int) -> Unit,
     onTextAlignChange: (AppTextAlign) -> Unit,
@@ -113,7 +114,7 @@ fun ReaderSettingsContent(
     onProgressBarFontSizeChange: (Int) -> Unit,
     onProgressBarMarginChange: (Int) -> Unit,
     onProgressBarTextAlignChange: (ProgressTextAlign) -> Unit,
-    fonts: List<MyFontFamily> = emptyList(),
+    fonts: List<AppFontFamily> = emptyList(),
     currentFontFamily: FontFamily,
 ) {
     LazyColumn(modifier) {
@@ -166,7 +167,7 @@ fun ReaderSettingsContent(
                 ) {
                     fonts.forEach { fontFamily ->
                         val text = when {
-                            (MyFontFamily.Default.id == fontFamily.id) -> {
+                            (AppFontFamily.Default.id == fontFamily.id) -> {
                                 stringResource(id = R.string.reader_settings_font_family_default)
                             }
 
@@ -202,7 +203,7 @@ fun ReaderSettingsContent(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    ReaderFontWeight.entries.forEach { weight ->
+                    AppFontWeight.entries.forEach { weight ->
                         SelectionChip(
                             text = stringResource(id = weight.displayNameResId),
                             isSelected = weight == fontWeight,

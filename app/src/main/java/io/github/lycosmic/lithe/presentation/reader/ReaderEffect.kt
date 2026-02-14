@@ -1,5 +1,7 @@
 package io.github.lycosmic.lithe.presentation.reader
 
+import io.github.lycosmic.domain.model.ColorPreset
+
 sealed class ReaderEffect {
     // --- 导航 ---
     /**
@@ -27,7 +29,7 @@ sealed class ReaderEffect {
     /**
      * 刚打开书或拖动进度条时，滚动到指定位置
      */
-    data class ScrollToItem(val index: Int) : ReaderEffect()
+    data class ScrollToItem(val index: Int, val offset: Int) : ReaderEffect()
 
     /**
      * 改变字号后，恢复阅读的第一个字在屏幕顶部
@@ -54,4 +56,9 @@ sealed class ReaderEffect {
      * 显示加载章节内容失败的提示
      */
     data object ShowLoadChapterContentFailedToast : ReaderEffect()
+
+    /**
+     * 颜色预设已切换
+     */
+    data class ColorPresetChanged(val colorPreset: ColorPreset) : ReaderEffect()
 }

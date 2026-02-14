@@ -22,7 +22,6 @@ import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 import org.xmlpull.v1.XmlPullParser
-import java.io.InputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -80,12 +79,12 @@ class EpubContentParser @Inject constructor(
                 // 先从 toc.ncx Map 中获取
                 var title = ncxTitleMap[fullPath]
 
-                // 再从 HTML 文件头部中获取 <title> 标签
+                // 再从 HTML 文件中获取标题
                 if (title == null) {
                     title = parseTitleFromHtmlFile(uri, fullPath)
                 }
 
-                // 使用文件名兜底
+                // 使用文件名最后兜底
                 if (title.isNullOrBlank()
                     && href.isNotBlank()
                     && href.contains("/")
@@ -194,42 +193,44 @@ class EpubContentParser @Inject constructor(
     private suspend fun parseTitleFromHtmlFile(uri: Uri, path: String): String? {
         var title: String? = null
         zipProcessor.findZipEntryAndAction(uri, path) { inputStream ->
-            title = parseTitleFromStream(inputStream)
-        }
-        return title
-    }
+            try {
+                val parser = Xml.newPullParser()
+                parser.setInput(inputStream, UTF_8_INPUT_ENCODING)
+                var eventType = parser.eventType
 
-    /**
-     * 从输入流中解析 HTML <title>
-     */
-    private fun parseTitleFromStream(inputStream: InputStream): String? {
-        try {
-            val parser = Xml.newPullParser()
-            parser.setInput(inputStream, UTF_8_INPUT_ENCODING)
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    if (eventType == XmlPullParser.START_TAG) {
+                        if (parser.name.equals(TITLE_TAG, ignoreCase = true)) {
+                            title = parser.safeNextText().takeIf { it.isNotBlank() }
+                            if (title != null) {
+                                break
+                            }
+                        }
 
-            var eventType = parser.eventType
-            // 只需要扫描头部，不需要扫描整个文件
-            // 设置一个简单的阈值防止无限读取
-            var tagsChecked = 0
-            val maxTagsToCheck = 50
+                        // 使用第一行可见内容兜底
+                        if (parser.name.equals(P_TAG, ignoreCase = true)) {
+                            title = parser.safeNextText().takeIf { it.isNotBlank() }
+                            if (title != null) {
+                                break
+                            }
+                        }
 
-            while (eventType != XmlPullParser.END_DOCUMENT && tagsChecked < maxTagsToCheck) {
-                if (eventType == XmlPullParser.START_TAG) {
-                    tagsChecked++
-                    if (parser.name.equals(TITLE_TAG, ignoreCase = true)) {
-                        return parser.safeNextText().takeIf { it.isNotBlank() }
+                        if (parser.name.equals(IMG_TAG, ignoreCase = true)) {
+                            title = parser.getAttributeValue(null, ALT_ATTRIBUTE_NAME)
+                                .takeIf { it.isNotBlank() }
+                            if (title != null) {
+                                break
+                            }
+                        }
                     }
-                    // 如果已经到了 body，说明 title 没希望了，直接退出
-                    if (parser.name.equals(BODY_TAG, ignoreCase = true)) {
-                        break
-                    }
+                    eventType = parser.next()
                 }
-                eventType = parser.next()
+            } catch (_: Exception) {
+                logger.w { "解析 HTML 标题失败" }
             }
-            return null
-        } catch (_: Exception) {
-            return null
         }
+
+        return title
     }
 
     companion object {
@@ -246,7 +247,11 @@ class EpubContentParser @Inject constructor(
 
         private const val TEXT_TAG = "text"
 
-        private const val BODY_TAG = "body"
+        private const val P_TAG = "p"
+
+        private const val IMG_TAG = "img"
+
+        private const val ALT_ATTRIBUTE_NAME = "alt"
 
         // --- 属性名 ---
         private const val SRC_ATTRIBUTE_NAME = "src"
@@ -295,9 +300,18 @@ class EpubContentParser @Inject constructor(
             readerContentList.addAll(readerContents)
         }
 
-        logger.i {
-            "The chapter content is parsed, and a total of ${readerContentList.size} elements are completed"
+        logger.d {
+            "章节内容解析完成，共 ${readerContentList.size} 个元素"
         }
+
+        // 添加章节标题
+        readerContentList.run {
+            if (isNotEmpty() && this[0] !is BookContentBlock.Title) {
+                addFirst(BookContentBlock.Divider(startIndex = 0))
+                addFirst(BookContentBlock.Title(chapter.title, 1, 0))
+            }
+        }
+
         return@withContext readerContentList
     }
 
@@ -393,6 +407,8 @@ class EpubContentParser @Inject constructor(
                                 node.attr("xlink:href")
                                     .trim()
 
+                            val alt = "Image"
+
                             if (src.isEmpty()) {
                                 src = node.attr("src").trim()
                             }
@@ -424,6 +440,14 @@ class EpubContentParser @Inject constructor(
                                     startIndex = currentCharIndex
                                 )
                             )
+
+                            accumulator.add(
+                                BookContentBlock.ImageAlt(
+                                    caption = alt,
+                                    startIndex = currentCharIndex
+                                )
+                            )
+
                             currentCharIndex += 1
                         }
 
@@ -431,6 +455,10 @@ class EpubContentParser @Inject constructor(
                             var src =
                                 node.attr("src")
                                     .trim()
+
+                            val alt = node.attr("alt").trim().ifBlank {
+                                "Image"
+                            }
 
                             if (src.isEmpty()) {
                                 src = node.attr("href").trim()
@@ -462,6 +490,16 @@ class EpubContentParser @Inject constructor(
                                     startIndex = currentCharIndex
                                 )
                             )
+
+                            accumulator.add(
+                                BookContentBlock.ImageAlt(
+                                    caption = alt,
+                                    startIndex = currentCharIndex
+                                )
+                            )
+
+
+
                             currentCharIndex += 1
                         }
 

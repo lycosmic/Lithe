@@ -2,19 +2,21 @@ package io.github.lycosmic.data.repository
 
 import android.content.Context
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.googlefonts.Font
 import androidx.compose.ui.text.googlefonts.GoogleFont
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.lycosmic.data.R
-import io.github.lycosmic.domain.model.MyFontFamily
+import io.github.lycosmic.data.util.extensions.weight
+import io.github.lycosmic.domain.model.AppFontFamily
+import io.github.lycosmic.domain.model.AppFontWeight
 import io.github.lycosmic.domain.repository.FontFamilyRepository
 import io.github.lycosmic.domain.repository.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import java.io.File
 import javax.inject.Inject
 
 class FontFamilyRepositoryImpl @Inject constructor(
@@ -22,9 +24,6 @@ class FontFamilyRepositoryImpl @Inject constructor(
     private val context: Context,
     private val jsonParser: JsonParser
 ) : FontFamilyRepository {
-
-    // 字体缓存目录：/data/user/0/your.package/files/fonts/
-    private val cacheDir = File(context.filesDir, "fonts").apply { if (!exists()) mkdirs() }
 
     // Google Fonts 提供者配置
     private val fontProvider = GoogleFont.Provider(
@@ -36,13 +35,11 @@ class FontFamilyRepositoryImpl @Inject constructor(
     /**
      * 获取所有可用的字体
      */
-    override fun getAvailableFonts(): Flow<List<MyFontFamily>> = flow {
+    override fun getAvailableFonts(): Flow<List<AppFontFamily>> = flow {
         // 1. 读取 Assets
         val jsonString = context.assets.open("fonts.json").bufferedReader().use { it.readText() }
-        val type = object : TypeToken<List<MyFontFamily>>() {}.type
-        val rawFonts = jsonParser.fromJson(jsonString, type) ?: listOf(
-            MyFontFamily.Default
-        )
+        val type = object : TypeToken<List<AppFontFamily>>() {}.type
+        val rawFonts = jsonParser.fromJson(jsonString, type) ?: listOf(AppFontFamily.Default)
         // 2. TODO: 注入具体的 FontFamily 对象
         emit(rawFonts)
     }.flowOn(Dispatchers.IO)
@@ -51,12 +48,21 @@ class FontFamilyRepositoryImpl @Inject constructor(
     /**
      * 获取单个字体的 FontFamily
      */
-    override fun getFontFamily(fontId: String): FontFamily {
+    override fun getFontFamily(fontId: String, fontWeight: AppFontWeight, isItalic: Boolean): Any {
         return when (fontId) {
-            MyFontFamily.Default.id -> FontFamily.Default
+            AppFontFamily.Default.id -> FontFamily.Default
             else -> {
                 FontFamily(
-                    Font(googleFont = GoogleFont(fontId), fontProvider = fontProvider)
+                    Font(
+                        googleFont = GoogleFont(fontId),
+                        fontProvider = fontProvider,
+                        weight = fontWeight.weight,
+                        style = if (isItalic) {
+                            FontStyle.Italic
+                        } else {
+                            FontStyle.Normal
+                        }
+                    )
                 )
             }
         }

@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.data.util.parsePathInfo
 import io.github.lycosmic.domain.model.Book
 import io.github.lycosmic.domain.repository.BookRepository
-import io.github.lycosmic.domain.use_case.reader.GetProgressPercentUseCase
+import io.github.lycosmic.domain.use_case.reader.CalculateProgressPercentUseCase
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.util.AppConstants
@@ -25,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BookDetailViewModel @Inject constructor(
     private val bookRepository: BookRepository,
-    private val getProgressPercent: GetProgressPercentUseCase,
+    private val calculateProgressPercent: CalculateProgressPercentUseCase,
 ) : ViewModel() {
 
     private val _book = MutableStateFlow(Book.default)
@@ -57,7 +57,7 @@ class BookDetailViewModel @Inject constructor(
                 _book.value = book
 
                 // 获取阅读进度
-                getProgressPercent(bookId).onSuccess {
+                calculateProgressPercent(bookId).onSuccess {
                     _progress.value = it
                 }.onFailure { throwable ->
                     logE(e = throwable) {
