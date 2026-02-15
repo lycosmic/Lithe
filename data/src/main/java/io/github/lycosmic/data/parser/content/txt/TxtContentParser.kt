@@ -69,7 +69,7 @@ class TxtContentParser @Inject constructor(
                 val baos = ByteArrayOutputStream()
 
                 // 手动字节偏移量计数
-                var globalOffset = 0L
+                var currentPosition = 0L
 
                 // 标记是否为还在寻找第一章
                 var isFirstChapterFound = true
@@ -82,13 +82,13 @@ class TxtContentParser @Inject constructor(
                 var lastChapterStartOffset = 0L
 
                 while (true) {
-                    // 当前行之前的字节偏移
-                    val currentLineStartOffset = globalOffset
+                    // 记录当前行开始的位置
+                    val lineStartOffset = currentPosition
 
                     val lineBytes = readLineBytes(bis, baos) ?: break
 
-                    // 更新偏移量
-                    globalOffset += lineBytes.size
+                    // 更新当前位置
+                    currentPosition += lineBytes.size.toLong()
 
                     // 行字符串
                     val lineStr = String(lineBytes, charset).trim()
@@ -106,24 +106,28 @@ class TxtContentParser @Inject constructor(
                     // 匹配正则
                     if (chapterPattern.matcher(lineStr).matches()) {
                         // 找到新章节，结算上一章
-                        // 上一章的范围：[lastChapterStartOffset, currentLineStartOffset)
-                        if (currentLineStartOffset > lastChapterStartOffset && lastChapterTitle.isNotBlank()) {
+                        // 上一章的范围：[lastChapterStartOffset, lineStartOffset)
+                        if (lineStartOffset > lastChapterStartOffset && lastChapterTitle.isNotBlank()) {
                             chapters.add(
                                 TxtChapter(
                                     bookId = bookId,
                                     index = chapterOrder,
                                     title = lastChapterTitle,
                                     startOffset = lastChapterStartOffset,
-                                    endOffset = currentLineStartOffset,
-                                    length = currentLineStartOffset - lastChapterStartOffset
+                                    endOffset = lineStartOffset,
+                                    length = lineStartOffset - lastChapterStartOffset
                                 )
                             )
                             chapterOrder++
                         }
 
+                        logger.d {
+                            "章节解析: 标题='${lastChapterTitle}', 起始=$lastChapterStartOffset, 结束=$lineStartOffset"
+                        }
+
                         // 开启新的一章
                         lastChapterTitle = lineStr
-                        lastChapterStartOffset = currentLineStartOffset
+                        lastChapterStartOffset = lineStartOffset
                         if (isFirstChapterFound) {
                             isFirstChapterFound = false
                         }
@@ -156,6 +160,8 @@ class TxtContentParser @Inject constructor(
      * 读取一行字节，包括换行符
      */
     private fun readLineBytes(bis: BufferedInputStream, baos: ByteArrayOutputStream): ByteArray? {
+        baos.reset() // 确保清空缓冲区
+
         var bytesReadCount = 0
         while (true) {
             val byte = bis.read()
@@ -247,6 +253,7 @@ class TxtContentParser @Inject constructor(
                             val title = lines[0].trim()
                             if (title.isNotEmpty()) {
                                 contentList.add(BookContentBlock.Title(title, 0, cursor))
+                                contentList.add(BookContentBlock.Divider(startIndex = cursor))
                                 cursor += title.length
                             }
                         }

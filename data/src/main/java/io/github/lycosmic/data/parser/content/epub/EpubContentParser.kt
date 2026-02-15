@@ -1,6 +1,7 @@
 package io.github.lycosmic.data.parser.content.epub
 
 import android.net.Uri
+import android.os.Build
 import android.util.Xml
 import androidx.core.net.toUri
 import io.github.lycosmic.data.parser.content.ContentParserStrategy
@@ -307,8 +308,13 @@ class EpubContentParser @Inject constructor(
         // 添加章节标题
         readerContentList.run {
             if (isNotEmpty() && this[0] !is BookContentBlock.Title) {
-                addFirst(BookContentBlock.Divider(startIndex = 0))
-                addFirst(BookContentBlock.Title(chapter.title, 1, 0))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    addFirst(BookContentBlock.Divider(startIndex = 0))
+                    addFirst(BookContentBlock.Title(chapter.title, 1, 0))
+                } else {
+                    add(0, BookContentBlock.Divider(startIndex = 0))
+                    add(0, BookContentBlock.Title(chapter.title, 1, 0))
+                }
             }
         }
 
