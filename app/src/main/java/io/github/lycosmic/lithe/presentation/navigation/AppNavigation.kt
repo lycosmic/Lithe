@@ -163,6 +163,9 @@ fun AppNavigation(
                             },
                             onNavigateToLibrary = {
                                 navViewModel.navigate(AppRoutes.Library)
+                            },
+                            navigateToEditCategory = {
+                                navViewModel.navigate(AppRoutes.SettingsLibrary)
                             }
                         )
                     }

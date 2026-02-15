@@ -30,4 +30,19 @@ sealed class BookDetailEvent {
      * 点击删除书籍对话框外部
      */
     data object OnDeleteDialogDismissed : BookDetailEvent()
+
+    /**
+     * 点击移动书籍对话框外部
+     */
+    data object OnMoveDialogDismissed : BookDetailEvent()
+
+    /**
+     * 点击确认移动书籍按钮
+     */
+    data class OnConfirmMoveClicked(val categoryIds: List<Long>) : BookDetailEvent()
+
+    /**
+     * 点击编辑书籍分类按钮
+     */
+    data object OnEditCategoryClicked : BookDetailEvent()
 }

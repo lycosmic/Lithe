@@ -2,6 +2,7 @@ package io.github.lycosmic.domain.repository
 
 
 import io.github.lycosmic.domain.model.Book
+import io.github.lycosmic.domain.model.Category
 import io.github.lycosmic.domain.model.CategoryWithBookList
 import kotlinx.coroutines.flow.Flow
 
@@ -35,6 +36,11 @@ interface BookRepository {
      * 根据标识符获取书籍
      */
     suspend fun getBookByUri(uri: String): Book?
+
+    /**
+     * 获取书籍的分类
+     */
+    fun getBookCategoriesFlow(bookId: Long): Flow<List<Category>>
 
     /**
      * 获取所有分类和书籍关系

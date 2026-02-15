@@ -4,6 +4,7 @@ import io.github.lycosmic.data.local.dao.BookDao
 import io.github.lycosmic.data.mapper.toDomain
 import io.github.lycosmic.data.mapper.toEntity
 import io.github.lycosmic.domain.model.Book
+import io.github.lycosmic.domain.model.Category
 import io.github.lycosmic.domain.model.CategoryWithBookList
 import io.github.lycosmic.domain.repository.BookRepository
 import kotlinx.coroutines.flow.Flow
@@ -55,6 +56,10 @@ class BookRepositoryImpl @Inject constructor(
 
     override suspend fun getBookByUri(uri: String): Book? {
         return bookDao.getBookByUri(uri)?.toDomain()
+    }
+
+    override fun getBookCategoriesFlow(bookId: Long): Flow<List<Category>> {
+        return bookDao.getBookCategoriesFlow(bookId = bookId)
     }
 
     override fun getCategoryWithBooksFlow(): Flow<List<CategoryWithBookList>> {

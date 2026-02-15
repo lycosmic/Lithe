@@ -11,6 +11,7 @@ import io.github.lycosmic.data.local.entity.BookEntity
 import io.github.lycosmic.data.local.entity.CategoryEntity
 import io.github.lycosmic.data.local.relation.BookWithCategories
 import io.github.lycosmic.data.local.relation.CategoryWithBooks
+import io.github.lycosmic.domain.model.Category
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -68,6 +69,12 @@ interface BookDao {
             insertBookCategoryCrossRefs(newRefs)
         }
     }
+
+    /**
+     * 获取书籍的分类
+     */
+    @Query("SELECT * FROM ${CategoryEntity.TABLE_NAME} WHERE ${CategoryEntity.COL_ID} IN (SELECT ${BookCategoryCrossRef.COL_CATEGORY_ID} FROM ${BookCategoryCrossRef.TABLE_NAME} WHERE ${BookCategoryCrossRef.COL_BOOK_ID} = :bookId)")
+    fun getBookCategoriesFlow(bookId: Long): Flow<List<Category>>
 
     /**
      * 查询书籍及其分类

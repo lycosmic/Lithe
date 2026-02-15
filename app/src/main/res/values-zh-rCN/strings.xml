@@ -268,4 +268,5 @@
     <string name="reader_settings_tab_reader">阅读器</string>
     <string name="reader_settings_tab_color">颜色</string>
     <string name="color_preset_changed">已选择 《%s》</string>
+    <string name="current_book_moved_toast">这本书已被成功移动。</string>
 </resources>

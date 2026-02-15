@@ -120,10 +120,6 @@ class MainActivity : AppCompatActivity() {
                         ) {
                             // 导航栏
                             NavigationBar {
-                                logI {
-                                    "当前路由: ${currentRoute.value}, 当前标签: ${currentTab?.label}"
-                                }
-
                                 AppTabs.entries.forEach { tab ->
                                     val isSelected = currentTab == tab
                                     NavigationBarItem(

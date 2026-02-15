@@ -58,17 +58,18 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.lycosmic.domain.model.Category
 import io.github.lycosmic.lithe.R
 import io.github.lycosmic.lithe.presentation.detail.components.DeleteBookDialog
 import io.github.lycosmic.lithe.presentation.detail.components.FileInfoBottomSheet
 import io.github.lycosmic.lithe.ui.components.AsyncCoverImage
-import io.github.lycosmic.lithe.ui.theme.LitheTheme
+import io.github.lycosmic.lithe.ui.components.MoveBookCategoryDialog
 import io.github.lycosmic.lithe.util.FormatUtils
 import io.github.lycosmic.lithe.util.ToastUtil
+import io.github.lycosmic.lithe.util.toast
 import my.nanihadesuka.compose.InternalLazyColumnScrollbar
 import my.nanihadesuka.compose.ScrollbarSelectionMode
 import my.nanihadesuka.compose.ScrollbarSettings
@@ -80,6 +81,7 @@ fun BookDetailScreen(
     bookId: Long,
     onNavigateToLibrary: () -> Unit,
     onNavigateToReader: (bookId: Long) -> Unit,
+    navigateToEditCategory: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: BookDetailViewModel = hiltViewModel()
 ) {
@@ -92,6 +94,8 @@ fun BookDetailScreen(
     val filePath by viewModel.filePath.collectAsStateWithLifecycle()
 
     var bottomSheetVisible by remember { mutableStateOf(false) }
+
+    val categories by viewModel.categories.collectAsStateWithLifecycle()
 
     // 控制移动书籍的对话框显隐
     var showMoveDialog by remember { mutableStateOf(false) }
@@ -154,6 +158,14 @@ fun BookDetailScreen(
 
                 is BookDetailEffect.ShowBookDeletedToast -> {
                     ToastUtil.show(effect.messageResId)
+                }
+
+                BookDetailEffect.NavigateToEditCategory -> {
+                    navigateToEditCategory()
+                }
+
+                BookDetailEffect.ShowMoveBookSuccessToast -> {
+                    R.string.current_book_moved_toast.toast()
                 }
             }
         }
@@ -485,17 +497,26 @@ fun BookDetailScreen(
                 }
             )
         }
-    }
-}
 
-@Preview
-@Composable
-private fun BookDetailScreenPreview() {
-    LitheTheme {
-        BookDetailScreen(
-            bookId = 1,
-            onNavigateToLibrary = {},
-            onNavigateToReader = {}
-        )
+        if (showMoveDialog) {
+            MoveBookCategoryDialog(
+                selectedCategoryIds = book.categories.map {
+                    it.id
+                }.filter {
+                    // 移除默认分类
+                    it != Category.DEFAULT_CATEGORY_ID
+                },
+                categories = categories,
+                onDismissRequest = {
+                    viewModel.onEvent(BookDetailEvent.OnMoveDialogDismissed)
+                },
+                onConfirm = {
+                    viewModel.onEvent(BookDetailEvent.OnConfirmMoveClicked(it))
+                },
+                onEdit = {
+                    viewModel.onEvent(BookDetailEvent.OnEditCategoryClicked)
+                }
+            )
+        }
     }
 }

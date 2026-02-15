@@ -38,7 +38,7 @@ import io.github.lycosmic.lithe.ui.theme.LitheTheme
  */
 @Composable
 fun MoveBookCategoryDialog(
-    selectedCategoryIds: List<Long>, // 当前已选中的分类ID
+    selectedCategoryIds: List<Long>, // 初始选中的分类ID
     categories: List<Category>, // 分类列表
     onDismissRequest: () -> Unit,
     onConfirm: (List<Long>) -> Unit,
