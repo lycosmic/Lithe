@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2f965e31823dd89c06b0dbedb8699e2a",
+    "identityHash": "35c0851a686f5c88862e5c5ed7a228b0",
     "entities": [
       {
         "tableName": "books",
@@ -184,7 +184,7 @@
       },
       {
         "tableName": "book_progress",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`book_id` INTEGER NOT NULL, `chapter_index` INTEGER NOT NULL, `char_index` INTEGER NOT NULL, `progress` REAL NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`book_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`book_id` INTEGER NOT NULL, `chapter_index` INTEGER NOT NULL, `char_index` INTEGER NOT NULL, `progress` REAL NOT NULL, `updated_at` INTEGER NOT NULL, `lazy_column_item_index` INTEGER NOT NULL, `lazy_column_item_offset` INTEGER NOT NULL, PRIMARY KEY(`book_id`))",
         "fields": [
           {
             "fieldPath": "bookId",
@@ -213,6 +213,18 @@
           {
             "fieldPath": "updatedAt",
             "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemIndex",
+            "columnName": "lazy_column_item_index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemOffset",
+            "columnName": "lazy_column_item_offset",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -368,7 +380,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2f965e31823dd89c06b0dbedb8699e2a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '35c0851a686f5c88862e5c5ed7a228b0')"
     ]
   }
 }

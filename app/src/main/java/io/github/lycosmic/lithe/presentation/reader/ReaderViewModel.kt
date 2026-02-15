@@ -30,6 +30,7 @@ import io.github.lycosmic.domain.use_case.reader.SaveReadingProgressUseCase
 import io.github.lycosmic.lithe.log.logD
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logI
+import io.github.lycosmic.lithe.log.logV
 import io.github.lycosmic.lithe.log.logW
 import io.github.lycosmic.lithe.presentation.reader.mapper.ContentMapper
 import io.github.lycosmic.lithe.util.AppConstants
@@ -413,6 +414,10 @@ class ReaderViewModel @Inject constructor(
                 // 滚动到上次阅读位置，恢复阅读进度
                 val targetItemIndex = _uiState.value.progress.uiItemIndex
                 val targetItemOffset = _uiState.value.progress.uiItemOffset
+
+                logV {
+                    "恢复阅读进度，目标索引为 $targetItemIndex，目标偏移量为 $targetItemOffset"
+                }
 
                 _effects.emit(ReaderEffect.ScrollToItem(targetItemIndex, targetItemOffset))
 
@@ -888,10 +893,15 @@ class ReaderViewModel @Inject constructor(
                     return@run
                 }
 
-                // 获取第一个可见 Item 的信息
-                val firstVisibleItem = visibleItemsInfo.first()
-                val firstIndex = firstVisibleItem.index
-                val firstOffset = firstVisibleItem.offset
+                // 获取第一个可见项的信息
+                val firstIndex = listState.firstVisibleItemIndex
+                val firstOffset = listState.firstVisibleItemScrollOffset
+                if (firstIndex >= _uiState.value.readerItems.size) {
+                    chapterProgress = 0f
+                    uiIndex = 0
+                    uiOffset = 0
+                    return@run
+                }
                 val firstVisibleContent = _uiState.value.readerItems[firstIndex]
 
 
@@ -931,6 +941,11 @@ class ReaderViewModel @Inject constructor(
                 uiIndex = firstIndex
                 uiOffset = firstOffset
 
+                logV {
+                    "当前可见项的索引为 $uiIndex，第一个可见项的偏移量为 $uiOffset"
+                }
+
+
                 // 更新章节进度
                 _uiState.update {
                     it.copy(
@@ -964,7 +979,7 @@ class ReaderViewModel @Inject constructor(
                 // 所有章节字节大小
                 val allChaptersLength = chapterList.sumOf {
                     it.length
-                }
+                }.coerceAtLeast(1)
 
                 val progressPercent =
                     (previousChaptersLength + currentChapterLength) / allChaptersLength.toFloat()

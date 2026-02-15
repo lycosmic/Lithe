@@ -16,7 +16,11 @@ data class BookProgressEntity(
     @ColumnInfo(name = COL_PROGRESS)
     val progress: Float = 0f,
     @ColumnInfo(name = COL_UPDATED_AT)
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = COL_ITEM_INDEX)
+    val itemIndex: Int = 0,
+    @ColumnInfo(name = COL_ITEM_OFFSET)
+    val itemOffset: Int = 0
 ) {
     companion object {
         const val TABLE_NAME = "book_progress"
@@ -26,5 +30,7 @@ data class BookProgressEntity(
         const val COL_CHAR_INDEX = "char_index"
         const val COL_PROGRESS = "progress"
         const val COL_UPDATED_AT = "updated_at"
+        const val COL_ITEM_INDEX = "lazy_column_item_index"
+        const val COL_ITEM_OFFSET = "lazy_column_item_offset"
     }
 }
