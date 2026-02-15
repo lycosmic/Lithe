@@ -19,7 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,7 +50,7 @@ fun BookListItem(
     val fontColor = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
     else MaterialTheme.colorScheme.onSurface
 
-    val progress = rememberSaveable(book.progress) {
+    val progress = remember(book.progress) {
         FormatUtils.formatProgress(book.progress)
     }
 

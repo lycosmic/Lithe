@@ -12,6 +12,7 @@ import io.github.lycosmic.domain.model.Category
 import io.github.lycosmic.domain.model.CategoryWithBookList
 import io.github.lycosmic.domain.repository.BookRepository
 import io.github.lycosmic.domain.use_case.library.DeleteBookUseCase
+import io.github.lycosmic.domain.use_case.reader.GetReadingProgressUseCase
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logW
 import io.github.lycosmic.lithe.presentation.library.LibraryEffect.CloseDeleteBookConfirmDialog
@@ -43,13 +44,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
-    private val bookRepositoryImpl: BookRepository,
+    private val bookRepository: BookRepository,
     private val deleteBook: DeleteBookUseCase,
-    private val settingsManager: SettingsManager
+    private val settingsManager: SettingsManager,
+    private val getReadingProgress: GetReadingProgressUseCase,
 ) : ViewModel() {
 
     // 原始的书籍列表
-    private val _rawBooks = bookRepositoryImpl.getAllBooks().stateIn(
+    private val _rawBooks = bookRepository.getAllBooks().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
         initialValue = emptyList()
@@ -57,7 +59,25 @@ class LibraryViewModel @Inject constructor(
     val rawBooks = _rawBooks
 
     // 分类以及其书籍列表
-    private val _categoryWithBooksList = bookRepositoryImpl.getCategoryWithBooksFlow()
+    private val _categoryWithBooksList = bookRepository.getCategoryWithBooksFlow().map { list ->
+        list.map { categoryWithBookList ->
+            val books = categoryWithBookList.bookList.map { book ->
+                val bookId = book.id
+                val progress =
+                    getReadingProgress(bookId = bookId).getOrNull()?.progressPercent ?: 0f
+
+                book.copy(
+                    progress = progress
+                )
+            }
+
+            val category = categoryWithBookList.category
+            CategoryWithBookList(
+                category = category,
+                bookList = books
+            )
+        }
+    }
 
     // 总书籍数
     val totalBooksCount = _rawBooks.map { it.size }.stateIn(
@@ -427,7 +447,7 @@ class LibraryViewModel @Inject constructor(
 
 
                     // 将所选书籍移动到指定分类
-                    bookRepositoryImpl.moveBooksToCategories(
+                    bookRepository.moveBooksToCategories(
                         bookIds = selectedBooks.value.toList(),
                         categoryIds = selectedIds
                     )

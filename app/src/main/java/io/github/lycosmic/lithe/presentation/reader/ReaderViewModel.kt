@@ -30,7 +30,6 @@ import io.github.lycosmic.domain.use_case.reader.SaveReadingProgressUseCase
 import io.github.lycosmic.lithe.log.logD
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logI
-import io.github.lycosmic.lithe.log.logV
 import io.github.lycosmic.lithe.log.logW
 import io.github.lycosmic.lithe.presentation.reader.mapper.ContentMapper
 import io.github.lycosmic.lithe.util.AppConstants
@@ -414,11 +413,6 @@ class ReaderViewModel @Inject constructor(
                 // 滚动到上次阅读位置，恢复阅读进度
                 val targetItemIndex = _uiState.value.progress.uiItemIndex
                 val targetItemOffset = _uiState.value.progress.uiItemOffset
-
-                logV {
-                    "恢复阅读进度，目标索引为 $targetItemIndex，目标偏移量为 $targetItemOffset"
-                }
-
                 _effects.emit(ReaderEffect.ScrollToItem(targetItemIndex, targetItemOffset))
 
                 // 滚动到当前章节
@@ -941,11 +935,6 @@ class ReaderViewModel @Inject constructor(
                 uiIndex = firstIndex
                 uiOffset = firstOffset
 
-                logV {
-                    "当前可见项的索引为 $uiIndex，第一个可见项的偏移量为 $uiOffset"
-                }
-
-
                 // 更新章节进度
                 _uiState.update {
                     it.copy(
@@ -961,29 +950,9 @@ class ReaderViewModel @Inject constructor(
                 }
             }
 
-            // 全书进度公式：（之前章节的字节大小 + 当前章节字节大小 * 当前章节阅读进度） / 所有章节字节大小
             run {
-                val chapterList = _uiState.value.chapters
-
-                // 当前章节索引
-                val currentChapterIndex = _uiState.value.currentChapterIndex
-
-                // 之前章节的字节大小
-                val previousChaptersLength = chapterList.take(currentChapterIndex).sumOf {
-                    it.length
-                }
-
-                // 当前章节的字节大小 * 当前章节阅读进度
-                val currentChapterLength = _uiState.value.currentChapterLength * chapterProgress
-
-                // 所有章节字节大小
-                val allChaptersLength = chapterList.sumOf {
-                    it.length
-                }.coerceAtLeast(1)
-
-                val progressPercent =
-                    (previousChaptersLength + currentChapterLength) / allChaptersLength.toFloat()
-
+                // 更新全书进度
+                val progressPercent = calculateBookProgress(chapterProgress)
                 _uiState.update {
                     it.copy(
                         progress = it.progress.copy(
@@ -995,6 +964,35 @@ class ReaderViewModel @Inject constructor(
             }
 
         }
+    }
+
+    /**
+     * 获取全书进度
+     * 全书进度公式：（之前章节的字节大小 + 当前章节字节大小 * 当前章节阅读进度） / 所有章节字节大小
+     */
+    private fun calculateBookProgress(chapterProgress: Float): Float {
+        val chapterList = _uiState.value.chapters
+
+        // 当前章节索引
+        val currentChapterIndex = _uiState.value.currentChapterIndex
+
+        // 之前章节的字节大小
+        val previousChaptersLength = chapterList.take(currentChapterIndex).sumOf {
+            it.length
+        }
+
+        // 当前章节的字节大小 * 当前章节阅读进度
+        val currentChapterLength = _uiState.value.currentChapterLength * chapterProgress
+
+        // 所有章节字节大小
+        val allChaptersLength = chapterList.sumOf {
+            it.length
+        }.coerceAtLeast(1)
+
+        val progressPercent =
+            (previousChaptersLength + currentChapterLength) / allChaptersLength.toFloat()
+
+        return progressPercent
     }
 
     /**
@@ -1047,8 +1045,7 @@ class ReaderViewModel @Inject constructor(
      * 切换章节
      */
     fun switchToChapter(index: Int) {
-        val currentState = uiState.value
-        val book = currentState.book
+        val book = _uiState.value.book
         val bookId = book.id
 
         if (book == Book.default || bookId == -1L) {
@@ -1058,14 +1055,26 @@ class ReaderViewModel @Inject constructor(
             return
         }
 
+        _uiState.update {
+            it.copy(
+                currentChapterIndex = index
+            )
+        }
+
 
         viewModelScope.launch(Dispatchers.IO) {
+            val progress = calculateBookProgress(0f)
+
+            logD {
+                "切换章节时，新的全书进度为: $progress"
+            }
+
             // 更新数据库进度
             val newProgress = ReadingProgress(
                 bookId = bookId,
                 chapterIndex = index,
                 chapterOffsetCharIndex = 0, // 切换章节默认回到开头
-                progressPercent = 0f
+                progressPercent = progress
             )
 
             saveReadingProgressUseCase(bookId, newProgress)
@@ -1084,6 +1093,7 @@ class ReaderViewModel @Inject constructor(
                 _uiState.update { state ->
                     state.copy(
                         currentChapterIndex = index,
+                        chapterProgress = 0f,
                         readerItems = newContent, // 替换列表内容
                         progress = newProgress,   // 更新内存中的进度对象
                         currentChapterLength = totalLength

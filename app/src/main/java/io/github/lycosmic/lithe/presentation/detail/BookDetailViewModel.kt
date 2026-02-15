@@ -6,33 +6,28 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.data.util.parsePathInfo
 import io.github.lycosmic.domain.model.Book
+import io.github.lycosmic.domain.model.ReadingProgress
 import io.github.lycosmic.domain.repository.BookRepository
-import io.github.lycosmic.domain.use_case.reader.CalculateProgressPercentUseCase
+import io.github.lycosmic.domain.repository.ProgressRepository
 import io.github.lycosmic.lithe.R
-import io.github.lycosmic.lithe.log.logE
-import io.github.lycosmic.lithe.util.AppConstants
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class BookDetailViewModel @Inject constructor(
     private val bookRepository: BookRepository,
-    private val calculateProgressPercent: CalculateProgressPercentUseCase,
+    private val progressRepository: ProgressRepository,
 ) : ViewModel() {
 
     private val _book = MutableStateFlow(Book.default)
     val book = _book.asStateFlow()
-
-    private val _progress = MutableStateFlow(0f)
-    val progress = _progress.asStateFlow()
 
     // 自己维护的文件路径, 用来判断文件是否为空, 或有损坏
     private val _filePath = MutableStateFlow<String?>(null)
@@ -41,29 +36,26 @@ class BookDetailViewModel @Inject constructor(
     private val _effects = MutableSharedFlow<BookDetailEffect>()
     val effects = _effects.asSharedFlow()
 
-
     /**
      * 初始加载书籍
      */
     fun loadBook(bookId: Long) {
         viewModelScope.launch {
-            bookRepository.getBookFlowById(bookId).map {
-                it.getOrNull()
-            }.stateIn(
-                scope = viewModelScope,
-                started = WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-                initialValue = Book.default
-            ).filterNotNull().collect { book ->
-                _book.value = book
-
-                // 获取阅读进度
-                calculateProgressPercent(bookId).onSuccess {
-                    _progress.value = it
-                }.onFailure { throwable ->
-                    logE(e = throwable) {
-                        "获取阅读进度失败，书籍ID: $bookId"
-                    }
-                    return@collect
+            combine(
+                bookRepository.getBookFlowById(bookId).mapNotNull {
+                    it.getOrNull() ?: Book.default
+                },
+                progressRepository.getBookProgressFlow(bookId).mapNotNull {
+                    it.getOrNull() ?: ReadingProgress.default(bookId)
+                }
+            ) { book, progress ->
+                book.copy(
+                    progress = progress.progressPercent,
+                    lastReadTime = progress.lastReadTime
+                )
+            }.collect { book ->
+                _book.update {
+                    book
                 }
 
                 // 更新文件路径
@@ -75,7 +67,6 @@ class BookDetailViewModel @Inject constructor(
                     }
                     _filePath.value = "${path.first}/${path.second}"
                 }
-
             }
         }
     }

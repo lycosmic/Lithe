@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.lithe.ui.components.AsyncCoverImage
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
+import io.github.lycosmic.lithe.util.FormatUtils.formatProgress
 
 
 @Composable
@@ -36,8 +38,8 @@ fun BookGridItem(
     title: String,
     modifier: Modifier = Modifier,
     coverPath: String? = null,
-    readProgress: Float = 0f,
-    isSelected: Boolean = false,
+    readProgress: Float,
+    isSelected: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     onReadButtonClick: () -> Unit
@@ -59,6 +61,10 @@ fun BookGridItem(
     // 圆角
     val coverShape = RoundedCornerShape(size = 14.dp)
     val containerShape = RoundedCornerShape(size = 16.dp)
+
+    val progressText = remember(readProgress) {
+        formatProgress(readProgress)
+    }
 
     Column(
         modifier = modifier
@@ -113,7 +119,7 @@ fun BookGridItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "${(readProgress * 100).toInt()}%",
+                        text = progressText,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onTertiary
                     )

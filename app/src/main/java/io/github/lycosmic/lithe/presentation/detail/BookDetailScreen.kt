@@ -91,8 +91,6 @@ fun BookDetailScreen(
 
     val filePath by viewModel.filePath.collectAsStateWithLifecycle()
 
-    val progress by viewModel.progress.collectAsStateWithLifecycle()
-
     var bottomSheetVisible by remember { mutableStateOf(false) }
 
     // 控制移动书籍的对话框显隐
@@ -107,7 +105,7 @@ fun BookDetailScreen(
     // 是否之前阅读过
     val hasRead = book.lastReadTime != null
 
-    val bookProgressString = FormatUtils.formatProgress(progress)
+    val progressString = FormatUtils.formatProgress(book.progress)
 
     val scrollbarSettings = ScrollbarSettings(
         thumbUnselectedColor = MaterialTheme.colorScheme.secondary,
@@ -305,7 +303,7 @@ fun BookDetailScreen(
                             // --- 进度 ---
                             Row(modifier = Modifier.align(Alignment.Start)) {
                                 LinearWavyProgressIndicator(
-                                    progress = { progress.coerceIn(0f, 1f) },
+                                    progress = { book.progress.coerceIn(0f, 1f) },
                                     trackColor = MaterialTheme.colorScheme.secondaryContainer.copy(
                                         0.7f
                                     ),
@@ -318,7 +316,7 @@ fun BookDetailScreen(
                                 )
 
                                 Text(
-                                    text = bookProgressString,
+                                    text = progressString,
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         fontWeight = FontWeight.Medium
@@ -437,7 +435,7 @@ fun BookDetailScreen(
                     ) {
                         val startReadText = if (hasRead) stringResource(
                             id = R.string.continue_reading,
-                            bookProgressString
+                            progressString
                         ) else stringResource(id = R.string.start_reading)
                         Text(text = startReadText)
                     }

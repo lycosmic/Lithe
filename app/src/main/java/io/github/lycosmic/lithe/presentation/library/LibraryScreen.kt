@@ -380,7 +380,7 @@ fun LibraryScreen(
                                                 BookGridItem(
                                                     title = book.title,
                                                     coverPath = book.coverPath,
-                                                    readProgress = 0f,
+                                                    readProgress = book.progress,
                                                     isSelected = selectedBooks.contains(book.id),
                                                     onClick = {
                                                         viewModel.onEvent(
