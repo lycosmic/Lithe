@@ -16,6 +16,11 @@ sealed class ReaderEffect {
     object ShowOrHideTopBarAndBottomControl : ReaderEffect()
 
     /**
+     * 隐藏上下栏
+     */
+    object HideTopBarAndBottomControl : ReaderEffect()
+
+    /**
      * 显示章节列表抽屉
      */
     object ShowChapterListDrawer : ReaderEffect()

@@ -33,6 +33,14 @@ import io.github.lycosmic.lithe.log.logD
 import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logI
 import io.github.lycosmic.lithe.log.logW
+import io.github.lycosmic.lithe.presentation.reader.ReaderEffect.ColorPresetChanged
+import io.github.lycosmic.lithe.presentation.reader.ReaderEffect.HideChapterListDrawer
+import io.github.lycosmic.lithe.presentation.reader.ReaderEffect.HideTopBarAndBottomControl
+import io.github.lycosmic.lithe.presentation.reader.ReaderEffect.NavigateBack
+import io.github.lycosmic.lithe.presentation.reader.ReaderEffect.ShowChapterListDrawer
+import io.github.lycosmic.lithe.presentation.reader.ReaderEffect.ShowFirstChapterToast
+import io.github.lycosmic.lithe.presentation.reader.ReaderEffect.ShowLastChapterToast
+import io.github.lycosmic.lithe.presentation.reader.ReaderEffect.ShowOrHideTopBarAndBottomControl
 import io.github.lycosmic.lithe.presentation.reader.mapper.ContentMapper
 import io.github.lycosmic.lithe.util.AppConstants
 import kotlinx.coroutines.Dispatchers
@@ -354,7 +362,7 @@ class ReaderViewModel @Inject constructor(
                         isInitialLoading = false
                     )
                 }
-                _effects.emit(ReaderEffect.NavigateBack)
+                _effects.emit(NavigateBack)
                 return@launch
             }
 
@@ -455,19 +463,19 @@ class ReaderViewModel @Inject constructor(
         viewModelScope.launch {
             when (event) {
                 ReaderEvent.OnReadContentClick -> {
-                    _effects.emit(ReaderEffect.ShowOrHideTopBarAndBottomControl)
+                    _effects.emit(ShowOrHideTopBarAndBottomControl)
                 }
 
                 ReaderEvent.OnBackClick -> {
-                    _effects.emit(ReaderEffect.NavigateBack)
+                    _effects.emit(NavigateBack)
                 }
 
                 ReaderEvent.OnChapterMenuClick -> {
-                    _effects.emit(ReaderEffect.ShowChapterListDrawer)
+                    _effects.emit(ShowChapterListDrawer)
                 }
 
                 ReaderEvent.OnDrawerBackClick -> {
-                    _effects.emit(ReaderEffect.HideChapterListDrawer)
+                    _effects.emit(HideChapterListDrawer)
                 }
 
                 is ReaderEvent.OnChapterItemClick -> {
@@ -491,7 +499,7 @@ class ReaderViewModel @Inject constructor(
                         logW {
                             "切换章节失败，当前章节为第一章节"
                         }
-                        _effects.emit(ReaderEffect.ShowFirstChapterToast)
+                        _effects.emit(ShowFirstChapterToast)
                         return@launch
                     }
                 }
@@ -505,7 +513,7 @@ class ReaderViewModel @Inject constructor(
                         logW {
                             "切换章节失败，当前章节为最后一章节"
                         }
-                        _effects.emit(ReaderEffect.ShowLastChapterToast)
+                        _effects.emit(ShowLastChapterToast)
                         return@launch
                     }
                 }
@@ -816,7 +824,7 @@ class ReaderViewModel @Inject constructor(
                         settings.setCurrentColorPresetId(previousPreset.id)
 
                         // 已选择 《预设名称》
-                        _effects.emit(ReaderEffect.ColorPresetChanged(previousPreset))
+                        _effects.emit(ColorPresetChanged(previousPreset))
                     }
                 }
 
@@ -854,9 +862,13 @@ class ReaderViewModel @Inject constructor(
 
                         // 切换当前颜色预设
                         settings.setCurrentColorPresetId(nextPreset.id)
-                        _effects.emit(ReaderEffect.ColorPresetChanged(nextPreset))
+                        _effects.emit(ColorPresetChanged(nextPreset))
 
                     }
+                }
+
+                is ReaderEvent.OnBarsVisibleChange -> {
+                    _effects.emit(HideTopBarAndBottomControl)
                 }
             }
         }
@@ -1114,13 +1126,13 @@ class ReaderViewModel @Inject constructor(
                 _effects.emit(ReaderEffect.ScrollToItem(0, 0))
 
                 // 隐藏章节列表
-                _effects.emit(ReaderEffect.HideChapterListDrawer)
+                _effects.emit(HideChapterListDrawer)
             } else {
                 logE {
                     "加载章节内容失败，索引为 $index"
                 }
                 _effects.emit(ReaderEffect.ShowLoadChapterContentFailedToast)
-                _effects.emit(ReaderEffect.NavigateBack)
+                _effects.emit(NavigateBack)
             }
         }
     }

@@ -44,6 +44,8 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -115,6 +117,7 @@ fun BookReaderContent(
     progressTextPadding: Int,
     progressTextAlign: ProgressTextAlign,
     barsVisible: Boolean,
+    nestedScrollConnection: NestedScrollConnection,
 ) {
     val density = LocalDensity.current
 
@@ -350,6 +353,7 @@ fun BookReaderContent(
                 ),
                 modifier = Modifier
                     .fillMaxSize()
+                    .nestedScroll(nestedScrollConnection)
             ) {
                 itemsIndexed(
                     items = contents,

@@ -32,7 +32,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.core.view.WindowCompat
@@ -60,6 +63,7 @@ import io.github.lycosmic.lithe.util.FormatUtils.formatProgress
 import io.github.lycosmic.lithe.util.toast
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
+import kotlin.math.abs
 
 
 @OptIn(FlowPreview::class)
@@ -190,6 +194,40 @@ fun ReaderScreen(
         }
     }
 
+    // 定义一个速度阈值 (像素/秒)，防止轻微的滑动也触发
+    val velocityThreshold = 70f
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                consumed.y.let { velocity ->
+                    // 如果当前上下栏隐藏，无需处理
+                    if (!isBarsVisible) {
+                        return@let
+                    }
+
+                    // 如果未启用快速滚动时隐藏菜单，则返回
+                    if (!isHideBarOnQuickScroll) {
+                        return@let
+                    }
+
+                    // 速度不够
+                    if (abs(velocity) < velocityThreshold) {
+                        return@let
+                    }
+
+                    // 快速滑动隐藏菜单
+                    viewModel.onEvent(ReaderEvent.OnBarsVisibleChange(false))
+                }
+
+                return super.onPostScroll(consumed, available, source)
+            }
+        }
+    }
+
     // 自定义亮度
     LaunchedEffect(isCustomBrightness, customBrightnessValue) {
         window?.let {
@@ -296,6 +334,10 @@ fun ReaderScreen(
                         "预设 ${preset.id}"
                     }
                     R.string.color_preset_changed.toast(presetName)
+                }
+
+                ReaderEffect.HideTopBarAndBottomControl -> {
+                    isBarsVisible = false
                 }
             }
         }
@@ -432,6 +474,7 @@ fun ReaderScreen(
             progressTextFontSize = progressTextSize,
             progressTextPadding = bottomProgressPadding,
             progressTextAlign = bottomProgressTextAlign,
+            nestedScrollConnection = nestedScrollConnection
         )
 
 
@@ -707,6 +750,7 @@ fun DrawerContent(
     progressTextFontSize: Int,
     progressTextPadding: Int,
     progressTextAlign: ProgressTextAlign,
+    nestedScrollConnection: NestedScrollConnection,
 ) {
 
     val isPrevVisible = remember(uiState.currentChapterIndex, uiState.chapters.size) {
@@ -771,6 +815,7 @@ fun DrawerContent(
                 progressTextAlign = progressTextAlign,
                 // 底部进度条是否可见
                 barsVisible = isBarsVisible,
+                nestedScrollConnection = nestedScrollConnection
             )
         }
 

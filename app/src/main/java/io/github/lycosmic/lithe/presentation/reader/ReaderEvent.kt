@@ -34,6 +34,12 @@ sealed class ReaderEvent {
     data object OnSwipeNextColorPreset : ReaderEvent()
 
 
+    /**
+     * 上下栏是否可见
+     */
+    data class OnBarsVisibleChange(val isVisible: Boolean) : ReaderEvent()
+
+
     // --- 中间区域 ---
     /**
      * 点击阅读内容
