@@ -17,6 +17,7 @@ import io.github.lycosmic.data.local.dao.CategoryDao
 import io.github.lycosmic.data.local.dao.ChapterDao
 import io.github.lycosmic.data.local.dao.ColorPresetDao
 import io.github.lycosmic.data.local.dao.DirectoryDao
+import io.github.lycosmic.data.local.dao.HistoryDao
 import javax.inject.Singleton
 
 /**
@@ -99,5 +100,13 @@ object DatabaseModule {
         appDatabase: AppDatabase
     ): BookProgressDao {
         return appDatabase.bookProgressDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideHistoryDao(
+        appDatabase: AppDatabase
+    ): HistoryDao {
+        return appDatabase.historyDao()
     }
 }

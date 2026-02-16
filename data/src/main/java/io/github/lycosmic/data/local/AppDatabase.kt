@@ -8,6 +8,7 @@ import io.github.lycosmic.data.local.dao.CategoryDao
 import io.github.lycosmic.data.local.dao.ChapterDao
 import io.github.lycosmic.data.local.dao.ColorPresetDao
 import io.github.lycosmic.data.local.dao.DirectoryDao
+import io.github.lycosmic.data.local.dao.HistoryDao
 import io.github.lycosmic.data.local.entity.AuthorizedDirectory
 import io.github.lycosmic.data.local.entity.BookCategoryCrossRef
 import io.github.lycosmic.data.local.entity.BookEntity
@@ -15,6 +16,7 @@ import io.github.lycosmic.data.local.entity.BookProgressEntity
 import io.github.lycosmic.data.local.entity.CategoryEntity
 import io.github.lycosmic.data.local.entity.ChapterEntity
 import io.github.lycosmic.data.local.entity.ColorPresetEntity
+import io.github.lycosmic.data.local.entity.HistoryEntity
 
 @Database(
     entities = [
@@ -30,6 +32,8 @@ import io.github.lycosmic.data.local.entity.ColorPresetEntity
         AuthorizedDirectory::class,
         // 颜色预设
         ColorPresetEntity::class,
+        // 阅读历史记录
+        HistoryEntity::class
     ],
     version = 1,
     exportSchema = true // 导出数据库 schema 文件
@@ -46,6 +50,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun chapterDao(): ChapterDao
 
     abstract fun bookProgressDao(): BookProgressDao
+
+    abstract fun historyDao(): HistoryDao
 
     companion object {
         const val DATABASE_NAME = "lithe_db"

@@ -20,9 +20,11 @@ import io.github.lycosmic.domain.model.AppFontWeight
 import io.github.lycosmic.domain.model.Book
 import io.github.lycosmic.domain.model.ColorPreset
 import io.github.lycosmic.domain.model.FileFormat
+import io.github.lycosmic.domain.model.ReadHistory
 import io.github.lycosmic.domain.model.ReadingProgress
 import io.github.lycosmic.domain.repository.FontFamilyRepository
 import io.github.lycosmic.domain.use_case.browse.GetBookUseCase
+import io.github.lycosmic.domain.use_case.history.AddHistoryUseCase
 import io.github.lycosmic.domain.use_case.reader.GetChapterContentUseCase
 import io.github.lycosmic.domain.use_case.reader.GetChapterListUseCase
 import io.github.lycosmic.domain.use_case.reader.GetReadingProgressUseCase
@@ -60,7 +62,8 @@ class ReaderViewModel @Inject constructor(
     private val getBookUseCase: GetBookUseCase,
     private val settings: SettingsManager,
     private val fontFamilyRepository: FontFamilyRepository,
-    private val colorPresetDao: ColorPresetDao
+    private val colorPresetDao: ColorPresetDao,
+    private val addHistoryUseCase: AddHistoryUseCase,
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<ReaderState> = MutableStateFlow(ReaderState())
@@ -361,6 +364,13 @@ class ReaderViewModel @Inject constructor(
                 )
             }
 
+            // 新增阅读历史
+            addHistoryUseCase(
+                ReadHistory(
+                    book = book,
+                    time = System.currentTimeMillis()
+                )
+            )
 
             // 加载章节列表
             val chapters = getChapterListUseCase(book).getOrElse {

@@ -10,12 +10,14 @@ import io.github.lycosmic.data.repository.ChapterRepositoryImpl
 import io.github.lycosmic.data.repository.DirectoryRepositoryImpl
 import io.github.lycosmic.data.repository.FontFamilyRepositoryImpl
 import io.github.lycosmic.data.repository.ProgressRepositoryImpl
+import io.github.lycosmic.data.repository.ReadHistoryRepositoryImpl
 import io.github.lycosmic.domain.repository.BookRepository
 import io.github.lycosmic.domain.repository.CategoryRepository
 import io.github.lycosmic.domain.repository.ChapterRepository
 import io.github.lycosmic.domain.repository.DirectoryRepository
 import io.github.lycosmic.domain.repository.FontFamilyRepository
 import io.github.lycosmic.domain.repository.ProgressRepository
+import io.github.lycosmic.domain.repository.ReadHistoryRepository
 import javax.inject.Singleton
 
 @Module
@@ -55,4 +57,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindFontRepository(impl: FontFamilyRepositoryImpl): FontFamilyRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReadHistoryRepository(
+        readHistoryRepositoryImpl: ReadHistoryRepositoryImpl
+    ): ReadHistoryRepository
 }

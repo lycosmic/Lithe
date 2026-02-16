@@ -67,8 +67,15 @@ fun AppNavigation(
                                 onGoToSettings = {
                                     navViewModel.navigate(AppRoutes.Settings)
                                 },
-                                onGoToHelp = {},
-                                onGoToAbout = {}
+                                navigateBack = {
+                                    navViewModel.pop()
+                                },
+                                navigateToBookReading = { bookId ->
+                                    navViewModel.navigate(AppRoutes.Reader(bookId))
+                                },
+                                navigateToBookDetail = { bookId ->
+                                    navViewModel.navigate(AppRoutes.BookDetail(bookId))
+                                }
                             )
                         }
 
