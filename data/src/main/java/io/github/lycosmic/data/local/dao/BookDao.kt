@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import io.github.lycosmic.data.local.entity.BookCategoryCrossRef
 import io.github.lycosmic.data.local.entity.BookEntity
 import io.github.lycosmic.data.local.entity.CategoryEntity
@@ -31,6 +32,12 @@ interface BookDao {
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertBook(bookEntity: BookEntity): Long
+
+    /**
+     * 更新书籍
+     */
+    @Update
+    suspend fun updateBook(bookEntity: BookEntity)
 
     @Delete
     suspend fun deleteBook(bookEntity: BookEntity)

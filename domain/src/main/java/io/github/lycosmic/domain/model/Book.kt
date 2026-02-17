@@ -8,6 +8,7 @@ data class Book(
     val fileSize: Long,
     val fileUri: String,
     val format: FileFormat,
+    val charset: String? = null, // 编码
     val coverPath: String?,
     val importTime: Long,
     val progress: Float = 0f,

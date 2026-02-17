@@ -30,6 +30,17 @@ class BookRepositoryImpl @Inject constructor(
         return bookId
     }
 
+    /**
+     * 更新书籍的编码
+     */
+    override suspend fun updateBookCharset(
+        bookId: Long,
+        charset: String
+    ) {
+        val bookEntity = bookDao.getBookById(id = bookId) ?: return
+        bookDao.updateBook(bookEntity.copy(charsetName = charset))
+    }
+
     override suspend fun deleteBook(bookId: Long) {
         bookDao.deleteBookById(id = bookId)
     }

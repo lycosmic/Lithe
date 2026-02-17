@@ -18,6 +18,11 @@ interface BookRepository {
     suspend fun importBook(book: Book): Long
 
     /**
+     * 更新书籍的编码
+     */
+    suspend fun updateBookCharset(bookId: Long, charset: String)
+
+    /**
      * 删除书籍
      */
     suspend fun deleteBook(bookId: Long)

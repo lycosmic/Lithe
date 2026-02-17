@@ -23,6 +23,7 @@ import io.github.lycosmic.domain.model.ReadHistory
 import io.github.lycosmic.domain.model.ReadingProgress
 import io.github.lycosmic.domain.repository.FontFamilyRepository
 import io.github.lycosmic.domain.use_case.browse.GetBookUseCase
+import io.github.lycosmic.domain.use_case.counter.CalculatePreciseBookLengthUseCase
 import io.github.lycosmic.domain.use_case.history.AddHistoryUseCase
 import io.github.lycosmic.domain.use_case.reader.GetChapterContentUseCase
 import io.github.lycosmic.domain.use_case.reader.GetChapterListUseCase
@@ -72,6 +73,7 @@ class ReaderViewModel @Inject constructor(
     private val fontFamilyRepository: FontFamilyRepository,
     private val colorPresetDao: ColorPresetDao,
     private val addHistoryUseCase: AddHistoryUseCase,
+    private val calculatePreciseBookLengthUseCase: CalculatePreciseBookLengthUseCase
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<ReaderState> = MutableStateFlow(ReaderState())
@@ -400,6 +402,17 @@ class ReaderViewModel @Inject constructor(
                 it.copy(
                     chapters = chapters,
                 )
+            }
+
+
+            // 启动后台精准计算章节长度任务
+            launch(Dispatchers.IO) {
+                val preciseChapters = calculatePreciseBookLengthUseCase(book, chapters)
+
+                // 计算完成，静默更新
+                _uiState.update { state ->
+                    state.copy(chapters = preciseChapters)
+                }
             }
 
             // 加载进度
@@ -883,12 +896,8 @@ class ReaderViewModel @Inject constructor(
                     val progress = event.progress // 全书比例
                     val chapters = _uiState.value.chapters
 
-                    logD {
-                        "用户拖拽进度为：$progress"
-                    }
-
                     // 1. 计算全书有效总字节数
-                    val totalEffectiveBytes = chapters.sumOf { it.length }.toDouble()
+                    val totalEffectiveBytes = chapters.sumOf { it.effectiveLength }.toDouble()
                     // 2. 计算目标有效全局字节位置
                     val targetGlobalEffectiveBytes = (totalEffectiveBytes * progress).toLong()
 
@@ -898,21 +907,21 @@ class ReaderViewModel @Inject constructor(
 
                     // 3. 找出进度落在哪个章节
                     for ((index, chapter) in chapters.withIndex()) {
-                        if (accumulatedEffectiveBytes + chapter.length > targetGlobalEffectiveBytes) {
+                        if (accumulatedEffectiveBytes + chapter.effectiveLength > targetGlobalEffectiveBytes) {
                             targetChapterIndex = index
                             // 目标章节内的有效偏移量 = 目标全局 - 当前章节前的积累
                             targetEffectiveOffsetInChapter =
                                 targetGlobalEffectiveBytes - accumulatedEffectiveBytes
                             break
                         }
-                        accumulatedEffectiveBytes += chapter.length
+                        accumulatedEffectiveBytes += chapter.effectiveLength
                     }
 
                     // 4. 执行跳转
                     switchToChapter(
                         index = targetChapterIndex,
                         targetEffectiveOffsetInChapter = targetEffectiveOffsetInChapter,
-                        expectedGlobalProgress = progress // 用于防止进度条回跳
+                        expectedGlobalProgress = progress
                     )
                 }
             }
@@ -1034,6 +1043,7 @@ class ReaderViewModel @Inject constructor(
                             lastUserDragProgress = null
                             lastUserDragTargetIndex = -1
                         }
+
                         calculateBookProgress(chapterProgress, chapterIndex)
                     }
 
@@ -1052,7 +1062,7 @@ class ReaderViewModel @Inject constructor(
 
     /**
      * 获取全书进度
-     * 全书进度公式：（之前章节的字节大小 + 当前章节字节大小 * 当前章节阅读进度） / 所有章节字节大小
+     * 全书进度公式：（之前章节的长度 + 当前章节长度 * 当前章节阅读进度） / 所有章节长度
      * @param chapterIndex 当前章节索引
      * @param chapterProgress 当前章节进度
      */
@@ -1064,7 +1074,7 @@ class ReaderViewModel @Inject constructor(
 
         // 之前章节的字节大小
         val previousChaptersLength = chapterList.take(currentChapterIndex).sumOf {
-            it.length
+            it.effectiveLength
         }
 
         // 当前章节的字节大小 * 当前章节阅读进度
@@ -1072,12 +1082,11 @@ class ReaderViewModel @Inject constructor(
 
         // 所有章节字节大小
         val allChaptersLength = chapterList.sumOf {
-            it.length
+            it.effectiveLength
         }.coerceAtLeast(1)
 
         val progressPercent =
             (previousChaptersLength + currentChapterLength) / allChaptersLength.toFloat()
-
         return progressPercent
     }
 
@@ -1172,8 +1181,8 @@ class ReaderViewModel @Inject constructor(
             }
 
             // 3. 计算章节内部的进度比例
-            val chapterProgressRatio = if (chapter.length > 0) {
-                (targetEffectiveOffsetInChapter.toDouble() / chapter.length)
+            val chapterProgressRatio = if (chapter.effectiveLength > 0) {
+                (targetEffectiveOffsetInChapter.toDouble() / chapter.effectiveLength)
                     .coerceIn(0.0, 1.0)
             } else 0.0
 
@@ -1230,10 +1239,10 @@ class ReaderViewModel @Inject constructor(
                 )
             }
 
-            // 8. 触发滚动效果
+            // 触发滚动效果
             _effects.emit(ReaderEffect.ScrollToItem(targetItemIndex, 0))
 
-            // 9. 隐藏菜单
+            // 隐藏菜单
             _effects.emit(HideChapterListDrawer)
         }
     }

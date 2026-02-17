@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5cec90052e63b2839671bee4fdf2b835",
+    "identityHash": "72d80c2577058048d57282f5a797240b",
     "entities": [
       {
         "tableName": "books",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `author` TEXT NOT NULL, `description` TEXT, `language` TEXT, `publisher` TEXT, `subjects` TEXT, `file_size` INTEGER NOT NULL, `file_uri` TEXT NOT NULL, `format` TEXT NOT NULL, `cover_path` TEXT, `import_time` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `author` TEXT NOT NULL, `description` TEXT, `language` TEXT, `publisher` TEXT, `subjects` TEXT, `file_size` INTEGER NOT NULL, `file_uri` TEXT NOT NULL, `format` TEXT NOT NULL, `cover_path` TEXT, `import_time` INTEGER NOT NULL, `charset_name` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -74,6 +74,11 @@
             "columnName": "import_time",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "charsetName",
+            "columnName": "charset_name",
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -410,7 +415,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5cec90052e63b2839671bee4fdf2b835')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '72d80c2577058048d57282f5a797240b')"
     ]
   }
 }

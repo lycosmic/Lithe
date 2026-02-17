@@ -10,10 +10,8 @@ import io.github.lycosmic.data.util.ZipProcessor
 import io.github.lycosmic.data.util.safeNextText
 import io.github.lycosmic.domain.model.BookChapter
 import io.github.lycosmic.domain.model.BookContentBlock
-import io.github.lycosmic.domain.model.EpubChapter
 import io.github.lycosmic.domain.model.StyleRange
 import io.github.lycosmic.domain.model.StyleType
-import io.github.lycosmic.domain.model.TxtChapter
 import io.github.lycosmic.domain.util.DomainLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -108,12 +106,12 @@ class EpubContentParser @Inject constructor(
                     (rawSize - htmlHeaderOverhead).coerceAtLeast((rawSize * 0.3).toLong())
 
                 chapters.add(
-                    EpubChapter(
+                    BookChapter.EpubChapter(
                         bookId = bookId,
                         index = index,
                         title = title ?: "Chapter ${index + 1}",
                         href = fullPath,
-                        length = if (rawSize > 0) effectiveLength else 1024L
+                        fileSizeBytes = if (rawSize > 0) effectiveLength else 1024L
                     )
                 )
             }
@@ -279,8 +277,8 @@ class EpubContentParser @Inject constructor(
     ): List<BookContentBlock> = withContext(Dispatchers.IO) {
         // 章节 ZIP 路径，例如 OEBPS/Text/chap1.html
         val spineZipHref = when (chapter) {
-            is EpubChapter -> chapter.href
-            is TxtChapter -> {
+            is BookChapter.EpubChapter -> chapter.href
+            is BookChapter.TxtChapter -> {
                 logger.e {
                     "要解析的章节不是 TXT 章节"
                 }

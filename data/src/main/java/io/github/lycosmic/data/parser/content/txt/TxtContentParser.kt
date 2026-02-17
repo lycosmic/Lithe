@@ -10,7 +10,6 @@ import io.github.lycosmic.data.util.getFileSize
 import io.github.lycosmic.data.util.skipFully
 import io.github.lycosmic.domain.model.BookChapter
 import io.github.lycosmic.domain.model.BookContentBlock
-import io.github.lycosmic.domain.model.TxtChapter
 import io.github.lycosmic.domain.util.DomainLogger
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
@@ -48,8 +47,8 @@ class TxtContentParser @Inject constructor(
      * 解析 TXT 章节 (虚拟章节)
      * 策略：流式扫描全书，记录章节标题和它的字节偏移量
      */
-    private fun parseSpine(context: Context, uri: Uri, bookId: Long): List<TxtChapter> {
-        val chapters = mutableListOf<TxtChapter>()
+    private fun parseSpine(context: Context, uri: Uri, bookId: Long): List<BookChapter.TxtChapter> {
+        val chapters = mutableListOf<BookChapter.TxtChapter>()
 
         // 获取文件总大小，作为最后一章的结束点
         val totalSize = uri.getFileSize(context).getOrElse {
@@ -109,13 +108,13 @@ class TxtContentParser @Inject constructor(
                         // 上一章的范围：[lastChapterStartOffset, lineStartOffset)
                         if (lineStartOffset > lastChapterStartOffset && lastChapterTitle.isNotBlank()) {
                             chapters.add(
-                                TxtChapter(
+                                BookChapter.TxtChapter(
                                     bookId = bookId,
                                     index = chapterOrder,
                                     title = lastChapterTitle,
                                     startOffset = lastChapterStartOffset,
                                     endOffset = lineStartOffset,
-                                    length = lineStartOffset - lastChapterStartOffset
+                                    fileSizeBytes = lineStartOffset - lastChapterStartOffset
                                 )
                             )
                             chapterOrder++
@@ -140,13 +139,13 @@ class TxtContentParser @Inject constructor(
                 // 如果没有匹配到任何章节，也会结算唯一的一章
                 if (lastChapterStartOffset < totalSize) {
                     chapters.add(
-                        TxtChapter(
+                        BookChapter.TxtChapter(
                             bookId = bookId,
                             index = chapterOrder,
                             title = lastChapterTitle,
                             startOffset = lastChapterStartOffset,
                             endOffset = totalSize,
-                            length = totalSize - lastChapterStartOffset
+                            fileSizeBytes = totalSize - lastChapterStartOffset
                         )
                     )
                 }
@@ -202,7 +201,7 @@ class TxtContentParser @Inject constructor(
         chapter: BookChapter
     ): List<BookContentBlock> {
         // 字节的起始位置和结束位置
-        val start = (chapter as? TxtChapter)?.startOffset ?: return emptyList()
+        val start = (chapter as? BookChapter.TxtChapter)?.startOffset ?: return emptyList()
         val end = chapter.endOffset
         val byteLengthToRead = (end - start).toInt()
 

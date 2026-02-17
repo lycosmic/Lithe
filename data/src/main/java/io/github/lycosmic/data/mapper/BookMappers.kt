@@ -20,6 +20,7 @@ fun BookEntity.toDomain(categories: List<CategoryEntity> = emptyList()): Book {
         importTime = importTime,
         categories = categories.map { it.toDomain() },
         progress = 0f,
+        charset = charsetName
     )
 }
 
@@ -36,7 +37,8 @@ fun Book.toEntity(): BookEntity {
         importTime = importTime,
         language = null,
         publisher = null,
-        subjects = emptyList()
+        subjects = emptyList(),
+        charsetName = charset
     )
 }
 

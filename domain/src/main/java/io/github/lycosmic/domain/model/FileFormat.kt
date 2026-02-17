@@ -1,21 +1,16 @@
 package io.github.lycosmic.domain.model
 
 
-private const val EPUB_VALUE = "epub"
-private const val PDF_VALUE = "pdf"
-private const val TXT_VALUE = "txt"
-private const val UNKNOWN_VALUE = "unknown"
-
 enum class FileFormat(val value: String) {
-    EPUB(EPUB_VALUE),
-    PDF(PDF_VALUE),
-    TXT(TXT_VALUE),
-    UNKNOWN(UNKNOWN_VALUE);
+    EPUB("epub"),
+    PDF("pdf"),
+    TXT("txt"),
+    UNKNOWN("unknown");
 
     companion object {
-        const val EPUB_EXTENSION = ".$EPUB_VALUE"
-        const val PDF_EXTENSION = ".$PDF_VALUE"
-        const val TXT_EXTENSION = ".$TXT_VALUE"
+        val EPUB_EXTENSION = ".${EPUB.value}"
+        val PDF_EXTENSION = ".${PDF.value}"
+        val TXT_EXTENSION = ".${TXT.value}"
 
         fun fromValue(value: String): FileFormat {
             return entries.firstOrNull { it.value == value } ?: UNKNOWN

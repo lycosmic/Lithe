@@ -38,6 +38,8 @@ data class BookEntity(
     val coverPath: String? = null, // 封面缓存路径
     @ColumnInfo(name = COL_IMPORT_TIME)
     val importTime: Long = System.currentTimeMillis(), // 导入时间, 用于最近添加排序
+    @ColumnInfo(name = COL_CHARSET_NAME)
+    val charsetName: String? = null,
 ) {
     companion object {
         const val TABLE_NAME = "books"
@@ -53,5 +55,6 @@ data class BookEntity(
         const val COL_FORMAT = "format"
         const val COL_COVER_PATH = "cover_path"
         const val COL_IMPORT_TIME = "import_time"
+        const val COL_CHARSET_NAME = "charset_name"
     }
 }

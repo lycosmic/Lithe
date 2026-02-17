@@ -1,6 +1,8 @@
 package io.github.lycosmic.data.util
 
 import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 import java.nio.charset.Charset
 
@@ -29,6 +31,24 @@ object CharsetHelper {
         // 默认回退到 GBK (支持中文简体/繁体)
         return Charset.forName(GBK)
     }
+
+    fun detectCharset(file: File): Charset {
+        return try {
+            FileInputStream(file).use { fis ->
+                val buffered = BufferedInputStream(fis)
+                buffered.mark(4096)
+                val buffer = ByteArray(4096)
+                val read = buffered.read(buffer)
+
+                if (read == -1) return Charsets.UTF_8
+
+                if (isValidUtf8(buffer, read)) Charsets.UTF_8 else Charset.forName(GBK)
+            }
+        } catch (_: Exception) {
+            Charsets.UTF_8 // 默认兜底
+        }
+    }
+
 
     /**
      * 验证 UTF-8 字符串是否合法
