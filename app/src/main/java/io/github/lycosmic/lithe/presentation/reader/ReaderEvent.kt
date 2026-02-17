@@ -69,6 +69,11 @@ sealed class ReaderEvent {
      */
     data object OnNextChapterClick : ReaderEvent()
 
+    /**
+     * 全书阅读进度发生改变
+     */
+    data class OnBookProgressChange(val progress: Float) : ReaderEvent()
+
 
     // --- 章节列表区域 ---
     /**
@@ -80,6 +85,7 @@ sealed class ReaderEvent {
      * 点击章节列表项
      */
     data class OnChapterItemClick(val index: Int) : ReaderEvent()
+
 
     // --- 设置相关事件 ---
 

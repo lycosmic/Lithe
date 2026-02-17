@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,11 +34,15 @@ fun ReaderBottomControls(
     onPrevClick: () -> Unit,
     onNextClick: () -> Unit,
     modifier: Modifier = Modifier,
-    bottomBarPadding: Int
+    bottomBarPadding: Int,
 ) {
     // 底部栏边距
     val bottomBarPadding = remember(bottomBarPadding) {
         (bottomBarPadding * 4f).dp
+    }
+
+    val localProgress = remember(progress) {
+        mutableFloatStateOf(progress)
     }
 
     Surface(
@@ -75,8 +80,13 @@ fun ReaderBottomControls(
                     }
                 }
                 Slider(
-                    value = progress,
-                    onValueChange = onProgressChange,
+                    onValueChangeFinished = {
+                        onProgressChange(localProgress.floatValue)
+                    },
+                    value = localProgress.floatValue,
+                    onValueChange = {
+                        localProgress.floatValue = it
+                    },
                     modifier = Modifier.weight(1f)
                 )
                 AnimatedVisibility(isNextVisible) {

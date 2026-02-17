@@ -474,7 +474,10 @@ fun ReaderScreen(
             progressTextFontSize = progressTextSize,
             progressTextPadding = bottomProgressPadding,
             progressTextAlign = bottomProgressTextAlign,
-            nestedScrollConnection = nestedScrollConnection
+            nestedScrollConnection = nestedScrollConnection,
+            onProgressChange = {
+                viewModel.onEvent(ReaderEvent.OnBookProgressChange(it))
+            }
         )
 
 
@@ -751,6 +754,8 @@ fun DrawerContent(
     progressTextPadding: Int,
     progressTextAlign: ProgressTextAlign,
     nestedScrollConnection: NestedScrollConnection,
+    // 修改进度
+    onProgressChange: (Float) -> Unit
 ) {
 
     val isPrevVisible = remember(uiState.currentChapterIndex, uiState.chapters.size) {
@@ -862,11 +867,9 @@ fun DrawerContent(
                 .wrapContentHeight(), // 高度仅随内容变化
         ) {
             ReaderBottomControls(
+                progress = uiState.progress.progressPercent,
                 progressText = progressText,
-                progress = 0f,
-                onProgressChange = {
-                    // todo: 跳转到指定进度
-                },
+                onProgressChange = onProgressChange,
                 isPrevVisible = isPrevVisible,
                 isNextVisible = isNextVisible,
                 onPrevClick = onPrevClick,

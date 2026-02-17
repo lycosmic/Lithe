@@ -95,7 +95,17 @@ class EpubContentParser @Inject constructor(
 
                 // 获取文件长度
                 val cleanPath = fullPath.substringBefore("#")
-                val size = fileSizeMap[cleanPath] ?: 1024L
+                // 原始字节数
+                val rawSize = fileSizeMap[cleanPath] ?: 0L
+
+                // 不可见内容固定开销
+                val htmlHeaderOverhead = 600L
+
+                // 有效长度
+                // - 减去头部开销
+                // - 至少保留原始大小的 30% (防止全是标签的小文件变成 0 或负数)
+                val effectiveLength =
+                    (rawSize - htmlHeaderOverhead).coerceAtLeast((rawSize * 0.3).toLong())
 
                 chapters.add(
                     EpubChapter(
@@ -103,7 +113,7 @@ class EpubContentParser @Inject constructor(
                         index = index,
                         title = title ?: "Chapter ${index + 1}",
                         href = fullPath,
-                        length = size
+                        length = if (rawSize > 0) effectiveLength else 1024L
                     )
                 )
             }
@@ -295,9 +305,6 @@ class EpubContentParser @Inject constructor(
 
             // 传入累加器
             traverseHtmlElement(bookUri, body, readerContents, 0, spineZipHref)
-            logger.d {
-                "The parsed reading content is $readerContents"
-            }
             readerContentList.addAll(readerContents)
         }
 
@@ -531,9 +538,9 @@ class EpubContentParser @Inject constructor(
                         }
 
                         else -> {
-                            logger.w {
-                                "遇到了不支持的标签: ${node.tagName()}"
-                            }
+//                            logger.w {
+//                                "遇到了不支持的标签: ${node.tagName()}"
+//                            }
                             traverseHtmlElement(
                                 bookUri,
                                 node,

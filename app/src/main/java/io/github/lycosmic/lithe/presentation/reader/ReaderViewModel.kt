@@ -17,7 +17,6 @@ import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.data.settings.SettingsManager
 import io.github.lycosmic.domain.model.AppFontFamily
 import io.github.lycosmic.domain.model.AppFontWeight
-import io.github.lycosmic.domain.model.Book
 import io.github.lycosmic.domain.model.ColorPreset
 import io.github.lycosmic.domain.model.FileFormat
 import io.github.lycosmic.domain.model.ReadHistory
@@ -58,6 +57,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.abs
 import kotlin.random.Random
 
 @OptIn(FlowPreview::class)
@@ -79,6 +79,14 @@ class ReaderViewModel @Inject constructor(
 
     private val _effects = MutableSharedFlow<ReaderEffect>()
     val effects = _effects.asSharedFlow()
+
+
+    // 记录用户拖拽的目标进度
+    private var lastUserDragProgress: Float? = null
+
+    // 记录拖拽落点的索引
+    private var lastUserDragTargetIndex: Int = -1
+
 
     // --- 字体设置 ---
     val fontId = settings.readerFontId.stateIn(
@@ -870,6 +878,43 @@ class ReaderViewModel @Inject constructor(
                 is ReaderEvent.OnBarsVisibleChange -> {
                     _effects.emit(HideTopBarAndBottomControl)
                 }
+
+                is ReaderEvent.OnBookProgressChange -> {
+                    val progress = event.progress // 全书比例
+                    val chapters = _uiState.value.chapters
+
+                    logD {
+                        "用户拖拽进度为：$progress"
+                    }
+
+                    // 1. 计算全书有效总字节数
+                    val totalEffectiveBytes = chapters.sumOf { it.length }.toDouble()
+                    // 2. 计算目标有效全局字节位置
+                    val targetGlobalEffectiveBytes = (totalEffectiveBytes * progress).toLong()
+
+                    var accumulatedEffectiveBytes = 0L
+                    var targetChapterIndex = 0
+                    var targetEffectiveOffsetInChapter = 0L
+
+                    // 3. 找出进度落在哪个章节
+                    for ((index, chapter) in chapters.withIndex()) {
+                        if (accumulatedEffectiveBytes + chapter.length > targetGlobalEffectiveBytes) {
+                            targetChapterIndex = index
+                            // 目标章节内的有效偏移量 = 目标全局 - 当前章节前的积累
+                            targetEffectiveOffsetInChapter =
+                                targetGlobalEffectiveBytes - accumulatedEffectiveBytes
+                            break
+                        }
+                        accumulatedEffectiveBytes += chapter.length
+                    }
+
+                    // 4. 执行跳转
+                    switchToChapter(
+                        index = targetChapterIndex,
+                        targetEffectiveOffsetInChapter = targetEffectiveOffsetInChapter,
+                        expectedGlobalProgress = progress // 用于防止进度条回跳
+                    )
+                }
             }
         }
     }
@@ -973,8 +1018,25 @@ class ReaderViewModel @Inject constructor(
             }
 
             run {
-                // 更新全书进度
-                val progressPercent = calculateBookProgress(chapterProgress)
+                val chapterIndex = _uiState.value.currentChapterIndex
+                // 全书进度应用“粘性逻辑”
+                val progressPercent =
+                    if (lastUserDragProgress != null &&
+                        lastUserDragTargetIndex != -1 &&
+                        abs(listState.firstVisibleItemIndex - lastUserDragTargetIndex) <= 1
+                    ) {
+                        // 如果当前还在用户拖拽落点的附近，强制显示用户拖拽的值，抑制了自动回跳
+                        lastUserDragProgress!!
+                    } else {
+                        // 用户已经手动划走了一定距离，说明他在认真阅读了
+                        // 此时解除锁定，恢复真实的数学计算
+                        if (lastUserDragProgress != null) {
+                            lastUserDragProgress = null
+                            lastUserDragTargetIndex = -1
+                        }
+                        calculateBookProgress(chapterProgress, chapterIndex)
+                    }
+
                 _uiState.update {
                     it.copy(
                         progress = it.progress.copy(
@@ -991,12 +1053,14 @@ class ReaderViewModel @Inject constructor(
     /**
      * 获取全书进度
      * 全书进度公式：（之前章节的字节大小 + 当前章节字节大小 * 当前章节阅读进度） / 所有章节字节大小
+     * @param chapterIndex 当前章节索引
+     * @param chapterProgress 当前章节进度
      */
-    private fun calculateBookProgress(chapterProgress: Float): Float {
+    private fun calculateBookProgress(chapterProgress: Float, chapterIndex: Int): Float {
         val chapterList = _uiState.value.chapters
 
         // 当前章节索引
-        val currentChapterIndex = _uiState.value.currentChapterIndex
+        val currentChapterIndex = chapterIndex
 
         // 之前章节的字节大小
         val previousChaptersLength = chapterList.take(currentChapterIndex).sumOf {
@@ -1018,6 +1082,19 @@ class ReaderViewModel @Inject constructor(
     }
 
     /**
+     * 获取内容块的长度
+     */
+    private fun getReaderItemLength(item: ReaderContent): Int {
+        return when (item) {
+            is ReaderContent.Paragraph -> item.text.length
+            is ReaderContent.Title -> item.text.length
+            is ReaderContent.Image -> 1 // 图片占 1 个位置
+            is ReaderContent.Divider -> 0 // 分割线占 0 个位置
+            is ReaderContent.ImageDescription -> 0
+        }
+    }
+
+    /**
      * 计算章节内容的总长度
      */
     private fun calculateChapterLength(items: List<ReaderContent>): Int {
@@ -1027,14 +1104,7 @@ class ReaderViewModel @Inject constructor(
         val lastItem = items.last()
 
         // 计算它的结束位置
-        val lastItemLength = when (lastItem) {
-            is ReaderContent.Paragraph -> lastItem.text.length
-            is ReaderContent.Title -> lastItem.text.length
-            is ReaderContent.Image -> 1 // 图片占 1 个位置
-            is ReaderContent.Divider -> 0 // 分割线占 0 个位置
-            is ReaderContent.ImageDescription -> 0
-        }
-
+        val lastItemLength = getReaderItemLength(lastItem)
         // 总长度 = 最后一个块的起始位置 + 最后一个块的长度
         return lastItem.startIndex + lastItemLength
     }
@@ -1065,75 +1135,106 @@ class ReaderViewModel @Inject constructor(
 
     /**
      * 切换章节
+     * @param index 目标章节索引
+     * @param targetEffectiveOffsetInChapter 目标在该章节内部的【有效】字节偏移量
+     * @param expectedGlobalProgress 用户拖拽的原始进度
      */
-    fun switchToChapter(index: Int) {
+    fun switchToChapter(
+        index: Int,
+        targetEffectiveOffsetInChapter: Long = 0L,
+        expectedGlobalProgress: Float? = null
+    ) {
         val book = _uiState.value.book
-        val bookId = book.id
+        val chapter = _uiState.value.chapters.getOrNull(index) ?: return
 
-        if (book == Book.default || bookId == -1L) {
-            logE {
-                "切换章节失败，书籍信息缺失"
-            }
-            return
-        }
-
+        // 更新章节索引
         _uiState.update {
-            it.copy(
-                currentChapterIndex = index
-            )
+            it.copy(currentChapterIndex = index)
         }
-
 
         viewModelScope.launch(Dispatchers.IO) {
-            val progress = calculateBookProgress(0f)
-
-            logD {
-                "切换章节时，新的全书进度为: $progress"
-            }
-
-            // 更新数据库进度
-            val newProgress = ReadingProgress(
-                bookId = bookId,
-                chapterIndex = index,
-                chapterOffsetCharIndex = 0, // 切换章节默认回到开头
-                progressPercent = progress
-            )
-
-            saveReadingProgressUseCase(bookId, newProgress)
-                .onFailure { logE { "进度保存失败" } }
-
-            // 加载最新章节内容
+            // 1. 加载章节内容
             val newContent = loadChapterContent(
                 chapterIndex = index,
                 bookFormat = book.format,
                 bookFileUri = book.fileUri
             )
-            if (newContent != null) {
-                val totalLength = calculateChapterLength(newContent)
 
-                // 更新状态
-                _uiState.update { state ->
-                    state.copy(
-                        currentChapterIndex = index,
-                        chapterProgress = 0f,
-                        readerItems = newContent, // 替换列表内容
-                        progress = newProgress,   // 更新内存中的进度对象
-                        currentChapterLength = totalLength
-                    )
-                }
-
-                // 滚动到顶部
-                _effects.emit(ReaderEffect.ScrollToItem(0, 0))
-
-                // 隐藏章节列表
-                _effects.emit(HideChapterListDrawer)
-            } else {
-                logE {
-                    "加载章节内容失败，索引为 $index"
-                }
+            if (newContent == null) {
                 _effects.emit(ReaderEffect.ShowLoadChapterContentFailedToast)
-                _effects.emit(NavigateBack)
+                return@launch
             }
+
+            // 2. 计算内容的字符总长度
+            var parsedContentTotalLength = 0
+            for (item in newContent) {
+                parsedContentTotalLength += getReaderItemLength(item)
+            }
+
+            // 3. 计算章节内部的进度比例
+            val chapterProgressRatio = if (chapter.length > 0) {
+                (targetEffectiveOffsetInChapter.toDouble() / chapter.length)
+                    .coerceIn(0.0, 1.0)
+            } else 0.0
+
+            // 4. 根据比例，映射到解析后的字符位置
+            val targetParsedCharPosition = (parsedContentTotalLength * chapterProgressRatio).toInt()
+
+            // 5. 遍历寻找对应的索引
+            var targetItemIndex = 0
+            var currentAccumulatedLength = 0
+            for (i in newContent.indices) {
+                val itemLength = getReaderItemLength(newContent[i])
+                if (currentAccumulatedLength + itemLength > targetParsedCharPosition) {
+                    targetItemIndex = i
+                    break
+                }
+                currentAccumulatedLength += itemLength
+            }
+
+            // 保存用户的意图作为锚点
+            if (expectedGlobalProgress != null) {
+                lastUserDragProgress = expectedGlobalProgress
+                lastUserDragTargetIndex = targetItemIndex // 记录跳转落点的索引
+            } else {
+                // 如果不是拖拽，则清除锚点
+                lastUserDragProgress = null
+                lastUserDragTargetIndex = -1
+            }
+
+            // 6. 计算最终的显示进度
+            // 如果是用户拖拽，强制使用用户的值，防止进度条“跳变”
+            // 否则重新计算
+            val finalGlobalProgress = expectedGlobalProgress ?: calculateBookProgress(
+                chapterProgress = chapterProgressRatio.toFloat(),
+                chapterIndex = index
+            )
+
+            // 7. 更新状态和数据库
+            val newProgress = ReadingProgress(
+                bookId = book.id,
+                chapterIndex = index,
+                chapterOffsetCharIndex = targetParsedCharPosition, // 存的是真实的字符位置
+                progressPercent = finalGlobalProgress            // 存的是计算后的比例
+            )
+
+            saveReadingProgressUseCase(book.id, newProgress)
+
+            _uiState.update { state ->
+                state.copy(
+                    currentChapterIndex = index,
+                    chapterProgress = chapterProgressRatio.toFloat(),
+                    readerItems = newContent,
+                    currentChapterLength = parsedContentTotalLength,
+                    progress = newProgress
+                )
+            }
+
+            // 8. 触发滚动效果
+            _effects.emit(ReaderEffect.ScrollToItem(targetItemIndex, 0))
+
+            // 9. 隐藏菜单
+            _effects.emit(HideChapterListDrawer)
         }
     }
 
