@@ -86,6 +86,9 @@ class ReaderViewModel @Inject constructor(
     // 记录用户拖拽的目标进度
     private var lastUserDragProgress: Float? = null
 
+    // 用户拖拽时产生的章节进度
+    private var lastDragChapterProgress: Float? = null
+
     // 记录拖拽落点的索引
     private var lastUserDragTargetIndex: Int = -1
 
@@ -944,6 +947,20 @@ class ReaderViewModel @Inject constructor(
             var chapterProgress: Float
             var uiIndex: Int
             var uiOffset: Int
+            var firstVisibleContent: ReaderContent? = null
+
+            // 获取粘性章节进度
+            fun getStickyChapterProgress(realChapterProgress: Float): Float {
+                return if (
+                    lastDragChapterProgress != null
+                    && lastUserDragTargetIndex != -1 &&
+                    abs(listState.firstVisibleItemIndex - lastUserDragTargetIndex) <= 1
+                ) {
+                    lastDragChapterProgress!!
+                } else {
+                    realChapterProgress
+                }
+            }
 
             run {
                 val layoutInfo = listState.layoutInfo
@@ -972,7 +989,7 @@ class ReaderViewModel @Inject constructor(
                     uiOffset = 0
                     return@run
                 }
-                val firstVisibleContent = _uiState.value.readerItems[firstIndex]
+                firstVisibleContent = _uiState.value.readerItems[firstIndex]
 
 
                 // 获取最后一个可见项的信息
@@ -986,19 +1003,6 @@ class ReaderViewModel @Inject constructor(
                     chapterProgress = 1f
                     uiIndex = firstIndex
                     uiOffset = firstOffset
-                    // 更新章节进度
-                    _uiState.update {
-                        it.copy(
-                            chapterProgress = chapterProgress,
-                            progress = it.progress.copy(
-                                chapterIndex = firstVisibleContent.chapterIndex,
-                                chapterOffsetCharIndex = firstVisibleContent.startIndex,
-                                uiItemIndex = uiIndex,
-                                uiItemOffset = uiOffset,
-                                lastReadTime = System.currentTimeMillis(),
-                            ),
-                        )
-                    }
                     return@run
                 }
 
@@ -1010,21 +1014,25 @@ class ReaderViewModel @Inject constructor(
                 chapterProgress = rawProgress.coerceIn(0f, 1f)
                 uiIndex = firstIndex
                 uiOffset = firstOffset
-
-                // 更新章节进度
-                _uiState.update {
-                    it.copy(
-                        chapterProgress = chapterProgress,
-                        progress = it.progress.copy(
-                            chapterIndex = firstVisibleContent.chapterIndex,
-                            chapterOffsetCharIndex = firstVisibleContent.startIndex,
-                            uiItemIndex = uiIndex,
-                            uiItemOffset = uiOffset,
-                            lastReadTime = System.currentTimeMillis(),
-                        ),
-                    )
-                }
             }
+
+
+            val finalChapterProgress = getStickyChapterProgress(chapterProgress)
+
+            // 更新章节进度
+            _uiState.update {
+                it.copy(
+                    chapterProgress = finalChapterProgress,
+                    progress = it.progress.copy(
+                        chapterIndex = firstVisibleContent?.chapterIndex ?: 0,
+                        chapterOffsetCharIndex = firstVisibleContent?.startIndex ?: 0,
+                        uiItemIndex = uiIndex,
+                        uiItemOffset = uiOffset,
+                        lastReadTime = System.currentTimeMillis(),
+                    ),
+                )
+            }
+
 
             run {
                 val chapterIndex = _uiState.value.currentChapterIndex
@@ -1034,7 +1042,7 @@ class ReaderViewModel @Inject constructor(
                         lastUserDragTargetIndex != -1 &&
                         abs(listState.firstVisibleItemIndex - lastUserDragTargetIndex) <= 1
                     ) {
-                        // 如果当前还在用户拖拽落点的附近，强制显示用户拖拽的值，抑制了自动回跳
+                        // 如果当前还在用户拖拽落点的附近，强制显示用户拖拽的值，抑制自动回跳
                         lastUserDragProgress!!
                     } else {
                         // 用户已经手动划走了一定距离，说明他在认真阅读了
@@ -1204,10 +1212,12 @@ class ReaderViewModel @Inject constructor(
             // 保存用户的意图作为锚点
             if (expectedGlobalProgress != null) {
                 lastUserDragProgress = expectedGlobalProgress
+                lastDragChapterProgress = chapterProgressRatio.toFloat()
                 lastUserDragTargetIndex = targetItemIndex // 记录跳转落点的索引
             } else {
                 // 如果不是拖拽，则清除锚点
                 lastUserDragProgress = null
+                lastDragChapterProgress = null
                 lastUserDragTargetIndex = -1
             }
 
