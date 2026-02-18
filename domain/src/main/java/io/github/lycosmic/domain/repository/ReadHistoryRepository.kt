@@ -33,7 +33,7 @@ interface ReadHistoryRepository {
      * 删除指定书籍的阅读历史
      */
     suspend fun deleteHistoryByBookId(
-        bookId: Int
+        bookId: Long
     ): Result<Unit>
 
     suspend fun deleteHistory(

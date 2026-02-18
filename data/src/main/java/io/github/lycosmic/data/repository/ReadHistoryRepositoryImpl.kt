@@ -48,7 +48,7 @@ class ReadHistoryRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteHistoryByBookId(bookId: Int): Result<Unit> {
+    override suspend fun deleteHistoryByBookId(bookId: Long): Result<Unit> {
         return runCatching {
             historyDao.deleteHistoryByBookId(bookId)
         }

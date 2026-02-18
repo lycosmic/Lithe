@@ -26,4 +26,10 @@ interface BookProgressDao {
      */
     @Query("SELECT * FROM ${BookProgressEntity.TABLE_NAME} WHERE ${BookProgressEntity.COL_BOOK_ID} = :bookId")
     suspend fun getProgress(bookId: Long): BookProgressEntity?
+
+    /**
+     * 删除阅读进度
+     */
+    @Query("DELETE FROM ${BookProgressEntity.TABLE_NAME} WHERE ${BookProgressEntity.COL_BOOK_ID} = :bookId")
+    suspend fun deleteProgress(bookId: Long)
 }

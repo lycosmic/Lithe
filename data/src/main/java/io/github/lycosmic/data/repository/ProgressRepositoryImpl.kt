@@ -41,4 +41,10 @@ class ProgressRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteProgress(bookId: Long): Result<Unit> {
+        return runCatching {
+            bookProgressDao.deleteProgress(bookId)
+        }
+    }
+
 }

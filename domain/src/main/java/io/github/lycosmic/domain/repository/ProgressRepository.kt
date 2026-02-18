@@ -21,4 +21,9 @@ interface ProgressRepository {
      * 获取书籍阅读进度流
      */
     suspend fun getBookProgressFlow(bookId: Long): Flow<Result<ReadingProgress>>
+
+    /**
+     * 删除书籍阅读进度
+     */
+    suspend fun deleteProgress(bookId: Long): Result<Unit>
 }

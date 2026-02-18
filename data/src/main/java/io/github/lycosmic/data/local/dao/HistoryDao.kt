@@ -43,7 +43,7 @@ interface HistoryDao {
      * 删除指定书籍 id 的阅读记录
      */
     @Query("DELETE FROM ${HistoryEntity.TABLE_NAME} WHERE ${HistoryEntity.COL_BOOK_ID} = :bookId")
-    suspend fun deleteHistoryByBookId(bookId: Int): Int
+    suspend fun deleteHistoryByBookId(bookId: Long): Int
 
     /**
      * 删除阅读记录
