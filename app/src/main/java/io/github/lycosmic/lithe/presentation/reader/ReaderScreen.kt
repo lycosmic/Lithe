@@ -313,9 +313,10 @@ fun ReaderScreen(
                 }
 
                 is ReaderEffect.ScrollToItem -> {
-                    val index = effect.index
-                    val offset = effect.offset
-                    contentListState.scrollToItem(index, offset)
+                    // 确保数据不为空再滚动
+                    if (contentListState.layoutInfo.totalItemsCount > 0) {
+                        contentListState.scrollToItem(effect.index, effect.offset)
+                    }
                 }
 
                 ReaderEffect.ShowFirstChapterToast -> {
