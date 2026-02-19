@@ -79,6 +79,7 @@ import io.github.lycosmic.lithe.util.extensions.backgroundColor
 import io.github.lycosmic.lithe.util.extensions.textColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * 阅读内容
@@ -524,8 +525,10 @@ fun BookReaderContent(
                                                 }
 
                                                 ReadingMode.NONE -> {
-                                                    // 无动画切换
-                                                    pagerState.scrollToPage(pageIndex)
+                                                    // 无动画切换，确保不在Compose测量或布局的阶段执行
+                                                    withContext(Dispatchers.Main.immediate) {
+                                                        pagerState.scrollToPage(pageIndex)
+                                                    }
                                                 }
 
                                                 else -> {
