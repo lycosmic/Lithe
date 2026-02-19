@@ -2,10 +2,10 @@ package io.github.lycosmic.lithe.presentation.settings.reader
 
 import io.github.lycosmic.data.settings.AppChapterTitleAlign
 import io.github.lycosmic.data.settings.AppImageAlign
-import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
 import io.github.lycosmic.data.settings.ProgressTextAlign
+import io.github.lycosmic.data.settings.ReadingMode
 import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.domain.model.AppFontWeight
 
@@ -94,7 +94,7 @@ sealed class ReaderSettingsEvent {
     /**
      * 翻页模式改变
      */
-    data class OnPageTurnModeChange(val mode: AppPageAnim) : ReaderSettingsEvent()
+    data class OnPageTurnModeChange(val mode: ReadingMode) : ReaderSettingsEvent()
 
     /**
      * 侧边填充改变

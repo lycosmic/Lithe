@@ -45,10 +45,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.data.settings.AppChapterTitleAlign
 import io.github.lycosmic.data.settings.AppImageAlign
-import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
 import io.github.lycosmic.data.settings.ProgressTextAlign
+import io.github.lycosmic.data.settings.ReadingMode
 import io.github.lycosmic.domain.model.AppFontWeight
 import io.github.lycosmic.domain.model.ColorPreset
 import io.github.lycosmic.lithe.R
@@ -130,6 +130,9 @@ fun ReaderScreen(
     val colorPresets by viewModel.colorPresets.collectAsStateWithLifecycle()
     val currentColorPreset by viewModel.currentColorPreset.collectAsStateWithLifecycle()
     val isQuickColorPresetChangeEnabled by viewModel.isQuickColorPresetChangeEnabled.collectAsStateWithLifecycle()
+
+    // 阅读模式
+    val readingMode by viewModel.readingMode.collectAsStateWithLifecycle()
 
     // 上下栏是否可见
     var isBarsVisible by remember { mutableStateOf(false) }
@@ -305,7 +308,10 @@ fun ReaderScreen(
                     }
                 }
 
-                is ReaderEffect.RestoreFocus -> TODO()
+                is ReaderEffect.RestoreFocus -> {
+
+                }
+
                 is ReaderEffect.ScrollToItem -> {
                     val index = effect.index
                     val offset = effect.offset
@@ -477,7 +483,8 @@ fun ReaderScreen(
             nestedScrollConnection = nestedScrollConnection,
             onProgressChange = {
                 viewModel.onEvent(ReaderEvent.OnBookProgressChange(it))
-            }
+            },
+            readingMode = readingMode
         )
 
 
@@ -500,10 +507,10 @@ fun ReaderScreen(
             },
 
             // GeneralContent 参数
-            pageTurnMode = AppPageAnim.SIMULATION, // TODO: 从ViewModel获取
+            pageTurnMode = readingMode,
             onPageTurnModeChange = { mode ->
                 // 实现翻页模式切换
-                viewModel.onEvent(ReaderEvent.OnPageTurnModeChange(mode))
+                viewModel.onEvent(ReaderEvent.OnReadingModeChange(mode))
             },
             sidePadding = sidePadding,
             onSidePaddingChange = { padding ->
@@ -595,12 +602,12 @@ fun ReaderScreen(
                 // 实现行高变更
                 viewModel.onEvent(ReaderEvent.OnLineHeightChange(height))
             },
-            paragraphSpacing = paragraphSpacing.toInt(),
+            paragraphSpacing = paragraphSpacing,
             onParagraphSpacingChange = { spacing ->
                 // 实现段落间距变更
                 viewModel.onEvent(ReaderEvent.OnParagraphSpacingChange(spacing))
             },
-            paragraphIndent = paragraphIndent.toInt(),
+            paragraphIndent = paragraphIndent,
             onParagraphIndentChange = { indent ->
                 // 实现段落缩进变更
                 viewModel.onEvent(ReaderEvent.OnParagraphIndentChange(indent))
@@ -755,7 +762,8 @@ fun DrawerContent(
     progressTextAlign: ProgressTextAlign,
     nestedScrollConnection: NestedScrollConnection,
     // 修改进度
-    onProgressChange: (Float) -> Unit
+    onProgressChange: (Float) -> Unit,
+    readingMode: ReadingMode,
 ) {
 
     val isPrevVisible = remember(uiState.currentChapterIndex, uiState.chapters.size) {
@@ -783,7 +791,21 @@ fun DrawerContent(
             CircularWavyProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
             BookReaderContent(
-                contents = uiState.readerItems,
+                contents = uiState.readerItems.filter { content ->
+                    when (content) {
+                        is ReaderContent.Title, is ReaderContent.Divider, is ReaderContent.Paragraph -> {
+                            true
+                        }
+
+                        is ReaderContent.Image -> {
+                            imageVisible
+                        }
+
+                        is ReaderContent.ImageDescription -> {
+                            !(!imageVisible || !imageCaptionVisible)
+                        }
+                    }
+                },
                 listState = listState,
                 onContentClick = onReadContentClick,
                 colorPreset = colorPreset,
@@ -820,7 +842,8 @@ fun DrawerContent(
                 progressTextAlign = progressTextAlign,
                 // 底部进度条是否可见
                 barsVisible = isBarsVisible,
-                nestedScrollConnection = nestedScrollConnection
+                nestedScrollConnection = nestedScrollConnection,
+                readingMode = readingMode
             )
         }
 

@@ -32,6 +32,7 @@ sealed interface ReaderContent {
         override val startIndex: Int, // 图片通常占用一个位置
         override val chapterIndex: Int,
         val path: String, // 图片路径
+        val aspectRatio: Float, // 图片宽高比
     ) : ReaderContent
 
     // 图片描述

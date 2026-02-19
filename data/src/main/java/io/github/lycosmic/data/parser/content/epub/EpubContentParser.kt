@@ -1,5 +1,6 @@
 package io.github.lycosmic.data.parser.content.epub
 
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.util.Xml
@@ -340,6 +341,19 @@ class EpubContentParser @Inject constructor(
         chapterRelativePath: String
     ): Unit = withContext(Dispatchers.Default) {
 
+        fun getImageAspectRatio(imagePath: String): Float? {
+            // 获取图片尺寸信息
+            val options = BitmapFactory.Options().apply {
+                inJustDecodeBounds = true // 只获取尺寸，不解码图片
+            }
+            BitmapFactory.decodeFile(imagePath, options)
+            val imageWidth = options.outWidth
+            val imageHeight = options.outHeight
+            val aspectRatio =
+                if (imageHeight != 0) imageWidth.toFloat() / imageHeight.toFloat() else null
+            return aspectRatio
+        }
+
         var currentCharIndex = currentCharIndex
 
         for (node in element.childNodes()) {
@@ -445,10 +459,15 @@ class EpubContentParser @Inject constructor(
                                 "The cached image path is $imagePath"
                             }
 
+                            val aspectRatio = getImageAspectRatio(imagePath) ?: 1f
+
+                            logger.d { "Image aspect ratio: $aspectRatio" }
+
                             accumulator.add(
                                 BookContentBlock.Image(
                                     path = imagePath,
-                                    startIndex = currentCharIndex
+                                    startIndex = currentCharIndex,
+                                    aspectRatio = aspectRatio
                                 )
                             )
 
@@ -495,10 +514,15 @@ class EpubContentParser @Inject constructor(
                                 "The cached image path is $imagePath"
                             }
 
+                            val aspectRatio = getImageAspectRatio(imagePath) ?: 1f
+
+                            logger.d { "Image aspect ratio: $aspectRatio" }
+
                             accumulator.add(
                                 BookContentBlock.Image(
                                     path = imagePath,
-                                    startIndex = currentCharIndex
+                                    startIndex = currentCharIndex,
+                                    aspectRatio = aspectRatio
                                 )
                             )
 

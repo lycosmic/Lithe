@@ -221,7 +221,6 @@
     <string name="reader_settings_chapter_title_align_end">末尾</string>
     <string name="reader_settings_reader_mode">阅读模式</string>
     <string name="reader_settings_page_turn_mode">翻页动画模式</string>
-    <string name="reader_settings_page_anim_simulation">仿真翻页</string>
     <string name="reader_settings_page_anim_slide">平移切换</string>
     <string name="reader_settings_page_anim_scroll">上下连续滚动</string>
     <string name="reader_settings_page_anim_none">直接切换</string>

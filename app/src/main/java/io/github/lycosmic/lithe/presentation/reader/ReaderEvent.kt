@@ -3,10 +3,10 @@ package io.github.lycosmic.lithe.presentation.reader
 import androidx.compose.foundation.lazy.LazyListState
 import io.github.lycosmic.data.settings.AppChapterTitleAlign
 import io.github.lycosmic.data.settings.AppImageAlign
-import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
 import io.github.lycosmic.data.settings.ProgressTextAlign
+import io.github.lycosmic.data.settings.ReadingMode
 import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.domain.model.AppFontWeight
 import io.github.lycosmic.domain.model.ColorPreset
@@ -114,7 +114,7 @@ sealed class ReaderEvent {
     data class OnChapterTitleAlignChange(val align: AppChapterTitleAlign) : ReaderEvent()
 
     // 边距设置
-    data class OnPageTurnModeChange(val mode: AppPageAnim) : ReaderEvent()
+    data class OnReadingModeChange(val mode: ReadingMode) : ReaderEvent()
     data class OnSidePaddingChange(val padding: Int) : ReaderEvent()
     data class OnVerticalPaddingChange(val padding: Int) : ReaderEvent()
     data class OnCutoutPaddingApplyChange(val isApply: Boolean) : ReaderEvent()

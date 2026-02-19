@@ -6,10 +6,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.data.settings.AppChapterTitleAlign
 import io.github.lycosmic.data.settings.AppImageAlign
-import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
 import io.github.lycosmic.data.settings.ProgressTextAlign
+import io.github.lycosmic.data.settings.ReadingMode
 import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.data.settings.SettingsManager
 import io.github.lycosmic.domain.model.AppFontFamily
@@ -150,7 +150,7 @@ class ReaderSettingsViewModel @Inject constructor(
     val readerMode = settings.readerMode.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = AppPageAnim.SCROLL
+        initialValue = ReadingMode.SCROLL
     )
 
     // --- 边距 ---
@@ -209,7 +209,7 @@ class ReaderSettingsViewModel @Inject constructor(
     val progressTextSize = settings.progressBarFontSize.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = 16
+        initialValue = 4
     )
 
     // 进度条文字边距

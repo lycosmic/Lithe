@@ -20,10 +20,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import io.github.lycosmic.data.settings.AppChapterTitleAlign
 import io.github.lycosmic.data.settings.AppImageAlign
-import io.github.lycosmic.data.settings.AppPageAnim
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
 import io.github.lycosmic.data.settings.ProgressTextAlign
+import io.github.lycosmic.data.settings.ReadingMode
 import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.data.util.extensions.weight
 import io.github.lycosmic.domain.model.AppFontFamily
@@ -65,7 +65,7 @@ fun ReaderSettingsContent(
     imageAlign: AppImageAlign,
     imageSizePercent: Float,
     chapterTitleAlign: AppChapterTitleAlign,
-    pageTurnMode: AppPageAnim,
+    pageTurnMode: ReadingMode,
     sidePadding: Int,
     verticalPadding: Int,
     cutoutPaddingApply: Boolean,
@@ -96,7 +96,7 @@ fun ReaderSettingsContent(
     onImageAlignChange: (AppImageAlign) -> Unit,
     onImageSizePercentChange: (Float) -> Unit,
     onChapterTitleAlignChange: (AppChapterTitleAlign) -> Unit,
-    onPageTurnModeChange: (AppPageAnim) -> Unit,
+    onPageTurnModeChange: (ReadingMode) -> Unit,
     onSidePaddingChange: (Int) -> Unit,
     onVerticalPaddingChange: (Int) -> Unit,
     onCutoutPaddingApplyChange: (Boolean) -> Unit,
@@ -557,7 +557,7 @@ fun ReaderSettingsContent(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    AppPageAnim.entries.forEach { pageAnim ->
+                    ReadingMode.entries.forEach { pageAnim ->
                         SelectionChip(
                             text = stringResource(pageAnim.labelResId),
                             isSelected = pageAnim == pageTurnMode,

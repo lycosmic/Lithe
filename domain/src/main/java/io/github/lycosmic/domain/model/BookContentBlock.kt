@@ -31,7 +31,8 @@ sealed interface BookContentBlock {
     /**
      * 图片
      */
-    data class Image(val path: String, override val startIndex: Int) : BookContentBlock
+    data class Image(val path: String, override val startIndex: Int, val aspectRatio: Float) :
+        BookContentBlock
 
     /**
      * 图片描述

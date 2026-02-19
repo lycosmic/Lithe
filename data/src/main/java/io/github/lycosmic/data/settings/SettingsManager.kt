@@ -433,8 +433,8 @@ class SettingsManager @Inject constructor(
         dataStore.setEnum(Keys.READER_CHAPTER_TITLE_ALIGN, align)
 
     // --- 阅读模式 ---
-    val readerMode: Flow<AppPageAnim> = dataStore.getEnum(Keys.READER_MODE, AppPageAnim.SIMULATION)
-    suspend fun setReaderMode(mode: AppPageAnim) = dataStore.setEnum(Keys.READER_MODE, mode)
+    val readerMode: Flow<ReadingMode> = dataStore.getEnum(Keys.READER_MODE, ReadingMode.SCROLL)
+    suspend fun setReaderMode(mode: ReadingMode) = dataStore.setEnum(Keys.READER_MODE, mode)
 
     // --- 侧边距 ---
     val readerSidePadding: Flow<Int> = dataStore.getValue(Keys.READER_SIDE_PADDING, 1)
@@ -485,7 +485,7 @@ class SettingsManager @Inject constructor(
         dataStore.setValue(Keys.SHOW_PROGRESS_TEXT, isShow)
 
     // --- 进度条字体大小 ---
-    val progressBarFontSize: Flow<Int> = dataStore.getValue(Keys.PROGRESS_RECORD_FONT_SIZE, 16)
+    val progressBarFontSize: Flow<Int> = dataStore.getValue(Keys.PROGRESS_RECORD_FONT_SIZE, 4)
 
     suspend fun setProgressBarFontSize(size: Int) =
         dataStore.setValue(Keys.PROGRESS_RECORD_FONT_SIZE, size)

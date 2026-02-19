@@ -32,6 +32,7 @@ object ContentMapper {
                         startIndex = bookContentBlock.startIndex,
                         chapterIndex = chapterIndex,
                         path = bookContentBlock.path,
+                        aspectRatio = bookContentBlock.aspectRatio
                     )
                 }
 

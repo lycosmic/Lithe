@@ -13,6 +13,7 @@ import io.github.lycosmic.data.settings.AppImageAlign
 import io.github.lycosmic.data.settings.AppTextAlign
 import io.github.lycosmic.data.settings.ImageColorEffect
 import io.github.lycosmic.data.settings.ProgressTextAlign
+import io.github.lycosmic.data.settings.ReadingMode
 import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.data.settings.SettingsManager
 import io.github.lycosmic.domain.model.AppFontFamily
@@ -79,7 +80,10 @@ class ReaderViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<ReaderState> = MutableStateFlow(ReaderState())
     val uiState = _uiState.asStateFlow()
 
-    private val _effects = MutableSharedFlow<ReaderEffect>()
+    private val _effects = MutableSharedFlow<ReaderEffect>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     val effects = _effects.asSharedFlow()
 
 
@@ -193,6 +197,13 @@ class ReaderViewModel @Inject constructor(
         initialValue = AppChapterTitleAlign.CENTER
     )
 
+    // 阅读模式
+    val readingMode = settings.readerMode.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
+        initialValue = ReadingMode.SCROLL
+    )
+
     // --- 边距设置 ---
     val sidePadding = settings.readerSidePadding.stateIn(
         scope = viewModelScope,
@@ -247,7 +258,7 @@ class ReaderViewModel @Inject constructor(
     val progressTextSize = settings.progressBarFontSize.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = 16
+        initialValue = 4
     )
 
     val bottomProgressPadding = settings.progressBarMargin.stateIn(
@@ -613,7 +624,7 @@ class ReaderViewModel @Inject constructor(
                 }
 
                 // 边距设置
-                is ReaderEvent.OnPageTurnModeChange -> {
+                is ReaderEvent.OnReadingModeChange -> {
                     settings.setReaderMode(event.mode)
                 }
 
