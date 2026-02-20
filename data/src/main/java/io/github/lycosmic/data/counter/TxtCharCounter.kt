@@ -25,35 +25,39 @@ class TxtCharCounter @Inject constructor(
         ) {
             val file = FileUtils.getFileFromUri(context, book.fileUri)
 
-            if (file == null || !file.exists()) {
-                logger.e { "File not found: ${book.fileUri}" }
-                return@withContext 0L
-            }
+            try {
+                if (file == null || !file.exists()) {
+                    logger.e { "File not found: ${book.fileUri}" }
+                    return@withContext 0L
+                }
 
-            if (chapter !is BookChapter.TxtChapter) {
-                logger.e { "Invalid chapter type: ${chapter::class.simpleName}" }
-                return@withContext 0L
-            }
+                if (chapter !is BookChapter.TxtChapter) {
+                    logger.e { "Invalid chapter type: ${chapter::class.simpleName}" }
+                    return@withContext 0L
+                }
 
-            val charsetName = detectedCharset
-                ?: book.charset
-                ?: CharsetHelper.detectCharset(file).name()
+                val charsetName = detectedCharset
+                    ?: book.charset
+                    ?: CharsetHelper.detectCharset(file).name()
 
-            val charset = try {
-                Charset.forName(charsetName)
-            } catch (_: Exception) {
-                Charsets.UTF_8
-            }
+                val charset = try {
+                    Charset.forName(charsetName)
+                } catch (_: Exception) {
+                    Charsets.UTF_8
+                }
 
-            val start = chapter.startOffset
-            val length = chapter.endOffset - chapter.startOffset
-            if (length <= 0) return@withContext 0L
+                val start = chapter.startOffset
+                val length = chapter.endOffset - chapter.startOffset
+                if (length <= 0) return@withContext 0L
 
-            return@withContext RandomAccessFile(file, "r").use { raf ->
-                raf.seek(start)
-                val bytes = ByteArray(length.toInt())
-                raf.readFully(bytes)
-                String(bytes, charset).length.toLong()
+                return@withContext RandomAccessFile(file, "r").use { raf ->
+                    raf.seek(start)
+                    val bytes = ByteArray(length.toInt())
+                    raf.readFully(bytes)
+                    String(bytes, charset).length.toLong()
+                }
+            } finally {
+                file?.delete()
             }
         }
 }

@@ -17,17 +17,18 @@ class EpubCharCounter @Inject constructor(
 
     fun count(book: Book, chapter: BookChapter): Long {
         val file = FileUtils.getFileFromUri(context, book.fileUri)
-        if (file == null || !file.exists()) {
-            logger.e { "File not found: ${book.fileUri}" }
-            return 0L
-        }
-
-        if (chapter !is BookChapter.EpubChapter) {
-            logger.e { "Invalid chapter type: ${chapter::class.simpleName}" }
-            return 0L
-        }
 
         return try {
+            if (file == null || !file.exists()) {
+                logger.e { "File not found: ${book.fileUri}" }
+                return 0L
+            }
+
+            if (chapter !is BookChapter.EpubChapter) {
+                logger.e { "Invalid chapter type: ${chapter::class.simpleName}" }
+                return 0L
+            }
+
             ZipFile(file).use { zip ->
                 val entryName = chapter.href.substringBefore("#")
                 val entry = zip.getEntry(entryName) ?: return 0L
@@ -41,6 +42,8 @@ class EpubCharCounter @Inject constructor(
                 "Failed to count characters in chapter ${chapter.title}"
             }
             return 0L
+        } finally {
+            file?.delete()
         }
     }
 }
