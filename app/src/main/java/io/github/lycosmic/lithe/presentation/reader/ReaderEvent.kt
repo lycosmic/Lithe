@@ -10,6 +10,7 @@ import io.github.lycosmic.data.settings.ReadingMode
 import io.github.lycosmic.data.settings.ScreenOrientation
 import io.github.lycosmic.domain.model.AppFontWeight
 import io.github.lycosmic.domain.model.ColorPreset
+import io.github.lycosmic.lithe.presentation.reader.pager.BookPage
 
 sealed class ReaderEvent {
     // --- 顶部区域 ---
@@ -50,6 +51,18 @@ sealed class ReaderEvent {
      * 内容列表状态发生改变
      */
     data class OnContentListStateChange(val listState: LazyListState) : ReaderEvent()
+
+
+    /**
+     * 翻页列表状态发生改变
+     */
+    data class OnPageListChange(val pages: List<BookPage>) : ReaderEvent()
+
+    /**
+     * 翻页进度发生改变
+     */
+    data class OnPagerProgressUpdate(val currentCharIndex: Int, val chapterProgress: Float) :
+        ReaderEvent()
 
 
     /**

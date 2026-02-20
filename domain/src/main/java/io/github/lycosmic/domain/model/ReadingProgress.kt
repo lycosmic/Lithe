@@ -10,9 +10,9 @@ import kotlinx.serialization.Serializable
 data class ReadingProgress(
     val bookId: Long, // 书籍ID
     val chapterIndex: Int, // 章节索引
-    val chapterOffsetCharIndex: Int, // 当前章节的字符索引：指向当前屏幕顶部第一个可见字符在全文中的位置
     val progressPercent: Float, // 全书阅读进度百分比
     val lastReadTime: Long = System.currentTimeMillis(), // 最后阅读时间
+    val chapterOffsetCharIndex: Int, // 字符索引，之前第一个可见字符在本章中的位置
     // --- UI 性能优化数据 ---
     /**
      * LazyColumn 的 item 索引
@@ -30,7 +30,7 @@ data class ReadingProgress(
                 bookId = bookId,
                 chapterIndex = 0,
                 chapterOffsetCharIndex = 0,
-                progressPercent = 0f
+                progressPercent = 0f,
             )
         }
     }

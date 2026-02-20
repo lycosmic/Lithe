@@ -28,7 +28,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.LocalTextStyle
@@ -36,10 +36,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
@@ -67,7 +65,6 @@ import io.github.lycosmic.data.settings.ReadingMode
 import io.github.lycosmic.data.util.extensions.weight
 import io.github.lycosmic.domain.model.AppFontWeight
 import io.github.lycosmic.domain.model.ColorPreset
-import io.github.lycosmic.lithe.log.logD
 import io.github.lycosmic.lithe.presentation.reader.ReaderContent
 import io.github.lycosmic.lithe.presentation.reader.model.ReaderStyle
 import io.github.lycosmic.lithe.presentation.reader.pager.BookPage
@@ -90,6 +87,9 @@ fun BookReaderContent(
     contents: List<ReaderContent>,
     onContentClick: () -> Unit,
     listState: LazyListState,
+    pages: List<BookPage>,
+    onPageListChanged: (List<BookPage>) -> Unit,
+    pagerState: PagerState?,
     // 颜色预设
     colorPreset: ColorPreset,
     // 字体设置
@@ -338,17 +338,6 @@ fun BookReaderContent(
     }
 
 
-    // 分页数据
-    var pages by remember {
-        mutableStateOf<List<BookPage>>(emptyList())
-    }
-
-    // 分页状态
-    val pagerState = rememberPagerState(
-        initialPage = 0, // TODO: 根据阅读进度恢复
-        pageCount = { pages.size }
-    )
-
     val defaultScope = rememberCoroutineScope {
         Dispatchers.Default
     }
@@ -411,7 +400,6 @@ fun BookReaderContent(
     var availableW: Int
     var availableH: Int
 
-
     SelectionContainer {
         BoxWithConstraints(
             modifier = Modifier
@@ -436,10 +424,6 @@ fun BookReaderContent(
                 availableW = screenWidth - (paddingPx * 2).toInt()
                 availableH =
                     screenHeight - (topPaddingPx + bottomPaddingPx + vertPaddingPx * 2).toInt()
-
-                logD {
-                    "availableW: $availableW, availableH: $availableH"
-                }
             }
 
             LaunchedEffect(contents, readerStyle, availableW, availableH, readingMode) {
@@ -454,7 +438,7 @@ fun BookReaderContent(
                             availableWidth = availableW,
                             availableHeight = availableH
                         )
-                        pages = calculatedPages
+                        onPageListChanged(calculatedPages)
                     }
                 }
             }
@@ -495,7 +479,7 @@ fun BookReaderContent(
 
                 ReadingMode.SLIDE, ReadingMode.NONE -> {
                     // === 水平翻页 ===
-                    if (pages.isNotEmpty()) {
+                    if (pages.isNotEmpty() && pagerState != null) {
                         HorizontalPager(
                             state = pagerState,
                             modifier = Modifier.fillMaxSize(),

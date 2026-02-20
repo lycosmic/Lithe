@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,16 +55,20 @@ import io.github.lycosmic.data.settings.ReadingMode
 import io.github.lycosmic.domain.model.AppFontWeight
 import io.github.lycosmic.domain.model.ColorPreset
 import io.github.lycosmic.lithe.R
+import io.github.lycosmic.lithe.log.logD
 import io.github.lycosmic.lithe.presentation.reader.components.BookReaderContent
 import io.github.lycosmic.lithe.presentation.reader.components.ChapterListContent
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderBottomControls
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderSettingsBottomSheet
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderSettingsTabType
 import io.github.lycosmic.lithe.presentation.reader.components.ReaderTopBar
+import io.github.lycosmic.lithe.presentation.reader.pager.BookPage
+import io.github.lycosmic.lithe.presentation.reader.pager.getStartCharIndex
 import io.github.lycosmic.lithe.ui.components.CircularWavyProgressIndicator
 import io.github.lycosmic.lithe.util.FormatUtils.formatProgress
 import io.github.lycosmic.lithe.util.toast
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlin.math.abs
 
@@ -133,6 +140,9 @@ fun ReaderScreen(
 
     // 阅读模式
     val readingMode by viewModel.readingMode.collectAsStateWithLifecycle()
+    val isScrollMode by remember(readingMode) {
+        mutableStateOf(ReadingMode.SCROLL == readingMode)
+    }
 
     // 上下栏是否可见
     var isBarsVisible by remember { mutableStateOf(false) }
@@ -141,9 +151,11 @@ fun ReaderScreen(
     val contentListState = rememberLazyListState()
     // 列表状态变化时更新阅读进度
     LaunchedEffect(contentListState) {
+        if (!isScrollMode) return@LaunchedEffect
+
         snapshotFlow {
             contentListState.firstVisibleItemIndex
-        }.debounce(300).collect { _ ->
+        }.debounce(300).collectLatest { _ ->
             viewModel.onEvent(ReaderEvent.OnContentListStateChange(contentListState))
         }
     }
@@ -155,6 +167,62 @@ fun ReaderScreen(
     val chapterName = remember(uiState.currentChapterIndex) {
         uiState.chapters.getOrNull(uiState.currentChapterIndex)?.title ?: "未知章节"
     }
+
+
+    val pages by viewModel.pages.collectAsStateWithLifecycle()
+
+    var pagerState: PagerState? = null
+    if (pages.isNotEmpty() && !isScrollMode) {
+        // 获取初始页码
+        val initialPage = remember(Unit) {
+            val targetCharIndex = uiState.progress.chapterOffsetCharIndex
+            var targetIndex = 0
+            for (i in pages.indices.reversed()) {
+                if (pages[i].getStartCharIndex() <= targetCharIndex) {
+                    targetIndex = i
+                    break
+                }
+            }
+            logD { "初始化翻页：目标字符 $targetCharIndex -> 初始页码 $targetIndex" }
+            targetIndex
+        }
+
+        key(pages) {
+            pagerState = rememberPagerState(
+                initialPage = initialPage,
+                pageCount = { pages.size }
+            )
+
+            // 安全地保存翻页进度
+            LaunchedEffect(pagerState, pages) {
+                // 使用 settledPage，它只有在滑动完全停止时才发射
+                // 避免了手指拖拽到一半或者动画过程中的脏数据
+                snapshotFlow { pagerState.settledPage }.collectLatest { pageIndex ->
+                    val currentPage = pages.getOrNull(pageIndex) ?: return@collectLatest
+                    val currentCharIndex = currentPage.getStartCharIndex()
+
+                    // 只有当发现当前的字符索引真的变了，才去保存
+                    // 这能彻底打破 "恢复 -> 保存相同值 -> 触发State -> 重新恢复" 的死循环
+                    if (uiState.progress.chapterOffsetCharIndex != currentCharIndex) {
+                        val chapterProgress = if (pages.size > 1) {
+                            pageIndex.toFloat() / (pages.size - 1)
+                        } else {
+                            1f
+                        }
+
+                        logD { "保存翻页阅读进度：页码 $pageIndex，字符 $currentCharIndex" }
+                        viewModel.onEvent(
+                            ReaderEvent.OnPagerProgressUpdate(
+                                currentCharIndex,
+                                chapterProgress
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
 
     // 抽屉状态
     val chapterDrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -313,10 +381,7 @@ fun ReaderScreen(
                 }
 
                 is ReaderEffect.ScrollToItem -> {
-                    // 确保数据不为空再滚动
-                    if (contentListState.layoutInfo.totalItemsCount > 0) {
-                        contentListState.scrollToItem(effect.index, effect.offset)
-                    }
+                    contentListState.scrollToItem(effect.index, effect.offset)
                 }
 
                 ReaderEffect.ShowFirstChapterToast -> {
@@ -345,6 +410,12 @@ fun ReaderScreen(
 
                 ReaderEffect.HideTopBarAndBottomControl -> {
                     isBarsVisible = false
+                }
+
+                is ReaderEffect.ScrollToPage -> {
+                    if (readingMode == ReadingMode.SLIDE) {
+                        pagerState?.animateScrollToPage(effect.index)
+                    }
                 }
             }
         }
@@ -423,6 +494,11 @@ fun ReaderScreen(
             uiState = uiState,
             isBarsVisible = isBarsVisible,
             listState = contentListState,
+            pages = pages,
+            onPageListChanged = {
+                viewModel.onEvent(ReaderEvent.OnPageListChange(it))
+            },
+            pagerState = pagerState,
             chapterName = chapterName,
             onBackClick = {
                 viewModel.onEvent(ReaderEvent.OnBackClick)
@@ -725,6 +801,9 @@ fun DrawerContent(
     onPrevClick: () -> Unit,
     onNextClick: () -> Unit,
     listState: LazyListState,
+    pages: List<BookPage>,
+    onPageListChanged: (List<BookPage>) -> Unit,
+    pagerState: PagerState?,
     // 字体设置
     fontFamily: FontFamily,
     fontSize: Int,
@@ -808,6 +887,9 @@ fun DrawerContent(
                     }
                 },
                 listState = listState,
+                pages = pages,
+                onPageListChanged = onPageListChanged,
+                pagerState = pagerState,
                 onContentClick = onReadContentClick,
                 colorPreset = colorPreset,
                 // 字体设置

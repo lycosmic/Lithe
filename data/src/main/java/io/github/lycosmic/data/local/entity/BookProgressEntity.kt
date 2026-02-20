@@ -20,7 +20,9 @@ data class BookProgressEntity(
     @ColumnInfo(name = COL_ITEM_INDEX)
     val itemIndex: Int = 0,
     @ColumnInfo(name = COL_ITEM_OFFSET)
-    val itemOffset: Int = 0
+    val itemOffset: Int = 0,
+    @ColumnInfo(name = COL_IS_SCROLL)
+    val isScroll: Boolean = true
 ) {
     companion object {
         const val TABLE_NAME = "book_progress"
@@ -32,5 +34,6 @@ data class BookProgressEntity(
         const val COL_UPDATED_AT = "updated_at"
         const val COL_ITEM_INDEX = "lazy_column_item_index"
         const val COL_ITEM_OFFSET = "lazy_column_item_offset"
+        const val COL_IS_SCROLL = "is_scroll"
     }
 }

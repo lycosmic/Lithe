@@ -42,6 +42,10 @@ object PrecisePaginator {
             with(density) { readerStyle.paragraphSpacing.toPx().toInt() } // 段间距
         val dividerHeightPx = with(density) { 32.dp.toPx().toInt() }   // 分割线高度
 
+
+        // 之前的段落长度
+        var paragraphCharCount = 0
+
         // 遍历所有内容
         contents.forEach { content ->
             // 如果不是页面第一个元素，加上段间距
@@ -83,6 +87,9 @@ object PrecisePaginator {
 
                 // --- 处理段落 ---
                 is ReaderContent.Paragraph -> {
+                    // 重置
+                    paragraphCharCount = 0
+
                     // 测量样式
                     val textStyle = TextStyle(
                         fontFamily = readerStyle.fontFamily,
@@ -107,9 +114,18 @@ object PrecisePaginator {
 
                         // 如果能完全放下
                         if (currentY + itemSpacing + layoutResult.size.height <= availableHeight) {
+                            val startCharIndex =
+                                if (isStart) content.startIndex else content.startIndex + paragraphCharCount
                             currentPageItems.add(
-                                TextSplit(content, text, isStart, isEnd = true)
+                                TextSplit(
+                                    originContent = content,
+                                    subText = text,
+                                    isStart = isStart,
+                                    isEnd = true,
+                                    startCharIndex = startCharIndex
+                                )
                             )
+                            paragraphCharCount += text.length
                             currentY += (itemSpacing + layoutResult.size.height)
                             return
                         }
@@ -152,9 +168,18 @@ object PrecisePaginator {
                         val secondPart = text.subSequence(splitOffset, text.length)
 
                         // 添加第一部分到当前页
+                        val startCharIndex =
+                            if (isStart) content.startIndex else content.startIndex + paragraphCharCount
                         currentPageItems.add(
-                            TextSplit(content, firstPart, isStart, isEnd = false)
+                            TextSplit(
+                                originContent = content,
+                                subText = firstPart,
+                                isStart = isStart,
+                                isEnd = false,
+                                startCharIndex = startCharIndex
+                            )
                         )
+                        paragraphCharCount += text.length
                         commitPage() // 这一页满了，提交
 
                         // 递归处理剩下的部分

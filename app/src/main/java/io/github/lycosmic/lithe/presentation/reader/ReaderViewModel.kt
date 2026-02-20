@@ -43,6 +43,7 @@ import io.github.lycosmic.lithe.presentation.reader.ReaderEffect.ShowFirstChapte
 import io.github.lycosmic.lithe.presentation.reader.ReaderEffect.ShowLastChapterToast
 import io.github.lycosmic.lithe.presentation.reader.ReaderEffect.ShowOrHideTopBarAndBottomControl
 import io.github.lycosmic.lithe.presentation.reader.mapper.ContentMapper
+import io.github.lycosmic.lithe.presentation.reader.pager.BookPage
 import io.github.lycosmic.lithe.util.AppConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -81,7 +82,8 @@ class ReaderViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private val _effects = MutableSharedFlow<ReaderEffect>(
-        extraBufferCapacity = 1,
+        replay = 1,
+        extraBufferCapacity = 5,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     val effects = _effects.asSharedFlow()
@@ -95,6 +97,10 @@ class ReaderViewModel @Inject constructor(
 
     // 记录拖拽落点的索引
     private var lastUserDragTargetIndex: Int = -1
+
+    // 翻页数据
+    private val _pages: MutableStateFlow<List<BookPage>> = MutableStateFlow(emptyList())
+    val pages = _pages.asStateFlow()
 
 
     // --- 字体设置 ---
@@ -464,9 +470,15 @@ class ReaderViewModel @Inject constructor(
                 }
 
                 // 滚动到上次阅读位置，恢复阅读进度
-                val targetItemIndex = _uiState.value.progress.uiItemIndex
-                val targetItemOffset = _uiState.value.progress.uiItemOffset
-                _effects.emit(ReaderEffect.ScrollToItem(targetItemIndex, targetItemOffset))
+                if (readingMode.value == ReadingMode.SCROLL) {
+                    val targetItemIndex = _uiState.value.progress.uiItemIndex
+                    val targetItemOffset = _uiState.value.progress.uiItemOffset
+
+                    logD {
+                        "滚动模式恢复阅读进度，目标索引为 $targetItemIndex，目标偏移为 $targetItemOffset"
+                    }
+                    _effects.emit(ReaderEffect.ScrollToItem(targetItemIndex, targetItemOffset))
+                }
 
                 // 滚动到当前章节
                 _effects.emit(ReaderEffect.ScrollToChapter(progress.chapterIndex))
@@ -518,8 +530,23 @@ class ReaderViewModel @Inject constructor(
                 }
 
                 is ReaderEvent.OnContentListStateChange -> {
-                    // 更新进度
-                    updateMemoryProgress(event.listState)
+                    // 更新内存中的进度
+                    updateMemoryScrollProgress(event.listState)
+                }
+
+                is ReaderEvent.OnPagerProgressUpdate -> {
+                    // 更新内存中的进度
+                    updateMemoryPagerProgress(event.currentCharIndex, event.chapterProgress)
+                }
+
+                is ReaderEvent.OnPageListChange -> {
+                    if (_pages.value == event.pages) {
+                        return@launch
+                    }
+
+                    _pages.update {
+                        event.pages
+                    }
                 }
 
                 is ReaderEvent.OnStopOrDispose -> {
@@ -951,9 +978,9 @@ class ReaderViewModel @Inject constructor(
     }
 
     /**
-     * 更新内存中的进度
+     * 更新内存中的滚动进度
      */
-    private fun updateMemoryProgress(listState: LazyListState) {
+    private fun updateMemoryScrollProgress(listState: LazyListState) {
         viewModelScope.launch {
             var chapterProgress: Float
             var uiIndex: Int
@@ -1076,6 +1103,41 @@ class ReaderViewModel @Inject constructor(
                 }
             }
 
+        }
+    }
+
+    /**
+     * 更新内存中的翻页进度
+     */
+    private fun updateMemoryPagerProgress(charIndex: Int, chapterProgress: Float) {
+        val chapterIndex = _uiState.value.currentChapterIndex
+
+        _uiState.update { state ->
+            state.copy(
+                chapterProgress = chapterProgress,
+                progress = state.progress.copy(
+                    chapterIndex = chapterIndex,
+                    chapterOffsetCharIndex = charIndex,
+                    uiItemOffset = 0,
+                    lastReadTime = System.currentTimeMillis()
+                )
+            )
+        }
+
+        // 计算全书进度
+        calculateBookProgress(chapterProgress, chapterIndex)
+
+        // 计算全书进度
+        val progressPercent =
+            calculateBookProgress(chapterProgress, chapterIndex)
+
+        _uiState.update {
+            it.copy(
+                progress = it.progress.copy(
+                    progressPercent = progressPercent,
+                    lastReadTime = System.currentTimeMillis(),
+                ),
+            )
         }
     }
 
@@ -1210,15 +1272,18 @@ class ReaderViewModel @Inject constructor(
 
             // 5. 遍历寻找对应的索引
             var targetItemIndex = 0
-            var currentAccumulatedLength = 0
-            for (i in newContent.indices) {
-                val itemLength = getReaderItemLength(newContent[i])
-                if (currentAccumulatedLength + itemLength > targetParsedCharPosition) {
-                    targetItemIndex = i
-                    break
+            if (readingMode.value == ReadingMode.SCROLL) {
+                var currentAccumulatedLength = 0
+                for (i in newContent.indices) {
+                    val itemLength = getReaderItemLength(newContent[i])
+                    if (currentAccumulatedLength + itemLength > targetParsedCharPosition) {
+                        targetItemIndex = i
+                        break
+                    }
+                    currentAccumulatedLength += itemLength
                 }
-                currentAccumulatedLength += itemLength
             }
+
 
             // 保存用户的意图作为锚点
             if (expectedGlobalProgress != null) {
@@ -1245,7 +1310,7 @@ class ReaderViewModel @Inject constructor(
                 bookId = book.id,
                 chapterIndex = index,
                 chapterOffsetCharIndex = targetParsedCharPosition, // 存的是真实的字符位置
-                progressPercent = finalGlobalProgress            // 存的是计算后的比例
+                progressPercent = finalGlobalProgress,           // 存的是计算后的比例
             )
 
             saveReadingProgressUseCase(book.id, newProgress)
@@ -1260,8 +1325,10 @@ class ReaderViewModel @Inject constructor(
                 )
             }
 
-            // 触发滚动效果
-            _effects.emit(ReaderEffect.ScrollToItem(targetItemIndex, 0))
+            if (readingMode.value == ReadingMode.SCROLL) {
+                // 触发滚动效果
+                _effects.emit(ReaderEffect.ScrollToItem(targetItemIndex, 0))
+            }
 
             // 隐藏菜单
             _effects.emit(HideChapterListDrawer)

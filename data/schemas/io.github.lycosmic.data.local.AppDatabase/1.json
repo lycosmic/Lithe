@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "72d80c2577058048d57282f5a797240b",
+    "identityHash": "a6a7d8a170b3b35a4596bd6a5ff10cf0",
     "entities": [
       {
         "tableName": "books",
@@ -189,7 +189,7 @@
       },
       {
         "tableName": "book_progress",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`book_id` INTEGER NOT NULL, `chapter_index` INTEGER NOT NULL, `char_index` INTEGER NOT NULL, `progress` REAL NOT NULL, `updated_at` INTEGER NOT NULL, `lazy_column_item_index` INTEGER NOT NULL, `lazy_column_item_offset` INTEGER NOT NULL, PRIMARY KEY(`book_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`book_id` INTEGER NOT NULL, `chapter_index` INTEGER NOT NULL, `char_index` INTEGER NOT NULL, `progress` REAL NOT NULL, `updated_at` INTEGER NOT NULL, `lazy_column_item_index` INTEGER NOT NULL, `lazy_column_item_offset` INTEGER NOT NULL, `is_scroll` INTEGER NOT NULL, PRIMARY KEY(`book_id`))",
         "fields": [
           {
             "fieldPath": "bookId",
@@ -230,6 +230,12 @@
           {
             "fieldPath": "itemOffset",
             "columnName": "lazy_column_item_offset",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isScroll",
+            "columnName": "is_scroll",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -415,7 +421,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '72d80c2577058048d57282f5a797240b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a6a7d8a170b3b35a4596bd6a5ff10cf0')"
     ]
   }
 }

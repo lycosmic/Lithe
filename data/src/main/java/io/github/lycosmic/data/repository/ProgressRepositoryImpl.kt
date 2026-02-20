@@ -29,7 +29,7 @@ class ProgressRepositoryImpl @Inject constructor(
         return runCatching {
             bookProgressDao.getProgress(bookId)?.toDomain()
             // 默认返回一个空的进度
-                ?: ReadingProgress(bookId, 0, 0, 0f)
+                ?: ReadingProgress.default(bookId)
         }
     }
 
