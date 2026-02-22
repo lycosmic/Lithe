@@ -1,7 +1,6 @@
 package io.github.lycosmic.lithe.presentation.reader.components
 
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -37,7 +35,7 @@ fun PageRenderer(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Green.copy(alpha = 0.1f))
+//            .background(Color.Green.copy(alpha = 0.1f))
             .pointerInput(Unit) { // 获取点击坐标
                 detectTapGestures { offset ->
                     val width = size.width
@@ -103,7 +101,7 @@ fun PageRenderer(
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.Red.copy(alpha = 0.2f))
+//                            .background(Color.Red.copy(alpha = 0.2f))
                     )
                 }
             }
