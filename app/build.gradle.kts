@@ -1,3 +1,9 @@
+import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import java.io.FileInputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -9,10 +15,29 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+// --- 加载签名配置函数 ---
+val keystorePropertiesFile = rootProject.file("local.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "io.github.lycosmic.lithe"
     compileSdk {
         version = release(36)
+    }
+
+    // --- 签名配置 ---
+    signingConfigs {
+        create("release") {
+            if (keystoreProperties.containsKey("store.file")) {
+                storeFile = file(keystoreProperties["store.file"] as String)
+                storePassword = keystoreProperties["store.password"] as String
+                keyAlias = keystoreProperties["key.alias"] as String
+                keyPassword = keystoreProperties["key.password"] as String
+            }
+        }
     }
 
     defaultConfig {
@@ -25,15 +50,38 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // --- APK 自动重命名 ---
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
+
+            // 为 release 构建类型设置输出文件名
+            applicationVariants.all {
+                if (buildType.name == "release") {
+                    outputs.all {
+                        val appName = "Lithe"
+                        val version = versionName
+                        val date = SimpleDateFormat("yyyyMMdd").format(Date())
+                        val outputFileName = "${appName}_v${version}_${date}_release.apk"
+
+                        (this as ApkVariantOutputImpl).outputFileName = outputFileName
+                    }
+                }
+            }
+        }
+
+        debug {
+            isMinifyEnabled = false
+            applicationIdSuffix = ".debug"
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
