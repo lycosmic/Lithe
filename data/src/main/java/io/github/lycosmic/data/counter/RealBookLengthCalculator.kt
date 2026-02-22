@@ -27,6 +27,10 @@ class RealBookLengthCalculator @Inject constructor(
 
         // 2. 遍历计算
         for (chapter in chapters) {
+            if (chapter.realCharCount > 0) {
+                continue
+            }
+
             val realLength = when (book.format) {
                 FileFormat.EPUB -> epubCounter.count(book, chapter)
                 // 传进去我们确定好的编码
@@ -35,6 +39,11 @@ class RealBookLengthCalculator @Inject constructor(
                     throw IllegalArgumentException("Unsupported file format: ${book.format}")
                 }
             }
+
+            if (realLength <= 0L) {
+                continue
+            }
+
             val newChapter = when (chapter) {
                 is BookChapter.EpubChapter -> {
                     chapter.copy(realCharCount = realLength)

@@ -45,7 +45,7 @@ fun StyledText(
     style: TextStyle = LocalTextStyle.current,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
-    overflow: TextOverflow = TextOverflow.Ellipsis,
+    overflow: TextOverflow = TextOverflow.Clip,
 ) {
     BasicText(
         modifier = modifier,

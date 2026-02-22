@@ -48,6 +48,7 @@ import io.github.lycosmic.lithe.util.AppConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -258,7 +259,7 @@ class ReaderViewModel @Inject constructor(
     val isBottomProgressTextVisible = settings.showProgressText.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = true
+        initialValue = false
     )
 
     val progressTextSize = settings.progressBarFontSize.stateIn(
@@ -427,6 +428,7 @@ class ReaderViewModel @Inject constructor(
 
             // 启动后台精准计算章节长度任务
             launch(Dispatchers.IO) {
+                ensureActive()
                 val preciseChapters = calculatePreciseBookLengthUseCase(book, chapters)
 
                 // 计算完成，静默更新
@@ -470,9 +472,9 @@ class ReaderViewModel @Inject constructor(
                 }
 
                 // 滚动到上次阅读位置，恢复阅读进度
-                if (readingMode.value == ReadingMode.SCROLL) {
-                    val targetItemIndex = _uiState.value.progress.uiItemIndex
-                    val targetItemOffset = _uiState.value.progress.uiItemOffset
+                if (progress.uiItemOffset != 0 && progress.uiItemIndex != 0) {
+                    val targetItemIndex = progress.uiItemIndex
+                    val targetItemOffset = progress.uiItemOffset
 
                     logD {
                         "滚动模式恢复阅读进度，目标索引为 $targetItemIndex，目标偏移为 $targetItemOffset"
@@ -1119,6 +1121,7 @@ class ReaderViewModel @Inject constructor(
                     chapterIndex = chapterIndex,
                     chapterOffsetCharIndex = charIndex,
                     uiItemOffset = 0,
+                    uiItemIndex = 0,
                     lastReadTime = System.currentTimeMillis()
                 )
             )

@@ -56,6 +56,9 @@ class TxtCharCounter @Inject constructor(
                     raf.readFully(bytes)
                     String(bytes, charset).length.toLong()
                 }
+            } catch (e: Exception) {
+                logger.e(throwable = e) { "Error counting characters in TXT file: ${book.fileUri}" }
+                return@withContext 0L
             } finally {
                 file?.delete()
             }

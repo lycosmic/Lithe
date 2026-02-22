@@ -1,17 +1,19 @@
 package io.github.lycosmic.lithe.presentation.reader.components
 
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextIndent
@@ -35,6 +37,7 @@ fun PageRenderer(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.Green.copy(alpha = 0.1f))
             .pointerInput(Unit) { // 获取点击坐标
                 detectTapGestures { offset ->
                     val width = size.width
@@ -93,11 +96,14 @@ fun PageRenderer(
                             textAlign = readerStyle.paragraphAlign,
                             color = readerStyle.textColor,
                             textIndent = TextIndent(firstLine = indent),
-                            lineBreak = LineBreak.Paragraph
+                            lineBreak = LineBreak.Paragraph,
+                            platformStyle = PlatformTextStyle(
+                                includeFontPadding = false
+                            ),
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = readerStyle.sidePadding)
+                            .background(Color.Red.copy(alpha = 0.2f))
                     )
                 }
             }

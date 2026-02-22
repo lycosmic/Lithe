@@ -2,6 +2,7 @@ package io.github.lycosmic.data.util
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.net.toUri
 import java.io.File
 import java.io.FileOutputStream
 
@@ -12,7 +13,7 @@ object FileUtils {
      * 如果是 content://，则复制到缓存目录；如果是 file://，则直接返回
      */
     fun getFileFromUri(context: Context, uriString: String): File? {
-        val uri = Uri.parse(uriString)
+        val uri = uriString.toUri()
 
         if (uri.scheme == "file") {
             return File(uri.path ?: return null)

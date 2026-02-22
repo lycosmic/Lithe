@@ -36,8 +36,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
@@ -77,6 +79,7 @@ import io.github.lycosmic.lithe.util.extensions.textColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.abs
 
 /**
  * 阅读内容
@@ -397,168 +400,176 @@ fun BookReaderContent(
         )
     }
 
-    var availableW: Int
-    var availableH: Int
 
     SelectionContainer {
-        BoxWithConstraints(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(animatedBgColor)
-                .padding(contentPadding)
-                .padding(vertical = verticalPadding)
+                .padding(paddingValues = contentPadding)
         ) {
-            val screenWidth = constraints.maxWidth
-            val screenHeight = constraints.maxHeight
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = verticalPadding, horizontal = computedSidePadding)
+            ) {
 
-            with(density) {
-                // 获取左右 Padding 像素
-                val paddingPx = computedSidePadding.toPx()
+                val rawAvailableW = constraints.maxWidth
+                val rawAvailableH = constraints.maxHeight
 
-                // 获取上下 Padding 像素 (包括系统栏 Insets 和自定义垂直边距)
-                val topPaddingPx = contentPadding.calculateTopPadding().toPx()
-                val bottomPaddingPx = contentPadding.calculateBottomPadding().toPx()
-                val vertPaddingPx = verticalPadding.toPx()
+                // 尺寸防抖锁：只承认大于 50 像素的实质性尺寸变化
+                var availableW by remember { mutableIntStateOf(rawAvailableW) }
+                var availableH by remember { mutableIntStateOf(rawAvailableH) }
 
-                // 计算内容可用区域，需要减去边距
-                availableW = screenWidth - (paddingPx * 2).toInt()
-                availableH =
-                    screenHeight - (topPaddingPx + bottomPaddingPx + vertPaddingPx * 2).toInt()
-            }
-
-            LaunchedEffect(contents, readerStyle, availableW, availableH, readingMode) {
-                // 计算分页结果
-                defaultScope.launch {
-                    if (readingMode != ReadingMode.SCROLL && availableW > 0 && availableH > 0) {
-                        val calculatedPages = PrecisePaginator.paginate(
-                            contents = contents,
-                            readerStyle = readerStyle,
-                            textMeasurer = textMeasurer,
-                            density = density,
-                            availableWidth = availableW,
-                            availableHeight = availableH
-                        )
-                        onPageListChanged(calculatedPages)
-                    }
+                // 如果高度的变化超过 50px，才允许更新
+                if (abs(rawAvailableW - availableW) > 50) {
+                    availableW = rawAvailableW
                 }
-            }
+                // 如果宽度的变化超过 50px，才允许更新
+                if (abs(rawAvailableH - availableH) > 50) {
+                    availableH = rawAvailableH
+                }
 
-            when (readingMode) {
-                ReadingMode.SCROLL -> {
-                    // === 垂直滚动模式 ===
-                    LazyColumn(
-                        verticalArrangement = Arrangement.Top,
-                        state = listState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clickableNoRipple {
-                                onContentClick()
-                            }
-                            .nestedScroll(nestedScrollConnection)
-                    ) {
-                        itemsIndexed(
-                            items = contents,
-                            key = { index, _ -> index }) { index, content ->
-                            // 段落间距
-                            if (index > 0) {
-                                Spacer(modifier = Modifier.height(paragraphSpacing))
-                            }
-
-                            // 核心渲染
-                            ReaderItemRenderer(
-                                content = content,
-                                style = readerStyle,
-                                modifier = Modifier.animateItem(
-                                    fadeInSpec = null,
-                                    fadeOutSpec = null
-                                )
+                LaunchedEffect(
+                    contents,
+                    readerStyle,
+                    availableW,
+                    availableH,
+                    readingMode
+                ) {
+                    // 计算分页结果
+                    defaultScope.launch {
+                        if (readingMode != ReadingMode.SCROLL && availableW > 0 && availableH > 0) {
+                            val calculatedPages = PrecisePaginator.paginate(
+                                contents = contents,
+                                readerStyle = readerStyle,
+                                textMeasurer = textMeasurer,
+                                density = density,
+                                availableWidth = availableW,
+                                availableHeight = availableH
                             )
+                            onPageListChanged(calculatedPages)
                         }
                     }
                 }
 
-                ReadingMode.SLIDE, ReadingMode.NONE -> {
-                    // === 水平翻页 ===
-                    if (pages.isNotEmpty() && pagerState != null) {
-                        HorizontalPager(
-                            state = pagerState,
-                            modifier = Modifier.fillMaxSize(),
-                            // 页面间距
-                            pageSpacing = 0.dp,
-                            // 允许用户手势滑动
-                            userScrollEnabled = true,
-                            verticalAlignment = Alignment.Top,
-                        ) { index ->
-                            pages.getOrNull(index)?.let { page ->
-                                PageRenderer(
-                                    page = page,
-                                    readerStyle = readerStyle,
-                                    onContentClick = {
-                                        onContentClick()
-                                    },
-                                    onPageChange = { pageIndex ->
-                                        if (pageIndex == page.index) {
-                                            return@PageRenderer
-                                        }
+                when (readingMode) {
+                    ReadingMode.SCROLL -> {
+                        // === 垂直滚动模式 ===
+                        LazyColumn(
+                            verticalArrangement = Arrangement.Top,
+                            state = listState,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickableNoRipple {
+                                    onContentClick()
+                                }
+                                .nestedScroll(nestedScrollConnection)
+                        ) {
+                            itemsIndexed(
+                                items = contents,
+                                key = { index, _ -> index }) { index, content ->
+                                // 段落间距
+                                if (index > 0) {
+                                    Spacer(modifier = Modifier.height(paragraphSpacing))
+                                }
 
-                                        defaultScope.launch {
-                                            when (readingMode) {
-                                                ReadingMode.SLIDE -> {
-                                                    // 平滑切换
-                                                    pagerState.animateScrollToPage(pageIndex)
-                                                }
+                                // 核心渲染
+                                ReaderItemRenderer(
+                                    content = content,
+                                    style = readerStyle,
+                                    modifier = Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null
+                                    )
+                                )
+                            }
+                        }
+                    }
 
-                                                ReadingMode.NONE -> {
-                                                    // 无动画切换，确保不在Compose测量或布局的阶段执行
-                                                    withContext(Dispatchers.Main.immediate) {
-                                                        pagerState.scrollToPage(pageIndex)
+                    ReadingMode.SLIDE, ReadingMode.NONE -> {
+                        // === 水平翻页 ===
+                        if (pages.isNotEmpty() && pagerState != null) {
+                            HorizontalPager(
+                                state = pagerState,
+                                modifier = Modifier.fillMaxSize(),
+                                // 页面间距
+                                pageSpacing = 0.dp,
+                                // 允许用户手势滑动
+                                userScrollEnabled = true,
+                                verticalAlignment = Alignment.Top,
+                            ) { index ->
+                                pages.getOrNull(index)?.let { page ->
+                                    PageRenderer(
+                                        page = page,
+                                        readerStyle = readerStyle,
+                                        onContentClick = {
+                                            onContentClick()
+                                        },
+                                        onPageChange = { pageIndex ->
+                                            if (pageIndex == page.index) {
+                                                return@PageRenderer
+                                            }
+
+                                            defaultScope.launch {
+                                                when (readingMode) {
+                                                    ReadingMode.SLIDE -> {
+                                                        // 平滑切换
+                                                        pagerState.animateScrollToPage(pageIndex)
+                                                    }
+
+                                                    ReadingMode.NONE -> {
+                                                        // 无动画切换，确保不在Compose测量或布局的阶段执行
+                                                        withContext(Dispatchers.Main.immediate) {
+                                                            pagerState.scrollToPage(pageIndex)
+                                                        }
+                                                    }
+
+                                                    else -> {
+                                                        throw IllegalStateException("Unreachable code")
                                                     }
                                                 }
-
-                                                else -> {
-                                                    throw IllegalStateException("Unreachable code")
-                                                }
                                             }
-                                        }
 
-                                    },
-                                    pagerState = pagerState
-                                )
+                                        },
+                                        pagerState = pagerState
+                                    )
+                                }
                             }
+                        } else {
+                            CircularWavyProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
-                    } else {
-                        CircularWavyProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                 }
-            }
 
 
-            // 底部进度条
-            AnimatedVisibility(
-                modifier = Modifier.align(Alignment.BottomCenter),
-                visible = progressTextVisible && !barsVisible,
-                enter = slideInVertically { it } + expandVertically(),
-                exit = slideOutVertically { it } + shrinkVertically()
-            ) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .background(animatedBgColor)
-                        .padding(
-                            horizontal = computedSidePadding,
-                            vertical = progressTextPadding
-                        ),
-                    contentAlignment = progressTextAlign
+                // 底部进度条
+                AnimatedVisibility(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    visible = progressTextVisible && !barsVisible,
+                    enter = slideInVertically { it } + expandVertically(),
+                    exit = slideOutVertically { it } + shrinkVertically()
                 ) {
-                    DisableSelection {
-                        StyledText(
-                            text = progressText,
-                            style = LocalTextStyle.current.copy(
-                                color = animatedTextColor,
-                                fontSize = progressTextFontSize
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .background(animatedBgColor)
+                            .padding(
+                                horizontal = computedSidePadding,
+                                vertical = progressTextPadding
                             ),
-                            maxLines = 1
-                        )
+                        contentAlignment = progressTextAlign
+                    ) {
+                        DisableSelection {
+                            StyledText(
+                                text = progressText,
+                                style = LocalTextStyle.current.copy(
+                                    color = animatedTextColor,
+                                    fontSize = progressTextFontSize
+                                ),
+                                maxLines = 1
+                            )
+                        }
                     }
                 }
             }

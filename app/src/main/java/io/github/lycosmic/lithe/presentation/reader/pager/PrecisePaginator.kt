@@ -2,6 +2,7 @@ package io.github.lycosmic.lithe.presentation.reader.pager
 
 
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextIndent
@@ -42,7 +43,6 @@ object PrecisePaginator {
             with(density) { readerStyle.paragraphSpacing.toPx().toInt() } // 段间距
         val dividerHeightPx = with(density) { 32.dp.toPx().toInt() }   // 分割线高度
 
-
         // 之前的段落长度
         var paragraphCharCount = 0
 
@@ -59,6 +59,9 @@ object PrecisePaginator {
                         style = TextStyle(
                             fontSize = 28.sp, // TODO: 外部传入
                             fontFamily = readerStyle.fontFamily,
+                            platformStyle = PlatformTextStyle(
+                                includeFontPadding = false
+                            )
                         ),
                         constraints = Constraints(maxWidth = availableWidth)
                     )
@@ -90,14 +93,16 @@ object PrecisePaginator {
                     // 重置
                     paragraphCharCount = 0
 
-                    // 测量样式
-                    val textStyle = TextStyle(
+                    // 提取基础样式
+                    val baseTextStyle = TextStyle(
                         fontFamily = readerStyle.fontFamily,
                         fontSize = readerStyle.fontSize,
                         lineHeight = readerStyle.lineHeight,
                         letterSpacing = readerStyle.letterSpacing,
-                        textIndent = TextIndent(firstLine = readerStyle.paragraphIndent),
-                        textAlign = readerStyle.paragraphAlign
+                        textAlign = readerStyle.paragraphAlign,
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false
+                        )
                     )
 
                     // 递归处理可能跨多页的长段落
@@ -105,10 +110,17 @@ object PrecisePaginator {
                         text: AnnotatedString,
                         isStart: Boolean
                     ) {
+                        // 动态应用缩进：只有段落真正的开头，才在测量时加上首行缩进
+                        val currentTextStyle = baseTextStyle.copy(
+                            textIndent = TextIndent(
+                                firstLine = if (isStart) readerStyle.paragraphIndent else 0.sp
+                            )
+                        )
+
                         // 测量文字高度
                         val layoutResult = textMeasurer.measure(
                             text = text,
-                            style = textStyle,
+                            style = currentTextStyle, // 使用动态构建的 Style
                             constraints = Constraints(maxWidth = availableWidth)
                         )
 
@@ -131,26 +143,24 @@ object PrecisePaginator {
                         }
 
                         // 放不下，计算当前页还剩多少高度
-                        val remainingHeight = availableHeight - currentY
+                        val remainingHeight = availableHeight - currentY - itemSpacing
 
                         // 查找在哪个字符处断开
                         var splitOffset = 0
                         for (lineIndex in 0 until layoutResult.lineCount) {
-                            if (layoutResult.getLineBottom(lineIndex) + itemSpacing > remainingHeight) {
+                            if (layoutResult.getLineBottom(lineIndex) > remainingHeight) {
                                 // 这一行超出了剩余空间
                                 if (lineIndex == 0) {
                                     // 连第一行都放不下 -> 强行换页
-                                    // 不进行切割，直接把整个任务丢给下一页
                                     commitPage()
                                     itemSpacing = 0
-                                    // 递归调用，在下一页重新尝试
                                     layoutParagraph(text, isStart)
                                     return
                                 }
 
-                                // 正常情况：在上一行结束处截断
+                                // 强制把行尾的换行符或空格留在上一页，防止下一页开头出现幽灵空行
                                 splitOffset =
-                                    layoutResult.getLineEnd(lineIndex - 1, visibleEnd = true)
+                                    layoutResult.getLineEnd(lineIndex - 1, visibleEnd = false)
                                 break
                             }
                         }
@@ -179,7 +189,7 @@ object PrecisePaginator {
                                 startCharIndex = startCharIndex
                             )
                         )
-                        paragraphCharCount += text.length
+                        paragraphCharCount += firstPart.length
                         commitPage() // 这一页满了，提交
 
                         // 递归处理剩下的部分
@@ -193,7 +203,7 @@ object PrecisePaginator {
                 // --- 处理图片 ---
                 is ReaderContent.Image -> {
                     // 计算图片在当前屏幕宽度下的高度
-                    val imgWidth = availableWidth * readerStyle.imageWidthPercent
+                    val imgWidth = (availableWidth * readerStyle.imageWidthPercent).toInt()
                     val imgHeight = (imgWidth / content.aspectRatio).toInt()
 
                     val totalHeightNeeded = itemSpacing + imgHeight
@@ -215,7 +225,10 @@ object PrecisePaginator {
                         lineHeight = readerStyle.lineHeight,
                         letterSpacing = readerStyle.letterSpacing,
                         textIndent = TextIndent(firstLine = readerStyle.paragraphIndent),
-                        textAlign = readerStyle.paragraphAlign
+                        textAlign = readerStyle.paragraphAlign,
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false
+                        )
                     )
 
                     val measureResult = textMeasurer.measure(
@@ -225,19 +238,22 @@ object PrecisePaginator {
                     )
 
                     val height = measureResult.size.height
-                    if (currentY + height > availableHeight) {
+                    // 图片描述也需要考虑段间距
+                    val totalHeightNeeded = itemSpacing + height
+
+                    if (currentY + totalHeightNeeded > availableHeight) {
                         commitPage() // 换页
+                        itemSpacing = 0
                     }
 
                     currentPageItems.add(Whole(content))
-                    currentY += height
+                    currentY += totalHeightNeeded
                 }
             }
         }
 
         // 提交最后一页
         commitPage()
-
         return pages
     }
 }

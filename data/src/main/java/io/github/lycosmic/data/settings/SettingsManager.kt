@@ -480,7 +480,7 @@ class SettingsManager @Inject constructor(
         dataStore.setEnum(Keys.SCREEN_ORIENTATION, orientation)
 
     // --- 是否显示底部的进度文字 ---
-    val showProgressText: Flow<Boolean> = dataStore.getValue(Keys.SHOW_PROGRESS_TEXT, true)
+    val showProgressText: Flow<Boolean> = dataStore.getValue(Keys.SHOW_PROGRESS_TEXT, false)
     suspend fun setShowProgressBar(isShow: Boolean) =
         dataStore.setValue(Keys.SHOW_PROGRESS_TEXT, isShow)
 

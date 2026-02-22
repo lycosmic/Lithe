@@ -202,7 +202,7 @@ class ReaderSettingsViewModel @Inject constructor(
     val isBottomProgressVisible = settings.showProgressText.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(AppConstants.STATE_FLOW_STOP_TIMEOUT),
-        initialValue = true
+        initialValue = false
     )
 
     // 进度条文字字体大小
