@@ -1,5 +1,7 @@
 # Lithe (轻阅)
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/lycosmic/Lithe)
+
 > "轻盈，敏捷，优雅。"
 
 一个为大学毕业设计而构建的 Android 电子书阅读器。
@@ -22,8 +24,7 @@
 * **语言:** 100% [Kotlin](https://kotlinlang.org/)
 * **架构:** MVVM (ViewModel + Repository)
 * **异步:** Kotlin Coroutines & Flow (用于 I/O 和 UI 状态管理)
-* **偏好设置:
-  ** [Proto DataStore](https://developer.android.com/topic/libraries/architecture/datastore) (取代
+* **偏好设置:** [Proto DataStore](https://developer.android.com/topic/libraries/architecture/datastore) (取代
   SharedPreferences)
 * **元数据缓存:** [Room](https://developer.android.com/jetpack/androidx/releases/room) (
   用于书架和阅读进度)
