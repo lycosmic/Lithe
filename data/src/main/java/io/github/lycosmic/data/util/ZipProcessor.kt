@@ -145,7 +145,8 @@ class ZipProcessor @Inject constructor(
                     append(String.format(FORMAT_HEX, b))
                 }
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            logger.e(throwable = e) { "获取文件名出错" }
             // 获取失败，使用 HashCode
             (uriPart.hashCode() + pathPart.hashCode()).toString()
         }

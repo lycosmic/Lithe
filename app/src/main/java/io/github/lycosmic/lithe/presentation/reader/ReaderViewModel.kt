@@ -1314,6 +1314,7 @@ class ReaderViewModel @Inject constructor(
                 chapterIndex = index,
                 chapterOffsetCharIndex = targetParsedCharPosition, // 存的是真实的字符位置
                 progressPercent = finalGlobalProgress,           // 存的是计算后的比例
+                lastReadTime = System.currentTimeMillis()
             )
 
             saveReadingProgressUseCase(book.id, newProgress)

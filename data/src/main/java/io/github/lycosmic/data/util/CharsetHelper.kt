@@ -1,5 +1,6 @@
 package io.github.lycosmic.data.util
 
+import android.util.Log
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -9,6 +10,7 @@ import java.nio.charset.Charset
 object CharsetHelper {
     const val GBK = "GBK"
 
+    private const val TAG = "CharsetHelper"
 
     /**
      * 猜测文件编码
@@ -44,11 +46,11 @@ object CharsetHelper {
 
                 if (isValidUtf8(buffer, read)) Charsets.UTF_8 else Charset.forName(GBK)
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.w(TAG, "字符集检测失败，文件: ${file.absolutePath}, 使用默认UTF-8编码", e)
             Charsets.UTF_8 // 默认兜底
         }
     }
-
 
     /**
      * 验证 UTF-8 字符串是否合法

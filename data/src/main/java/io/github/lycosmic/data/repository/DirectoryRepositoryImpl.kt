@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
+import android.util.Log
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import io.github.lycosmic.data.local.dao.DirectoryDao
@@ -32,6 +33,10 @@ class DirectoryRepositoryImpl @Inject constructor(
     private val application: Application
 ) : DirectoryRepository {
 
+    companion object {
+        private const val TAG = "DirectoryRepository"
+    }
+
     override fun getDirectoriesFlow(): Flow<List<Directory>> {
         return directoryDao.getScannedDirectoriesFlow().map {
             it.map { authorizedDirectory ->
@@ -50,7 +55,7 @@ class DirectoryRepositoryImpl @Inject constructor(
                 Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             resolver.takePersistableUriPermission(uri, takeFlags)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.w(TAG, "获取目录权限失败: $uri", e)
             return@withContext -1
         }
 
@@ -233,7 +238,7 @@ class DirectoryRepositoryImpl @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "扫描目录时发生错误: $treeUri, 路径: $currentDisplayPath", e)
         }
 
         // 等待所有子文件夹扫描完成，并合并结果

@@ -235,8 +235,8 @@ class EpubContentParser @Inject constructor(
                     }
                     eventType = parser.next()
                 }
-            } catch (_: Exception) {
-                logger.w { "解析 HTML 标题失败" }
+            } catch (e: Exception) {
+                logger.w(throwable = e) { "解析 HTML 标题失败" }
             }
         }
 
@@ -281,7 +281,7 @@ class EpubContentParser @Inject constructor(
             is BookChapter.EpubChapter -> chapter.href
             is BookChapter.TxtChapter -> {
                 logger.e {
-                    "要解析的章节不是 TXT 章节"
+                    "当前解析的章节不是 TXT 章节，请检查逻辑"
                 }
                 return@withContext emptyList()
             }
