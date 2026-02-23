@@ -16,7 +16,6 @@ import io.github.lycosmic.lithe.presentation.reader.pager.PageItem.TextSplit
 import io.github.lycosmic.lithe.presentation.reader.pager.PageItem.Whole
 
 object PrecisePaginator {
-
     fun paginate(
         contents: List<ReaderContent>,
         readerStyle: ReaderStyle,
@@ -25,6 +24,7 @@ object PrecisePaginator {
         availableWidth: Int,  // 内容区域宽度 （像素）
         availableHeight: Int  // 内容区域高度
     ): List<BookPage> {
+
         val pages = mutableListOf<BookPage>()
         val currentPageItems = mutableListOf<PageItem>()
         var currentY = 0 // 当前页面已经使用的像素高度
@@ -44,10 +44,10 @@ object PrecisePaginator {
         val dividerHeightPx = with(density) { 32.dp.toPx().toInt() }   // 分割线高度
 
         // 之前的段落长度
-        var paragraphCharCount = 0
+        var paragraphCharCount: Int
 
         // 遍历所有内容
-        contents.forEach { content ->
+        contents.forEachIndexed { _, content ->
             // 如果不是页面第一个元素，加上段间距
             var itemSpacing = if (currentPageItems.isNotEmpty()) paragraphSpacingPx else 0
 
@@ -66,11 +66,12 @@ object PrecisePaginator {
                         constraints = Constraints(maxWidth = availableWidth)
                     )
 
-                    val height = measureResult.size.height + titleTopSpacingPx
+                    val height = measureResult.size.height + titleTopSpacingPx + itemSpacing
 
                     // 如果剩余空间不足，直接换页
                     if (currentY + height > availableHeight) {
                         commitPage()
+                        itemSpacing = 0 // 换页后不需要段间距
                     }
 
                     currentPageItems.add(Whole(content))
@@ -82,10 +83,11 @@ object PrecisePaginator {
                 is ReaderContent.Divider -> {
                     if (currentY + dividerHeightPx > availableHeight) {
                         commitPage()
+                        itemSpacing = 0
                     }
 
                     currentPageItems.add(Whole(content))
-                    currentY += dividerHeightPx
+                    currentY += (dividerHeightPx + itemSpacing)
                 }
 
                 // --- 处理段落 ---
@@ -123,6 +125,7 @@ object PrecisePaginator {
                             style = currentTextStyle, // 使用动态构建的 Style
                             constraints = Constraints(maxWidth = availableWidth)
                         )
+
 
                         // 如果能完全放下
                         if (currentY + itemSpacing + layoutResult.size.height <= availableHeight) {
@@ -177,6 +180,7 @@ object PrecisePaginator {
                         val firstPart = text.subSequence(0, splitOffset)
                         val secondPart = text.subSequence(splitOffset, text.length)
 
+
                         // 添加第一部分到当前页
                         val startCharIndex =
                             if (isStart) content.startIndex else content.startIndex + paragraphCharCount
@@ -190,6 +194,7 @@ object PrecisePaginator {
                             )
                         )
                         paragraphCharCount += firstPart.length
+
                         commitPage() // 这一页满了，提交
 
                         // 递归处理剩下的部分

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -87,6 +88,7 @@ fun PageRenderer(
                         text = item.subText,
                         style = TextStyle(
                             fontFamily = readerStyle.fontFamily,
+                            fontStyle = readerStyle.fontStyle,
                             fontWeight = readerStyle.fontWeight,
                             fontSize = readerStyle.fontSize,
                             lineHeight = readerStyle.lineHeight,
@@ -101,6 +103,7 @@ fun PageRenderer(
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(horizontal = readerStyle.sidePadding)
 //                            .background(Color.Red.copy(alpha = 0.2f))
                     )
                 }

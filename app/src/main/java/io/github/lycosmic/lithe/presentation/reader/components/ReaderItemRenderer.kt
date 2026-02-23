@@ -37,6 +37,7 @@ fun ReaderItemRenderer(
     // 通用 Modifier
     val commonModifier = modifier
         .fillMaxWidth()
+        .padding(horizontal = style.sidePadding)
 
     when (content) {
         is ReaderContent.Title -> {

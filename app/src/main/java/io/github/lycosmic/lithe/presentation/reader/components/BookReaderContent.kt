@@ -36,10 +36,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
@@ -79,7 +77,6 @@ import io.github.lycosmic.lithe.util.extensions.textColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.abs
 
 /**
  * 阅读内容
@@ -411,24 +408,14 @@ fun BookReaderContent(
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(vertical = verticalPadding, horizontal = computedSidePadding)
+                    .padding(vertical = verticalPadding)
             ) {
-
                 val rawAvailableW = constraints.maxWidth
                 val rawAvailableH = constraints.maxHeight
 
-                // 尺寸防抖锁：只承认大于 50 像素的实质性尺寸变化
-                var availableW by remember { mutableIntStateOf(rawAvailableW) }
-                var availableH by remember { mutableIntStateOf(rawAvailableH) }
-
-                // 如果高度的变化超过 50px，才允许更新
-                if (abs(rawAvailableW - availableW) > 50) {
-                    availableW = rawAvailableW
-                }
-                // 如果宽度的变化超过 50px，才允许更新
-                if (abs(rawAvailableH - availableH) > 50) {
-                    availableH = rawAvailableH
-                }
+                val availableW =
+                    rawAvailableW - with(density) { 2 * computedSidePadding.toPx() }.toInt()
+                val availableH = rawAvailableH
 
                 LaunchedEffect(
                     contents,
