@@ -24,7 +24,7 @@
 * **语言:** 100% [Kotlin](https://kotlinlang.org/)
 * **架构:** MVVM (ViewModel + Repository)
 * **异步:** Kotlin Coroutines & Flow (用于 I/O 和 UI 状态管理)
-* **偏好设置:** [Proto DataStore](https://developer.android.com/topic/libraries/architecture/datastore) (取代
+* **偏好设置:** [Preferences DataStore](https://developer.android.com/topic/libraries/architecture/datastore) (取代
   SharedPreferences)
 * **元数据缓存:** [Room](https://developer.android.com/jetpack/androidx/releases/room) (
   用于书架和阅读进度)
