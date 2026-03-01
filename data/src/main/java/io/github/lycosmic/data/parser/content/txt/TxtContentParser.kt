@@ -103,7 +103,7 @@ class TxtContentParser @Inject constructor(
                     }
 
                     // 匹配正则
-                    if (chapterPattern.matcher(lineStr).matches()) {
+                    if (chapterPattern.matcher(lineStr).matches() && lineStr.length <= 20) {
                         // 找到新章节，结算上一章
                         // 上一章的范围：[lastChapterStartOffset, lineStartOffset)
                         if (lineStartOffset > lastChapterStartOffset && lastChapterTitle.isNotBlank()) {

@@ -6,7 +6,7 @@ import android.os.Build
 import android.util.Xml
 import androidx.core.net.toUri
 import io.github.lycosmic.data.parser.content.ContentParserStrategy
-import io.github.lycosmic.data.parser.epub.helper.EpubOpfHandler
+import io.github.lycosmic.data.parser.helper.EpubOpfHandler
 import io.github.lycosmic.data.util.ZipProcessor
 import io.github.lycosmic.data.util.safeNextText
 import io.github.lycosmic.domain.model.BookChapter

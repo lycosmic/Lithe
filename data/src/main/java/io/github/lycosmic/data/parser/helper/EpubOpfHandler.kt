@@ -1,4 +1,4 @@
-package io.github.lycosmic.data.parser.epub.helper
+package io.github.lycosmic.data.parser.helper
 
 import android.content.Context
 import android.net.Uri
