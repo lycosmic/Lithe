@@ -47,7 +47,7 @@ fun HistoryDeleteWholeHistoryDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = stringResource(R.string.delete_whole_history_discription),
+                    text = stringResource(R.string.delete_whole_history_description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 16.dp)

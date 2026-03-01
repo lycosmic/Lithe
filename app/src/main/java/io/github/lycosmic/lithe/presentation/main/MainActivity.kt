@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -131,12 +132,12 @@ class MainActivity : AppCompatActivity() {
 
                                             Icon(
                                                 painter = painterResource(id = iconId),
-                                                contentDescription = tab.label
+                                                contentDescription = stringResource(id = tab.labelResId),
                                             )
                                         },
                                         label = {
                                             if (showNavigationBarLabels) {
-                                                Text(tab.label)
+                                                Text(stringResource(id = tab.labelResId))
                                             }
                                         }
                                     )

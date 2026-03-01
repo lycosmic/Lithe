@@ -21,7 +21,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import io.github.lycosmic.lithe.R
 
 /**
  * 文件信息底部弹窗
@@ -52,7 +54,7 @@ fun FileInfoBottomSheet(
             )
         ) {
             Text(
-                text = "文件信息",
+                text = stringResource(id = R.string.file_info),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary,
             )
@@ -66,7 +68,7 @@ fun FileInfoBottomSheet(
                 horizontalArrangement = Arrangement.Center
             ) {
                 ReadOnlyInfoField(
-                    label = "路径",
+                    label = stringResource(id = R.string.path),
                     value = path,
                     modifier = Modifier.weight(1f)
                 )
@@ -76,7 +78,7 @@ fun FileInfoBottomSheet(
                 IconButton(onClick = { onEditPath(path) }) {
                     Icon(
                         imageVector = Icons.Outlined.EditNote,
-                        contentDescription = "编辑路径",
+                        contentDescription = stringResource(id = R.string.edit_path),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -86,7 +88,7 @@ fun FileInfoBottomSheet(
 
             // 上次打开
             ReadOnlyInfoField(
-                label = "上次打开",
+                label = stringResource(id = R.string.last_open),
                 value = lastOpenTime,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -95,7 +97,7 @@ fun FileInfoBottomSheet(
 
             // 文件大小
             ReadOnlyInfoField(
-                label = "文件大小",
+                label = stringResource(id = R.string.file_size),
                 value = size,
                 modifier = Modifier.fillMaxWidth()
             )

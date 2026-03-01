@@ -30,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -465,7 +466,7 @@ fun LibraryScreen(
             groups = listOf(
                 listOf(
                     ActionItem(
-                        text = "关于",
+                        text = stringResource(id = R.string.about),
                         icon = null,
                         isDestructive = false,
                         onClick = {
@@ -474,7 +475,7 @@ fun LibraryScreen(
                         }
                     ),
                     ActionItem(
-                        text = "帮助",
+                        text = stringResource(id = R.string.help),
                         icon = null,
                         isDestructive = false,
                         onClick = {
@@ -485,7 +486,7 @@ fun LibraryScreen(
                 ),
                 listOf(
                     ActionItem(
-                        text = "设置",
+                        text = stringResource(id = R.string.settings),
                         icon = null,
                         isDestructive = false,
                         onClick = {
