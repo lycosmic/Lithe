@@ -39,7 +39,7 @@ class TxtContentParser @Inject constructor(
      * 3. .* 匹配任意数量的任意字符
      */
     private val chapterPattern = Pattern.compile(
-        "^.*\\s*.*(第|[Cc]hapter)\\s*[0-9零一二三四五六七八九十百千]+\\s*(章|节|卷|Section|Part).*",
+        "^(第|[Cc]hapter)\\s*[0-9零一二三四五六七八九十百千]+\\s*(章|节|卷|Section|Part).*",
     )
 
 
