@@ -7,11 +7,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.lycosmic.data.util.parsePathInfo
 import io.github.lycosmic.domain.model.Book
 import io.github.lycosmic.domain.model.Category
-import io.github.lycosmic.domain.model.ReadingProgress
 import io.github.lycosmic.domain.repository.BookRepository
 import io.github.lycosmic.domain.repository.CategoryRepository
 import io.github.lycosmic.domain.repository.ProgressRepository
 import io.github.lycosmic.lithe.R
+import io.github.lycosmic.lithe.log.logD
+import io.github.lycosmic.lithe.log.logE
 import io.github.lycosmic.lithe.log.logW
 import io.github.lycosmic.lithe.util.AppConstants
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,7 +22,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -65,32 +65,49 @@ class BookDetailViewModel @Inject constructor(
     fun loadBook(bookId: Long) {
         viewModelScope.launch {
             combine(
-                bookRepository.getBookFlowById(bookId).mapNotNull {
-                    it.getOrNull() ?: Book.default
-                },
-                progressRepository.getBookProgressFlow(bookId).mapNotNull {
-                    it.getOrNull() ?: ReadingProgress.default(bookId)
-                },
+                bookRepository.getBookFlowById(bookId),
+                progressRepository.getBookProgressFlow(bookId),
                 bookRepository.getBookCategoriesFlow(bookId)
-            ) { book, progress, categories ->
-                book.copy(
-                    progress = progress.progressPercent,
-                    categories = categories,
-                    lastReadTime = progress.lastReadTime
-                )
-            }.collect { book ->
-                _book.update {
-                    book
+            ) { bookResult, progressResult, categories ->
+                val book = bookResult.getOrNull()
+                val progress = progressResult.getOrNull()
+
+                if (book == null) {
+                    logE {
+                        "无法获取详情页书籍信息，bookId: $bookId"
+                    }
+                    return@combine null
                 }
 
-                // 更新文件路径
-                book.let {
-                    // 初始的文件路径
+                logD {
+                    "详情页书籍信息：$book"
+                }
+
+                book.copy(
+                    progress = progress?.progressPercent ?: 0f,
+                    categories = categories,
+                    lastReadTime = progress?.lastReadTime
+                )
+            }
+                .collect { book ->
+                    if (book != null) {
+                        _book.update { book }
+
+                        // 更新文件路径
                     val path = book.fileUri.toUri().parsePathInfo().getOrElse {
-                        // TODO: 文件损坏
+                        logE {
+                            "解析文件路径失败，fileUri: ${book.fileUri}"
+                        }
+                        _filePath.value = null
                         return@collect
                     }
                     _filePath.value = "${path.first}/${path.second}"
+                    } else {
+                        logW {
+                            "书籍数据为空，将重置为默认值"
+                        }
+                        _book.value = Book.default
+                        _filePath.value = null
                 }
             }
         }

@@ -5,6 +5,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
+import io.github.lycosmic.lithe.log.logD
 import io.github.lycosmic.lithe.presentation.browse.BrowseScreen
 import io.github.lycosmic.lithe.presentation.detail.BookDetailScreen
 import io.github.lycosmic.lithe.presentation.history.HistoryScreen
@@ -45,6 +46,9 @@ fun AppNavigation(
                                     navViewModel.navigate(AppRoutes.Reader(bookId))
                                 },
                                 onGoToBookDetail = { bookId ->
+                                    logD {
+                                        "从书架进入详情页, bookId: $bookId"
+                                    }
                                     navViewModel.navigate(AppRoutes.BookDetail(bookId))
                                 },
                                 onGoToSettings = {

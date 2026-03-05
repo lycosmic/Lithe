@@ -63,6 +63,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.lycosmic.domain.model.Category
 import io.github.lycosmic.lithe.R
+import io.github.lycosmic.lithe.log.logD
 import io.github.lycosmic.lithe.presentation.detail.components.DeleteBookDialog
 import io.github.lycosmic.lithe.presentation.detail.components.FileInfoBottomSheet
 import io.github.lycosmic.lithe.ui.components.AsyncCoverImage
@@ -86,6 +87,9 @@ fun BookDetailScreen(
     viewModel: BookDetailViewModel = hiltViewModel()
 ) {
     LaunchedEffect(key1 = bookId) {
+        logD {
+            "详情页加载书籍, bookId: $bookId"
+        }
         viewModel.loadBook(bookId)
     }
 

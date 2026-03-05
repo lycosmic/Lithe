@@ -6,7 +6,6 @@ import io.github.lycosmic.data.mapper.toEntity
 import io.github.lycosmic.domain.model.ReadingProgress
 import io.github.lycosmic.domain.repository.ProgressRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -34,9 +33,13 @@ class ProgressRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getBookProgressFlow(bookId: Long): Flow<Result<ReadingProgress>> {
-        return bookProgressDao.getProgressFlow(bookId).filterNotNull().map {
-            runCatching {
-                it.toDomain()
+        return bookProgressDao.getProgressFlow(bookId).map { progressEntity ->
+            if (progressEntity == null) {
+                Result.success(ReadingProgress.default(bookId))
+            } else {
+                runCatching {
+                    progressEntity.toDomain()
+                }
             }
         }
     }
