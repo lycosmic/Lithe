@@ -37,7 +37,6 @@ import io.github.lycosmic.lithe.presentation.navigation.AppNavigation
 import io.github.lycosmic.lithe.presentation.navigation.AppNavigationViewModel
 import io.github.lycosmic.lithe.ui.navigation.AppTabs
 import io.github.lycosmic.lithe.ui.theme.LitheTheme
-import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -86,8 +85,6 @@ class MainActivity : AppCompatActivity() {
             val navViewModel = hiltViewModel<AppNavigationViewModel>()
 
             LaunchedEffect(Unit) {
-                // TODO 模拟延迟，等待设置中心初始化完成
-                delay(130)
                 isSettingsReady = true
             }
 
