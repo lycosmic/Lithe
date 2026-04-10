@@ -45,7 +45,7 @@ class TxtCharCounter @Inject constructor(
         chapter: BookChapter.TxtChapter,
         detectedCharset: String?
     ): Long {
-        logger.d { "开始统计TXT章节字符数: ${chapter.title}" }
+//        logger.d { "开始统计TXT章节字符数: ${chapter.title}" }
 
         val charsetName = detectedCharset
             ?: book.charset
@@ -95,7 +95,7 @@ class TxtCharCounter @Inject constructor(
             if (totalBytesRead > 0) {
                 val text = String(buffer, 0, totalBytesRead, charset)
                 val charCount = text.length.toLong()
-                logger.d { "TXT章节 '${chapter.title}' 字符统计完成: $charCount 字符" }
+//                logger.d { "TXT章节 '${chapter.title}' 字符统计完成: $charCount 字符" }
                 charCount
             } else {
                 logger.e { "未能读取章节内容" }
