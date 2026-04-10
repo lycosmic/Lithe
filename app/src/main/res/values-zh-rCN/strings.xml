@@ -279,4 +279,6 @@
     <string name="edit_path">编辑路径</string>
     <string name="last_open">上次打开</string>
     <string name="file_size">文件大小</string>
+    <string name="empty_library_description">阅读您喜欢的书籍并对其进行分类</string>
+    <string name="add_book_button">添加一本书</string>
 </resources>

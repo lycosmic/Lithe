@@ -279,4 +279,6 @@
     <string name="edit_path">Edit Path</string>
     <string name="last_open">Last Open</string>
     <string name="file_size">File Size</string>
+    <string name="empty_library_description">Read your favorite books and organize them into categories</string>
+    <string name="add_book_button">Add a book</string>
 </resources>
